@@ -1,0 +1,27 @@
+{
+  "title": "Container Business Management System - Help Center",
+  "systemDesc": "The Container Business Management System helps you efficiently manage the entire process of container loading, unloading, storage, transportation, etc., improve port operation efficiency, and optimize resource allocation.",
+  "categories": {
+    "operation": "Operation Guide",
+    "features": "System Features",
+    "support": "Contact Support"
+  },
+  "items": {
+    "containerManage": "Container Management",
+    "loadingUnloading": "Cargo Loading & Unloading",
+    "vesselBerthing": "Vessel Berthing Management",
+    "dataAnalysis": "Data Analysis Reports",
+    "workflowConfig": "Business Process Configuration",
+    "systemSettings": "System Parameters",
+    "techSupport": "Technical Support",
+    "businessConsulting": "Business Consulting",
+    "emergencyReport": "Emergency Fault Reporting"
+  },
+  "shortcut": "Shortcut:",
+  "shortcutHint": "Alt+H to quickly open the help center",
+  "contact": "Contact Information",
+  "techSupportPhone": "Technical Support: 400-888-8888",
+  "email": "Email: support@container-system.com",
+  "systemInfo": "Container Business Management System v2.0",
+  "enterpriseEdition": "Enterprise Edition"
+}

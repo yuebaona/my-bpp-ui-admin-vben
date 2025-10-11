@@ -1,0 +1,27 @@
+{
+  "title": "集装箱业务管理系统 - 帮助中心",
+  "systemDesc": "集装箱业务管理系统帮助您高效管理集装箱装卸、存储、运输等全流程业务，提高港口运营效率，优化资源配置。",
+  "categories": {
+    "operation": "操作指南",
+    "features": "系统功能",
+    "support": "联系支持"
+  },
+  "items": {
+    "containerManage": "集装箱管理",
+    "loadingUnloading": "货物装卸流程",
+    "vesselBerthing": "船舶靠泊管理",
+    "dataAnalysis": "数据分析报告",
+    "workflowConfig": "业务流程配置",
+    "systemSettings": "系统参数设置",
+    "techSupport": "技术支持",
+    "businessConsulting": "业务咨询",
+    "emergencyReport": "紧急故障申报"
+  },
+  "shortcut": "快捷键:",
+  "shortcutHint": "Alt+H 快速打开帮助中心",
+  "contact": "联系方式",
+  "techSupportPhone": "技术支持电话: 400-888-8888",
+  "email": "邮箱: support@container-system.com",
+  "systemInfo": "集装箱业务管理系统 v2.0",
+  "enterpriseEdition": "企业版"
+}
