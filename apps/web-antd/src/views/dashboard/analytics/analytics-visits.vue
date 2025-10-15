@@ -11,44 +11,39 @@ const { renderEcharts } = useEcharts(chartRef);
 onMounted(() => {
   renderEcharts({
     grid: {
-      bottom: '10%',
+      bottom: 0,
       containLabel: true,
-      left: '3%',
-      right: '4%',
-      top: '8%',
+      left: '1%',
+      right: '1%',
+      top: '2 %',
     },
     series: [
       {
         barMaxWidth: 80,
-        color: '#5ab1ef',
+        // color: '#4f69fd',
         data: [
-          12_500, 13_200, 14_800, 16_500, 18_200, 19_500, 21_000, 22_500,
-          24_800, 26_500, 28_200, 30_500, 32_800,
+          3000, 2000, 3333, 5000, 3200, 4200, 3200, 2100, 3000, 5100, 6000,
+          3200, 4800,
         ],
-        name: '月度吞吐量',
         type: 'bar',
       },
     ],
     tooltip: {
       axisPointer: {
         lineStyle: {
-          color: '#5ab1ef',
+          // color: '#4f69fd',
           width: 1,
         },
       },
-      formatter: '{b}: {c} TEU',
       trigger: 'axis',
     },
     xAxis: {
-      data: Array.from({ length: 13 }).map((_item, index) => `${index + 1}月`),
+      data: Array.from({ length: 12 }).map((_item, index) => `${index + 1}月`),
       type: 'category',
     },
     yAxis: {
-      axisLabel: {
-        formatter: '{value} TEU',
-      },
-      max: 35_000,
-      splitNumber: 5,
+      max: 8000,
+      splitNumber: 4,
       type: 'value',
     },
   });

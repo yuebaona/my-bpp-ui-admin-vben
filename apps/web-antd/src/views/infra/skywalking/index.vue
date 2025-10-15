@@ -23,8 +23,6 @@ onMounted(async () => {
 
 <template>
   <Page auto-content-height>
-    <template #doc> </template>
-
     <IFrame v-if="!loading" v-loading="loading" :src="src" />
   </Page>
 </template>

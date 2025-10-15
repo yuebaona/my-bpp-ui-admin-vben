@@ -11,40 +11,35 @@ const { renderEcharts } = useEcharts(chartRef);
 onMounted(() => {
   renderEcharts({
     grid: {
-      bottom: '10%',
+      bottom: 0,
       containLabel: true,
-      left: '3%',
-      right: '4%',
-      top: '8%',
-    },
-    legend: {
-      data: ['进口集装箱', '出口集装箱'],
-      top: 0,
+      left: '1%',
+      right: '1%',
+      top: '2 %',
     },
     series: [
       {
         areaStyle: {},
         data: [
-          120, 350, 580, 720, 950, 1200, 1450, 1600, 1350, 1100, 850, 620, 450,
-          320, 280, 420, 580, 720,
+          111, 2000, 6000, 16_000, 33_333, 55_555, 64_000, 33_333, 18_000,
+          36_000, 70_000, 42_444, 23_222, 13_000, 8000, 4000, 1200, 333, 222,
+          111,
         ],
         itemStyle: {
           color: '#5ab1ef',
         },
-        name: '进口集装箱',
         smooth: true,
         type: 'line',
       },
       {
         areaStyle: {},
         data: [
-          80, 220, 450, 680, 850, 1050, 1300, 1500, 1250, 980, 720, 480, 350,
-          280, 320, 550, 780, 920,
+          33, 66, 88, 333, 3333, 6200, 20_000, 3000, 1200, 13_000, 22_000,
+          11_000, 2221, 1201, 390, 198, 60, 30, 22, 11,
         ],
         itemStyle: {
           color: '#019680',
         },
-        name: '出口集装箱',
         smooth: true,
         type: 'line',
       },
@@ -58,6 +53,14 @@ onMounted(() => {
       },
       trigger: 'axis',
     },
+    // xAxis: {
+    //   axisTick: {
+    //     show: false,
+    //   },
+    //   boundaryGap: false,
+    //   data: Array.from({ length: 18 }).map((_item, index) => `${index + 6}:00`),
+    //   type: 'category',
+    // },
     xAxis: {
       axisTick: {
         show: false,
@@ -75,13 +78,10 @@ onMounted(() => {
     },
     yAxis: [
       {
-        axisLabel: {
-          formatter: '{value} TEU',
-        },
         axisTick: {
           show: false,
         },
-        max: 2000,
+        max: 80_000,
         splitArea: {
           show: true,
         },

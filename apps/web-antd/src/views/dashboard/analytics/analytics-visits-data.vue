@@ -12,71 +12,67 @@ onMounted(() => {
   renderEcharts({
     legend: {
       bottom: 0,
-      data: ['本月', '上月'],
+      data: ['访问', '趋势'],
     },
     radar: {
       indicator: [
         {
-          name: '在港集装箱',
-          max: 100,
+          name: '网页',
         },
         {
-          name: '吞吐量',
-          max: 100,
+          name: '移动端',
         },
         {
-          name: '装卸效率',
-          max: 100,
+          name: 'Ipad',
         },
         {
-          name: '船舶周转率',
-          max: 100,
+          name: '客户端',
         },
         {
-          name: '堆场利用率',
-          max: 100,
+          name: '第三方',
         },
         {
-          name: '集卡等待时间',
-          max: 100,
+          name: '其它',
         },
       ],
-      radius: '65%',
+      radius: '60%',
+      splitNumber: 8,
     },
     series: [
       {
-        areaStyle: {},
+        areaStyle: {
+          opacity: 1,
+          shadowBlur: 0,
+          shadowColor: 'rgba(0,0,0,.2)',
+          shadowOffsetX: 0,
+          shadowOffsetY: 10,
+        },
         data: [
           {
             itemStyle: {
               color: '#b6a2de',
             },
-            name: '本月',
-            value: [85, 92, 88, 76, 90, 65],
+            name: '访问',
+            value: [90, 50, 86, 40, 50, 20],
           },
           {
             itemStyle: {
               color: '#5ab1ef',
             },
-            name: '上月',
-            value: [78, 85, 80, 68, 82, 75],
+            name: '趋势',
+            value: [70, 75, 70, 76, 20, 85],
           },
         ],
         itemStyle: {
+          // borderColor: '#fff',
           borderRadius: 10,
           borderWidth: 2,
         },
-        lineStyle: {
-          width: 2,
-        },
-        name: '业务指标',
         symbolSize: 0,
         type: 'radar',
       },
     ],
-    tooltip: {
-      trigger: 'item',
-    },
+    tooltip: {},
   });
 });
 </script>

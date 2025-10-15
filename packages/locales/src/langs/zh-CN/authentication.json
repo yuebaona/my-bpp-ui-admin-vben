@@ -56,13 +56,12 @@
   "sendCode": "获取验证码",
   "sendText": "{0}秒后重新获取",
   "thirdPartyLogin": "其他登录方式",
+  "weChat": "微信",
+  "qq": "QQ",
+  "gitHub": "GitHub",
+  "google": "Google",
   "loginAgainTitle": "重新登录",
   "loginAgainSubTitle": "您的登录状态已过期，请重新登录以继续。",
-  "oauth2": {
-    "title": "OAuth 2.0（SSO 单点登录）",
-    "clientList": "OAuth2 客户端列表",
-    "client": "OAuth2 客户端"
-  },
   "layout": {
     "center": "居中",
     "alignLeft": "居左",
