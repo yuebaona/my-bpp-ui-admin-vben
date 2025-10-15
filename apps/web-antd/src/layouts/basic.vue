@@ -58,7 +58,6 @@ const menus = computed(() => [
     icon: AntdProfileOutlined,
     text: $t('ui.widgets.profile'),
   },
-
   {
     handler: () => {
       helpModalApi.open();
@@ -179,11 +178,16 @@ onMounted(() => {
 });
 
 watch(
-  () => preferences.app.watermark,
-  async (enable) => {
+  () => ({
+    enable: preferences.app.watermark,
+    content: preferences.app.watermarkContent,
+  }),
+  async ({ enable, content }) => {
     if (enable) {
       await updateWatermark({
-        content: `${userStore.userInfo?.id} - ${userStore.userInfo?.nickname}`,
+        content:
+          content ||
+          `${userStore.userInfo?.id} - ${userStore.userInfo?.nickname}`,
       });
     } else {
       destroyWatermark();

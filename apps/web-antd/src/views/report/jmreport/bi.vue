@@ -16,8 +16,6 @@ const src = ref(
 
 <template>
   <Page auto-content-height>
-    <template #doc> </template>
-
     <IFrame :src="src" />
   </Page>
 </template>

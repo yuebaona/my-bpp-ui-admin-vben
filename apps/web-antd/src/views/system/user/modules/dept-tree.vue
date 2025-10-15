@@ -6,7 +6,7 @@ import { onMounted, ref } from 'vue';
 import { Search } from '@vben/icons';
 import { handleTree } from '@vben/utils';
 
-import { Input, Tree } from 'ant-design-vue';
+import { Input, Spin, Tree } from 'ant-design-vue';
 
 import { getSimpleDeptList } from '#/api/system/dept';
 
@@ -28,7 +28,7 @@ function handleSearch(e: any) {
     : deptList.value;
   deptTree.value = handleTree(filteredList);
   // 展开所有节点
-  expandedKeys.value = deptTree.value.map((node) => node.id as number);
+  expandedKeys.value = deptTree.value.map((node) => node.id!);
 }
 
 /** 选中部门 */
@@ -64,17 +64,18 @@ onMounted(async () => {
         <Search class="size-4" />
       </template>
     </Input>
-    <Tree
-      :spinning="loading"
-      class="pt-2"
-      v-if="deptTree.length > 0"
-      :tree-data="deptTree"
-      :field-names="{ title: 'name', key: 'id', children: 'children' }"
-      @select="handleSelect"
-      :default-expand-all="true"
-    />
-    <div v-else-if="!loading" class="py-4 text-center text-gray-500">
-      暂无数据
-    </div>
+    <Spin :spinning="loading" wrapper-class-name="w-full">
+      <Tree
+        @select="handleSelect"
+        v-if="deptTree.length > 0"
+        class="pt-2"
+        :tree-data="deptTree"
+        :default-expand-all="true"
+        :field-names="{ title: 'name', key: 'id', children: 'children' }"
+      />
+      <div v-else-if="!loading" class="py-4 text-center text-gray-500">
+        暂无数据
+      </div>
+    </Spin>
   </div>
 </template>

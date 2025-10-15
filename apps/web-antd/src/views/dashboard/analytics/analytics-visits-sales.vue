@@ -10,59 +10,31 @@ const { renderEcharts } = useEcharts(chartRef);
 
 onMounted(() => {
   renderEcharts({
-    legend: {
-      bottom: 10,
-      left: 'center',
-      data: [
-        '20英尺集装箱',
-        '40英尺集装箱',
-        '45英尺集装箱',
-        '特种集装箱',
-        '冷藏集装箱',
-        '开顶集装箱',
-      ],
-    },
     series: [
       {
-        itemStyle: {
-          borderRadius: 4,
+        animationDelay() {
+          return Math.random() * 400;
         },
+        animationEasing: 'exponentialInOut',
+        animationType: 'scale',
+        center: ['50%', '50%'],
+        color: ['#5ab1ef', '#b6a2de', '#67e0e3', '#2ec7c9'],
         data: [
-          {
-            name: '20英尺集装箱',
-            value: 3500,
-          },
-          {
-            name: '40英尺集装箱',
-            value: 4800,
-          },
-          {
-            name: '45英尺集装箱',
-            value: 850,
-          },
-          {
-            name: '特种集装箱',
-            value: 620,
-          },
-          {
-            name: '冷藏集装箱',
-            value: 1250,
-          },
-          {
-            name: '开顶集装箱',
-            value: 480,
-          },
-        ],
-        label: {
-          show: false,
-        },
+          { name: '外包', value: 500 },
+          { name: '定制', value: 310 },
+          { name: '技术支持', value: 274 },
+          { name: '远程', value: 400 },
+        ].sort((a, b) => {
+          return a.value - b.value;
+        }),
+        name: '商业占比',
+        radius: '80%',
         roseType: 'radius',
-        radius: ['20%', '75%'],
         type: 'pie',
       },
     ],
+
     tooltip: {
-      formatter: '{b}: {c} TEU ({d}%)',
       trigger: 'item',
     },
   });

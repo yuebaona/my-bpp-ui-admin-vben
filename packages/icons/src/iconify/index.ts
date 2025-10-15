@@ -61,23 +61,3 @@ export const MenuOutlined = createIconifyIcon('ant-design:menu-outlined');
 export const PlusOutlined = createIconifyIcon('ant-design:plus-outlined');
 
 export const SelectOutlined = createIconifyIcon('ant-design:select-outlined');
-
-export const CheckCircleFilled = createIconifyIcon(
-  'ant-design:check-circle-filled',
-);
-
-export const ExclamationCircleFilled = createIconifyIcon(
-  'ant-design:exclamation-circle-filled',
-);
-
-export const QuestionCircleFilled = createIconifyIcon(
-  'ant-design:question-circle-filled',
-);
-
-// 集装箱业务相关图标
-export const MdiPackageVariantClosed = createIconifyIcon(
-  'mdi:package-variant-closed',
-);
-export const MdiCargo = createIconifyIcon('mdi:cargo');
-export const MdiShip = createIconifyIcon('mdi:ship');
-export const MdiTruck = createIconifyIcon('mdi:truck');
