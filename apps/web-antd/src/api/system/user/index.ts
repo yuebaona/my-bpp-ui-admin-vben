@@ -86,3 +86,8 @@ export function updateUserStatus(id: number, status: number) {
 export function getSimpleUserList() {
   return requestClient.get<SystemUserApi.User[]>('/system/user/simple-list');
 }
+
+/** 从钉钉用户表导入系统用户 */
+export function createByDing() {
+  return requestClient.post('/system/user/create-by-ding');
+}
