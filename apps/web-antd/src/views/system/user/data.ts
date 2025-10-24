@@ -26,7 +26,7 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'username',
-      label: '用户名称',
+      label: '登录名',
       component: 'Input',
       rules: 'required',
     },
@@ -42,7 +42,7 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'nickname',
-      label: '用户昵称',
+      label: '用户名',
       component: 'Input',
       rules: 'required',
     },
@@ -188,7 +188,7 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'username',
-      label: '用户名称',
+      label: '登录名',
       component: 'Input',
       componentProps: {
         disabled: true,
@@ -196,7 +196,7 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'nickname',
-      label: '用户昵称',
+      label: '用户名',
       component: 'Input',
       componentProps: {
         disabled: true,
@@ -245,11 +245,11 @@ export function useImportFormSchema(): VbenFormSchema[] {
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'username',
-      label: '用户名称',
+      fieldName: 'nickname',
+      label: '用户名',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入用户名称',
+        placeholder: '请输入用户名',
         allowClear: true,
       },
     },
@@ -290,12 +290,12 @@ export function useGridColumns<T = SystemUserApi.User>(
     },
     {
       field: 'username',
-      title: '用户名称',
+      title: '登录名',
       minWidth: 120,
     },
     {
       field: 'nickname',
-      title: '用户昵称',
+      title: '用户名',
       minWidth: 120,
     },
     {
