@@ -91,3 +91,8 @@ export function getSimpleUserList() {
 export function createByDing() {
   return requestClient.post('/system/user/create-by-ding');
 }
+
+/** 从钉钉用户表更新系统用户 */
+export function updateByDing() {
+  return requestClient.put('/system/user/update-by-ding');
+}

@@ -19,6 +19,7 @@ import {
   deleteUserList,
   exportUser,
   getUserPage,
+  updateByDing,
   updateUserStatus,
 } from '#/api/system/user';
 import { $t } from '#/locales';
@@ -76,6 +77,12 @@ function handleCreate() {
 /** 从钉钉用户表同步 */
 async function handleSyncFormDingUser() {
   await createByDing();
+  handleRefresh();
+}
+
+/** 从钉钉用户表更新 */
+async function handleSyncUpdateDingUser() {
+  await updateByDing();
   handleRefresh();
 }
 
@@ -226,6 +233,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
                   icon: ACTION_ICON.ADD,
                   auth: ['system:user:create'],
                   onClick: handleSyncFormDingUser,
+                },
+                {
+                  label: $t('从钉钉用户更新'),
+                  type: 'primary',
+                  icon: ACTION_ICON.ADD,
+                  auth: ['system:user:update'],
+                  onClick: handleSyncUpdateDingUser,
                 },
                 {
                   label: $t('ui.actionTitle.create', ['用户']),
