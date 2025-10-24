@@ -43,6 +43,7 @@ export const zh = defineConfig({
       '/commercial/': { base: '/commercial/', items: sidebarCommercial() },
       '/components/': { base: '/components/', items: sidebarComponents() },
       '/guide/': { base: '/guide/', items: sidebarGuide() },
+      '/back/': { base: '/back/', items: sidebarBack () },
     },
     sidebarMenuLabel: '菜单',
   },
@@ -139,6 +140,97 @@ function sidebarCommercial(): DefaultTheme.SidebarItem[] {
   ];
 }
 
+function sidebarBack(): DefaultTheme.SidebarItem[] {
+  return [
+    {
+      collapsed: false,
+      text:'介绍',
+      items:[
+        { link: 'introduction/api', text: '接口文档'},
+        { link: 'introduction/technology', text: '技术选型'},
+        { link: 'introduction/structure', text: '项目结构'},
+      ]
+    },
+    {
+      collapsed: false,
+      text:'后端手册',
+      items:[
+        { link: 'backend/gen-single-table', text: '代码生成单表' },
+        { link: 'backend/gen-master-sub-table', text: '代码生成主子表' },
+        { link: 'backend/gen-tree-table', text: '代码生成树表'},
+        { link: 'backend/function-permission', text: '功能权限'},
+        { link: 'backend/data-permission', text: '数据权限'},
+        { link: 'backend/user-system', text: '用户体系'},
+        { link: 'backend/OAuth', text: 'OAuth 2.0'},
+        { link: 'backend/multi-tenant', text: 'SaaS多租户（字段隔离）'},
+        { link: 'backend/webSocket', text: 'WebSocket实时通信'},
+        { link: 'backend/error-code', text: '异常处理（错误码）'},
+        { link: 'backend/verification', text: '参数校验、时间传参'},
+        { link: 'backend/pagination', text: '分页实现'},
+        { link: 'backend/VO-conversion', text: 'VO对象转换、数据翻译'},
+        { link: 'backend/file-storage', text: '文件存储（上传下载）'},
+        { link: 'backend/excel', text: 'Excel导入导出'},
+        { link: 'backend/log', text: '操作日志、访问日志、异常日志'},
+        { link: 'backend/myBatis', text: 'MyBatis'},
+        { link: 'backend/myBatis-operation', text: 'MyBatis链表&分页查询'},
+        { link: 'backend/data', text: '多源数据（读写分离）、事务'},
+        { link: 'backend/redis', text: 'Redis'},
+        { link: 'backend/asynchronous', text: '异步任务'},
+        { link: 'backend/distributed-lock', text: '分布式锁'},
+        { link: 'backend/idempotence', text: '幂等性（防重复提交）'},
+        { link: 'backend/rateLimiter', text: '请求限流'},
+        { link: 'backend/signature', text: 'HTTP接口签名'},
+        { link: 'backend/unit-test', text: '单元测试'},
+        { link: 'backend/verification-code', text: '验证码'},
+        { link: 'backend/tool-util', text: '工具类Util'},
+      ],
+    },
+    {
+      collapsed: false,
+      text: '微服务',
+      items: [
+        { link: 'microservices/debug', text: '微服务调试'},
+        { link: 'microservices/Nacos-register', text: '注册中心Nacos'},
+        { link: 'microservices/Nacos-configure', text: '配置中心Nacos'},
+        { link: 'microservices/gateway', text: '服务网关'},
+        { link: 'microservices/feign', text: '服务调用Feign'},
+        { link: 'microservices/xxl-job', text: '定时任务XXL Job'},
+        { link: 'microservices/queue-memory', text: '消息队列（内存）'},
+        { link: 'microservices/queue-Redis', text: '消息队列（Redis）'},
+        { link: 'microservices/queue-RocketMQ', text: '消息队列（RocketMQ）'},
+        { link: 'microservices/queue-RabbitMQ', text: '消息队列（RabbitMQ）'},
+        { link: 'microservices/queue-Kafka', text: '消息队列（Kafka）'},
+      ],
+    },
+  {
+    collapsed: false,
+    text: '系统手册',
+    items: [
+      { link: 'system/message', text: '短信配置'},
+      { link: 'system/email', text: '邮件配置'},
+      { link: 'system/internal-message', text: '站内信配置'},
+      { link: 'system/data-masking', text: '数据脱敏'},
+      { link: 'system/region', text: '地区&IP 库'},
+    ],
+  },
+  {
+    collapsed: false,
+    text: '运维手册',
+    items: [
+      { link: 'maintenance/env', text: '开发环境'},
+      { link: 'maintenance/linux', text: 'Linux 部署'},
+      { link: 'maintenance/docker', text: 'Docker 部署'},
+      { link: 'maintenance/jenkins', text: 'Jenkins 部署'},
+      { link: 'maintenance/baota', text: '宝塔部署'},
+      { link: 'maintenance/monitor', text: '服务监控'},
+    ],
+  },
+
+
+  ];
+}
+
+
 function sidebarComponents(): DefaultTheme.SidebarItem[] {
   return [
     {
@@ -205,7 +297,7 @@ function nav(): DefaultTheme.NavItem[] {
   return [
     {
       activeMatch: '^/(guide|components)/',
-      text: '文档',
+      text: '前端',
       items: [
         {
           activeMatch: '^/guide/',
@@ -229,68 +321,72 @@ function nav(): DefaultTheme.NavItem[] {
       ],
     },
     {
-      text: '演示',
-      items: [
-        {
-          text: 'Vben Admin',
-          items: [
-            {
-              link: 'https://www.vben.pro',
-              text: '演示版本',
-            },
-            {
-              link: 'https://ant.vben.pro',
-              text: 'Ant Design Vue 版本',
-            },
-            {
-              link: 'https://naive.vben.pro',
-              text: 'Naive 版本',
-            },
-            {
-              link: 'https://ele.vben.pro',
-              text: 'Element Plus版本',
-            },
-          ],
-        },
-        {
-          text: '其他',
-          items: [
-            {
-              link: 'https://vben.vvbin.cn',
-              text: 'Vben Admin 2.x',
-            },
-          ],
-        },
-      ],
+      link: '/back/introduction/api',
+      text: '后端',
     },
-    {
-      text: version,
-      items: [
-        {
-          link: 'https://github.com/vbenjs/vue-vben-admin/releases',
-          text: '更新日志',
-        },
-        {
-          link: 'https://github.com/orgs/vbenjs/projects/5',
-          text: '路线图',
-        },
-        {
-          link: 'https://github.com/vbenjs/vue-vben-admin/blob/main/.github/contributing.md',
-          text: '贡献',
-        },
-      ],
-    },
-    {
-      link: '/commercial/technical-support',
-      text: '🦄 技术支持',
-    },
-    {
-      link: '/sponsor/personal',
-      text: '✨ 赞助',
-    },
-    {
-      link: '/commercial/community',
-      text: '👨‍👦‍👦 交流群',
+//     {
+//       text: '演示',
+//       items: [
+//         {
+//           text: 'Vben Admin',
+//           items: [
+//             {
+//               link: 'https://www.vben.pro',
+//               text: '演示版本',
+//             },
+//             {
+//               link: 'https://ant.vben.pro',
+//               text: 'Ant Design Vue 版本',
+//             },
+//             {
+//               link: 'https://naive.vben.pro',
+//               text: 'Naive 版本',
+//             },
+//             {
+//               link: 'https://ele.vben.pro',
+//               text: 'Element Plus版本',
+//             },
+//           ],
+//         },
+//         {
+//           text: '其他',
+//           items: [
+//             {
+//               link: 'https://vben.vvbin.cn',
+//               text: 'Vben Admin 2.x',
+//             },
+//           ],
+//         },
+//       ],
+//     },
+//     {
+//       text: version,
+//       items: [
+//         {
+//           link: 'https://github.com/vbenjs/vue-vben-admin/releases',
+//           text: '更新日志',
+//         },
+//         {
+//           link: 'https://github.com/orgs/vbenjs/projects/5',
+//           text: '路线图',
+//         },
+//         {
+//           link: 'https://github.com/vbenjs/vue-vben-admin/blob/main/.github/contributing.md',
+//           text: '贡献',
+//         },
+//       ],
+//     },
+//     {
+//       link: '/commercial/technical-support',
+//       text: '🦄 技术支持',
+//     },
+//     {
+//       link: '/sponsor/personal',
+//       text: '✨ 赞助',
+//     },
+//     {
+//       link: '/commercial/community',
+//       text: '👨‍👦‍👦 交流群',
       // items: [
       //   {
       //     link: 'https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=22ySzj7pKiw&businessType=9&from=246610&biz=ka&mainSourceId=share&subSourceId=others&jumpsource=shorturl#/pc',
@@ -305,7 +401,7 @@ function nav(): DefaultTheme.NavItem[] {
       //     text: 'Discord',
       //   },
       // ],
-    },
+//     },
     // {
     //   link: '/friend-links/',
     //   text: '🤝 友情链接',
