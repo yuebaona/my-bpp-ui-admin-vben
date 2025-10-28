@@ -38,7 +38,7 @@ outline: deep
 
 ### 1.2 如何使用？
 
-① 访问 [http://127.0.0.1:48080/admin/applications (opens new window)](http://127.0.0.1:48080/admin/applications)地址，可以在 Spring Boot Admin 中，查看到应用与实例的列表。如下图所示：
+① 访问 [http://127.0.0.1:48080/admin/applications](http://127.0.0.1:48080/admin/applications)地址，可以在 Spring Boot Admin 中，查看到应用与实例的列表。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/456bfc58-1a2f-4ab0-91bc-c71ca16990af.png)
 
@@ -68,7 +68,7 @@ outline: deep
 
 #### 1.3.2 prod 生产环境下，后端部署多个 JVM 进程时，spring.boot.admin.client.url 填写哪个 IP？
 
-- 第一步，在 Nginx 中配置 `/admin` 路径，转发到多个 JVM 的 IP 上，使用 [`backup` (opens new window)](https://blog.csdn.net/bolg_hero/article/details/73382117)参数实现主备。注意，该转发只允许内网访问，避免安全问题！！！
+- 第一步，在 Nginx 中配置 `/admin` 路径，转发到多个 JVM 的 IP 上，使用 [`backup`](https://blog.csdn.net/bolg_hero/article/details/73382117)参数实现主备。注意，该转发只允许内网访问，避免安全问题！！！
 
 - 第二步，设置 `spring.boot.admin.client.url` 配置项，为 Nginx 的 `内置 IP/admin` 地址。
 
@@ -82,9 +82,9 @@ outline: deep
 
 #### 1.3.4 Spring Boot Admin 存在 CORS 跨域问题！
 
-如果使用 [http://127.0.0.1:48080/admin/applications (opens new window)](http://127.0.0.1:48080/admin/applications)访问时，它会存在跨域问题，类似 [https://wx.zsxq.com/dweb2/index/topic_detail/1522481281485252 (opens new window)](https://wx.zsxq.com/dweb2/index/topic_detail/1522481281485252)反馈。
+如果使用 [http://127.0.0.1:48080/admin/applications](http://127.0.0.1:48080/admin/applications)访问时，它会存在跨域问题，类似 [https://wx.zsxq.com/dweb2/index/topic_detail/1522481281485252](https://wx.zsxq.com/dweb2/index/topic_detail/1522481281485252)反馈。
 
-目前的解决方案，使用 [http://127.0.0.1:48082/admin/applications (opens new window)](http://127.0.0.1:48082/admin/applications)替代，不经过 Spring Cloud Gateway 转发。
+目前的解决方案，使用 [http://127.0.0.1:48082/admin/applications](http://127.0.0.1:48082/admin/applications)替代，不经过 Spring Cloud Gateway 转发。
 
 未来的解决方案，可能会考虑把 Spring Boot Admin 从 `infra` 服务独立出去，作为一个纯粹的监控服务。
 
@@ -144,7 +144,7 @@ outline: deep
 
 - `<pattern>` 里面的重点是 `[%tid]` 部分，并且要写对 `CONSOLE_LOG_PATTERN` 或 `FILE_LOG_PATTERN` 噢！！！
 
-③ 修改 SkyWalking 在前端项目的 \[基础设施 -> 监控中心 -> 链路追踪\] 对应的 [`skywaling/index.vue` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/infra/skywalking/index.vue#L11)文件，调整为你 SkyWalking 的访问地址。如下图所示：
+③ 修改 SkyWalking 在前端项目的 \[基础设施 -> 监控中心 -> 链路追踪\] 对应的 [`skywaling/index.vue`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/infra/skywalking/index.vue#L11)文件，调整为你 SkyWalking 的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c7cda297-b3d7-422f-b788-f7923f793630.png)
 

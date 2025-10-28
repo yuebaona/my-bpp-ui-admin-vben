@@ -10,7 +10,7 @@ outline: deep
 
 多租户，简单来说是指**一个**业务系统，可以为**多个**组织服务，并且组织之间的数据是**隔离**的。
 
-例如说，在服务上部署了一个 [`yudao-cloud` (opens new window)](https://github.com/YunaiV/yudao-cloud)系统，可以支持多个不同的公司使用。这里的**一个公司就是一个租户**，每个用户必然属于某个租户。因此，用户也只能看见自己租户下面的内容，其它租户的内容对他是不可见的。
+例如说，在服务上部署了一个系统，可以支持多个不同的公司使用。这里的**一个公司就是一个租户**，每个用户必然属于某个租户。因此，用户也只能看见自己租户下面的内容，其它租户的内容对他是不可见的。
 
 ## 2. 数据隔离方案
 
@@ -70,17 +70,17 @@ outline: deep
 
 | 配置项 | 说明 | 配置文件 |
 | --- | --- | --- |
-| `yudao.server.tenant` | 后端开关 | ![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/3M0OzeZwK29aYqze/img/5e77449c-b799-493e-9137-cb789e0045f7.png) |
+| `yudao.server.tenant` | 后端开关 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5e77449c-b799-493e-9137-cb789e0045f7.png) |
 | `VUE_APP_TENANT_ENABLE` | 前端开关 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/60d1705e-0d89-4f22-b438-22e042b98d3c.png) |
 
 ## 4. 多租户的业务功能
 
 多租户主要有两个业务功能：
 
-| 业务功能 | 说明 | 界面 | 代码 |
-| --- | --- | --- | --- |
-| 租户管理 | 配置系统租户，创建对应的租户管理员 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/31aa9b72-17b5-4577-9f39-19d86d3d13e6.png) | [后端 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/tenant/TenantServiceImpl.java)[前端(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/tenant/index.vue) |
-| 租户套餐 | 配置租户套餐，自定每个租户的菜单、操作、按钮的权限 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eefe202b-50d0-4d97-a249-7873205fcab6.png) | [后端 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/tenant/TenantPackageServiceImpl.java)[前端(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/tenantPackage/index.vue) |
+| 业务功能 | 说明 | 界面 | 
+| --- | --- | --- | 
+| 租户管理 | 配置系统租户，创建对应的租户管理员 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/31aa9b72-17b5-4577-9f39-19d86d3d13e6.png) |
+| 租户套餐 | 配置租户套餐，自定每个租户的菜单、操作、按钮的权限 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eefe202b-50d0-4d97-a249-7873205fcab6.png) | 
 
 **下面，我们来新增一个租户，它使用 COLUMN 模式。**
 
@@ -98,21 +98,20 @@ outline: deep
 
 ## 5. 多租户的技术组件
 
-技术组件 [`yudao-spring-boot-starter-biz-tenant` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/)，实现透明化的多租户能力，针对 Web、Security、DB、Redis、AOP、Job、MQ、Async 等多个层面进行封装。
+技术组件 `yudao-spring-boot-starter-biz-tenant`，实现透明化的多租户能力，针对 Web、Security、DB、Redis、AOP、Job、MQ、Async 等多个层面进行封装。
 
 ### 5.1 租户上下文
 
-[TenantContextHolder (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/context/TenantContextHolder.java)是租户上下文，通过 ThreadLocal 实现租户编号的共享与传递。
+[TenantContextHolder](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/context/TenantContextHolder.java)是租户上下文，通过 ThreadLocal 实现租户编号的共享与传递。
 
 通过调用 TenantContextHolder 的 `#getTenantId()` **静态**方法，获得当前的租户编号。绝绝绝大多数情况下，并不需要。
 
 ### 5.2 Web 层【重要】
 
-> 实现可见 [`web` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/web)包。
 
 默认情况下，前端的每个请求 Header **必须**带上 `tenant-id`，值为租户编号，即 `system_tenant` 表的主键编号。
 
-![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b977603e-9c98-410c-b81f-dd4ee2665f606.png)
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b977603e-9c98-410c-b81f-dd4ee2665f60.png)
 
 如果不带该请求头，会报“租户的请求未传递，请进行排查”错误提示。
 
@@ -135,15 +134,12 @@ public CommonResult<Long> getTenantIdByName(@RequestParam("name") String name) {
 
 ### 5.3 Security 层
 
-> 实现可见 [`security` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/security)包。
 
 主要是校验登录的用户，校验是否有权限访问该租户，避免越权问题。
 
 ### 5.4 DB 层【重要】
 
-> 实现可见 [`db` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/db)包。
-
-COLUMN 模式，基于 MyBatis Plus 自带的[多租户 (opens new window)](https://baomidou.com/plugins/tenant/)功能实现。
+COLUMN 模式，基于 MyBatis Plus 自带的**多租户**功能实现。
 
 核心：每次对数据库操作时，它会**自动**拼接 `WHERE tenant_id = ?` 条件来进行租户的过滤，并且基本支持所有的 SQL 场景。
 
@@ -161,7 +157,7 @@ CREATE TABLE `system_role` (
 
 ```
 
-并且该表对应的 DO 需要使用到 `tenantId` 属性时，建议继承 [TenantBaseDO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/db/TenantBaseDO.java)类。
+并且该表对应的 DO 需要使用到 `tenantId` 属性时，建议继承`TenantBaseDO`类。
 
 ② **无需**开启多租户的表，需要添加表名到 `yudao.tenant.ignore-tables` 配置项目。例如说：
 
@@ -169,7 +165,9 @@ CREATE TABLE `system_role` (
 
 如果不配置的话，MyBatis Plus 会自动拼接 `WHERE tenant_id = ?` 条件，导致报 `tenant_id` 字段不存在的错误。
 
-::: info 友情提示：MyBatis Plus 的多租户方案，在我们在 MyBatis XML 手写 SQL 时，是不生效的，即不会拼接 \`tenant_id\` 字段！！！:::
+::: info 友情提示：MyBatis Plus 的多租户方案，在我们在 MyBatis XML 手写 SQL 时，是不生效的，即不会拼接 \`tenant_id\` 字段！！！
+
+:::
 
 解决方案：需要手动自己拼接，可见 `ErpPurchaseStatisticsMapper.xml` 案例，如下所示：
 
@@ -193,7 +191,6 @@ public class DictDataDO extends BaseDO {
 
 ### 5.5 Redis 层【重要】
 
-> 实现可见 [`redis` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/redis)包。
 
 由于 Redis 不同于 DB 有 `tenant_id` 字段，无法通过类似 `WHERE tenant_id` = ? 的方式过滤，所以需要通过在 Redis Key 上增加 `:t{tenantId}` 后缀的方式，进行租户之间的隔离。
 
@@ -203,7 +200,7 @@ public class DictDataDO extends BaseDO {
 
 只需要一步，在方法上添加 Spring Cache 注解，例如说 `@Cachable`、`@CachePut`、`@CacheEvict`。
 
-具体的实现原理，可见 [TenantRedisCacheManager (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/redis/TenantRedisCacheManager.java)的源码。
+具体的实现原理，可见 [TenantRedisCacheManager](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/redis/TenantRedisCacheManager.java)的源码。
 
 注意！！！默认配置下，Spring Cache 都开启 Redis Key 的多租户隔离。如果不需要，可以将 Key 添加到 `yudao.tenant.ignore-caches` 配置项中。如下图所示：
 
@@ -217,11 +214,9 @@ public class DictDataDO extends BaseDO {
 
 ### 5.6 AOP【重要】
 
-> 实现可见 [`aop` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/aop)包。
+① 声明 [`@TenantIgnore`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/aop/TenantIgnore.java)注解在方法上，标记指定方法不进行租户的自动过滤，避免**自动**拼接 `WHERE tenant_id = ?` 条件等等。
 
-① 声明 [`@TenantIgnore` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/aop/TenantIgnore.java)注解在方法上，标记指定方法不进行租户的自动过滤，避免**自动**拼接 `WHERE tenant_id = ?` 条件等等。
-
-例如说：[RoleServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)的 [`#initLocalCache()` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java#L83-L100)方法，加载**所有**租户的角色到内存进行缓存，如果不声明 `@TenantIgnore` 注解，会导致租户的自动过滤，只加载了某个租户的角色。
+例如说：[RoleServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)的 [`#initLocalCache()`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java#L83-L100)方法，加载**所有**租户的角色到内存进行缓存，如果不声明 `@TenantIgnore` 注解，会导致租户的自动过滤，只加载了某个租户的角色。
 
 ```java
 // RoleServiceImpl.java
@@ -248,21 +243,17 @@ public class RoleServiceImpl implements RoleService {
 
 有一点要格外注意，由于 `@TenantIgnore` 注解是基于 Spring AOP 实现，如果是**方法内部的调用**，避免使用 `this` 导致不生效，可以采用上述示例的 `<x>` 处的 `self` 方式。
 
-② 使用 [TenantUtils (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/util/TenantUtils.java)的 `#execute(Long tenantId, Runnable runnable)` 方法，模拟指定租户( `tenantId` )，执行某段业务逻辑( `runnable` )。
+② 使用 `TenantUtils`的 `#execute(Long tenantId, Runnable runnable)` 方法，模拟指定租户( `tenantId` )，执行某段业务逻辑( `runnable` )。
 
-例如说：在 [TenantServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/tenant/TenantServiceImpl.java)的 `#createTenant(...)` 方法，在创建完租户时，需要模拟该租户，进行用户和角色的创建。如下图所示：
+例如说：在 `TenantServiceImpl`的 `#createTenant(...)` 方法，在创建完租户时，需要模拟该租户，进行用户和角色的创建。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a0e81722-4fab-4d7c-8f3b-cd4fdf5cef0b.png)
 
 ### 5.7 Job【重要】
 
-> 实现可见 [`job` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/job)包。
-
-声明 [`@TenantJob` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/job/TenantJob.java)注解在 Job 方法上，实现**并行**遍历每个租户，执行定时任务的逻辑。
+声明 [`@TenantJob`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/job/TenantJob.java)注解在 Job 方法上，实现**并行**遍历每个租户，执行定时任务的逻辑。
 
 ### 5.8 MQ
-
-> 实现可见 [`mq` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/mq)包。
 
 通过租户对 MQ 层面的封装，实现租户上下文，可以继续传递到 MQ 消费的逻辑中，避免丢失的问题。实现原理是：
 
@@ -272,13 +263,9 @@ public class RoleServiceImpl implements RoleService {
 
 ### 5.9 Async
 
-> 实现可见 [`YudaoAsyncAutoConfiguration` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-job/src/main/java/cn/iocoder/yudao/framework/quartz/config/YudaoAsyncAutoConfiguration.java)类。
-
-通过使用阿里开源的 [TransmittableThreadLocal (opens new window)](https://github.com/alibaba/transmittable-thread-local)组件，实现 Spring Async 执行异步逻辑时，租户上下文可以继续传递，避免丢失的问题。
+通过使用阿里开源的 [TransmittableThreadLocal](https://github.com/alibaba/transmittable-thread-local)组件，实现 Spring Async 执行异步逻辑时，租户上下文可以继续传递，避免丢失的问题。
 
 ### 5.10 RPC
-
-> 实现可见 [`mq` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/rpc)包。
 
 RPC 使用 Feign 调用时，会自动将租户上下文的租户编号，设置到 HTTP 请求头 `tenant-id` 上。
 
@@ -313,11 +300,3 @@ yudao:
       - /admin-api/system/user/profile/**
       - /admin-api/system/auth/**
 ```
-
-③ 如果你要拓展这块的实现，最好阅读如下代码：
-
-- 前端：[https://gitee.com/yudaocode/yudao-ui-admin-vue3/commit/c6898c0a99b00fb08863295d7fb1adb06cf66113(opens new window)](https://gitee.com/yudaocode/yudao-ui-admin-vue3/commit/c6898c0a99b00fb08863295d7fb1adb06cf66113)
-
-- Boot 后端：[https://gitee.com/zhijiantianya/ruoyi-vue-pro/commit/59234e1eeade300a68adc8183d58f616c14e90f1(opens new window)](https://gitee.com/zhijiantianya/ruoyi-vue-pro/commit/59234e1eeade300a68adc8183d58f616c14e90f1)
-
-- Cloud 后端：[https://gitee.com/zhijiantianya/yudao-cloud/commit/a07963335549da0e49f13c98cb79adc11df1524b(opens new window)](https://gitee.com/zhijiantianya/yudao-cloud/commit/a07963335549da0e49f13c98cb79adc11df1524b)

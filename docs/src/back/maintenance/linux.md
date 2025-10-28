@@ -50,7 +50,7 @@ mysqld --version
 
 为什么 MySQL 启动后，后续无法修改 `lower_case_table_names=1` 呢？
 
-原因和解决，参考 [https://www.cnblogs.com/niceyoo/p/11545196.html (opens new window)](https://www.cnblogs.com/niceyoo/p/11545196.html)博客！
+原因和解决，参考 [https://www.cnblogs.com/niceyoo/p/11545196.html](https://www.cnblogs.com/niceyoo/p/11545196.html)博客！
 
 ③ 执行 `grep password /var/log/mysqld.log` 命令，获得 MySQL 临时密码。
 
@@ -77,7 +77,7 @@ FLUSH PRIVILEGES;
 
 #### 第二步，导入 SQL 脚本
 
-创建一个名字为 `ruoyi-vue-pro` 数据库，执行数据库对应的 [`sql` (opens new window)](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/sql)目录下的 SQL 文件，进行初始化。
+创建一个名字为 `ruoyi-vue-pro` 数据库，执行数据库对应的 [`sql`](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/sql)目录下的 SQL 文件，进行初始化。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b78499a7-484c-4ef5-859a-09d70f2b1c0e.png)
 
@@ -109,7 +109,7 @@ systemctl restart redis
 
 ### 1.4 安装 Nginx
 
-参考 [Nginx 官方文档 (opens new window)](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/)，安装 Nginx 服务。命令如下：
+参考 [Nginx 官方文档](https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/)，安装 Nginx 服务。命令如下：
 
 ```bash
 ## 添加 yum 源
@@ -128,7 +128,7 @@ Nginx 默认配置文件是 `/etc/nginx/nginx.conf`。
 
 #### 第一步，下载编译后压缩包
 
-① 新建 `/work` 目录，再从 [最新稳定版本 (opens new window)](https://github.com/alibaba/nacos/releases)下载 `nacos-server-$version.zip` 包。
+① 新建 `/work` 目录，再从 [最新稳定版本](https://github.com/alibaba/nacos/releases)下载 `nacos-server-$version.zip` 包。
 
 ② 执行 `unzip nacos-server-$version.zip` 解压缩，它最终在 `/work/nacos/` 目录如下
 
@@ -162,11 +162,11 @@ nacos.core.auth.server.identity.value=admin
 
 ② `nacos.core.auth.server.identity.key` 和 `nacos.core.auth.server.identity.key` 可以使用随机的字符串。
 
-`nacos.core.auth.plugin.nacos.token.secret.key` 可以随机一个 32 位的字符串，然后使用 [Base64 (opens new window)](https://tool.oschina.net/encrypt?type=3)编码。
+`nacos.core.auth.plugin.nacos.token.secret.key` 可以随机一个 32 位的字符串，然后使用 [Base64](https://tool.oschina.net/encrypt?type=3)编码。
 
 #### 第三步，启动 Nacos
 
-① 重要！需要设置下 `JAVA_HOME`，否则会出现类似 [《When using open jdk to log in to nacos it failed》 (opens new window)](https://github.com/alibaba/nacos/issues/711)！！！例如说：
+① 重要！需要设置下 `JAVA_HOME`，否则会出现类似 [《When using open jdk to log in to nacos it failed》](https://github.com/alibaba/nacos/issues/711)！！！例如说：
 
 ```bash
 ## 补充提示：OpenJDK 安装在 /usr/lib/jvm/ 目录下
@@ -203,11 +203,11 @@ export JAVA_HOME=/usr/lib/jvm/jre-1.8.0
 
 #### 第一步，修改配置
 
-① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
+① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/56114025-4ffd-4c19-ae09-da756645f460.png)
 
-② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
+② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/71821bcc-25d0-4637-bb1a-c0a5e12ca436.png)
 
@@ -380,7 +380,7 @@ deploy
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b6aa5296-0ecf-47ce-abf6-376068906335.png)
 
@@ -428,7 +428,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 #### 第一步，修改配置
 
-前端 production 开发环境对应的是 [`.env.production` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
+前端 production 开发环境对应的是 [`.env.production`](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a2264508-3f9a-4f6e-abe2-4c3494fc0ee6.png)
 
@@ -468,7 +468,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d3ff2795-4181-4ce5-ba45-6ba5d27838cb.png)
 
@@ -490,11 +490,11 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ① `PUBLIC_PATH`：可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。示例如下：
 
-可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 ② `VUE_APP_APP_NAME`：二级部署路径，默认为 `/` 根目录，一般不用修改。
 
-③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
+③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ca737a3d-27eb-46fc-aed1-4fdb4175d3e3.png)
 
@@ -569,17 +569,17 @@ http {
 
 ② 执行 `nginx -s reload` 命令，重新加载 Nginx 配置。
 
-③ 请求 [http://192.168.225.2/admin-api/ (opens new window)](http://192.168.225.2/admin-api/)地址，成功访问后端项目，返回结果如下：
+③ 请求 [http://192.168.225.2/admin-api/](http://192.168.225.2/admin-api/)地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-④ 请求 [http://192.168.225.2 (opens new window)](http://192.168.225.2/)地址，成功访问前端项目，返回前端界面如下：
+④ 请求 [http://192.168.225.2](http://192.168.225.2/)地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b1e97fed-f0b4-45d4-ba49-feb5787ddf3b.png)
 
-⑤ 如果你使用到 WebSocket 的话，需要额外对 `/infra/ws` 路径进行配置，具体可见 [https://t.zsxq.com/LQEfC (opens new window)](https://t.zsxq.com/LQEfC)链接。
+⑤ 如果你使用到 WebSocket 的话，需要额外对 `/infra/ws` 路径进行配置，具体可见 [https://t.zsxq.com/LQEfC](https://t.zsxq.com/LQEfC)链接。
 
 ### 4.2 方式二：独立域名访问
 
@@ -651,12 +651,12 @@ http {
 
 ② 执行 `nginx -s reload` 命令，重新加载 Nginx 配置。
 
-③ 请求 [http://api.iocoder.cn/admin-api/ (opens new window)](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
+③ 请求 [http://api.iocoder.cn/admin-api/](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-④ 请求 [http://admin.iocoder.cn (opens new window)](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
+④ 请求 [http://admin.iocoder.cn](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7c0d87ff-2f28-4548-8b3c-a33d448126d6.png)

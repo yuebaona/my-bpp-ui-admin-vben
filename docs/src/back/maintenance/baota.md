@@ -4,7 +4,7 @@ outline: deep
 
 # 宝塔部署
 
-本小节，讲解如何将前端 + 后端项目，**使用** [**宝塔 (opens new window)**](https://www.bt.cn/u/Nm1mHQ)，部署到 dev 开发环境下的一台 Linux 服务器上。如下图所示：
+本小节，讲解如何将前端 + 后端项目，**使用** [**宝塔**](https://www.bt.cn/u/Nm1mHQ)，部署到 dev 开发环境下的一台 Linux 服务器上。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b8a546d1-4776-4727-81f2-43d9474b2e80.png)
 
@@ -30,9 +30,9 @@ outline: deep
 
 ### 1.0 安装宝塔
 
-① 访问 [宝塔 (opens new window)](https://www.bt.cn/u/Nm1mHQ)官网，注册账号。因为登录后，需要绑定宝塔账号。
+① 访问 [宝塔](https://www.bt.cn/u/Nm1mHQ)官网，注册账号。因为登录后，需要绑定宝塔账号。
 
-② 访问 [https://www.bt.cn/new/download.html (opens new window)](https://www.bt.cn/new/download.html)地址，选择你的系统版本，下载对应的安装包。
+② 访问 [https://www.bt.cn/new/download.html](https://www.bt.cn/new/download.html)地址，选择你的系统版本，下载对应的安装包。
 
 这里，我们使用 Centos 9，所以只需要执行如下命令：
 
@@ -78,13 +78,13 @@ url=https://download.bt.cn/install/install_lts.sh;if [ -f /usr/bin/curl ];then c
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b22d3d57-6c9e-4600-a6b6-a124458e9d6a.png)
 
-② 点击 \[导入\] 按钮，再点击 \[从本地上传\] 按钮，执行数据库对应的 [`sql` (opens new window)](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/sql)目录下的 SQL 文件，进行初始化。如下图所示：
+② 点击 \[导入\] 按钮，再点击 \[从本地上传\] 按钮，执行数据库对应的 [`sql`](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/sql)目录下的 SQL 文件，进行初始化。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7dd67b6e-11ad-4c2d-8e31-005f34be4b4a.png)
 
 **疑问：如何使用本地 Navicat 连接该 MySQL？**
 
-参考 [https://www.bt.cn/bbs/thread-179-1-1.html (opens new window)](https://www.bt.cn/bbs/thread-179-1-1.html)文档。
+参考 [https://www.bt.cn/bbs/thread-179-1-1.html](https://www.bt.cn/bbs/thread-179-1-1.html)文档。
 
 当然，如果使用阿里云等云服务，相关的 3306 端口也需要放行。
 
@@ -132,7 +132,7 @@ url=https://download.bt.cn/install/install_lts.sh;if [ -f /usr/bin/curl ];then c
 
 #### 第二步，配置 Nacos
 
-① 在宝塔的 MySQL 数据库，创建一个名字为 `nacos` 数据库，之后把 [`conf/mysql-schema.sql` (opens new window)](https://github.com/alibaba/nacos/blob/master/distribution/conf/mysql-schema.sql)导入到该数据库中。
+① 在宝塔的 MySQL 数据库，创建一个名字为 `nacos` 数据库，之后把 [`conf/mysql-schema.sql`](https://github.com/alibaba/nacos/blob/master/distribution/conf/mysql-schema.sql)导入到该数据库中。
 
 ② 继续点击 Nacos 的 \[设置\] 按钮，选择 \[配置信息\] 选项，填写 MySQL 的连接信息。如下图所示：
 
@@ -172,7 +172,7 @@ nacos.core.auth.server.identity.value=admin
 
 - `nacos.core.auth.server.identity.key` 和 `nacos.core.auth.server.identity.key` 可以使用随机的字符串。
 
-- `nacos.core.auth.plugin.nacos.token.secret.key` 可以随机一个 32 位的字符串，然后使用 [Base64 (opens new window)](https://tool.oschina.net/encrypt?type=3)编码。
+- `nacos.core.auth.plugin.nacos.token.secret.key` 可以随机一个 32 位的字符串，然后使用 [Base64](https://tool.oschina.net/encrypt?type=3)编码。
 
 #### 第三步，启动 Nacos
 
@@ -204,11 +204,11 @@ nacos.core.auth.server.identity.value=admin
 
 #### 第一步，修改配置
 
-① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
+① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/07ff156f-d624-4df4-86c5-75b3fba7b731.png)
 
-② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
+② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/14b26db8-2374-4c63-807f-75374ac27c49.png)
 
@@ -272,7 +272,7 @@ nacos.core.auth.server.identity.value=admin
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/aae30a50-9c48-4460-b024-bd843c34eff6.png)
 
@@ -290,7 +290,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ```
 
-如果是在服务器上构建，并且出现卡死的情况，可以参考 [https://t.zsxq.com/Quq1U (opens new window)](https://t.zsxq.com/Quq1U)或 [https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3 (opens new window)](https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3)解决
+如果是在服务器上构建，并且出现卡死的情况，可以参考 [https://t.zsxq.com/Quq1U](https://t.zsxq.com/Quq1U)或 [https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3](https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3)解决
 
 **其它高级参数说明【可暂时不看】：**
 
@@ -310,7 +310,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
 
-具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 #### 第三步，上传 `**dist**` 文件
 
@@ -328,7 +328,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 #### 第一步，修改配置
 
-前端 production 开发环境对应的是 [`.env.production` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
+前端 production 开发环境对应的是 [`.env.production`](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/28695547-791e-4bd7-a4c7-02c9a4dfd789.png)
 
@@ -350,7 +350,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
 
-具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 #### 第二步，编译前端
 
@@ -374,7 +374,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/11471f5d-f394-4357-a5d4-5961f4814093.png)
 
@@ -396,11 +396,11 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ① `PUBLIC_PATH`：可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。示例如下：
 
-可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 ② `VUE_APP_APP_NAME`：二级部署路径，默认为 `/` 根目录，一般不用修改。
 
-③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
+③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/392fc513-e163-4aaf-8554-a1769a3310be.png)
 
@@ -460,17 +460,17 @@ location /app-api/ { ## 后端项目 - 用户 App
 
 #### 第三步，简单测试
 
-① 请求 [http://192.168.225.2/admin-api/ (opens new window)](http://192.168.225.2/admin-api/)地址，成功访问后端项目，返回结果如下：
+① 请求 [http://192.168.225.2/admin-api/](http://192.168.225.2/admin-api/)地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-② 请求 [http://192.168.225.2 (opens new window)](http://192.168.225.2/)地址，成功访问前端项目，返回前端界面如下：
+② 请求 [http://192.168.225.2](http://192.168.225.2/)地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/52b2b135-25c7-4465-b8d1-0ac9be8c2abf.png)
 
-③ 如果你使用到 WebSocket 的话，需要额外对 `/infra/ws` 路径进行配置，具体可见 [https://t.zsxq.com/LQEfC (opens new window)](https://t.zsxq.com/LQEfC)链接。
+③ 如果你使用到 WebSocket 的话，需要额外对 `/infra/ws` 路径进行配置，具体可见 [https://t.zsxq.com/LQEfC](https://t.zsxq.com/LQEfC)链接。
 
 ### 4.2 独立域名场景
 
@@ -536,12 +536,12 @@ location /app-api/ { ## 后端项目 - 用户 App
 
 #### 第三步，简单测试
 
-① 请求 [http://api.iocoder.cn/admin-api/ (opens new window)](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
+① 请求 [http://api.iocoder.cn/admin-api/](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-② 请求 [http://admin.iocoder.cn (opens new window)](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
+② 请求 [http://admin.iocoder.cn](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/65548e36-e37c-485b-81ec-ee745873da03.png)

@@ -14,12 +14,6 @@ outline: deep
 
 下面，将演示“主子表”的使用，基于代码生成器，在 `yudao-module-system` 模块中，开发一个【**学生**】的功能。
 
-::: info 友情提示：
-
-目前只有 yudao-ui-admin-vue3、yudao-ui-admin-vben 支持主子表，yudao-ui-admin-vue2 正在适配中！
-
-:::
-
 ## 0. 主子表模式
 
 针对不同的交互模式，项目提供了三种主子表模式：标准、ERP、内嵌。

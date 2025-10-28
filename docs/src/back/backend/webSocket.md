@@ -6,17 +6,17 @@ outline: deep
 
 ## 1. 功能简介
 
-项目的 [`yudao-spring-boot-starter-websocket` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-websocket)组件，基于 [Spring WebSocket (opens new window)](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket)进行二次封装，实现了更加简单的使用方式。例如说，WebSocket 的认证、Session 的管理、WebSocket 集群的消息广播等等。
+项目的 [`yudao-spring-boot-starter-websocket`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-websocket)组件，基于 [Spring WebSocket](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket)进行二次封装，实现了更加简单的使用方式。例如说，WebSocket 的认证、Session 的管理、WebSocket 集群的消息广播等等。
 
 ### 1.1 Token 身份认证
 
 ① 在 WebSocket 连接建立时，通过 QueryString 的 `token` 参数，进行认证。例如说：`ws://127.0.0.1:48080/ws?token=xxx`。
 
-由于 WebSocket 是基于 HTTP 建立连接，所以它的认证可以复用项目的 [TokenAuthenticationFilter (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java)实现。
+由于 WebSocket 是基于 HTTP 建立连接，所以它的认证可以复用项目的 [TokenAuthenticationFilter](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java)实现。
 
-② 认证完成后，会通过 [LoginUserHandshakeInterceptor (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/security/LoginUserHandshakeInterceptor.java)拦截器，将用户信息存储到 WebSocket Session 的 `attributes` 中。
+② 认证完成后，会通过 [LoginUserHandshakeInterceptor](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/security/LoginUserHandshakeInterceptor.java)拦截器，将用户信息存储到 WebSocket Session 的 `attributes` 中。
 
-这样，后续可以使用 [WebSocketFrameworkUtils (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/util/WebSocketFrameworkUtils.java)获取用户信息，例如说：
+这样，后续可以使用 [WebSocketFrameworkUtils](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/util/WebSocketFrameworkUtils.java)获取用户信息，例如说：
 
 ```java
 // WebSocketFrameworkUtils.java
@@ -39,7 +39,7 @@ public static Long getTenantId(WebSocketSession session)
 
 每个前端和后端建立的 WebSocket 连接，对应后端的一个 WebSocketSession 会话对象。由于后续需要对 WebSocketSession 进行消息的发送，所以需要进行管理。
 
-① WebSocketSession 的管理，由 [WebSocketSessionManager (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionManager.java)定义接口，由 [WebSocketSessionManagerImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionManagerImpl.java)具体实现。
+① WebSocketSession 的管理，由 [WebSocketSessionManager](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionManager.java)定义接口，由 `WebSocketSessionManagerImpl`具体实现。
 
 ```java
 // 添加和移除 Session
@@ -53,32 +53,32 @@ Collection<WebSocketSession> getSessionList(Integer userType, Long userId); // �
 
 ```
 
-② WebSocket 建立和关闭连接时，通过 [WebSocketSessionHandlerDecorator (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionHandlerDecorator.java)处理器，分别调用 WebSocketSessionManager 进行 Session 的添加和移除。
+② WebSocket 建立和关闭连接时，通过 [WebSocketSessionHandlerDecorator](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionHandlerDecorator.java)处理器，分别调用 WebSocketSessionManager 进行 Session 的添加和移除。
 
 ### 1.3 Message 消息格式
 
-WebSocket 默认使用“文本”进行通信，而业务需要按照不同类型的消息，进行不同的处理。因此，项目定义了 [JsonWebSocketMessage (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/message/JsonWebSocketMessage.java)消息对象，包含 `type` 消息类型 + `content` 消息内容。
+WebSocket 默认使用“文本”进行通信，而业务需要按照不同类型的消息，进行不同的处理。因此，项目定义了 [JsonWebSocketMessage](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/message/JsonWebSocketMessage.java)消息对象，包含 `type` 消息类型 + `content` 消息内容。
 
 和 Spring MVC 对比，可以理解为：
 
 |  | 标识 | 方法 | 参数 |
 | --- | --- | --- | --- |
 | Spring MVC | URL + Method 等 | Controller 的 Method 方法 | QueryString 或 RequestBody 等 |
-| 项目 WebSocket | `type` 消息类型 | [WebSocketMessageListener (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/listener/WebSocketMessageListener.java)实现类 | 解析 `content` 消息内容后的 Message 对象 |
+| 项目 WebSocket | `type` 消息类型 | [WebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/listener/WebSocketMessageListener.java)实现类 | 解析 `content` 消息内容后的 Message 对象 |
 
 具体 JsonWebSocketMessage 和 WebSocketMessageListener 详细说明，参见**「1.4 Message 消息接收」**小节。
 
 ### 1.4 Message 消息接收
 
-① WebSocket 接收到项目后，会先交给 [JsonWebSocketMessageHandler (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/handler/JsonWebSocketMessageHandler.java)消息处理器，将消息解析成 JsonWebSocketMessage 对象。
+① WebSocket 接收到项目后，会先交给 [JsonWebSocketMessageHandler](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/handler/JsonWebSocketMessageHandler.java)消息处理器，将消息解析成 JsonWebSocketMessage 对象。
 
 之后，根据 `type` 消息类型，获得到 WebSocketMessageListener 实现类，并将 `content` 消息内容进一步解析成 Message 对象，交给它进行处理。
 
-② 具体案例，可见 [DemoWebSocketMessageListener (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)、[DemoSendMessage (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/message/DemoSendMessage.java)类。
+② 具体案例，可见 [DemoWebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)、[DemoSendMessage](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/message/DemoSendMessage.java)类。
 
 ### 1.5 Message 消息推送
 
-① 项目的 [WebSocketMessageSender (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/sender/WebSocketMessageSender.java)接口，定义了给 Session 发送消息的方法。如下所示：
+① 项目的 [WebSocketMessageSender](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/sender/WebSocketMessageSender.java)接口，定义了给 Session 发送消息的方法。如下所示：
 
 ```java
 // WebSocketMessageSender.java
@@ -143,15 +143,17 @@ yudao:
 | 方案一：纯 WebSocket     | WebSocket | WebSocket |
 | 方案二：WebSocket + HTTP | HTTP      | WebSocket |
 
-::: info 友情提示：下文中提到的所有配置，项目都已经配置好。你只需要按照下文的步骤，进行调试即可，了解每个配置的作用即可。:::
+::: info 友情提示：下文中提到的所有配置，项目都已经配置好。你只需要按照下文的步骤，进行调试即可，了解每个配置的作用即可。
+
+:::
 
 ### 2.1 方案一：纯 WebSocket
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1494e932-25b9-4985-be83-41d93e4793c9.png)
 
-- 前端：见 \[基础设施 -> WebSocket 测试\] 菜单，对应 [/views/infra/websocket/index.vue (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/infra/webSocket/index.vue)界面
+- 前端：见 \[基础设施 -> WebSocket 测试\] 菜单，对应 [/views/infra/websocket/index.vue](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/infra/webSocket/index.vue)界面
 
-- 后端：见 `yudao-module-infra-server` 模块，对应 [DemoWebSocketMessageListener (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)监听器
+- 后端：见 `yudao-module-infra-server` 模块，对应 [DemoWebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)监听器
 
 基于 WebSocket 实现的单聊和群聊，暂时不支持消息的持久化（刷新后，消息会消息）。建议，多多调试，更好的理解 WebSocket 流程。
 
@@ -179,7 +181,9 @@ yudao:
 
 ② 新建 DemoWebSocketMessageListener 类，实现对应消息的处理。如下图所示：
 
-::: danger 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: danger 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ③ 在 `yudao-gateway` 模块的 `application.yaml` 配置文件中，在 `spring.cloud.gateway.routes` 配置项中，添加 `/infra/ws` WebSocket 路径的路由。如下所示：
 
@@ -208,9 +212,9 @@ yudao:
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/678e27f5-ba3c-420c-a647-b1e16b7f304f.png)
 
-- 前端：见 \[系统管理 -> 消息中心 -> 通知公告\] 菜单，对应 [/views/system/notice/index.vue (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/system/notice/index.vue)界面的【推送】按钮
+- 前端：见 \[系统管理 -> 消息中心 -> 通知公告\] 菜单，对应 [/views/system/notice/index.vue](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/system/notice/index.vue)界面的【推送】按钮
 
-- 后端：见 `yudao-module-system-server` 模块，对应 [DemoWebSocketMessageListener (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)监听器
+- 后端：见 `yudao-module-system-server` 模块，对应 [DemoWebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)监听器
 
 点击某条公告的【推送】按钮，仅仅推送给所有在线用户。由于 WebSocket 目前暂时没全局建立，所以还是使用 \[基础设施 -> WebSocket 测试\] 菜单演示。如下图所示：
 

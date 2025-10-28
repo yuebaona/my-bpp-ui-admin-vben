@@ -4,11 +4,11 @@ outline: deep
 
 # MyBatis
 
-[`yudao-spring-boot-starter-mybatis` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/)技术组件，基于 MyBatis Plus 实现数据库的操作。
+[`yudao-spring-boot-starter-mybatis`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/)技术组件，基于 MyBatis Plus 实现数据库的操作。
 
 ## 1. 实体类
 
-[BaseDO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/dataobject/BaseDO.java)是所有数据库实体的**父类**，代码如下：
+[BaseDO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/dataobject/BaseDO.java)是所有数据库实体的**父类**，代码如下：
 
 ```java
 @Data
@@ -102,7 +102,7 @@ public abstract class BaseDO implements Serializable {
 
 ### 1.3 自动填充
 
-[DefaultDBFieldHandler (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/handler/DefaultDBFieldHandler.java)基于 MyBatis 自动填充机制，实现 BaseDO 通用字段的自动设置。代码如下如：
+[DefaultDBFieldHandler](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/handler/DefaultDBFieldHandler.java)基于 MyBatis 自动填充机制，实现 BaseDO 通用字段的自动设置。代码如下如：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fb7147b8-b060-4267-a7b2-b931f1c1798f.png)
 
@@ -114,9 +114,9 @@ MyBatis Plus 提供 TypeHandler 字段类型处理器，用于 JavaType �
 
 常用的字段类型处理器有：
 
-- [JacksonTypeHandler (opens new window)](https://github.com/baomidou/mybatis-plus/blob/a3e121c27cd26cb7c546dfb88190f3b1f574dc38/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/handlers/JacksonTypeHandler.java)：通用的 Jackson 实现 JSON 字段类型处理器。
+- [JacksonTypeHandler](https://github.com/baomidou/mybatis-plus/blob/a3e121c27cd26cb7c546dfb88190f3b1f574dc38/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/handlers/JacksonTypeHandler.java)：通用的 Jackson 实现 JSON 字段类型处理器。
 
-另外，如果你后续要拓展自定义的 TypeHandler 实现，可以添加到 [`cn.iocoder.yudao.framework.mybatis.core.type` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/type/)包下。
+另外，如果你后续要拓展自定义的 TypeHandler 实现，可以添加到 [`cn.iocoder.yudao.framework.mybatis.core.type`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/type/)包下。
 
 ::: info 注意事项：
 
@@ -144,14 +144,14 @@ MyBatis Plus 提供 TypeHandler 字段类型处理器，用于 JavaType �
 
 |  | 示例 |
 | --- | --- |
-| 错误 | ![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/3BMqYyba4mP6mqwZ/img/e6335d91-9379-4b61-bb18-64325e8f6d9d.png) |
-| 正确 | ![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/3BMqYyba4mP6mqwZ/img/03448f53-a6b6-49d3-88fe-e7552a7cd430.png) |
+| 错误 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e6335d91-9379-4b61-bb18-64325e8f6d9d.png) |
+| 正确 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/03448f53-a6b6-49d3-88fe-e7552a7cd430.png) |
 
 并且，通过只允许将 MyBatis Plus 操作编写 Mapper 层，更好的实现 SELECT 查询的复用，而不是 Service 会存在很多相同且重复的 SELECT 查询的逻辑。
 
 ---
 
-④ Mapper 的 SELECT 查询方法的命名，采用 Spring Data 的 ["Query methods" (opens new window)](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html)策略，方法名使用 `selectBy查询条件` 规则。例如说：
+④ Mapper 的 SELECT 查询方法的命名，采用 Spring Data 的 ["Query methods"](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html)策略，方法名使用 `selectBy查询条件` 规则。例如说：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/45ff4000-0f6b-4ffa-990e-350dc41e4992.png)
 
@@ -169,37 +169,37 @@ MyBatis Plus 提供 TypeHandler 字段类型处理器，用于 JavaType �
 
 ## 3. CRUD 接口
 
-[BaseMapperX (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)接口，继承 MyBatis Plus 的 BaseMapper 接口，提供更强的 CRUD 操作能力。
+[BaseMapperX](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)接口，继承 MyBatis Plus 的 BaseMapper 接口，提供更强的 CRUD 操作能力。
 
 ### 3.1 selectOne
 
-[`#selectOne(...)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L30-L44)方法，使用指定条件，查询单条记录。示例如下：
+[`#selectOne(...)`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L30-L44)方法，使用指定条件，查询单条记录。示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7a66e8df-04e6-442b-a129-06f232238eae.png)
 
 ### 3.2 selectCount
 
-[`#selectCount(...)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L46-L56)方法，使用指定条件，查询记录的数量。示例如下：
+[`#selectCount(...)`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L46-L56)方法，使用指定条件，查询记录的数量。示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e9a1b500-7b14-46b0-995c-977e1543b617.png)
 
 ### 3.3 selectList
 
-[`#selectList(...)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L58-L76)方法，使用指定条件，查询多条记录。示例如下：
+[`#selectList(...)`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L58-L76)方法，使用指定条件，查询多条记录。示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1beba671-03d9-4126-9bac-70fa801e68a6.png)
 
 ### 3.4 selectPage
 
-针对 MyBatis Plus 分页查询的二次分装，在 [BaseMapperX (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)中实现，目的是使用项目自己的分页封装：
+针对 MyBatis Plus 分页查询的二次分装，在 [BaseMapperX](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)中实现，目的是使用项目自己的分页封装：
 
-- 【入参】查询前，将项目的分页参数 [PageParam (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageParam.java)，转换成 MyBatis Plus 的 IPage 对象。
+- 【入参】查询前，将项目的分页参数 [PageParam](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageParam.java)，转换成 MyBatis Plus 的 IPage 对象。
 
-- 【出参】查询后，将 MyBatis Plus 的分页结果 IPage，转换成项目的分页结果 [PageResult (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageResult.java)。代码如下图：
+- 【出参】查询后，将 MyBatis Plus 的分页结果 IPage，转换成项目的分页结果 [PageResult](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageResult.java)。代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/f15be2dc-c5f7-48e8-824c-a06790b1f543.png)
 
-具体的使用示例，可见 [TenantMapper (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/mysql/tenant/TenantMapper.java)类中，定义 selectPage 查询方法。代码如下：
+具体的使用示例，可见 [TenantMapper](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/mysql/tenant/TenantMapper.java)类中，定义 selectPage 查询方法。代码如下：
 
 ```java
 @Mapper
@@ -221,19 +221,19 @@ public interface TenantMapper extends BaseMapperX<TenantDO> {
 
 ### 3.5 insertBatch
 
-[`#insertBatch(...)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L78-L88)方法，遍历数组，逐条插入数据库中，适合**少量**数据插入，或者对**性能要求不高**的场景。 示例如下：
+[`#insertBatch(...)`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java#L78-L88)方法，遍历数组，逐条插入数据库中，适合**少量**数据插入，或者对**性能要求不高**的场景。 示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/25d2ea25-514f-4dc2-a2f6-40e027d4c1f4.png)
 
 ## 4. 批量插入
 
-绝大多数场景下，推荐使用 MyBatis Plus 提供的 IService 的 [`#saveBatch()` (opens new window)](https://github.com/baomidou/mybatis-plus/blob/34ebdf6ee6/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/service/IService.java#L66-L74)方法。示例 [PermissionServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/PermissionServiceImpl.java#L200-L230)如下：
+绝大多数场景下，推荐使用 MyBatis Plus 提供的 IService 的 [`#saveBatch()`](https://github.com/baomidou/mybatis-plus/blob/34ebdf6ee6/mybatis-plus-extension/src/main/java/com/baomidou/mybatisplus/extension/service/IService.java#L66-L74)方法。示例 [PermissionServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/PermissionServiceImpl.java#L200-L230)如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d24a3803-f156-4a38-8719-d662727bc0f6.png)
 
 ## 5. 条件构造器
 
-继承 MyBatis Plus 的条件构造器，拓展了 [LambdaQueryWrapperX (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/query/LambdaQueryWrapperX.java)和 [QueryWrapperX (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/query/QueryWrapperX.java)类，主要是增加 xxxIfPresent 方法，用于判断值不存在的时候，不要拼接到条件中。例如说：
+继承 MyBatis Plus 的条件构造器，拓展了 [LambdaQueryWrapperX](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/query/LambdaQueryWrapperX.java)和 [QueryWrapperX](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/query/QueryWrapperX.java)类，主要是增加 xxxIfPresent 方法，用于判断值不存在的时候，不要拼接到条件中。例如说：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/8fd71361-b06b-453d-9a54-2286ea9396db.png)
 
@@ -245,7 +245,9 @@ public interface TenantMapper extends BaseMapperX<TenantDO> {
 
 默认配置下，MyBatis Mapper XML 需要写在各 `yudao-module-xxx-server` 模块的 `resources/mapper` 目录下。示例 `TestDemoMapper.xml` 如下：
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d14ad01b-ff55-444a-86a8-dafb97a58470.png)
 
@@ -255,9 +257,9 @@ public interface TenantMapper extends BaseMapperX<TenantDO> {
 
 ## 7. 字段加密
 
-[EncryptTypeHandler (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/type/EncryptTypeHandler.java)，基于 [Hutool AES (opens new window)](https://plus.hutool.cn/apidocs6/org/dromara/hutool/crypto/symmetric/AES.html)实现字段的解密与解密。
+[EncryptTypeHandler](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/type/EncryptTypeHandler.java)，基于 [Hutool AES](https://plus.hutool.cn/apidocs6/org/dromara/hutool/crypto/symmetric/AES.html)实现字段的解密与解密。
 
-例如说，[数据源配置 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/dal/dataobject/db/DataSourceConfigDO.java)的 `password` 密码需要实现加密存储，则只需要在该字段上添加 EncryptTypeHandler 处理器。示例代码如下：
+例如说，[数据源配置](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/dal/dataobject/db/DataSourceConfigDO.java)的 `password` 密码需要实现加密存储，则只需要在该字段上添加 EncryptTypeHandler 处理器。示例代码如下：
 
 ```java
 @TableName(value = "infra_data_source_config", autoResultMap = true) // ① 添加 autoResultMap = true

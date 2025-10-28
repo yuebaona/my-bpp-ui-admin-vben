@@ -16,7 +16,7 @@ outline: deep
 
 ## 2. Token 认证机制
 
-安全框架使用的是 [Spring Security (opens new window)](https://www.iocoder.cn/Spring-Boot/Spring-Security/?yudao)+ Token 方案，整体流程如下图所示：
+安全框架使用的是 Spring Security+ Token 方案，整体流程如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a34c15f8-decb-43d0-8b9c-83891c731610.png)
 
@@ -54,7 +54,7 @@ Authorization: Bearer d2a3cdbc6c53470db67a582bd115103f
 
 ```
 
-- 具体的代码实现，可见 [TokenAuthenticationFilter (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java)过滤器
+- 具体的代码实现，可见 [TokenAuthenticationFilter](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java)过滤器
 
 考虑到使用 Postman、Swagger 调试接口方便，提供了 **Token 的模拟机制**。请求头格式如下：
 
@@ -79,7 +79,7 @@ yudao:
 
 ### 3.1 @PreAuthorize 注解
 
-[`@PreAuthorize` (opens new window)](https://github.com/spring-projects/spring-security/blob/main/core/src/main/java/org/springframework/security/access/prepost/PreAuthorize.java)是 Spring Security 内置的**前置**权限注解，添加在**接口方法**上，声明需要的权限，实现访问权限的控制。
+`@PreAuthorize`是 Spring Security 内置的**前置**权限注解，添加在**接口方法**上，声明需要的权限，实现访问权限的控制。
 
 ① 基于【权限标识】的权限控制
 
@@ -115,7 +115,7 @@ yudao:
 
 当 `@PreAuthorize` 注解里的 Spring EL 表达式返回 `false` 时，表示没有权限。
 
-而 `@PreAuthorize("@ss.hasPermission('system:user:list')")` 表示调用 Bean 名字为 `ss` 的 `#hasPermission(...)` 方法，方法参数为 `"system:user:list"` 字符串。`ss` 对应的 Bean 是 [PermissionServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/PermissionServiceImpl.java#L43)类，所以你只需要去看该方法的[实现代码 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/PermissionServiceImpl.java#L293-L326)。
+而 `@PreAuthorize("@ss.hasPermission('system:user:list')")` 表示调用 Bean 名字为 `ss` 的 `#hasPermission(...)` 方法，方法参数为 `"system:user:list"` 字符串。`ss` 对应的 Bean 是 `PermissionServiceImpl`类。
 
 :::
 
@@ -127,7 +127,7 @@ yudao:
 
 ### 4.1 方式一：自定义 AuthorizeRequestsCustomizer 实现
 
-每个 Maven Module 可以实现自定义的 [AuthorizeRequestsCustomizer (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/config/YudaoWebSecurityConfigurerAdapter.java)Bean，额外定义每个 Module 的 API 接口的访问规则。例如说 `yudao-module-infra` 模块的 [SecurityConfiguration (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/framework/security/config/SecurityConfiguration.java)类，代码如下：
+每个 Maven Module 可以实现自定义的 [AuthorizeRequestsCustomizer](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/config/YudaoWebSecurityConfigurerAdapter.java)Bean，额外定义每个 Module 的 API 接口的访问规则。例如说 `yudao-module-infra` 模块的 [SecurityConfiguration ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/framework/security/config/SecurityConfiguration.java)类，代码如下：
 
 ```java
 @Configuration(proxyBeanMethods = false, value = "infraSecurityConfiguration")
@@ -176,7 +176,7 @@ public class SecurityConfiguration {
 
 ### 4.2 方式二：`**@PermitAll**` 注解
 
-在 API 接口上添加 [`@PermitAll` (opens new window)](https://javaee.github.io/javaee-spec/javadocs/javax/annotation/security/PermitAll.html)注解，示例如下：
+在 API 接口上添加 `@PermitAll`注解，示例如下：
 
 ```java
 // FileController.java

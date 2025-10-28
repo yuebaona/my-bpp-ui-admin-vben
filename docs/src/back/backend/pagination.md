@@ -4,7 +4,7 @@ outline: deep
 
 # 分页实现
 
-- 前端：基于 Element UI 分页组件 [Pagination(opens new window)](https://element.eleme.io/#/zh-CN/component/pagination)
+- 前端：基于 Element UI 分页组件`Pagination`
 
 - 后端：基于 MyBatis Plus 分页功能，二次封装
 
@@ -14,7 +14,7 @@ outline: deep
 
 ### 1.1 Vue 界面
 
-界面 [`tenant/index.vue` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/tenant/index.vue)相关的代码如下：
+界面`tenant/index.vue`相关的代码如下：
 
 ```html
 <template>
@@ -150,7 +150,7 @@ outline: deep
 
 ### 1.2 API 请求
 
-请求 [`system/tenant.js` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/api/system/tenant.js)相关的代码如下：
+请求`system/tenant.js`相关的代码如下：
 
 ```javascript
 import request from '@/utils/request';
@@ -169,7 +169,7 @@ export function getTenantPage(query) {
 
 ### 2.1 Controller 接口
 
-在 [TenantController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/tenant/TenantController.java#L75-L81)类中，定义 `/admin-api/system/tenant/page` 接口。代码如下：
+在`TenantController`类中，定义 `/admin-api/system/tenant/page` 接口。代码如下：
 
 ```java
 @Tag(name = "管理后台 - 租户")
@@ -192,13 +192,13 @@ public class TenantController {
 
 ```
 
-- Request 分页请求，使用 [TenantPageReqVO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/tenant/vo/tenant/TenantPageReqVO.java)类，它继承 PageParam 类
+- Request 分页请求，使用`TenantPageReqVO`类，它继承 PageParam 类
 
-- Response 分页结果，使用 PageResult 类，每一项是 [TenantRespVO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/tenant/vo/tenant/TenantRespVO.java)类
+- Response 分页结果，使用 PageResult 类，每一项是`TenantRespVO`类
 
 #### 2.1.1 分页参数 PageParam
 
-分页请求，需要继承 [PageParam (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageParam.java)类。代码如下：
+分页请求，需要继承`PageParam`类。代码如下：
 
 ```java
 @Schema(description="分页参数")
@@ -254,7 +254,7 @@ public class TenantPageReqVO extends PageParam {
 
 #### 2.1.2 分页结果 PageResult
 
-分页结果 [PageResult (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/PageResult.java)类，代码如下：
+分页结果`PageResult`类，代码如下：
 
 ```java
 @Schema(description = "分页结果")
@@ -271,11 +271,11 @@ public final class PageResult<T> implements Serializable {
 
 ```
 
-分页结果的数据 `list` 的每一项，通过自定义 VO 类，例如说 [TenantRespVO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/tenant/vo/tenant/TenantRespVO.java)类。
+分页结果的数据 `list` 的每一项，通过自定义 VO 类，例如`TenantRespVO`类。
 
 ### 2.2 Mapper 查询
 
-在 [TenantMapper (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/mysql/tenant/TenantMapper.java)类中，定义 selectPage 查询方法。代码如下：
+在`TenantMapper`类中，定义 selectPage 查询方法。代码如下：
 
 ```java
 @Mapper
@@ -295,6 +295,6 @@ public interface TenantMapper extends BaseMapperX<TenantDO> {
 
 ```
 
-针对 MyBatis Plus 分页查询的二次分装，在 [BaseMapperX (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/mybatis/core/mapper/BaseMapperX.java)中实现，主要是将 MyBatis 的分页结果 IPage，转换成项目的分页结果 PageResult。代码如下图：
+针对 MyBatis Plus 分页查询的二次分装，在`BaseMapperX`中实现，主要是将 MyBatis 的分页结果 IPage，转换成项目的分页结果 PageResult。代码如下图：
 
-![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d44b7f20-ab04-418c-9c8e-17296a7642fa5.png)
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d44b7f20-ab04-418c-9c8e-17296a7642fa.png)

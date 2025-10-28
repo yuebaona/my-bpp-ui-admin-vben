@@ -82,7 +82,7 @@ public interface AdminUserMapper extends BaseMapperX<AdminUserDO> {
 
 ```
 
-其中 [UserPageReqVO.java (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/user/vo/user/UserPageReqVO.java)是分页查询的请求 VO。
+其中 [UserPageReqVO.java](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/user/vo/user/UserPageReqVO.java)是分页查询的请求 VO。
 
 ③ 在 AdminUserServiceImplService 层，调用这两个方法，实现分页查询：
 
@@ -188,7 +188,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
 对于需要链表查询的场景，建议也是写 MyBatis XML，
 
-除了 XML 这种方式外，项目也集成了 [MyBatis Plus Join (opens new window)](https://mybatis-plus-join.github.io/pages/core/lambda/select/select.html)框架，通过 Java 代码实现联表查询。
+除了 XML 这种方式外，项目也集成了 [MyBatis Plus Join](https://mybatis-plus-join.github.io/pages/core/lambda/select/select.html)框架，通过 Java 代码实现联表查询。
 
 这里，以查询 `system_users` 和 `system_dept` 联表，查询部门名为 `信息部`、用户状态为开启的用户列表。
 

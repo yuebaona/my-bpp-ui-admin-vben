@@ -4,7 +4,7 @@ outline: deep
 
 # Excel导入导出
 
-项目的 [`yudao-spring-boot-starter-excel` (opens new window)](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/yudao-framework/yudao-spring-boot-starter-excel)技术组件，基于 FastExcel 实现 Excel 的读写操作，可用于实现最常见的 Excel 导入导出等功能。
+项目的`yudao-spring-boot-starter-excel`技术组件，基于 FastExcel 实现 Excel 的读写操作，可用于实现最常见的 Excel 导入导出等功能。
 
 ::: info FastExcel 的介绍？
 
@@ -24,7 +24,7 @@ FastExcel 是原 EasyExcel 作者开源的 Excel 工具库，具有简单�
 
 ### 1.1 后端导入实现
 
-在 [PostController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/dept/PostController.java#L88-L97)类中，定义 `/admin-api/system/post/export` 导出接口。代码如下：
+在`PostController`类中，定义 `/admin-api/system/post/export` 导出接口。代码如下：
 
 ```java
     @GetMapping("/export")
@@ -48,7 +48,7 @@ FastExcel 是原 EasyExcel 作者开源的 Excel 工具库，具有简单�
 
 #### 1.1.1 PostExcelVO 类
 
-复用 [PostRespVO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/dept/vo/post/PostRespVO.java)类，实现 岗位 Excel 导出的 VO 类。代码如下：
+复用`PostRespVO`类，实现 岗位 Excel 导出的 VO 类。代码如下：
 
 ```java
 @Schema(description = "管理后台 - 岗位信息 Response VO")
@@ -88,11 +88,11 @@ public class PostRespVO {
 
 ```
 
-- ① 每个字段上，添加 [`@ExcelProperty` (opens new window)](https://github.com/alibaba/easyexcel/blob/master/easyexcel-core/src/main/java/com/alibaba/excel/annotation/ExcelProperty.java)注解，声明 Excel Head 头部的名字。每个字段的**值**，就是它对应的 Excel Row 行的数据值。
+- ① 每个字段上，添加`@ExcelProperty`注解，声明 Excel Head 头部的名字。每个字段的**值**，就是它对应的 Excel Row 行的数据值。
 
 - ② 如果字段的的注解 `converter` 属性是 DictConvert 转换器，用于字典的转换。例如说，通过 `status` 字段，将 `status = 1` 转换成“开启”列，`status = 0` 转换成”禁用”列。稍后，我们会在 [「3. 字段转换器」](https://cloud.iocoder.cn/excel-import-and-export/#_3-%E5%AD%97%E6%AE%B5%E8%BD%AC%E6%8D%A2%E5%99%A8) 小节来详细讲讲。
 
-- ③ 在类上，添加 [`@ExcelIgnoreUnannotated` (opens new window)](https://github.com/alibaba/easyexcel/blob/master/easyexcel-core/src/main/java/com/alibaba/excel/annotation/ExcelIgnoreUnannotated.java)注解，表示未添加 `@ExcelProperty` 的字段，不进行导出。
+- ③ 在类上，添加`@ExcelIgnoreUnannotated`注解，表示未添加 `@ExcelProperty` 的字段，不进行导出。
 
 因此，最终 Excel 导出的效果如下：
 
@@ -100,13 +100,13 @@ public class PostRespVO {
 
 #### 1.1.2 ExcelUtils 写入
 
-ExcelUtils 的 [`#write(...)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-excel/src/main/java/cn/iocoder/yudao/framework/excel/core/util/ExcelUtils.java#L19-L40)方法，将列表以 Excel 响应给前端。代码如下图：
+ExcelUtils 的`#write(...)`方法，将列表以 Excel 响应给前端。代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/804fa725-69c2-4c4d-940f-c8baf5fdcaab.png)
 
 ### 1.2 前端导入实现
 
-在 [`post/index.vue` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/post/index.vue#L232-L243)界面，定义 `#handleExport()` 操作，代码如下图：
+在`post/index.vue`界面，定义 `#handleExport()` 操作，代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/3283ded1-28d6-4f93-9be5-33de65886528.png)
 
@@ -118,7 +118,7 @@ ExcelUtils 的 [`#write(...)` (opens new window)](https://github.com/YunaiV
 
 ### 2.1 后端导入实现
 
-在 [UserController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/user/UserController.java#L176-L187)类中，定义 `/admin-api/system/user/import` 导入接口。代码如下：
+在`UserController`类中，定义 `/admin-api/system/user/import` 导入接口。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/90ab85b7-df3f-4dd5-9e2c-dd1391233cac.png)
 
@@ -126,7 +126,7 @@ ExcelUtils 的 [`#write(...)` (opens new window)](https://github.com/YunaiV
 
 #### 2.1.1 UserImportExcelVO 类
 
-创建 [UserImportExcelVO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/user/vo/user/UserImportExcelVO.java)类，用户 Excel 导入的 VO 类。它的作用和 Excel 导入是一样的，代码如下：
+创建`UserImportExcelVO`类，用户 Excel 导入的 VO 类。它的作用和 Excel 导入是一样的，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/98aba6b7-b498-4240-8d8c-1587062a8cac.png)
 
@@ -136,19 +136,19 @@ ExcelUtils 的 [`#write(...)` (opens new window)](https://github.com/YunaiV
 
 #### 2.1.2 ExcelUtils 读取
 
-ExcelUtils 的 [`#read(...)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-excel/src/main/java/cn/iocoder/yudao/framework/excel/core/util/ExcelUtils.java#L42-L46)方法，读取 Excel 文件成列表。代码如下图：
+ExcelUtils 的`#read(...)`方法，读取 Excel 文件成列表。代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fb8c36d5-dbd4-456b-bc65-26cff6e6c799.png)
 
 ### 2.2 前端导入实现
 
-在 [`user/index.vue` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/user/index.vue#L174-L193)界面，定义 Excel 导入的功能，代码如下图：
+在`user/index.vue`界面，定义 Excel 导入的功能，代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/9dd0bdf5-4756-4d46-a65b-8464a49ec220.png)
 
 ## 3. 字段转换器
 
-EasyExcel 定义了 [Converter (opens new window)](https://github.com/alibaba/easyexcel/blob/master/easyexcel-core/src/main/java/com/alibaba/excel/converters/Converter.java)接口，用于实现字段的转换。它有两个核心方法：
+EasyExcel 定义了`Converter`接口，用于实现字段的转换。它有两个核心方法：
 
 ① `#convertToJavaData(...)` 方法：将 Excel Row 对应表格的值，转换成 Java 内存中的值。例如说，Excel 的“状态”列，将“状态”列转换成 `status = 1`，”禁用”列转换成 `status = 0`。
 
@@ -156,7 +156,7 @@ EasyExcel 定义了 [Converter (opens new window)](https://github.com/aliba
 
 ### 3.1 DictConvert 实现
 
-以项目中提供的 [DictConvert (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-excel/src/main/java/cn/iocoder/yudao/framework/excel/core/convert/DictConvert.java)举例子，它实现 Converter 接口，提供字典数据的转换。代码如下：
+以项目中提供的`DictConvert`举例子，它实现 Converter 接口，提供字典数据的转换。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b03b1a01-f662-4635-86d6-bbcd79685d66.png)
 
@@ -164,7 +164,7 @@ EasyExcel 定义了 [Converter (opens new window)](https://github.com/aliba
 
 ### 3.1 DictConvert 使用示例
 
-在需要转换的字段上，声明注解 `@ExcelProperty` 的 `converter` 属性是 DictConvert 转换器，注解 [`@DictFormat` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-excel/src/main/java/cn/iocoder/yudao/framework/excel/core/annotations/DictFormat.java)为对应的字典数据的类型。示例如下：
+在需要转换的字段上，声明注解 `@ExcelProperty` 的 `converter` 属性是 DictConvert 转换器，注解 [`@DictFormat`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-excel/src/main/java/cn/iocoder/yudao/framework/excel/core/annotations/DictFormat.java)为对应的字典数据的类型。示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/8b6b4824-6a29-4f23-a8ea-eb7c6940abac.png)
 

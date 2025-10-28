@@ -23,11 +23,11 @@ outline: deep
 
 ### 1. yudao-dependencies
 
-该模块是一个 Maven Bom，只有一个 [`pom.xml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-dependencies/pom.xml)文件，定义项目中所有 Maven 依赖的**版本号**，解决依赖冲突问题。
+该模块是一个 Maven Bom，只有一个 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-dependencies/pom.xml)文件，定义项目中所有 Maven 依赖的**版本号**，解决依赖冲突问题。
 
-从定位上来说，它和 Spring Boot 的 [`spring-boot-starter-parent` (opens new window)](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent)和 Spring Cloud 的 [`spring-cloud-dependencies` (opens new window)](https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies)是一致的。
+从定位上来说，它和 Spring Boot 的 [`spring-boot-starter-parent`](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent)和 Spring Cloud 的 [`spring-cloud-dependencies`](https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-dependencies)是一致的。
 
-虽然说，直接在根目录 [`pom.xml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/pom.xml)管理依赖版本会更加方便，也符合绝大多数程序员的认知。但是要额外考虑一个场景，如果每个 `yudao-module-xxx` 模块都维护在一个独立的 Git 仓库，那么 `yudao-dependencies` 就可以在多个 `yudao-module-xxx` 模块下复用。
+虽然说，直接在根目录 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/pom.xml)管理依赖版本会更加方便，也符合绝大多数程序员的认知。但是要额外考虑一个场景，如果每个 `yudao-module-xxx` 模块都维护在一个独立的 Git 仓库，那么 `yudao-dependencies` 就可以在多个 `yudao-module-xxx` 模块下复用。
 
 ### 2. yudao-framework
 
@@ -133,7 +133,7 @@ outline: deep
 | `controller.admin` | VO 类 | Admin Controller 接口的入参 ReqVO、出参 RespVO | AuthLoginReqVO、AuthLoginRespVO |
 | `controller.app` | Controller 类，**以 App 为前缀** | 提供给用户 App 的 RESTful API，默认以 `app-api/` 作为前缀。<br>例如 `app-api/member/auth/login` 登录接口 | AppAuthController |
 | `controller.app` | VO 类，**以 App 为前缀** | App Controller 接口的入参 ReqVO、出参 RespVO | AppAuthLoginReqVO、AppAuthLoginRespVO |
-| `controller` | `.http` 文件 | [IDEA Http Client 插件 (opens new window)](https://www.iocoder.cn/Spring-Boot/IDEA-HTTP-Client/?yudao)，模拟请求 RESTful 接口 | AuthController.http |
+| `controller` | `.http` 文件 | [IDEA Http Client 插件](https://www.iocoder.cn/Spring-Boot/IDEA-HTTP-Client/?yudao)，模拟请求 RESTful 接口 | AuthController.http |
 
 #### 3.3 Service 包
 
@@ -205,12 +205,12 @@ outline: deep
 
 | 项目 | 说明 |
 | --- | --- |
-| [`yudao-ui-admin-vue3`(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/) | 基于 Vue3 + element-plus 实现的管理后台 |
-| [`yudao-ui-admin-vben`(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vben/) | 基于 Vue3 + vben5.0(ant-design-vue) 实现的管理后台 |
-| [`yudao-ui-admin-vue2`(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/) | 基于 Vue2 + element-ui 实现的管理后台 |
-| [`yudao-ui-go-view`(opens new window)](https://gitee.com/yudaocode/yudao-ui-go-view) | 基于 Vue3 + naive-ui 实现的大屏报表 |
-| [`yudao-ui-admin-uniapp`(opens new window)](https://github.com/yudaocode/yudao-ui-admin-uniapp/) | 基于 uni-app + uni-ui 实现的管理后台的小程序 |
-| [`yudao-mall-uniapp`(opens new window)](https://github.com/yudaocode/yudao-mall-uniapp) | 基于 uni-app + uview 实现的用户 App |
+| [`yudao-ui-admin-vue3`](https://github.com/yudaocode/yudao-ui-admin-vue3/) | 基于 Vue3 + element-plus 实现的管理后台 |
+| [`yudao-ui-admin-vben`](https://github.com/yudaocode/yudao-ui-admin-vben/) | 基于 Vue3 + vben5.0(ant-design-vue) 实现的管理后台 |
+| [`yudao-ui-admin-vue2`](https://github.com/yudaocode/yudao-ui-admin-vue2/) | 基于 Vue2 + element-ui 实现的管理后台 |
+| [`yudao-ui-go-view`](https://gitee.com/yudaocode/yudao-ui-go-view) | 基于 Vue3 + naive-ui 实现的大屏报表 |
+| [`yudao-ui-admin-uniapp`](https://github.com/yudaocode/yudao-ui-admin-uniapp/) | 基于 uni-app + uni-ui 实现的管理后台的小程序 |
+| [`yudao-mall-uniapp`](https://github.com/yudaocode/yudao-mall-uniapp) | 基于 uni-app + uview 实现的用户 App |
 
 ### 1. yudao-ui-admin-vue3
 

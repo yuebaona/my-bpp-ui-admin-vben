@@ -8,9 +8,9 @@ outline: deep
 
 ## 1. Hutool
 
-项目使用 [Hutool (opens new window)](https://www.bookstack.cn/read/hutool/a6819f05207359bb.md)作为主工具库。Hutool 是国产的一个 Java 工具包，它可以帮助我们简化每一行代码，减少每一个方法，让 Java 语言也可以“甜甜的”。
+项目使用 [Hutool](https://www.bookstack.cn/read/hutool/a6819f05207359bb.md)作为主工具库。Hutool 是国产的一个 Java 工具包，它可以帮助我们简化每一行代码，减少每一个方法，让 Java 语言也可以“甜甜的”。
 
-[`yudao-common` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/)模块的 [`util` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/util/)包作为辅工具库，以 Utils 结尾，补充 Hutool 缺少的工具能力。
+[`yudao-common`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/)模块的 [`util`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/util/)包作为辅工具库，以 Utils 结尾，补充 Hutool 缺少的工具能力。
 
 **友情提示：常用的工具类，使用 ⭐ 标记，需要的时候可以找找有没对应的工具方法。**
 
@@ -43,12 +43,12 @@ outline: deep
 
 **强烈推荐：**
 
-Guava 是 Google 开源的 Java 常用类库，如果你感兴趣，可以阅读 [《Guava 学习笔记》 (opens new window)](https://www.iocoder.cn/categories/Guava/?yudao)文章。
+Guava 是 Google 开源的 Java 常用类库，如果你感兴趣，可以阅读 [《Guava 学习笔记》](https://www.iocoder.cn/categories/Guava/?yudao)文章。
 
 ## 2. Lombok
 
-[Lombok (opens new window)](https://github.com/projectlombok/lombok)是一个 Java 工具，通过使用其定义的注解，自动生成常见的冗余代码，提升开发效率。
+[Lombok](https://github.com/projectlombok/lombok)是一个 Java 工具，通过使用其定义的注解，自动生成常见的冗余代码，提升开发效率。
 
-在项目的根目录有 [`lombok.config` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/lombok.config)全局配置文件，开启链式调用、生成的 toString/hashcode/equals 方法需要调用父方法。如下图所示：
+在项目的根目录有 [`lombok.config`](https://github.com/YunaiV/yudao-cloud/blob/master/lombok.config)全局配置文件，开启链式调用、生成的 toString/hashcode/equals 方法需要调用父方法。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a1781b49-b007-4f4c-8afd-9656cef37d71.png)

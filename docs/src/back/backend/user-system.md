@@ -8,25 +8,25 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/45055cec-6250-4fc6-aac9-f5bf9e2decd9.png)
 
-- AdminUser 管理员用户，前端访问 [`yudao-ui-admin-vue3` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3)管理后台，后端访问 `/admin-api/**` RESTful API 接口。
+- AdminUser 管理员用户，前端访问 [`yudao-ui-admin-vue3` ](https://github.com/yudaocode/yudao-ui-admin-vue3)管理后台，后端访问 `/admin-api/**` RESTful API 接口。
 
-- MemberUser 会员用户，前端访问 [`yudao-mall-uniapp` (opens new window)](https://gitee.com/yudaocode/yudao-mall-uniapp)用户 App，后端访问 `/app-api/**` RESTful API 接口。
+- MemberUser 会员用户，前端访问 [`yudao-mall-uniapp` ](https://gitee.com/yudaocode/yudao-mall-uniapp)用户 App，后端访问 `/app-api/**` RESTful API 接口。
 
 虽然是不同类型的用户，他们访问 RESTful API 接口时，都通过 Token 认证机制。
 
 ## 1. 表结构
 
-2 种类型的时候，采用不同数据库的表进行存储，管理员用户对应 [`system_users` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/user/AdminUserDO.java)表，会员用户对应 [`member_user` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/dal/dataobject/user/MemberUserDO.java)表。如下图所示：
+2 种类型的时候，采用不同数据库的表进行存储，管理员用户对应 [`system_users` ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/user/AdminUserDO.java)表，会员用户对应 [`member_user` ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/dal/dataobject/user/MemberUserDO.java)表。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b864c9a7-2fa9-427a-98a0-fb961c73502c.png)
 
-如果表需要关联多种类型的用户，例如说上述的 `system_oauth2_access_token` 访问令牌表，可以通过 `user_type` 字段进行区分。并且 `user_type` 对应 [UserTypeEnum (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/enums/UserTypeEnum.java)全局枚举，代码如下：
+如果表需要关联多种类型的用户，例如说上述的 `system_oauth2_access_token` 访问令牌表，可以通过 `user_type` 字段进行区分。并且 `user_type` 对应 [UserTypeEnum](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/enums/UserTypeEnum.java)全局枚举，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ec70b851-4a68-4b9c-8452-62cf93fac958.png)
 
 ## 2. 如何获取当前登录的用户？
 
-使用 [SecurityFrameworkUtils (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/util/SecurityFrameworkUtils.java)提供的如下方法，可以获得当前登录用户的信息：
+使用 [SecurityFrameworkUtils ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/util/SecurityFrameworkUtils.java)提供的如下方法，可以获得当前登录用户的信息：
 
 ### 2.1 获取当前用户信息
 
@@ -76,7 +76,7 @@ public static Long getLoginUserDeptId()
 
 ### 3.1 管理后台的实现
 
-使用 `username` 账号 + `password` 密码进行登录，由 [AuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L55-L62)提供 `/admin-api/system/auth/login` 接口。代码如下：
+使用 `username` 账号 + `password` 密码进行登录，由 `AuthController`提供 `/admin-api/system/auth/login` 接口。代码如下：
 
 ```java
 @PostMapping("/login")
@@ -91,7 +91,7 @@ public CommonResult<AuthLoginRespVO> login(@RequestBody @Valid AuthLoginReqVO re
 
 ### 3.2 用户 App 的实现
 
-使用 `mobile` 手机 + `password` 密码进行登录，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L34-L41)提供 `/app-api/member/auth/login` 接口。代码如下：
+使用 `mobile` 手机 + `password` 密码进行登录，由 `AppAuthController`提供 `/app-api/member/auth/login` 接口。代码如下：
 
 ```java
 @PostMapping("/login")
@@ -108,7 +108,7 @@ public CommonResult<AppAuthLoginRespVO> login(@RequestBody @Valid AppAuthLoginRe
 
 ### 4.1 管理后台的实现
 
-① 使用 `mobile` 手机号获得验证码，由 [AuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L105-L111)提供 `/admin-api/system/auth/send-sms-code` 接口。代码如下：
+① 使用 `mobile` 手机号获得验证码，由 `AuthController`提供 `/admin-api/system/auth/send-sms-code` 接口。代码如下：
 
 ```java
 @PostMapping("/send-sms-code")
@@ -120,7 +120,7 @@ public CommonResult<Boolean> sendSmsCode(@RequestBody @Valid AuthSendSmsReqVO re
 
 ```
 
-② 使用 `mobile` 手机 + `code` 验证码进行登录，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L96-L103)提供 `/admin-api/system/auth/sms-login` 接口。代码如下：
+② 使用 `mobile` 手机 + `code` 验证码进行登录，由 `AppAuthController`提供 `/admin-api/system/auth/sms-login` 接口。代码如下：
 
 ```java
 @PostMapping("/sms-login")
@@ -135,7 +135,7 @@ public CommonResult<AuthLoginRespVO> smsLogin(@RequestBody @Valid AuthSmsLoginRe
 
 ### 4.2 用户 App 的实现
 
-① 使用 `mobile` 手机号获得验证码，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L52-L58)提供 `/app-api/member/auth/send-sms-code` 接口。代码如下：
+① 使用 `mobile` 手机号获得验证码，由 `AppAuthController`提供 `/app-api/member/auth/send-sms-code` 接口。代码如下：
 
 ```java
 @PostMapping("/send-sms-code")
@@ -147,7 +147,7 @@ public CommonResult<Boolean> sendSmsCode(@RequestBody @Valid AppAuthSendSmsReqVO
 
 ```
 
-② 使用 `mobile` 手机 + `code` 验证码进行登录，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L43-L50)提供 `/app-api/member/auth/sms-login` 接口。代码如下：
+② 使用 `mobile` 手机 + `code` 验证码进行登录，由 `AppAuthController`提供 `/app-api/member/auth/sms-login` 接口。代码如下：
 
 ```java
 @PostMapping("/sms-login")
@@ -166,7 +166,7 @@ public CommonResult<AppAuthLoginRespVO> smsLogin(@RequestBody @Valid AppAuthSmsL
 
 ### 5.1 管理后台的实现
 
-① 跳转第三方平台，来获得三方授权码，由 [AuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L97-L106)提供 `/admin-api/system/auth/social-auth-redirect` 接口。代码如下：
+① 跳转第三方平台，来获得三方授权码，由 `AuthController`提供 `/admin-api/system/auth/social-auth-redirect` 接口。代码如下：
 
 ```java
 @GetMapping("/social-auth-redirect")
@@ -182,7 +182,7 @@ public CommonResult<String> socialAuthRedirect(@RequestParam("type") Integer typ
 
 ```
 
-② 使用 `code` 三方授权码进行快登录，由 [AuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L149-L154)提供 `/admin-api/system/auth/social-login` 接口。代码如下：
+② 使用 `code` 三方授权码进行快登录，由 `AuthController`提供 `/admin-api/system/auth/social-login` 接口。代码如下：
 
 ```java
 @PostMapping("/social-login")
@@ -199,7 +199,7 @@ public CommonResult<AuthLoginRespVO> socialQuickLogin(@RequestBody @Valid AuthSo
 
 ### 5.2 用户 App 的实现
 
-① 跳转第三方平台，来获得三方授权码，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L96-L105)提供 `/app-api/member/auth/social-auth-redirect` 接口。代码如下：
+① 跳转第三方平台，来获得三方授权码，由 `AppAuthController`提供 `/app-api/member/auth/social-auth-redirect` 接口。代码如下：
 
 ```java
 @GetMapping("/social-auth-redirect")
@@ -215,7 +215,7 @@ public CommonResult<String> socialAuthRedirect(@RequestParam("type") Integer typ
 
 ```
 
-② 使用 `code` 三方授权码进行快登录，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L107-L111)提供 `/app-api/member/auth/social-login` 接口。代码如下：
+② 使用 `code` 三方授权码进行快登录，由 `AppAuthController`提供 `/app-api/member/auth/social-login` 接口。代码如下：
 
 ```java
 @PostMapping("/social-login")
@@ -230,7 +230,7 @@ public CommonResult<AppAuthLoginRespVO> socialQuickLogin(@RequestBody @Valid Aut
 
 ③ 使用 `socialCode` 三方授权码 + `username` + `password` 进行绑定登录，直接使用 `/app-api/system/auth/login` 手机验证码登录的接口，区别在于额外带上 `socialType` + `socialCode` + `socialState` 参数。
 
-④ 【微信小程序特有】使用 `phoneCode` + `loginCode` 实现获取手机号并一键登录，由 [AppAuthController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L113-L117)提供 `/app-api/member/auth/weixin-mini-app-login` 接口。代码如下：
+④ 【微信小程序特有】使用 `phoneCode` + `loginCode` 实现获取手机号并一键登录，由 `AppAuthController`提供 `/app-api/member/auth/weixin-mini-app-login` 接口。代码如下：
 
 ```java
 @PostMapping("/weixin-mini-app-login")
@@ -245,7 +245,7 @@ public CommonResult<AppAuthLoginRespVO> weixinMiniAppLogin(@RequestBody @Valid A
 
 ### 6.1 管理后台的实现
 
-管理后台暂不支持用户注册，而是通过在 \[系统管理 -> 用户管理\] 菜单，进行添加用户，由 [UserController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/user/UserController.java#L48-L54)提供 `/admin-api/system/user/create` 接口。代码如下：
+管理后台暂不支持用户注册，而是通过在 \[系统管理 -> 用户管理\] 菜单，进行添加用户，由 `UserController`提供 `/admin-api/system/user/create` 接口。代码如下：
 
 ```java
 @PostMapping("/create")

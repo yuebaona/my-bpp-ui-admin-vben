@@ -4,17 +4,17 @@ outline: deep
 
 # 异步任务
 
-[`yudao-spring-boot-starter-job` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-job/)技术组件，除了提供定时任务的功能，还提供了 Async 异步任务的能力。系统使用异步任务，提升执行效率。例如说：
+[`yudao-spring-boot-starter-job`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-job/)技术组件，除了提供定时任务的功能，还提供了 Async 异步任务的能力。系统使用异步任务，提升执行效率。例如说：
 
-- [操作日志模块 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/logger/OperateLogServiceImpl.java#L42-L56)，异步记录【操作日志】
+- [操作日志模块](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/logger/OperateLogServiceImpl.java#L42-L56)，异步记录【操作日志】
 
-- [访问日志模块 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/logger/ApiAccessLogServiceImpl.java#L39-L44)，异步记录【访问日志】
+- [访问日志模块](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/logger/ApiAccessLogServiceImpl.java#L39-L44)，异步记录【访问日志】
 
 ## 1.Async配置
 
 ### 安装依赖
 
-在 [YudaoAsyncAutoConfiguration (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-job/src/main/java/cn/iocoder/yudao/framework/quartz/config/YudaoAsyncAutoConfiguration.java)配置类，设置使用 [TransmittableThreadLocal (opens new window)](https://github.com/alibaba/transmittable-thread-local)，解决异步执行时上下文传递的问题。如下图所示：
+在 [YudaoAsyncAutoConfiguration](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-job/src/main/java/cn/iocoder/yudao/framework/quartz/config/YudaoAsyncAutoConfiguration.java)配置类，设置使用 [TransmittableThreadLocal](https://github.com/alibaba/transmittable-thread-local)，解决异步执行时上下文传递的问题。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a98ca1c4-b854-4daa-a3ae-32f2cfbc2af1.png)
 
@@ -36,7 +36,7 @@ outline: deep
 
 ### 2.2 添加 @Async 注解
 
-在 [ApiAccessLogServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/logger/ApiAccessLogServiceImpl.java#L39-L44)的 `#createApiAccessLogAsync(...)` 方法上，添加 `@Async` 注解，声明它要异步执行。如下图所示：
+在 [ApiAccessLogServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/logger/ApiAccessLogServiceImpl.java#L39-L44)的 `#createApiAccessLogAsync(...)` 方法上，添加 `@Async` 注解，声明它要异步执行。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/307a6922-1d6b-4996-9a15-daef67618095.png)
 

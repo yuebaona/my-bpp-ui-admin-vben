@@ -32,7 +32,7 @@ outline: deep
 
 ### 1.1 安装 Docker
 
-执行如下命令，进行 Docker 的安装。参考自 [https://help.aliyun.com/zh/ecs/use-cases/install-and-use-docker-on-a-linux-ecs-instance (opens new window)](https://help.aliyun.com/zh/ecs/use-cases/install-and-use-docker-on-a-linux-ecs-instance)文档。
+执行如下命令，进行 Docker 的安装。参考自 [https://help.aliyun.com/zh/ecs/use-cases/install-and-use-docker-on-a-linux-ecs-instance](https://help.aliyun.com/zh/ecs/use-cases/install-and-use-docker-on-a-linux-ecs-instance)文档。
 
 ```bash
 # ① 运行以下命令，安装 Docker 存储驱动的依赖包
@@ -89,7 +89,7 @@ docker run -v /work/mysql/:/var/lib/mysql \
 
 #### 第二步，导入 SQL 脚本
 
-创建一个名字为 `ruoyi-vue-pro` 数据库，执行数据库对应的 [`sql` (opens new window)](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/sql)目录下的 SQL 文件，进行初始化。
+创建一个名字为 `ruoyi-vue-pro` 数据库，执行数据库对应的 [`sql`](https://github.com/YunaiV/ruoyi-vue-pro/tree/master/sql)目录下的 SQL 文件，进行初始化。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1f4bac73-1d85-4dea-9233-f6b454ff966a.png)
 
@@ -181,7 +181,7 @@ m.daocloud.io/docker.io/nginx
 
 #### 第一步，下载编译后压缩包
 
-① 新建 `/work` 目录，再从 [最新稳定版本 (opens new window)](https://github.com/alibaba/nacos/releases)下载 `nacos-server-$version.zip` 包。
+① 新建 `/work` 目录，再从 [最新稳定版本](https://github.com/alibaba/nacos/releases)下载 `nacos-server-$version.zip` 包。
 
 ② 执行 `unzip nacos-server-$version.zip` 解压缩，它最终在 `/work/nacos/` 目录如下
 
@@ -215,7 +215,7 @@ nacos.core.auth.server.identity.value=admin
 
 ② `nacos.core.auth.server.identity.key` 和 `nacos.core.auth.server.identity.key` 可以使用随机的字符串。
 
-`nacos.core.auth.plugin.nacos.token.secret.key` 可以随机一个 32 位的字符串，然后使用 [Base64 (opens new window)](https://tool.oschina.net/encrypt?type=3)编码。
+`nacos.core.auth.plugin.nacos.token.secret.key` 可以随机一个 32 位的字符串，然后使用 [Base64](https://tool.oschina.net/encrypt?type=3)编码。
 
 #### 第三步，启动 Nacos
 
@@ -252,11 +252,11 @@ docker.m.daocloud.io/nacos/nacos-server
 
 #### 第一步，修改配置
 
-① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
+① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/3eae81b2-01f3-4d7f-a973-6426e7a670da.png)
 
-② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
+② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/6f0cc1ec-85f7-45f0-beed-26bdaa1eea2b.png)
 
@@ -525,7 +525,7 @@ yudao-server
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/6b46a337-1048-4324-a86d-3ba99bfcddff.png)
 
@@ -543,7 +543,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ```
 
-如果是在服务器上构建，并且出现卡死的情况，可以参考 [https://t.zsxq.com/Quq1U (opens new window)](https://t.zsxq.com/Quq1U)或 [https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3 (opens new window)](https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3)解决
+如果是在服务器上构建，并且出现卡死的情况，可以参考 [https://t.zsxq.com/Quq1U](https://t.zsxq.com/Quq1U)或 [https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3](https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3)解决
 
 **其它高级参数说明【可暂时不看】：**
 
@@ -563,7 +563,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
 
-具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 #### 第三步，上传 `**dist**` 文件
 
@@ -577,7 +577,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 #### 第一步，修改配置
 
-前端 production 开发环境对应的是 [`.env.production` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
+前端 production 开发环境对应的是 [`.env.production`](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fa7e9e1f-0a78-4eed-996e-cea052a4a319.png)
 
@@ -599,7 +599,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
 
-具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 #### 第二步，编译前端
 
@@ -613,15 +613,15 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/0816e4a3-1b3f-4bf6-a0ad-1d101c94f745.png)
 
-### 4.3 yudao-ui-admin-vue2
+### 3.3 yudao-ui-admin-vue2
 
 基于 Vue2 + element-ui
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
 
-![image](http://rsim.portsgmt.com:9001/bgbpp-vben/0d96b2e9-7af8-41b3-9680-397b59209a2a)
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/0d96b2e9-7af8-41b3-9680-397b59209a2a.png)
 
 #### 第二步，编译前端
 
@@ -641,11 +641,11 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ① `PUBLIC_PATH`：可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。示例如下：
 
-可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》 (opens new window)](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
+可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
 ② `VUE_APP_APP_NAME`：二级部署路径，默认为 `/` 根目录，一般不用修改。
 
-③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
+③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ee00d00b-cff3-4fa7-8173-0567f6c0ee94.png)
 
@@ -710,11 +710,11 @@ server {
 
 执行 `curl http://139.9.196.247:48080/admin-api/` 命令，成功访问后端项目的外网地址，返回结果一致。
 
-④ 请求 [http://139.9.196.247:48080 (opens new window)](http://139.9.196.247:48080/)地址，成功访问前端项目的外网地址，，返回前端界面如下：
+④ 请求 [http://139.9.196.247:48080](http://139.9.196.247:48080/)地址，成功访问前端项目的外网地址，，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/871feaa2-e0ce-41e8-91dd-5b8c258eb4cd.png)
 
-⑤ 如果你使用到 WebSocket 的话，需要额外对 `/infra/ws` 路径进行配置，具体可见 [https://t.zsxq.com/LQEfC (opens new window)](https://t.zsxq.com/LQEfC)链接。
+⑤ 如果你使用到 WebSocket 的话，需要额外对 `/infra/ws` 路径进行配置，具体可见 [https://t.zsxq.com/LQEfC](https://t.zsxq.com/LQEfC)链接。
 
 ### 4.2 方式二：独立域名访问
 
@@ -765,12 +765,12 @@ server { ## 后端项目
 
 ② 执行 `docker exec nginx nginx -s reload` 命令，重新加载 Nginx 配置。
 
-③ 请求 [http://api.iocoder.cn/admin-api/ (opens new window)](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
+③ 请求 [http://api.iocoder.cn/admin-api/](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-④ 请求 [http://admin.iocoder.cn (opens new window)](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
+④ 请求 [http://admin.iocoder.cn](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/9e442315-f3f1-4341-b0ef-df7815209132.png)

@@ -16,7 +16,7 @@ outline: deep
 
 - 线下、线上各一套 MySQL 数据库，多个环境共享使用
 
-- 每个环境对应一个配置文件，后端使用 [`application-{env}.yaml` (opens new window)](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-server/src/main/resources/application-dev.yaml)文件，前端使用 [`.env.{env}` (opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)文件
+- 每个环境对应一个配置文件，后端使用 [`application-{env}.yaml`](https://github.com/YunaiV/ruoyi-vue-pro/blob/master/yudao-server/src/main/resources/application-dev.yaml)文件，前端使用 [`.env.{env}`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)文件
 
 **友情提示：项目中暂时没有 test、stage、production 等环境的配置，需要自己创建。**
 

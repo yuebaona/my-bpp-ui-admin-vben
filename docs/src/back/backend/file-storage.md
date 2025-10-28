@@ -12,15 +12,6 @@ outline: deep
 
 3.  数据库存储：MySQL、Oracle、PostgreSQL、SQL Server 等等。
 
-::: info 技术选型？
-
-- 优先，✔ 推荐方案 1。如果无法使用云服务，可以自己搭建一个 MinIO 服务。
-
-- 其次，推荐方案 3。数据库的主从机制可以实现高可用，备份也方便，少量小文件问题不大。
-
-- 最后，× 不推荐方案 2。主要是实现高可用比较困难，无法实现故障转移。
-
-:::
 
 ## 1. 快速入门
 
@@ -78,7 +69,7 @@ outline: deep
 
 ### 2.1 方式一：前端上传
 
-[FileController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/file/FileController.java)提供了 `/admin-api/infra/file/upload` RESTful API，用于前端直接上传文件。
+`FileController`提供了 `/admin-api/infra/file/upload` RESTful API，用于前端直接上传文件。
 
 ```java
 // FileController.java
@@ -97,13 +88,13 @@ public CommonResult<String> uploadFile(FileUploadReqVO uploadReqVO) throws Excep
 
 前端上传文件的代码如何实现，可见：
 
-- 文件列表，文件上传 [`index.vue`(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/infra/file/index.vue#L59-L76)
+- 文件列表，文件上传`index.vue`
 
-- 个人中心，头像修改 [`userAvatar.vue`(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/user/profile/userAvatar.vue#L122-L135)
+- 个人中心，头像修改`userAvatar.vue`
 
 ### 2.2 方式二：后端上传
 
-`yudao-module-infra` 的 [FileApi (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-api/src/main/java/cn/iocoder/yudao/module/infra/api/file/FileApi.java)提供了 `#createFile(...)` 方法，用于后端需要上传文件的逻辑。
+`yudao-module-infra` 的`FileApi`提供了 `#createFile(...)` 方法，用于后端需要上传文件的逻辑。
 
 ```java
 // FileApi.java
@@ -121,9 +112,13 @@ String createFile(String path, byte[] content);
 
 例如说，个人中心修改头像时，需要进行头像的上传。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-member-biz 子模块，重命名为 yudao-module-member-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：最新版本将 yudao-module-member-biz 子模块，重命名为 yudao-module-member-server 子模块，更好表达它是一个服务 
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+:::
+
+::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5304235c-4818-4aa3-8bf2-9e91ff28307f.png)
 
@@ -146,7 +141,7 @@ String createFile(String path, byte[] content);
 
 ① 当存储器是【S3 对象存储】时，支持 HTTP 访问，所以直接使用 S3 对象存储返回的 URL 路径即可。
 
-② 当存储器是【数据库】【本地磁盘】等时，它们只支持存储，所以需要 [FileController (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/file/FileController.java)提供的 `/admin-api/infra/file/{configId}/get/{path}` RESTful API，读取文件内容后返回。
+② 当存储器是【数据库】【本地磁盘】等时，它们只支持存储，所以需要`FileController`提供的 `/admin-api/infra/file/{configId}/get/{path}` RESTful API，读取文件内容后返回。
 
 ```java
 // FileController.java
@@ -178,7 +173,7 @@ public void getFileContent(HttpServletRequest request,
 
 ## 4. 文件客户端
 
-在 `yudao-module-infra-server` 模块中，它的 [`framework/file` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/framework/file/package-info.java)包下，定义了 [FileClient (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/framework/file/core/client/FileClient.java)接口，抽象了文件客户端的方法。代码如下所示：
+在 `yudao-module-infra-server` 模块中，它的`framework/file`包下，定义了`FileClient`接口，抽象了文件客户端的方法。代码如下所示：
 
 ```java
 public interface FileClient {
@@ -228,7 +223,7 @@ FileClient 有 5 个实现类，使用不同存储器进行文件的上传与
 
 ## 5. S3 对象存储的配置
 
-做的不错的云存储服务，都是兼容 S3 协议的。如何获取对应的 S3 配置，整理到了 [S3FileClientConfig (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/framework/file/core/client/FileClientConfig.java)配置类。
+做的不错的云存储服务，都是兼容 S3 协议的。如何获取对应的 S3 配置，整理到了`S3FileClientConfig`配置类。
 
 有一点要注意，云存储服务的 Bucket 需要设置为**公共读**，不然 URL 无法访问到文件。
 
@@ -236,7 +231,9 @@ FileClient 有 5 个实现类，使用不同存储器进行文件的上传与
 
 ## 6. 前端直传 S3 存储【推荐】
 
-::: info 友情提示：目前仅 yudao-ui-admin-vue3 前端项目支持，Vue3 + Element Plus 版本 :::
+::: info 友情提示：目前仅 yudao-ui-admin-vue3 前端项目支持，Vue3 + Element Plus 版本 
+
+:::
 
 前面小节的文件上传，都是 `前端 => 后端 => S3 存储器` 的方式。这种方式，有一个问题，就是文件的流量会经过后端，如果后端的服务器带宽不够，就会影响文件的上传速度。例如说：上传文件有 10MB，后端服务器带宽只有 1MB，那么上传文件就需要 10 秒。如果多个人上传文件，就会导致后端服务器的带宽被占满。
 

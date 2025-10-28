@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# Redis
+# Redis缓存
 
-[`yudao-spring-boot-starter-redis` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-redis/)技术组件，使用 Redis 实现缓存的功能，它有 2 种使用方式：
+[`yudao-spring-boot-starter-redis`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-redis/)技术组件，使用 Redis 实现缓存的功能，它有 2 种使用方式：
 
 - 编程式缓存：基于 Spring Data Redis 框架的 RedisTemplate 操作模板
 
@@ -24,11 +24,11 @@ outline: deep
 
 ### 1.1 Spring Data Redis 配置
 
-① 在 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L64-L69)配置文件中，通过 `spring.redis` 配置项，设置 Redis 的配置。如下图所示：
+① 在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L64-L69)配置文件中，通过 `spring.redis` 配置项，设置 Redis 的配置。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/0e980559-af15-4dfd-a151-20f19ff4d352.png)
 
-② 在 [YudaoRedisAutoConfiguration (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-redis/src/main/java/cn/iocoder/yudao/framework/redis/config/YudaoRedisAutoConfiguration.java)配置类，设置使用 JSON 序列化 value 值。如下图所示：
+② 在 [YudaoRedisAutoConfiguration](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-redis/src/main/java/cn/iocoder/yudao/framework/redis/config/YudaoRedisAutoConfiguration.java)配置类，设置使用 JSON 序列化 value 值。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d2112d15-9714-4d78-9f08-d7b18d44de28.png)
 
@@ -52,7 +52,7 @@ outline: deep
 
 #### 1.2.2 OAuth2AccessTokenDO
 
-新建 [OAuth2AccessTokenDO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/oauth2/OAuth2AccessTokenDO.java)类，访问令牌 Access Token 类。代码如下：
+新建 [OAuth2AccessTokenDO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/oauth2/OAuth2AccessTokenDO.java)类，访问令牌 Access Token 类。代码如下：
 
 ::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
 
@@ -68,23 +68,31 @@ outline: deep
 
 #### 1.2.3 RedisKeyConstants
 
-在 `yudao-module-system` 模块的 [RedisKeyConstants (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/redis/RedisKeyConstants.java)类中，新建 OAuth2AccessTokenDO 对应的 Redis Key 定义 `OAUTH2_ACCESS_TOKEN`。如下图所示：
+在 `yudao-module-system` 模块的 [RedisKeyConstants](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/redis/RedisKeyConstants.java)类中，新建 OAuth2AccessTokenDO 对应的 Redis Key 定义 `OAUTH2_ACCESS_TOKEN`。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：
+
+最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4e7c0c67-8db3-44bb-8ca4-17f9a71a5d79.png)
 
 #### 1.2.4 OAuth2AccessTokenRedisDAO
 
-新建 [OAuth2AccessTokenRedisDAO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/redis/oauth2/OAuth2AccessTokenRedisDAO.java)类，是 OAuth2AccessTokenDO 的 RedisDAO 实现。代码如下：
+新建 [OAuth2AccessTokenRedisDAO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/redis/oauth2/OAuth2AccessTokenRedisDAO.java)类，是 OAuth2AccessTokenDO 的 RedisDAO 实现。代码如下：
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：
+
+最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eb4f49fd-747d-40ea-acdb-b2ab3dcf6652.png)
 
 #### 1.2.5 OAuth2TokenServiceImpl
 
-在 [OAuth2TokenServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/oauth2/OAuth2TokenServiceImpl.java)中，只要注入 OAuth2AccessTokenRedisDAO Bean，非常简洁干净的进行 OAuth2AccessTokenDO 的缓存操作，无需关心具体的实现。代码如下：
+在 [OAuth2TokenServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/oauth2/OAuth2TokenServiceImpl.java)中，只要注入 OAuth2AccessTokenRedisDAO Bean，非常简洁干净的进行 OAuth2AccessTokenDO 的缓存操作，无需关心具体的实现。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d38a556e-f25d-4201-be8f-ddc5ff3fa6f4.png)
 
@@ -108,11 +116,11 @@ UserDO getUserById(Integer id);
 
 ### 2.1 Spring Cache 配置
 
-① 在 [`application.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml#L24-L28)配置文件中，通过 `spring.redis` 配置项，设置 Redis 的配置。如下图所示：
+① 在 [`application.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml#L24-L28)配置文件中，通过 `spring.redis` 配置项，设置 Redis 的配置。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/2c90a62a-2621-40df-9e39-f25e46c2dc12.png)
 
-② 在 [YudaoCacheAutoConfiguration (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-redis/src/main/java/cn/iocoder/yudao/framework/redis/config/YudaoCacheAutoConfiguration.java)配置类，设置使用 JSON 序列化 value 值。如下图所示：
+② 在 [YudaoCacheAutoConfiguration](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-redis/src/main/java/cn/iocoder/yudao/framework/redis/config/YudaoCacheAutoConfiguration.java)配置类，设置使用 JSON 序列化 value 值。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e4c7e6ce-1c7c-4aca-892e-7614d41a67ea.png)
 
@@ -120,7 +128,7 @@ UserDO getUserById(Integer id);
 
 #### 2.2.1 @Cacheable 注解
 
-[`@Cacheable` (opens new window)](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/cache/annotation/Cacheable.java)注解：添加在方法上，缓存方法的执行结果。执行过程如下：
+[`@Cacheable`](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/cache/annotation/Cacheable.java)注解：添加在方法上，缓存方法的执行结果。执行过程如下：
 
 - 1）首先，判断方法执行结果的缓存。如果有，则直接返回该缓存结果。
 
@@ -132,7 +140,7 @@ UserDO getUserById(Integer id);
 
 #### 2.2.2 @CachePut 注解
 
-[`@CachePut` (opens new window)](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/cache/annotation/CachePut.java)注解，添加在方法上，缓存方法的执行结果。不同于 `@Cacheable` 注解，它的执行过程如下：
+[`@CachePut`](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/cache/annotation/CachePut.java)注解，添加在方法上，缓存方法的执行结果。不同于 `@Cacheable` 注解，它的执行过程如下：
 
 - 1）首先，执行方法，获得方法结果。也就是说，无论是否有缓存，都会执行方法。
 
@@ -142,11 +150,11 @@ UserDO getUserById(Integer id);
 
 #### 2.2.3 @CacheEvict 注解
 
-[`@CacheEvict` (opens new window)](https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/cache/annotation/CacheEvict.java)注解，添加在方法上，删除缓存。
+[`@CacheEvict`](https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/cache/annotation/CacheEvict.java)注解，添加在方法上，删除缓存。
 
 ### 2.3 实战案例
 
-在 [RoleServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)中，使用 Spring Cache 实现了 Role 角色缓存，采用【被动读】的方案。原因是：
+在 [RoleServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)中，使用 Spring Cache 实现了 Role 角色缓存，采用【被动读】的方案。原因是：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/de4740f0-fc3a-4125-8fd5-a0eea0f91182.png)
 
@@ -172,7 +180,7 @@ Spring Cache 默认使用 `spring.cache.redis.time-to-live` 配置项，设�
 
 ## 3. Redis 监控
 
-`yudao-module-infra` 的 [`redis` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/redis/RedisController.java)模块，提供了 Redis 监控的功能。
+`yudao-module-infra` 的 [`redis`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/redis/RedisController.java)模块，提供了 Redis 监控的功能。
 
 点击 \[基础设施 -> 监控中心 -> Redis 监控\] 菜单，可以查看到 Redis 的基础信息、命令统计、内存信息。如下图所示：
 

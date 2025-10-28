@@ -14,9 +14,9 @@ outline: deep
 
 该功能由 `yudao-module-system` 模块实现，其中：
 
-- [`service/sms` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/sms/)短信【业务】，提供短信渠道、模板的配置，短信日志的查看，短信的发送等功能
+- [`service/sms`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/sms/)短信【业务】，提供短信渠道、模板的配置，短信日志的查看，短信的发送等功能
 
-- [`frameowrk/sms` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms)：短信【组件】，封装阿里云、腾讯云、华为云、七牛云等短信平台的客户端。
+- [`frameowrk/sms`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms)：短信【组件】，封装阿里云、腾讯云、华为云、七牛云等短信平台的客户端。
 
 ## 1. 表结构
 
@@ -91,7 +91,7 @@ outline: deep
 
 ### 3.1 SmsSendApi
 
-使用 [SmsSendApi (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/sms/SmsSendApi.java)进行短信的发送，支持多种用户类型。它的方法如下：
+使用 [SmsSendApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/sms/SmsSendApi.java)进行短信的发送，支持多种用户类型。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/dfdefbf2-fa98-4a97-82ff-e44425c5bb45.png)
 
@@ -115,11 +115,11 @@ outline: deep
 
 ### 4.1 SmsCodeApi
 
-使用 [SmsCodeApi (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/sms/SmsCodeApi.java)进行【验证码】短信的发送，例如说：用户手机验证码登录、用户忘记密码等等。它的方法如下：
+使用 [SmsCodeApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/sms/SmsCodeApi.java)进行【验证码】短信的发送，例如说：用户手机验证码登录、用户忘记密码等等。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4064535e-ffac-45ea-8ebf-c07a4a5c937c.png)
 
-验证码使用 [`system_sms_code` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/sms/SmsCodeDO.java)表进行存储，默认每天最多发送 10 条，每分钟发送 1 条，有效期为 10 分钟，可通过 `yudao.sms-code` 配置项进行自定义：
+验证码使用 [`system_sms_code`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/sms/SmsCodeDO.java)表进行存储，默认每天最多发送 10 条，每分钟发送 1 条，有效期为 10 分钟，可通过 `yudao.sms-code` 配置项进行自定义：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7c484ddf-a47c-4b7d-a7b1-fe5c105c83d9.png)
 
@@ -135,7 +135,7 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7b8dbc24-e62a-4680-abd5-92056bb4f4d9.png)
 
-③ 在 [SmsSceneEnum (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/enums/sms/SmsSceneEnum.java)中，枚举会员用户的手机号登录的场景，如下图所示：
+③ 在 [SmsSceneEnum](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/enums/sms/SmsSceneEnum.java)中，枚举会员用户的手机号登录的场景，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b5c384f9-587d-4d28-b9c3-0255a6e89d3d.png)
 
@@ -145,11 +145,11 @@ outline: deep
 
 ## 5. 短信客户端
 
-[`frameowrk/sms` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms)短信【组件】，对接阿里云、腾讯云等短信平台，提供统一的短信客户端，提供给 [`service/sms` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/sms/)短信【业务】模块来调用。
+[`frameowrk/sms`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms)短信【组件】，对接阿里云、腾讯云等短信平台，提供统一的短信客户端，提供给 [`service/sms`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/sms/)短信【业务】模块来调用。
 
 ### 5.1 SmsClient
 
-[SmsClient (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms/core/client/SmsClient.java)接口，定义短信客户端的方法。代码如下：
+[SmsClient](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms/core/client/SmsClient.java)接口，定义短信客户端的方法。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/854afe70-6d31-4730-8e35-d65c33b0127c.png)
 
@@ -159,7 +159,7 @@ outline: deep
 
 ### 5.2 对接其它短信平台
 
-如果你想要对接其它短信平台，自定义一个 SmsClient 实现类，并使用 [SmsClientFactoryImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms/core/client/impl/SmsClientFactoryImpl.java#L73-L85)进行创建。代码如下：
+如果你想要对接其它短信平台，自定义一个 SmsClient 实现类，并使用 [SmsClientFactoryImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms/core/client/impl/SmsClientFactoryImpl.java#L73-L85)进行创建。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d9ae1811-d0dc-4acc-a6ae-257fe87ffcb5.png)
 
@@ -171,25 +171,25 @@ outline: deep
 
 ### 6.1 阿里云
 
-① 短信 API 的账号、密钥，可通过 [阿里云 —— AccessKey (opens new window)](https://ram.console.aliyun.com/manage/ak)获取。
+① 短信 API 的账号、密钥，可通过 [阿里云 —— AccessKey](https://ram.console.aliyun.com/manage/ak)获取。
 
-② 短信发送回调 URL，可通过 [阿里云 —— 短信服务 —— 通用设置 (opens new window)](https://dysms.console.aliyun.com/general/upward)配置。它对应的是 SmsCallbackController 的 `#receiveAliyunSmsStatus(...)` 地址。
+② 短信发送回调 URL，可通过 [阿里云 —— 短信服务 —— 通用设置](https://dysms.console.aliyun.com/general/upward)配置。它对应的是 SmsCallbackController 的 `#receiveAliyunSmsStatus(...)` 地址。
 
 ### 6.2 腾讯云
 
-① 短信 API 的账号、密钥，可通过 [腾讯云 —— API 密钥管理 (opens new window)](https://console.cloud.tencent.com/cam/capi)获取。
+① 短信 API 的账号、密钥，可通过 [腾讯云 —— API 密钥管理](https://console.cloud.tencent.com/cam/capi)获取。
 
 **注意！！！**
 
-腾讯云需要额外使用 [SDKAppID (opens new window)](https://console.cloud.tencent.com/smsv2/app-manage)参数，它的账号需要采用 `secretId SDKAppID` 格式。
+腾讯云需要额外使用 [SDKAppID](https://console.cloud.tencent.com/smsv2/app-manage)参数，它的账号需要采用 `secretId SDKAppID` 格式。
 
 例如说：在“API 密钥管理”获得了 `SecretId` 为 `A`，`SecretKey` 为 `B`，在“SDKAppID”获得了 `SDKAppID` 为 `18`，则配置短信 API 的账号为 `A 18`，短信 API 的密钥为 `B`。
 
-② 短信发送回调 URL，可通过 [腾讯云 —— 短信 —— 基础配置 (opens new window)](https://console.cloud.tencent.com/smsv2/app-setting)配置。它对应的是 SmsCallbackController 的 `#receiveTencentSmsStatus(...)` 地址。
+② 短信发送回调 URL，可通过 [腾讯云 —— 短信 —— 基础配置](https://console.cloud.tencent.com/smsv2/app-setting)配置。它对应的是 SmsCallbackController 的 `#receiveTencentSmsStatus(...)` 地址。
 
 ### 6.3 华为云
 
-① 短信 API 的账号、密钥，可通过 [华为云 —— 访问密钥 (opens new window)](https://console.huaweicloud.com/iam/?#/mine/accessKey)获取。
+① 短信 API 的账号、密钥，可通过 [华为云 —— 访问密钥](https://console.huaweicloud.com/iam/?#/mine/accessKey)获取。
 
 **注意！！！**
 
@@ -201,10 +201,10 @@ outline: deep
 
 **补充说明：如果发送短信时，提示“405 鉴权失败”的话，怎么办？**
 
-可参考 [https://gitee.com/zhijiantianya/yudao-cloud/issues/IASUWI (opens new window)](https://gitee.com/zhijiantianya/yudao-cloud/issues/IASUWI)说明，我目前暂时没碰到过，不确定是不是这么解决是合理的~
+可参考 [https://gitee.com/zhijiantianya/yudao-cloud/issues/IASUWI](https://gitee.com/zhijiantianya/yudao-cloud/issues/IASUWI)说明，我目前暂时没碰到过，不确定是不是这么解决是合理的~
 
 ### 6.4 七牛云
 
-① 短信 API 的账号、密钥，可通过 [七牛云 —— 密钥管理 (opens new window)](https://portal.qiniu.com/developer/user/key)获取。
+① 短信 API 的账号、密钥，可通过 [七牛云 —— 密钥管理](https://portal.qiniu.com/developer/user/key)获取。
 
-② 短信发送回调 URL，可通过 [七牛云 —— 云短信 —— 设置 (opens new window)](https://portal.qiniu.com/sms/settings)配置。它对应的是 SmsCallbackController 的 `#receiveQiniuSmsStatus(...)` 地址。
+② 短信发送回调 URL，可通过 [七牛云 —— 云短信 —— 设置](https://portal.qiniu.com/sms/settings)配置。它对应的是 SmsCallbackController 的 `#receiveQiniuSmsStatus(...)` 地址。

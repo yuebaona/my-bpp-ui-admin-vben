@@ -6,7 +6,7 @@ outline: deep
 
 ## 1. Kafka-Spring
 
-[`yudao-spring-boot-starter-mq` (opens new window)](https://github.com/YunaiV/yudao-cloud)技术组件，基于 Kafka 实现分布式消息队列。
+[`yudao-spring-boot-starter-mq`](https://github.com/YunaiV/yudao-cloud)技术组件，基于 Kafka 实现分布式消息队列。
 
 ## 2. 使用示例
 

@@ -10,7 +10,7 @@ outline: deep
 
 一般的解决方案是，使用 **不同** 注册中心，避免出现这个情况。但是，服务一多之后，就会产生新的痛点，同时本地启动所有服务很占用电脑内存。
 
-因此，我们实现了 [`yudao-spring-boot-starter-env` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-env)组件，通过 Tag 给服务打标，实现在使用 **同一个** 注册中心的情况下，本地只需要启动需要调试的服务，并且保证自己的请求，必须达到自己本地的服务。如下图所示：
+因此，我们实现了 [`yudao-spring-boot-starter-env`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-env)组件，通过 Tag 给服务打标，实现在使用 **同一个** 注册中心的情况下，本地只需要启动需要调试的服务，并且保证自己的请求，必须达到自己本地的服务。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/983dd0ff-d139-4d18-8ed5-90542a0abb7f.png)
 
@@ -64,7 +64,11 @@ outline: deep
 
 ① 修改 system 服务的端口为 28081，`yudao.env.tag` 配置项为空。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-trade-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：
+
+最新版本将 yudao-module-trade-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5e31cf48-98d0-4233-8015-2ead201da722.png)
 
@@ -84,8 +88,8 @@ outline: deep
 
 ## 3. 实现原理
 
-① 在服务注册时，会将 `yudao.env.tag` 配置项，写到 Nacos 服务实例的元数据，通过 [EnvEnvironmentPostProcessor (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-env/src/main/java/cn/iocoder/yudao/framework/env/config/EnvEnvironmentPostProcessor.java#L22-L27)类实现。
+① 在服务注册时，会将 `yudao.env.tag` 配置项，写到 Nacos 服务实例的元数据，通过 [EnvEnvironmentPostProcessor](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-env/src/main/java/cn/iocoder/yudao/framework/env/config/EnvEnvironmentPostProcessor.java#L22-L27)类实现。
 
-② 在服务调用时，通过 [EnvLoadBalancerClient (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-env/src/main/java/cn/iocoder/yudao/framework/env/core/fegin/EnvLoadBalancerClient.java#L70-L75)类，筛选服务实例，通过服务实例的 `tag` 元数据，匹配请求的 `tag` 请求头。
+② 在服务调用时，通过 [EnvLoadBalancerClient](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-env/src/main/java/cn/iocoder/yudao/framework/env/core/fegin/EnvLoadBalancerClient.java#L70-L75)类，筛选服务实例，通过服务实例的 `tag` 元数据，匹配请求的 `tag` 请求头。
 
-③ 在网关转发时，通过 [GrayLoadBalancer (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/grey/GrayLoadBalancer.java#L86-L109)类，效果和 EnvLoadBalancerClient 一致。
+③ 在网关转发时，通过 [GrayLoadBalancer](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/grey/GrayLoadBalancer.java#L86-L109)类，效果和 EnvLoadBalancerClient 一致。

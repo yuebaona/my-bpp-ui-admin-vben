@@ -1,10 +1,13 @@
+---
+outline: deep
+---
 # 多源数据（读写分离）、事务
 
-[`yudao-spring-boot-starter-mybatis` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/)技术组件，除了提供 MyBatis 数据库操作，还提供了如下 2 种功能：
+[`yudao-spring-boot-starter-mybatis`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/)技术组件，除了提供 MyBatis 数据库操作，还提供了如下 2 种功能：
 
-- 数据连接池：基于 [Alibaba Druid (opens new window)](https://github.com/alibaba/druid)实现，额外提供监控的能力。
+- 数据连接池：基于 [Alibaba Druid](https://github.com/alibaba/druid)实现，额外提供监控的能力。
 
-- 多数据源（读写分离）：基于 [Dynamic Datasource (opens new window)](https://github.com/baomidou/dynamic-datasource-spring-boot-starter)实现，支持 Druid 连接池，可集成 [Seata (opens new window)](https://www.iocoder.cn/Seata/install/?yudao)实现分布式事务。
+- 多数据源（读写分离）：基于 [Dynamic Datasource](https://github.com/baomidou/dynamic-datasource-spring-boot-starter)实现，支持 Druid 连接池，可集成 [Seata](https://www.iocoder.cn/Seata/install/?yudao)实现分布式事务。
 
 ## 1. 数据连接池
 
@@ -20,7 +23,7 @@
 
 **友情提示：以 yudao-module-system 服务为例子。**
 
-在 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L7-L25)配置文件中，通过 `spring.datasource.druid` 配置项，仅仅设置了 Druid **监控**相关的配置项目，具体数据库的设置需要使用 Dynamic Datasource 的配置项。如下图所示：
+在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L7-L25)配置文件中，通过 `spring.datasource.druid` 配置项，仅仅设置了 Druid **监控**相关的配置项目，具体数据库的设置需要使用 Dynamic Datasource 的配置项。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fead648a-ebcf-4dcc-ba28-5abf764309ae.png)
 
@@ -66,7 +69,7 @@
 
 **友情提示：以 yudao-module-system 服务为例子。**
 
-在 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L40-L62)配置文件中，通过 `spring.datasource.dynamic` 配置项，配置了 Master-Slave 主从两个数据源。如下图所示：
+在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L40-L62)配置文件中，通过 `spring.datasource.dynamic` 配置项，配置了 Master-Slave 主从两个数据源。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c396b957-7491-44a2-b14e-1eb911f9cfb3.png)
 
@@ -74,7 +77,7 @@
 
 #### 2.2.1 @Master注解
 
-在方法上添加 [`@Master` (opens new window)](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/Master.java)注解，使用名字为 `master` 的数据源，即使用【主】库，一般适合【写】场景。示例如下图：
+在方法上添加 [`@Master`](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/Master.java)注解，使用名字为 `master` 的数据源，即使用【主】库，一般适合【写】场景。示例如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/34b6449b-fc1f-4991-9074-647ff54e6fec.png)
 
@@ -82,15 +85,15 @@
 
 #### 2.2.2 @Slave注解
 
-在方法上添加 [`@Slave` (opens new window)](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/Slave.java)注解，使用名字为 `slave` 的数据源，即使用【从】库，一般适合【读】场景。示例如下图：
+在方法上添加 [`@Slave`](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/Slave.java)注解，使用名字为 `slave` 的数据源，即使用【从】库，一般适合【读】场景。示例如下图：
 
-![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/vBPlN5jYb6MEVOdG/img/bd22ece5-0c4f-414f-b6eb-60456db0570f.png)
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/bd22ece5-0c4f-414f-b6eb-60456db0570f.png)
 
 #### 2.2.3 @DS注解
 
-在方法上添加 [`@DS` (opens new window)](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/DS.java)注解，使用指定名字的数据源，适合多数据源的情况。示例如下图：
+在方法上添加 [`@DS`](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/DS.java)注解，使用指定名字的数据源，适合多数据源的情况。示例如下图：
 
-![image](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/vBPlN5jYb6MEVOdG/img/0242123e-da76-4274-8c31-d15545a07004.png)
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/0242123e-da76-4274-8c31-d15545a07004.png)
 
 ### 2.3 分布式事务
 
@@ -100,7 +103,7 @@
 
 ② 引入 Seata 框架，提供完整的分布式事务的解决方案。
 
-③ 使用 Dynamic Datasource 提供的 [`@DSTransactional` (opens new window)](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/DSTransactional.java)注解，支持多数据源的切换，不提供绝对可靠的多数据源的事务一致性（强于 ① 弱于 ②），可学习 [《DSTransactional 实现源码分析 》 (opens new window)](https://www.yinxiang.com/everhub/note/ac0175c8-35f5-4d66-8cd3-c662d7a16441)文章。
+③ 使用 Dynamic Datasource 提供的 [`@DSTransactional`](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/DSTransactional.java)注解，支持多数据源的切换，不提供绝对可靠的多数据源的事务一致性（强于 ① 弱于 ②），可学习 [《DSTransactional 实现源码分析 》](https://www.yinxiang.com/everhub/note/ac0175c8-35f5-4d66-8cd3-c662d7a16441)文章。
 
 ## 3. 事务相关
 
@@ -120,7 +123,7 @@
 
 ### 3.2 @DSTransactional 注解
 
-如果单机 + 多个数据源的操作，使用 `@Transactional` 声明的事务中，无法进行数据源的切换。此时，可以使用 Dynamic Datasource 提供的 [`@DSTransactional` (opens new window)](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/DSTransactional.java)注解，支持多数据源的切换。
+如果单机 + 多个数据源的操作，使用 `@Transactional` 声明的事务中，无法进行数据源的切换。此时，可以使用 Dynamic Datasource 提供的 [`@DSTransactional`](https://github.com/baomidou/dynamic-datasource/blob/master/dynamic-datasource-spring/src/main/java/com/baomidou/dynamic/datasource/annotation/DSTransactional.java)注解，支持多数据源的切换。
 
 使用的示例，AService 调用 BService、CService，并且分别对应 a、b、c 各自的数据源，代码如下所示：
 

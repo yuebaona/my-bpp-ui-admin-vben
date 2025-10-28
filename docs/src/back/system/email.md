@@ -36,7 +36,7 @@ outline: deep
 
 - 后端代码：[controller/admin/mail(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/mail/)
 
-最终使用 Hutool 的 [MailUtil (opens new window)](https://apidoc.gitee.com/loolly/hutool/cn/hutool/extra/mail/MailUtil.html)发送邮件。
+最终使用 Hutool 的 [MailUtil](https://apidoc.gitee.com/loolly/hutool/cn/hutool/extra/mail/MailUtil.html)发送邮件。
 
 ## 3. 邮箱配置
 
@@ -60,7 +60,7 @@ outline: deep
 
 **友情提示：**
 
-邮件发送基于 [SMTP (opens new window)](https://baike.baidu.com/item/SMTP/175887)协议实现，需要开通账号的 SMTP 服务。例如说：
+邮件发送基于 [SMTP](https://baike.baidu.com/item/SMTP/175887)协议实现，需要开通账号的 SMTP 服务。例如说：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/8be87fe5-0308-417a-b6ab-c0eb59c0d771.png)
 
@@ -121,7 +121,7 @@ public void testDemo() {
 
 ### 4.1 MailSendApi
 
-邮箱配置完成后，可使用 [MailSendApi (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/mail/MailSendApi.java)进行邮件的发送，支持多种用户类型。它的方法如下：
+邮箱配置完成后，可使用 [MailSendApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/mail/MailSendApi.java)进行邮件的发送，支持多种用户类型。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/9f0e9c6b-ec50-41c3-b376-fb3915428f18.png)
 
@@ -129,7 +129,7 @@ public void testDemo() {
 
 以 `yudao-module-bpm` 模块，需要发邮件为例子，讲解 MailSendApi 的使用。
 
-① 在 `yudao-module-bpm-server` 模块的 [`pom.xml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/pom.xml)引入 `yudao-module-system-api` 依赖，如所示：
+① 在 `yudao-module-bpm-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/pom.xml)引入 `yudao-module-system-api` 依赖，如所示：
 
 ```xml
 <dependency>

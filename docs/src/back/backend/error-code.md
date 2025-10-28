@@ -20,7 +20,7 @@ outline: deep
 
 - 失败时，返回失败的状态码 + 错误提示
 
-在标准的 RESTful API 的定义，是推荐使用 [HTTP 响应状态码 (opens new window)](https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81)作为状态码。一般来说，我们实践很少这么去做，主要原因如下：
+在标准的 RESTful API 的定义，是推荐使用 [HTTP 响应状态码](https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81)作为状态码。一般来说，我们实践很少这么去做，主要原因如下：
 
 - 业务返回的错误状态码很多，HTTP 响应状态码无法很好的映射。例如说，活动还未开始、订单已取消等等
 
@@ -28,7 +28,7 @@ outline: deep
 
 ### 1.1 CommonResult
 
-[`yudao-cloud` (opens new window)](https://github.com/YunaiV/yudao-cloud)项目在实践时，将状态码放在 Response Body 响应内容中返回。一共有 3 个字段，通过 [CommonResult (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/CommonResult.java)定义如下：
+项目在实践时，将状态码放在 Response Body 响应内容中返回。一共有 3 个字段，通过`CommonResult`定义如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1f6cab16-08f4-417f-a671-42eddbbec4d2.png)
 
@@ -50,13 +50,13 @@ outline: deep
 
 ```
 
-① 在 RESTful API 成功时，定义 Controller 对应方法的返回类型为 CommonResult，并调用 [`#success(T data)` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/CommonResult.java#L63-L69)方法来返回。代码如下图：
+① 在 RESTful API 成功时，定义 Controller 对应方法的返回类型为 CommonResult，并调用 `#success(T data)`方法来返回。代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e998a610-7e18-40c5-a32c-ab922852e17b.png)
 
 CommonResult 的 `data` 字段是**泛型**，建议定义对应的 VO 类，而不是使用 Map 类。
 
-② 在 RESTful API 失败时，通过抛出 Exception 异常，具体在 [「2. 异常处理」](https://cloud.iocoder.cn/exception/#_2-%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86) 小节。
+② 在 RESTful API 失败时，通过抛出 Exception 异常，具体在`「2. 异常处理」`小节。
 
 ### 1.2 使用 `**@ControllerAdvice**` ？
 
@@ -72,7 +72,7 @@ RESTful API 发生异常时，需要拦截 Exception 异常，转换成**统
 
 ### 2.1 Spring MVC 的异常
 
-在 Spring MVC 中，通过 `@ControllerAdvice` + `@ExceptionHandler` 注解，声明将指定类型的异常，转换成对应的 CommonResult 响应。实现的代码，可见 [GlobalExceptionHandler (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-web/src/main/java/cn/iocoder/yudao/framework/web/core/handler/GlobalExceptionHandler.java)类，代码如下：
+在 Spring MVC 中，通过 `@ControllerAdvice` + `@ExceptionHandler` 注解，声明将指定类型的异常，转换成对应的 CommonResult 响应。实现的代码，可见`GlobalExceptionHandler`类，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/6d80d86f-19d5-4ebd-9867-a0aa0e39de6e.png)
 
@@ -100,13 +100,13 @@ RESTful API 发生异常时，需要拦截 Exception 异常，转换成**统
 
 ### 3.1 ServiceException
 
-定义 [ServiceException (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/exception/ServiceException.java)异常类，继承 RuntimeException 异常类（非受检），用于定义业务异常。代码如下：
+定义`ServiceException`异常类，继承 RuntimeException 异常类（非受检），用于定义业务异常。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/341e38fe-68e5-49db-b4b3-4ec9bbce94b0.png)
 
 ### 3.2 ServiceExceptionUtil
 
-在 Service 需抛出业务异常时，通过调用 [ServiceExceptionUtil (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/exception/util/ServiceExceptionUtil.java)的 `#exception(ErrorCode errorCode, Object... params)` 方法来构建 ServiceException 异常，然后使用 `throw` 进行抛出。代码如下：
+在 Service 需抛出业务异常时，通过调用`ServiceExceptionUtil`的 `#exception(ErrorCode errorCode, Object... params)` 方法来构建 ServiceException 异常，然后使用 `throw` 进行抛出。代码如下：
 
 ```java
 // ServiceExceptionUtil.java
@@ -120,7 +120,7 @@ public static ServiceException exception(ErrorCode errorCode, Object... params) 
 
 ## 4. 错误码
 
-错误码，对应 [ErrorCode (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/exception/ErrorCode.java)类，枚举项目中的错误，**全局唯一**，方便定位是谁的错、错在哪。
+错误码，对应 `ErrorCode`类，枚举项目中的错误，**全局唯一**，方便定位是谁的错、错在哪。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c60dd5f7-7a39-4e62-808e-38022d17a9a2.png)
 
@@ -130,9 +130,9 @@ public static ServiceException exception(ErrorCode errorCode, Object... params) 
 
 #### 4.1.1 系统错误码
 
-全局的系统错误码，使用 0-999 错误码段，和 [HTTP 响应状态码 (opens new window)](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status)对应。虽然说，HTTP 响应状态码作为业务使用表达能力偏弱，但是使用在系统层面还是非常不错的。
+全局的系统错误码，使用 0-999 错误码段，和`HTTP 响应状态码`对应。虽然说，HTTP 响应状态码作为业务使用表达能力偏弱，但是使用在系统层面还是非常不错的。
 
-系统错误码定义在 [GlobalErrorCodeConstants (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/exception/enums/GlobalErrorCodeConstants.java)类，代码如下：
+系统错误码定义在`GlobalErrorCodeConstants`类，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/75a45e8a-f816-4984-bb2f-486d874ba4c3.png)
 
@@ -140,7 +140,7 @@ public static ServiceException exception(ErrorCode errorCode, Object... params) 
 
 模块的业务错误码，按照模块分配错误码的**区间**，避免模块之间的错误码冲突。
 
-① 业务错误码一共 10 位，分成 4 段，在 [ServiceErrorCodeRange (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/exception/enums/ServiceErrorCodeRange.java)分配，规则与代码如下图：
+① 业务错误码一共 10 位，分成 4 段，在`ServiceErrorCodeRange`分配，规则与代码如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/86fbf925-1058-4195-8678-6d0bcb1d67b0.png)
 

@@ -14,7 +14,7 @@ outline: deep
 
 ## 1. 脱敏组件
 
-脱敏组件，由 `yudao-spring-boot-starter-web` 的 [`desensitize` (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-web/src/main/java/cn/iocoder/yudao/framework/desensitize)包实现，基于 Jackson 拓展，只需要在字段上添加脱敏注解，即可实现对该字段进行脱敏。
+脱敏组件，由 `yudao-spring-boot-starter-web` 的 [`desensitize`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-web/src/main/java/cn/iocoder/yudao/framework/desensitize)包实现，基于 Jackson 拓展，只需要在字段上添加脱敏注解，即可实现对该字段进行脱敏。
 
 使用步骤如下：
 
@@ -197,7 +197,7 @@ public static class DesensitizeDemo {
 
 ## 4. 脱敏工具类
 
-Hutool 提供了 [DesensitizedUtil (opens new window)](https://plus.hutool.cn/apidocs/cn/hutool/core/util/DesensitizedUtil.html)脱敏工具类，支持用户 ID、 中文名、身份证、座机号、手机号、 地址、电子邮件、 密码、车牌、银行卡号的脱敏处理。
+Hutool 提供了 [DesensitizedUtil](https://plus.hutool.cn/apidocs/cn/hutool/core/util/DesensitizedUtil.html)脱敏工具类，支持用户 ID、 中文名、身份证、座机号、手机号、 地址、电子邮件、 密码、车牌、银行卡号的脱敏处理。
 
 使用方式，代码如下：
 

@@ -6,7 +6,7 @@ outline: deep
 
 ## 1. Spring Event
 
-[`yudao-spring-boot-starter-mq` (opens new window)](https://github.com/YunaiV/yudao-cloud)技术组件，提供了 Redis、RocketMQ、RabbitMQ、Kafka 分布式消息队列的封装。
+[`yudao-spring-boot-starter-mq`](https://github.com/YunaiV/yudao-cloud)技术组件，提供了 Redis、RocketMQ、RabbitMQ、Kafka 分布式消息队列的封装。
 
 **默认**使用 Spring Event 实现【内存】级别的消息队列。
 
@@ -16,7 +16,9 @@ outline: deep
 
 以【短信发送】举例子，我们来看看 Spring Event 的使用。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：
+最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/f208c4f7-4ec7-497c-9666-246ddc68cd53.png)
 
@@ -120,7 +122,9 @@ public class SmsSendConsumer {
 
 ② 打开 `SmsTemplateController.http` 文件，使用 IDEA httpclient 发起请求，发送短信。如下图所示：
 
-**图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务**
+::: info 图片纠错：
+最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e2711213-7f59-4654-bdb0-0bb01b3889e7.png)
 

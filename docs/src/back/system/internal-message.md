@@ -74,7 +74,7 @@ outline: deep
 
 ### 4.1 NotifyMessageSendApi
 
-[站内信配置](https://cloud.iocoder.cn/#_3-%E7%AB%99%E5%86%85%E4%BF%A1%E9%85%8D%E7%BD%AE)完成后，可使用 [NotifyMessageSendApi (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/notify/NotifyMessageSendApi.java)进行站内信的发送，支持多种用户类型。它的方法如下：
+[站内信配置](https://cloud.iocoder.cn/#_3-%E7%AB%99%E5%86%85%E4%BF%A1%E9%85%8D%E7%BD%AE)完成后，可使用 [NotifyMessageSendApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/notify/NotifyMessageSendApi.java)进行站内信的发送，支持多种用户类型。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/035f2af8-c7c6-4346-a1e9-b4404ee79e56.png)
 
@@ -82,7 +82,7 @@ outline: deep
 
 以 `yudao-module-bpm` 模块，需要发站内信为例子，讲解 NotifyMessageSendApi 的使用。
 
-① 在 `yudao-module-bpm-server` 模块的 [`pom.xml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/pom.xml)引入 `yudao-module-system-api` 依赖，如所示：
+① 在 `yudao-module-bpm-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/pom.xml)引入 `yudao-module-system-api` 依赖，如所示：
 
 ```xml
 <dependency>

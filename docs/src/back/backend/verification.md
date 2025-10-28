@@ -4,7 +4,7 @@ outline: deep
 
 # 参数校验、时间传参
 
-项目使用 [Hibernate Validator (opens new window)](https://hibernate.org/validator/)框架，对 RESTful API 接口进行参数的校验，以保证最终数据入库的正确性。例如说，用户注册时，会校验手机格式的正确性，密码非弱密码。
+项目使用`Hibernate Validator`框架，对 RESTful API 接口进行参数的校验，以保证最终数据入库的正确性。例如说，用户注册时，会校验手机格式的正确性，密码非弱密码。
 
 如果参数校验不通过，会抛出 ConstraintViolationException 异常，被全局的[异常处理](https://cloud.iocoder.cn/exception)捕获，返回“请求参数不正确”的响应。示例如下：
 
@@ -68,9 +68,9 @@ Validator 内置了 20+ 个参数校验注解，整理成常用与不常用�
 
 只需要三步，即可开启参数校验的功能。
 
-〇 第零步，引入参数校验的 [`spring-boot-starter-validation` (opens new window)](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation)依赖。**一般不需要做**，项目默认已经引入。
+〇 第零步，引入参数校验的`spring-boot-starter-validation`依赖。**一般不需要做**，项目默认已经引入。
 
-① 第一步，在需要参数校验的类上，添加 [`@Validated` (opens new window)](https://github.com/spring-projects/spring-framework/blob/main/spring-context/src/main/java/org/springframework/validation/annotation/Validated.java)注解，例如说 Controller、Service 类。代码如下：
+① 第一步，在需要参数校验的类上，添加`@Validated`注解，例如说 Controller、Service 类。代码如下：
 
 ```java
 // Controller 示例
@@ -84,7 +84,7 @@ public class AdminAuthServiceImpl implements AdminAuthService {}
 
 ```
 
-② 第二步（情况一）如果方法的参数是 Bean 类型，则在方法参数上添加 [`@Valid` (opens new window)](https://docs.oracle.com/javaee/7/api/javax/validation/Valid.html)注解，并在 Bean 类上添加参数校验的注解。代码如下：
+② 第二步（情况一）如果方法的参数是 Bean 类型，则在方法参数上添加`@Valid`注解，并在 Bean 类上添加参数校验的注解。代码如下：
 
 ```java
 // Controller 示例
@@ -144,9 +144,9 @@ public interface DictDataService {
 
 如果 Validator 内置的参数校验注解不满足需求时，我们也可以**自定义**参数校验的注解。
 
-在项目的 [`yudao-common` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/)的 [`validation` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/validation/)包下，就自定义了多个参数校验的注解，以 [`@Mobile` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/validation/Mobile.java)注解来举例，它提供了手机格式的校验。
+在项目的`yudao-common`的`validation`包下，就自定义了多个参数校验的注解，以`@Mobile`注解来举例，它提供了手机格式的校验。
 
-① 第一步，新建 `@Mobile` 注解，并设置自定义校验器为 [MobileValidator (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/validation/MobileValidator.java)类。代码如下：
+① 第一步，新建 `@Mobile` 注解，并设置自定义校验器为`MobileValidator`类。代码如下：
 
 ```java
 @Target({
@@ -174,7 +174,7 @@ public @interface Mobile {
 
 ```
 
-② 第二步，新建 [MobileValidator (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/validation/MobileValidator.java)校验器。代码如下：
+② 第二步，新建`MobileValidator`校验器。代码如下：
 
 ```java
 public class MobileValidator implements ConstraintValidator<Mobile, String> {
@@ -241,7 +241,9 @@ Request Body 时间传参，指的是 `Post`、`PUT` 等请求，通过 JSO
 
 ① 后端接收时间参数时，需要添加 SpringMVC 的 `@RequestBody` 注解，使用 LocalDateTime 属性进行接收。例如说：
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d99211bf-01e6-4e00-86ea-0434969fadeb.png)
 

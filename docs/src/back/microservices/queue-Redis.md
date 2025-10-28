@@ -4,11 +4,11 @@ outline: deep
 
 # 消息队列（Redis）
 
-[`yudao-spring-boot-starter-mq` (opens new window)](https://github.com/YunaiV/yudao-cloud)技术组件，基于 Redis 实现分布式消息队列：
+[`yudao-spring-boot-starter-mq`](https://github.com/YunaiV/yudao-cloud)技术组件，基于 Redis 实现分布式消息队列：
 
-- 使用 [Stream (opens new window)](http://www.redis.cn/topics/streams-intro.html)特性，提供【集群】消费的能力。
+- 使用 [Stream](http://www.redis.cn/topics/streams-intro.html)特性，提供【集群】消费的能力。
 
-- 使用 [Pub/Sub (opens new window)](http://www.redis.cn/topics/pubsub.html)特性，提供【广播】消费的能力。
+- 使用 [Pub/Sub](http://www.redis.cn/topics/pubsub.html)特性，提供【广播】消费的能力。
 
 ## 1. 集群消费
 
@@ -24,9 +24,9 @@ outline: deep
 
 集群消费在项目中的使用场景，主要是提供可靠的、可堆积的异步任务的能力。例如说：
 
-- 短信模块，使用它[异步 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/sms/SmsSendConsumer.java)发送短信。
+- 短信模块，使用它[异步](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/sms/SmsSendConsumer.java)发送短信。
 
-- 邮件模块，使用它[异步 (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/mail/MailSendConsumer.java)发送邮件。
+- 邮件模块，使用它[异步](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/mail/MailSendConsumer.java)发送邮件。
 
 相比 《异步任务》 来说，Spring Async 在 JVM 实例重启时，会导致未执行完的任务丢失。而集群消费，因为消息是存储在 Redis 中，所以不会存在该问题。
 

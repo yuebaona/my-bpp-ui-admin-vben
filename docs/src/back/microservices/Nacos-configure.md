@@ -22,7 +22,7 @@ outline: deep
 
 #### 1.2.1 引入依赖
 
-在 `yudao-module-system-server` 模块的 [`pom.xml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml)中，引入 Nacos 对应的依赖。如下所示：
+在 `yudao-module-system-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml)中，引入 Nacos 对应的依赖。如下所示：
 
 ```xml
 <!-- Config 配置中心相关 -->
@@ -35,7 +35,7 @@ outline: deep
 
 #### 1.2.2 添加配置
 
-① 在 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L14-L16)中，添加 `nacos.config` 配置。如下所示：
+① 在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L14-L16)中，添加 `nacos.config` 配置。如下所示：
 
 ```yaml
 --- #################### 配置中心相关配置 ####################
@@ -53,7 +53,7 @@ spring:
 
 - `spring.cloud.nacos.config.namespace` 配置项：设置为 `dev`，就是刚创建的命名空间
 
-② 在 [`application.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml)中，添加 `spring.cloud.config.import` 配置项。
+② 在 [`application.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml)中，添加 `spring.cloud.config.import` 配置项。
 
 ```yaml
 spring:
@@ -69,7 +69,7 @@ spring:
 
 **友情提示：**
 
-按照需要，将不同环境存在差异的 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml)和 [`application-dev.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-dev.yaml)中的配置，迁移到 Nacos 配置中心。以 `application-local.yaml` 为例子。
+按照需要，将不同环境存在差异的 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml)和 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-dev.yaml)中的配置，迁移到 Nacos 配置中心。以 `application-local.yaml` 为例子。
 
 ① 将 `application-local.yaml` 中，**除了如下** Nacos 配置外的配置，迁移到 Nacos 配置中心中。如下图所示：
 
@@ -112,7 +112,7 @@ spring:
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e87adddd-8337-4062-a0f5-36be6c33e3a0.png)
 
-对应的后端代码是 `yudao-module-infra` 的 [`config` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/config/)业务模块。
+对应的后端代码是 `yudao-module-infra` 的 [`config`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/config/)业务模块。
 
 ### 2.1 配置的表结构
 
@@ -148,6 +148,6 @@ CREATE TABLE `infra_config` (
 
 ### 2.3 前端案例
 
-后端提供了 [`/admin-api/infra/config/get-value-by-key` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/config/ConfigController.java#L70-L82)RESTful API 接口，返回指定配置项的值。前端的使用示例如下图：
+后端提供了 [`/admin-api/infra/config/get-value-by-key`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/controller/admin/config/ConfigController.java#L70-L82)RESTful API 接口，返回指定配置项的值。前端的使用示例如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/13a44168-2a54-4c5e-83d7-23175fe24781.png)

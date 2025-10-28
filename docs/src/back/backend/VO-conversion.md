@@ -16,7 +16,7 @@ outline: deep
 
 ### 1.1 MapStruct
 
-项目使用 [MapStruct (opens new window)](https://www.iocoder.cn/Spring-Boot/MapStruct/?yudao)实现 VO、DO、DTO 等对象之间的转换。
+项目使用`MapStruct`实现 VO、DO、DTO 等对象之间的转换。
 
 在每个 `yudao-module-xxx-server` 模块的 `convert` 包下，可以看到各个业务的 Convert 接口，如下图所示：
 
@@ -24,7 +24,7 @@ outline: deep
 
 ### 1.2 BeanUtils
 
-项目提供了 [BeanUtils (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/util/object/BeanUtils.java)类，它是基于 Hutool 的 BeanUtil 封装一层。如下图所示：
+项目提供了`BeanUtils`类，它是基于 Hutool 的 BeanUtil 封装一层。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/3c88e1fe-6f1b-4f4d-b36c-d7c4a26d9132.png)
 
@@ -34,7 +34,9 @@ outline: deep
 
 2、在复杂场景，可以通过 Consumer 进一步拼接，如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-erp-biz 子模块，重命名为 yudao-module-erp-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：最新版本将 yudao-module-erp-biz 子模块，重命名为 yudao-module-erp-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/91227c7a-6d06-4045-840c-d428ce7cb9a4.png)
 
@@ -52,13 +54,15 @@ outline: deep
 
 - 方案二：数据库多次单表查询，然后在 Java 代码中进行数据拼接（翻译）。其实就是「1.2 BeanUtils」的“复杂场景”。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-erp-biz 子模块，重命名为 yudao-module-erp-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：最新版本将 yudao-module-erp-biz 子模块，重命名为 yudao-module-erp-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/284da3d6-410f-4131-9c69-bba362b37573.png)
 
 项目里，大多数采用“方案二”，因为这样可以减少数据库的压力，避免 SQL 过于复杂，也方便后续维护。
 
-不过如果觉得“方案二”比较麻烦，也集成了 [`easy-trans` (opens new window)](https://gitee.com/dromara/easy_trans)框架，一个注解，搞定数据翻译。
+不过如果觉得“方案二”比较麻烦，也集成了`easy-trans`框架，一个注解，搞定数据翻译。
 
 下面，来分场景，看看具体如何使用！
 
@@ -138,7 +142,9 @@ public class OperateLogController {
 
 ② 第二步，给 CrmProductRespVO 的 `ownerUserId` 字段，添加 `@Trans` 注解，如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-crm-biz 子模块，重命名为 yudao-module-crm-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：最新版本将 yudao-module-crm-biz 子模块，重命名为 yudao-module-crm-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/da9832af-ba8a-4517-b5d3-f1f490325880.png)
 
@@ -152,7 +158,7 @@ public class OperateLogController {
 
 ### 2.3 场景三：Excel 导出翻译
 
-在 Excel 导出时，如果也有数据翻译的需求，需要调用 [TranslateUtils (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/src/main/java/cn/iocoder/yudao/framework/translate/core/TranslateUtils.java)的 `#translate(...)` 方法，如下图所示：
+在 Excel 导出时，如果也有数据翻译的需求，需要调用`TranslateUtils`的 `#translate(...)` 方法，如下图所示：
 
 **图片纠错：最新版本将 yudao-module-crm-biz 子模块，重命名为 yudao-module-crm-server 子模块，更好表达它是一个服务**
 

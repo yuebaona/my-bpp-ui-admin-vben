@@ -4,7 +4,7 @@ outline: deep
 
 # 幂等性（防重复提交）
 
-[`yudao-spring-boot-starter-protection` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/)技术组件，由它的 [`idempotent` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/)包，提供声明式的幂等特性，可防止重复请求。例如说，用户快速的双击了某个按钮，前端没有禁用该按钮，导致发送了两次重复的请求。
+[`yudao-spring-boot-starter-protection`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/)技术组件，由它的 [`idempotent`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/)包，提供声明式的幂等特性，可防止重复请求。例如说，用户快速的双击了某个按钮，前端没有禁用该按钮，导致发送了两次重复的请求。
 
 ```java
 // UserController.java
@@ -34,7 +34,7 @@ public String createUser(User user){
 
 - 如果**不在**，则计算参数对应的 Key，存储到 Redis 中，并设置过期时间，即标记正在执行中。
 
-默认参数的 Redis Key 的计算规则由 [DefaultIdempotentKeyResolver (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/keyresolver/impl/DefaultIdempotentKeyResolver.java)实现，使用 MD5(方法名 + 方法参数)，避免 Redis Key 过长。
+默认参数的 Redis Key 的计算规则由 [DefaultIdempotentKeyResolver](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/keyresolver/impl/DefaultIdempotentKeyResolver.java)实现，使用 MD5(方法名 + 方法参数)，避免 Redis Key 过长。
 
 ② 方法执行完成，**不会**主动删除参数对应的 Key。
 
@@ -48,15 +48,15 @@ public String createUser(User user){
 
 ## 2. `**@Idempotent**` 注解
 
-[`@Idempotent` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/annotation/Idempotent.java)注解，声明在方法上，表示该方法需要开启幂等性。代码如下：
+[`@Idempotent`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/annotation/Idempotent.java)注解，声明在方法上，表示该方法需要开启幂等性。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/22804a6a-5f62-4980-a6fe-3961d8779309.png)
 
-① 对应的 AOP 切面是 [IdempotentAspect (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/aop/IdempotentAspect.java)类，核心就 10 行左右的代码，如下图所示：
+① 对应的 AOP 切面是 [IdempotentAspect](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/aop/IdempotentAspect.java)类，核心就 10 行左右的代码，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/f61f85ce-1277-4cb0-8c82-f83c6fa158f7.png)
 
-② 对应的 Redis Key 的前缀是 `idempotent:%s`，可见 [IdempotentRedisDAO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/redis/IdempotentRedisDAO.java)类，如下图所示：
+② 对应的 Redis Key 的前缀是 `idempotent:%s`，可见 [IdempotentRedisDAO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/idempotent/core/redis/IdempotentRedisDAO.java)类，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ad0f79bc-295a-4ada-bda1-286f45b40d80.png)
 

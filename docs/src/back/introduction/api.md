@@ -6,7 +6,7 @@ outline: deep
 
 项目使用 Swagger 实现 RESTful API 的接口文档，提供两种解决方案：
 
-\*【推荐】 [Apifox (opens new window)](http://mtw.so/62me9n)：强大的 API 工具，支持 API 文档、API 调试、API Mock、API 自动化测试
+\*【推荐】 `Apifox`：强大的 API 工具，支持 API 文档、API 调试、API Mock、API 自动化测试
 
 - Knife4j：简易的 API 工具，仅支持 API 文档、API 调试
 
@@ -26,7 +26,7 @@ Swagger 通过 Java 注解实现 API 接口文档的编写。相比使用 
 
 ### 1.1 下载工具
 
-点击 [Apifox (opens new window)](http://mtw.so/62me9n)首页，下载对应的 Apifox 桌面版。如下图所示：
+点击 `Apifox`首页，下载对应的 Apifox 桌面版。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/63f42124-3a69-4bd8-a0ef-afea964c6037.png)
 
@@ -78,7 +78,7 @@ Swagger 通过 Java 注解实现 API 接口文档的编写。相比使用 
 
 ### 2.1 如何使用？
 
-浏览器访问 [http://127.0.0.1:48081/doc.html (opens new window)](http://127.0.0.1:48081/doc.html)地址，使用 Knife4j 查看 API 接口文档。
+浏览器访问 [http://127.0.0.1:48081/doc.html](http://127.0.0.1:48081/doc.html)地址，使用 Knife4j 查看 API 接口文档。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/739b2a13-cd83-4b47-9144-cc107c671871.png)
 
@@ -108,7 +108,7 @@ knife4j:
 
 ## 3. Swagger 技术组件
 
-① 在 [`yudao-spring-boot-starter-web` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-web/pom.xml)技术组件的 [`swagger` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-web/src/main/java/cn/iocoder/yudao/framework/swagger/package-info.java)包，实现了对 Swagger 的封装。
+① 在 `yudao-spring-boot-starter-web`技术组件的 `swagger`包，实现了对 Swagger 的封装。
 
 ② 如果想要禁用 Swagger 功能，可通过 `springdoc.api-docs.enable` 配置项为 `false`。一般情况下，建议 prod 生产环境进行禁用，避免发生安全问题。
 

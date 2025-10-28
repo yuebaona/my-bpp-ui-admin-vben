@@ -6,11 +6,11 @@ outline: deep
 
 大部分项目里，其实有很多代码是重复的，几乎每个模块都有 CRUD 增删改查的功能，而这些功能的实现代码往往是大同小异的。如果这些功能都要自己去手写，非常无聊枯燥，浪费时间且效率很低，还可能会写错。
 
-所以这种重复性的代码，项目提供了 [codegen (opens new window)](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/codegen)代码生成器，只需要在数据库中设计好表结构，就可以一键生成前后端代码 + 单元测试 + Swagger 接口文档 + Validator 参数校验。
+所以这种重复性的代码，项目提供了 [codegen](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/codegen)代码生成器，只需要在数据库中设计好表结构，就可以一键生成前后端代码 + 单元测试 + Swagger 接口文档 + Validator 参数校验。
 
 针对不同的业务场景，项目提供了三种模式：单表、树表、主子表。
 
-本文，我们将演示“单表”的使用，基于代码生成器，在 `yudao-module-system` 模块中，开发一个【**用户组**】的功能。
+本文，将演示“单表”的使用，基于代码生成器，在 `yudao-module-system` 模块中，开发一个【**用户组**】的功能。
 
 ## 1. 数据库表结构设计
 
@@ -37,10 +37,6 @@ CREATE TABLE `system_group` (
 
 ① 表名的前缀，要和 Maven Module 的模块名保持一致。例如说，用户组在 `yudao-module-system` 模块，所以表名的前缀是 `system_`。
 
-::: tip 疑问：为什么要保持一致？
-
-代码生成器会自动解析表名的前缀，获得其所属的 Maven Module 模块，简化配置过程。
-
 ② 设置 ID 主键，一般推荐使用 `bigint` 长整形，并设置自增长。
 
 ③ 正确设置每个字段是否允许空，代码生成器会根据它生成参数是否允许空的校验规则。
@@ -49,7 +45,6 @@ CREATE TABLE `system_group` (
 
 ⑤ 添加 `creator`、`create_time`、`updater`、`update_time`、`deleted` 是必须设置的系统字段；如果开启多租户的功能，并且该表需要多租户的隔离，则需要添加 `tenant_id` 字段。
 
-:::
 
 ## 2. 代码生成
 
@@ -94,12 +89,6 @@ CREATE TABLE `system_group` (
 - 将【上级菜单】设置为【系统管理】。
 
 - 将【前端类型】设置为“前端项目”对应的“前端类型”。例如说，我们这里演示的是 `yudao-ui-admin-vue3` 前端项目，则选择了【Vue3 Element Plus 标准模版】。
-
-| 前端项目            | 前端类型                       |
-| ------------------- | ------------------------------ |
-| yudao-ui-admin-vue2 | Vue2 Element UI 标准模版       |
-| yudao-ui-admin-vue3 | Vue3 Element Plus 标准模版     |
-| yudao-ui-admin-vben | Vben5.0 Ant Design Schema 模版 |
 
 **生成信息**
 

@@ -30,7 +30,7 @@ outline: deep
 
 ### 2.1 引入依赖
 
-在 `yudao-module-system-server` 模块的 [`pom.xml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml)中，引入 `yudao-spring-boot-starter-job` 技术组件。如下所示：
+在 `yudao-module-system-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml)中，引入 `yudao-spring-boot-starter-job` 技术组件。如下所示：
 
 ```xml
 <dependency>
@@ -44,7 +44,7 @@ outline: deep
 
 ### 2.2 添加配置
 
-① 在 [`application.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml#L86-L93)中，添加 `xxl.job` 配置。如下所示：
+① 在 [`application.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml#L86-L93)中，添加 `xxl.job` 配置。如下所示：
 
 ```yaml
 --- #################### 定时任务相关配置 ####################
@@ -59,7 +59,7 @@ xxl:
 
 - 注意，`xxl.job.accessToken` 配置，需要改成你的 XXL Job 调度中心的访问令牌。
 
-② 在 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L80-L85)中，添加 `xxl.job` 配置。如下所示：
+② 在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L80-L85)中，添加 `xxl.job` 配置。如下所示：
 
 ```yaml
 --- #################### 定时任务相关配置 ####################

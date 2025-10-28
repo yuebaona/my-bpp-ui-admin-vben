@@ -4,11 +4,11 @@ outline: deep
 
 # 分布式锁
 
-[`yudao-spring-boot-starter-protection` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/)技术组件，使用 Redis 实现分布式锁的功能，它有 2 种使用方式：
+[`yudao-spring-boot-starter-protection`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/)技术组件，使用 Redis 实现分布式锁的功能，它有 2 种使用方式：
 
-- 编程式锁：基于 [Redisson (opens new window)](https://github.com/redisson/redisson)框架提供的[各种 (opens new window)](https://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8)分布式锁
+- 编程式锁：基于 [Redisson](https://github.com/redisson/redisson)框架提供的[各种](https://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8)分布式锁
 
-- 声明式锁：基于 [Lock4j (opens new window)](https://github.com/baomidou/lock4j)框架的 `@Lock4j` 注解
+- 声明式锁：基于 [Lock4j](https://github.com/baomidou/lock4j)框架的 `@Lock4j` 注解
 
 ## 1. 编程式锁
 
@@ -26,17 +26,17 @@ outline: deep
 
 ### 1.2 实战案例
 
-`yudao-module-pay` 模块的 [`notify` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/service/notify/PayNotifyServiceImpl.java#L155-L174)功能，使用到分布式锁，确保**每个**支付通知任务有且仅有一个在执行。下面，来看看这个案例是如何实现的。
+`yudao-module-pay` 模块的 [`notify`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/service/notify/PayNotifyServiceImpl.java#L155-L174)功能，使用到分布式锁，确保**每个**支付通知任务有且仅有一个在执行。下面，来看看这个案例是如何实现的。
 
-① 在 [RedisKeyConstants (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/dal/redis/RedisKeyConstants.java)类中，定义通知任务使用的分布式锁的 Redis Key。如下图所示：
+① 在 [RedisKeyConstants](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/dal/redis/RedisKeyConstants.java)类中，定义通知任务使用的分布式锁的 Redis Key。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/06f92656-7495-4966-a640-3e0d82201064.png)
 
-② 创建 [PayNotifyLockRedisDAO (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/dal/redis/notify/PayNotifyLockRedisDAO.java)类，使用 RedisClient 实现分布式锁的加锁与解锁。如下图所示：
+② 创建 [PayNotifyLockRedisDAO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/dal/redis/notify/PayNotifyLockRedisDAO.java)类，使用 RedisClient 实现分布式锁的加锁与解锁。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/86eb65c2-6956-4a38-b89b-0b861354aabf.png)
 
-③ 在 [PayNotifyServiceImpl (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/service/notify/PayNotifyServiceImpl.java#L155-L174)执行指定的支付通知任务时，通过 PayNotifyLockRedisDAO 获得分布式锁。如下图所示：
+③ 在 [PayNotifyServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-pay/yudao-module-pay-server/src/main/java/cn/iocoder/yudao/module/pay/service/notify/PayNotifyServiceImpl.java#L155-L174)执行指定的支付通知任务时，通过 PayNotifyLockRedisDAO 获得分布式锁。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4f5f545b-5021-4024-86ed-a7e93ade1211.png)
 
@@ -50,7 +50,7 @@ outline: deep
 
 **友情提示：以 yudao-module-system 服务为例子。**
 
-在 [`application-local.yaml` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L89-L92)配置文件中，通过 `lock4j` 配置项，添加 Lock4j 全局默认的分布式锁配置。如下图所示：
+在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L89-L92)配置文件中，通过 `lock4j` 配置项，添加 Lock4j 全局默认的分布式锁配置。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d6436783-6fcf-496c-bbc0-347eb7d5d606.png)
 
