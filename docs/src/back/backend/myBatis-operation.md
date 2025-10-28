@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# MyBatis链表&分页查询
+# MyBatis 联表&分页查询
 
 # !MyBatis 联表&分页查询
 
