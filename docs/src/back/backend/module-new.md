@@ -4,9 +4,6 @@ outline: deep
 
 # 新建服务
 
-本章节，将介绍如何新建名字为 `yudao-module-demo` 的示例服务，并添加 RESTful API 接口。
-
-
 ## 1.新建 Maven 模块
 
 ### 1.1 新建 demo 模块
@@ -342,7 +339,7 @@ spring:
 
   profiles:
     active: local
-  
+
   main:
     allow-circular-references: true # 允许循环依赖，因为项目是三层架构，无法避免这个情况。
     allow-bean-definition-overriding: true # 允许 Bean 覆盖，例如说 Feign 等会存在重复定义的服务
@@ -421,9 +418,7 @@ easy-trans:
   is-enable-global: false # 【默认禁用，对性能确认压力大】启用全局翻译（拦截所有 SpringMVC ResponseBody 进行自动翻译 )。如果对于性能要求很高可关闭此配置，或通过 @IgnoreTrans 忽略某个接口
 
 --- #################### RPC 远程调用相关配置 ####################
-
 --- #################### MQ 消息队列相关配置 ####################
-
 --- #################### 定时任务相关配置 ####################
 
 xxl:
@@ -432,7 +427,6 @@ xxl:
       appname: ${spring.application.name} # 执行器 AppName
       logpath: ${user.home}/logs/xxl-job/${spring.application.name} # 执行器运行日志文件存储磁盘路径
     accessToken: default_token # 执行器通讯TOKEN
-
 --- #################### 芋道相关配置 ####################
 
 yudao:
@@ -455,15 +449,13 @@ yudao:
     enable: true
 
 debug: false
-
 ```
 
-*   `spring.application.name` 配置项：可以改成你想要的服务名。
+- `spring.application.name` 配置项：可以改成你想要的服务名。
 
-*   `server.port` 配置项：可以改成你想要的端口号。
+- `server.port` 配置项：可以改成你想要的端口号。
 
-*   `yudao.info.version.base-package` 配置项：可以改成你的项目的基准包名。
-
+- `yudao.info.version.base-package` 配置项：可以改成你的项目的基准包名。
 
 其中 `application-local.yaml` 的配置如下：
 
@@ -484,7 +476,6 @@ spring:
       config: # 【注册中心】配置项
         namespace: dev # 命名空间。这里使用 dev 开发环境
         group: DEFAULT_GROUP # 使用的 Nacos 配置分组，默认为 DEFAULT_GROUP
-
 --- #################### 数据库相关配置 ####################
 spring:
   # 数据源配置项
@@ -555,14 +546,12 @@ spring:
 #    password: 123456 # 密码，建议生产环境开启
 
 --- #################### MQ 消息队列相关配置 ####################
-
 --- #################### 定时任务相关配置 ####################
 
 xxl:
   job:
     admin:
       addresses: http://127.0.0.1:9090/xxl-job-admin # 调度中心部署跟地址
-
 --- #################### 服务保障相关配置 ####################
 
 # Lock4j 配置项
@@ -606,11 +595,9 @@ yudao:
     mock-enable: true
   access-log: # 访问日志的配置项
     enable: false
-
 ```
 
-*   `logging.level.cn.iocoder.yudao.module.demo.dal.mysql` 配置项：可以改成你的项目的基准包名。
-
+- `logging.level.cn.iocoder.yudao.module.demo.dal.mysql` 配置项：可以改成你的项目的基准包名。
 
 其中 `logback-spring.xml` 的配置如下：
 
@@ -774,10 +761,9 @@ public class AppDemoTestController {
 
 可能你会奇怪，这里我们定义了两个 `/demo/test/get` 接口，会不会存在重复导致冲突呢？答案，当然是并不会。原因是：
 
-*   `controller.admin` 包下的接口，默认会增加 `/admin-api`，即最终的访问地址是 `/admin-api/demo/test/get`
+- `controller.admin` 包下的接口，默认会增加 `/admin-api`，即最终的访问地址是 `/admin-api/demo/test/get`
 
-*   `controller.app` 包下的接口，默认会增加 `/app-api`，即最终的访问地址是 `/app-api/demo/test/get`
-
+- `controller.app` 包下的接口，默认会增加 `/app-api`，即最终的访问地址是 `/app-api/demo/test/get`
 
 ## 3. 启动 demo 服务
 
@@ -812,25 +798,24 @@ class cn.iocoder.yudao.module.demo.controller.app.AppDemoTestController生效啦
 **友情提示：图中的 /v2/ 都改成 /v3/，或者以下面的文字为准！！！**
 
 ```yaml
-        - id: demo-admin-api # 路由的编号
-          uri: grayLb://demo-server
-          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
-            - Path=/admin-api/demo/**
-          filters:
-            - RewritePath=/admin-api/demo/v3/api-docs, /v3/api-docs # 配置，保证转发到 /v2/api-docs
-        - id: demo-app-api # 路由的编号
-          uri: grayLb://demo-server
-          predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
-            - Path=/app-api/demo/**
-          filters:
-            - RewritePath=/app-api/demo/v3/api-docs, /v3/api-docs
-
+- id: demo-admin-api # 路由的编号
+  uri: grayLb://demo-server
+  predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+    - Path=/admin-api/demo/**
+  filters:
+    - RewritePath=/admin-api/demo/v3/api-docs, /v3/api-docs # 配置，保证转发到 /v2/api-docs
+- id: demo-app-api # 路由的编号
+  uri: grayLb://demo-server
+  predicates: # 断言，作为路由的匹配条件，对应 RouteDefinition 数组
+    - Path=/app-api/demo/**
+  filters:
+    - RewritePath=/app-api/demo/v3/api-docs, /v3/api-docs
 ```
-```yaml
-      - name: demo-server
-        service-name: demo-server
-        url: /admin-api/demo/v3/api-docs
 
+```yaml
+- name: demo-server
+  service-name: demo-server
+  url: /admin-api/demo/v3/api-docs
 ```
 
 另外，`master-jdk` 版本，使用的是 spring cloud 2025+ 版本，它多一层 `spring.cloud.gateway.server.webflux.routers` ，而不是 `spring.cloud.gateway.routers` ！！！
