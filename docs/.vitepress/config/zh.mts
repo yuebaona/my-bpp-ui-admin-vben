@@ -155,6 +155,7 @@ function sidebarBack(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       text:'后端手册',
       items:[
+        { link: 'backend/module-new', text: '新建服务' },
         { link: 'backend/gen-single-table', text: '代码生成单表' },
         { link: 'backend/gen-master-sub-table', text: '代码生成主子表' },
         { link: 'backend/gen-tree-table', text: '代码生成树表'},
