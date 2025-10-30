@@ -8,25 +8,25 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/45055cec-6250-4fc6-aac9-f5bf9e2decd9.png)
 
-- AdminUser 管理员用户，前端访问 [`yudao-ui-admin-vue3` ](https://github.com/yudaocode/yudao-ui-admin-vue3)管理后台，后端访问 `/admin-api/**` RESTful API 接口。
+- AdminUser 管理员用户，前端访问 `bpp-ui-admin-vue3`管理后台，后端访问 `/admin-api/**` RESTful API 接口。
 
-- MemberUser 会员用户，前端访问 [`yudao-mall-uniapp` ](https://gitee.com/yudaocode/yudao-mall-uniapp)用户 App，后端访问 `/app-api/**` RESTful API 接口。
+- MemberUser 会员用户，前端访问 `bpp-mall-uniapp`用户 App，后端访问 `/app-api/**` RESTful API 接口。
 
 虽然是不同类型的用户，他们访问 RESTful API 接口时，都通过 Token 认证机制。
 
 ## 1. 表结构
 
-2 种类型的时候，采用不同数据库的表进行存储，管理员用户对应 [`system_users` ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/user/AdminUserDO.java)表，会员用户对应 [`member_user` ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/dal/dataobject/user/MemberUserDO.java)表。如下图所示：
+2 种类型的时候，采用不同数据库的表进行存储，管理员用户对应 `system_users`表，会员用户对应 `member_user`表。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b864c9a7-2fa9-427a-98a0-fb961c73502c.png)
 
-如果表需要关联多种类型的用户，例如说上述的 `system_oauth2_access_token` 访问令牌表，可以通过 `user_type` 字段进行区分。并且 `user_type` 对应 [UserTypeEnum](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/enums/UserTypeEnum.java)全局枚举，代码如下：
+如果表需要关联多种类型的用户，例如说上述的 `system_oauth2_access_token` 访问令牌表，可以通过 `user_type` 字段进行区分。并且 `user_type` 对应 `UserTypeEnum`全局枚举，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ec70b851-4a68-4b9c-8452-62cf93fac958.png)
 
 ## 2. 如何获取当前登录的用户？
 
-使用 [SecurityFrameworkUtils ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/util/SecurityFrameworkUtils.java)提供的如下方法，可以获得当前登录用户的信息：
+使用 `SecurityFrameworkUtils`提供的如下方法，可以获得当前登录用户的信息：
 
 ### 2.1 获取当前用户信息
 
@@ -64,7 +64,7 @@ public static Long getLoginUserDeptId()
 
 ① 在 OAuth2TokenServiceImpl 的 `#buildUserInfo(...)` 方法中，补充读取更多的用户信息，例如说 `mobile`、`sex` 等等。如下图所示：
 
-**图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务**
+**图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务**
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/294e0be5-bd9f-4f7d-b811-46ae9f2010ac.png)
 

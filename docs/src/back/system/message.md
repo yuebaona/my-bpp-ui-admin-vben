@@ -6,17 +6,17 @@ outline: deep
 
 本章节，介绍项目的短信功能。该功能提供统一的短信 API 给其它模块，使它们可以快速接入短信功能，无需关心不同短信平台的具体对接。
 
-短信采用异步发送，基于 [消息队列](https://cloud.iocoder.cn/message-queue/event)，如下图所示：
+短信采用异步发送，基于 **消息队列**，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e72e4b14-5758-4ca4-bfdc-5148de867ba9.png)
 
 **友情提示：图中的【Redis 消息队列】，应该是【RocketMQ 消息队列】哈~**
 
-该功能由 `yudao-module-system` 模块实现，其中：
+该功能由 `bpp-module-system` 模块实现，其中：
 
-- [`service/sms`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/sms/)短信【业务】，提供短信渠道、模板的配置，短信日志的查看，短信的发送等功能
+- `service/sms`短信【业务】，提供短信渠道、模板的配置，短信日志的查看，短信的发送等功能
 
-- [`frameowrk/sms`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms)：短信【组件】，封装阿里云、腾讯云、华为云、七牛云等短信平台的客户端。
+- `frameowrk/sms`：短信【组件】，封装阿里云、腾讯云、华为云、七牛云等短信平台的客户端。
 
 ## 1. 表结构
 
@@ -91,7 +91,7 @@ outline: deep
 
 ### 3.1 SmsSendApi
 
-使用 [SmsSendApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/sms/SmsSendApi.java)进行短信的发送，支持多种用户类型。它的方法如下：
+使用 `SmsSendApi`进行短信的发送，支持多种用户类型。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/dfdefbf2-fa98-4a97-82ff-e44425c5bb45.png)
 
@@ -99,7 +99,7 @@ outline: deep
 
 以工作流申请通过时，发送短信为例子，讲解 SmsSendApi 的使用。
 
-① 引入 `yudao-module-system-api` 依赖，如下图所示：
+① 引入 `bpp-module-system-api` 依赖，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/bafd5e44-7713-49fb-9fbd-f6a635e1789c.png)
 
@@ -115,11 +115,11 @@ outline: deep
 
 ### 4.1 SmsCodeApi
 
-使用 [SmsCodeApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/sms/SmsCodeApi.java)进行【验证码】短信的发送，例如说：用户手机验证码登录、用户忘记密码等等。它的方法如下：
+使用 `SmsCodeApi`进行【验证码】短信的发送，例如说：用户手机验证码登录、用户忘记密码等等。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4064535e-ffac-45ea-8ebf-c07a4a5c937c.png)
 
-验证码使用 [`system_sms_code`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/sms/SmsCodeDO.java)表进行存储，默认每天最多发送 10 条，每分钟发送 1 条，有效期为 10 分钟，可通过 `yudao.sms-code` 配置项进行自定义：
+验证码使用 `system_sms_code`表进行存储，默认每天最多发送 10 条，每分钟发送 1 条，有效期为 10 分钟，可通过 `bpp.sms-code` 配置项进行自定义：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7c484ddf-a47c-4b7d-a7b1-fe5c105c83d9.png)
 
@@ -127,7 +127,7 @@ outline: deep
 
 以会员用户手机验证码登录为例子，讲解 SmsCodeApi 的使用。
 
-① 引入 `yudao-module-system-api` 依赖，如下图所示：
+① 引入 `bpp-module-system-api` 依赖，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/39190b4e-d5b6-4a9e-af3c-dbc49b90706b.png)
 
@@ -135,7 +135,7 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7b8dbc24-e62a-4680-abd5-92056bb4f4d9.png)
 
-③ 在 [SmsSceneEnum](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/enums/sms/SmsSceneEnum.java)中，枚举会员用户的手机号登录的场景，如下图所示：
+③ 在 `SmsSceneEnum`中，枚举会员用户的手机号登录的场景，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b5c384f9-587d-4d28-b9c3-0255a6e89d3d.png)
 
@@ -145,11 +145,11 @@ outline: deep
 
 ## 5. 短信客户端
 
-[`frameowrk/sms`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms)短信【组件】，对接阿里云、腾讯云等短信平台，提供统一的短信客户端，提供给 [`service/sms`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/sms/)短信【业务】模块来调用。
+`frameowrk/sms`短信【组件】，对接阿里云、腾讯云等短信平台，提供统一的短信客户端，提供给 `service/sms`短信【业务】模块来调用。
 
 ### 5.1 SmsClient
 
-[SmsClient](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms/core/client/SmsClient.java)接口，定义短信客户端的方法。代码如下：
+`SmsClient`接口，定义短信客户端的方法。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/854afe70-6d31-4730-8e35-d65c33b0127c.png)
 
@@ -159,7 +159,7 @@ outline: deep
 
 ### 5.2 对接其它短信平台
 
-如果你想要对接其它短信平台，自定义一个 SmsClient 实现类，并使用 [SmsClientFactoryImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/framework/sms/core/client/impl/SmsClientFactoryImpl.java#L73-L85)进行创建。代码如下：
+如果你想要对接其它短信平台，自定义一个 SmsClient 实现类，并使用 `SmsClientFactoryImpl`进行创建。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d9ae1811-d0dc-4acc-a6ae-257fe87ffcb5.png)
 
@@ -199,9 +199,6 @@ outline: deep
 
 ② 短信发送回调 URL，可以通过我们项目的 \[系统管理 -> 消息中心 -> 短信管理 -> 短信渠道\] 菜单，配置它的“短信发送回调 URL”字段即可。它对应的是 SmsCallbackController 的 `#receiveHuaweiSmsStatus(...)` 地址。
 
-**补充说明：如果发送短信时，提示“405 鉴权失败”的话，怎么办？**
-
-可参考 [https://gitee.com/zhijiantianya/yudao-cloud/issues/IASUWI](https://gitee.com/zhijiantianya/yudao-cloud/issues/IASUWI)说明，我目前暂时没碰到过，不确定是不是这么解决是合理的~
 
 ### 6.4 七牛云
 

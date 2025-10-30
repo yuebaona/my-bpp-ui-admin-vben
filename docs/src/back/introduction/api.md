@@ -108,7 +108,7 @@ knife4j:
 
 ## 3. Swagger 技术组件
 
-① 在 `yudao-spring-boot-starter-web`技术组件的 `swagger`包，实现了对 Swagger 的封装。
+① 在 `bpp-spring-boot-starter-web`技术组件的 `swagger`包，实现了对 Swagger 的封装。
 
 ② 如果想要禁用 Swagger 功能，可通过 `springdoc.api-docs.enable` 配置项为 `false`。一般情况下，建议 prod 生产环境进行禁用，避免发生安全问题。
 

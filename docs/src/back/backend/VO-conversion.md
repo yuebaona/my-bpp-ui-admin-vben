@@ -18,7 +18,7 @@ outline: deep
 
 项目使用`MapStruct`实现 VO、DO、DTO 等对象之间的转换。
 
-在每个 `yudao-module-xxx-server` 模块的 `convert` 包下，可以看到各个业务的 Convert 接口，如下图所示：
+在每个 `bpp-module-xxx-server` 模块的 `convert` 包下，可以看到各个业务的 Convert 接口，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/3b8ebaf9-d3e0-4f02-bd45-484fec5f8233.png)
 
@@ -34,7 +34,7 @@ outline: deep
 
 2、在复杂场景，可以通过 Consumer 进一步拼接，如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-erp-biz 子模块，重命名为 yudao-module-erp-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-erp-biz 子模块，重命名为 bpp-module-erp-server 子模块，更好表达它是一个服务 
 
 :::
 
@@ -54,7 +54,7 @@ outline: deep
 
 - 方案二：数据库多次单表查询，然后在 Java 代码中进行数据拼接（翻译）。其实就是「1.2 BeanUtils」的“复杂场景”。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-erp-biz 子模块，重命名为 yudao-module-erp-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-erp-biz 子模块，重命名为 bpp-module-erp-server 子模块，更好表达它是一个服务 
 
 :::
 
@@ -68,7 +68,7 @@ outline: deep
 
 ### 2.1 场景一：模块内翻译
 
-模块内翻译，指的是在同一个模块内，进行数据翻译。例如说，OperateLogRespVO 属于 `yudao-module-system` 模块，需要读取模块内的 AdminUserDO 数据。
+模块内翻译，指的是在同一个模块内，进行数据翻译。例如说，OperateLogRespVO 属于 `bpp-module-system` 模块，需要读取模块内的 AdminUserDO 数据。
 
 ① 第一步，给 OperateLogRespVO 实现 `com.fhs.core.trans.vo.VO` 接口。
 
@@ -108,13 +108,13 @@ public class OperateLogController {
 
 ### 2.2 场景二：跨服务翻译
 
-跨服务翻译，指的是在不同服务，通过 RPC 进行数据翻译。例如说，CrmProductRespVO 属于 `yudao-module-crm` 服务，需要读取 `yudao-module-system` 服务的 AdminUserRespDTO 数据。
+跨服务翻译，指的是在不同服务，通过 RPC 进行数据翻译。例如说，CrmProductRespVO 属于 `bpp-module-crm` 服务，需要读取 `bpp-module-system` 服务的 AdminUserRespDTO 数据。
 
 使用上，会分成两块：
 
-- 【自定义翻译器】在 `yudao-module-system` 服务中，自定义一个 AutoTransable 数据翻译器的实现，提供 AdminUserRespDTO 的查询方法
+- 【自定义翻译器】在 `bpp-module-system` 服务中，自定义一个 AutoTransable 数据翻译器的实现，提供 AdminUserRespDTO 的查询方法
 
-- 【使用翻译器】在 `yudao-module-crm` 服务中，使用刚定义的 AutoTransable 数据翻译器，实现数据翻译
+- 【使用翻译器】在 `bpp-module-crm` 服务中，使用刚定义的 AutoTransable 数据翻译器，实现数据翻译
 
 #### 2.2.1 自定义翻译器
 
@@ -142,7 +142,7 @@ public class OperateLogController {
 
 ② 第二步，给 CrmProductRespVO 的 `ownerUserId` 字段，添加 `@Trans` 注解，如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-crm-biz 子模块，重命名为 yudao-module-crm-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-crm-biz 子模块，重命名为 bpp-module-crm-server 子模块，更好表达它是一个服务 
 
 :::
 
@@ -160,7 +160,7 @@ public class OperateLogController {
 
 在 Excel 导出时，如果也有数据翻译的需求，需要调用`TranslateUtils`的 `#translate(...)` 方法，如下图所示：
 
-**图片纠错：最新版本将 yudao-module-crm-biz 子模块，重命名为 yudao-module-crm-server 子模块，更好表达它是一个服务**
+**图片纠错：最新版本将 bpp-module-crm-biz 子模块，重命名为 bpp-module-crm-server 子模块，更好表达它是一个服务**
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/29af7c69-9539-4984-80eb-c36ecdab675d.png)
 

@@ -4,31 +4,31 @@ outline: deep
 
 # 服务网关Spring Cloud Gateway
 
-[`yudao-gateway`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-gateway)模块，基于 Spring Cloud Gateway 构建 API 服务网关，提供用户认证、服务路由、灰度发布、访问日志、异常处理等功能。
+`bpp-gateway`模块，基于 Spring Cloud Gateway 构建 API 服务网关，提供用户认证、服务路由、灰度发布、访问日志、异常处理等功能。
 
 ## 1. 服务路由
 
-新建服务后，在 [`application.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application.yaml)配置文件中，需要添加该服务的路由配置。示例如下图：
+新建服务后，在 `application.yaml`配置文件中，需要添加该服务的路由配置。示例如下图：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e3e4ab9d-5a21-4565-bbcb-dd67d27aa2b8.png)
 
 ## 2. 用户认证
 
-由 [`filter/security`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/security/)包实现，无需配置。
+由 `filter/security`包实现，无需配置。
 
 TokenAuthenticationFilter 会获得请求头中的 `Authorization` 字段，调用 `system-server` 服务，进行用户认证。
 
-- 如果认证成功，会将用户信息放到 `login-user` 请求头，转发到后续服务。后续服务可以从 `login-user` 请求头，[解析](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java#L77-L95)到用户信息。
+- 如果认证成功，会将用户信息放到 `login-user` 请求头，转发到后续服务。后续服务可以从 `login-user` 请求头，解析到用户信息。
 
 - 如果认证失败，依然会转发到后续服务，由该服务决定是否需要登录，是否需要校验权限。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eab98a49-010a-4822-a036-40813436105f.png)
 
-考虑到性能，API 网关会[本地缓存](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/security/TokenAuthenticationFilter.java#L56-L71)Token 与用户信息，每次收到 HTTP 请求时，异步从 `system-server` 刷新本地缓存。
+考虑到性能，API 网关会本地缓存Token 与用户信息，每次收到 HTTP 请求时，异步从 `system-server` 刷新本地缓存。
 
 ## 3. 灰度发布
 
-由 [`filter/grey`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/grey/)包实现，实现原理如下：
+由 `filter/grey`包实现，实现原理如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/79fe2acd-b744-4d6f-a7ab-a1cacc7021de.png)
 
@@ -40,7 +40,7 @@ TokenAuthenticationFilter 会获得请求头中的 `Authorization` 字段，�
 
 ② 第二步，【服务】配置服务的版本 `version` 配置。例如说：
 
-**图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务**
+**图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务**
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/69bb43dd-420e-4abf-aa53-cfc3cc9fa851.png)
 
@@ -50,7 +50,7 @@ TokenAuthenticationFilter 会获得请求头中的 `Authorization` 字段，�
 
 ## 4. 访问日志
 
-由 [`filter/logging`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/logging/)包实现，无需配置。
+由 `filter/logging`包实现，无需配置。
 
 每次收到 HTTP 请求时，会打印访问日志，包括 Request、Response、用户等信息。如下图所示：
 
@@ -58,7 +58,7 @@ TokenAuthenticationFilter 会获得请求头中的 `Authorization` 字段，�
 
 ## 5. 异常处理
 
-由 [GlobalExceptionHandler](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/handler/GlobalExceptionHandler.java)累实现，无需配置。
+由 `GlobalExceptionHandler`类实现，无需配置。
 
 请求发生异常时，会翻译异常信息，返回给用户。例如说：
 
@@ -126,4 +126,4 @@ Authorization: Bearer test1
 
 ## 8. Cors 跨域处理
 
-由 [`filter/cors`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/java/cn/iocoder/yudao/gateway/filter/cors/)包实现，无需配置。
+由 `filter/cors`包实现，无需配置。

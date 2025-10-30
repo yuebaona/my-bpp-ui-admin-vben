@@ -3,11 +3,11 @@ outline: deep
 ---
 # 多源数据（读写分离）、事务
 
-[`yudao-spring-boot-starter-mybatis`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-mybatis/)技术组件，除了提供 MyBatis 数据库操作，还提供了如下 2 种功能：
+`bpp-spring-boot-starter-mybatis`技术组件，除了提供 MyBatis 数据库操作，还提供了如下 2 种功能：
 
 - 数据连接池：基于 [Alibaba Druid](https://github.com/alibaba/druid)实现，额外提供监控的能力。
 
-- 多数据源（读写分离）：基于 [Dynamic Datasource](https://github.com/baomidou/dynamic-datasource-spring-boot-starter)实现，支持 Druid 连接池，可集成 [Seata](https://www.iocoder.cn/Seata/install/?yudao)实现分布式事务。
+- 多数据源（读写分离）：基于 [Dynamic Datasource](https://github.com/baomidou/dynamic-datasource-spring-boot-starter)实现，支持 Druid 连接池，可集成 [Seata](https://www.iocoder.cn/Seata/install/?bpp)实现分布式事务。
 
 ## 1. 数据连接池
 
@@ -21,9 +21,9 @@ outline: deep
 
 ### 1.1 Druid监控配置
 
-**友情提示：以 yudao-module-system 服务为例子。**
+**友情提示：以 bpp-module-system 服务为例子。**
 
-在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L7-L25)配置文件中，通过 `spring.datasource.druid` 配置项，仅仅设置了 Druid **监控**相关的配置项目，具体数据库的设置需要使用 Dynamic Datasource 的配置项。如下图所示：
+在`application-local.yaml`配置文件中，通过 `spring.datasource.druid` 配置项，仅仅设置了 Druid **监控**相关的配置项目，具体数据库的设置需要使用 Dynamic Datasource 的配置项。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fead648a-ebcf-4dcc-ba28-5abf764309ae.png)
 
@@ -67,9 +67,9 @@ outline: deep
 
 ### 2.1 多数据源配置
 
-**友情提示：以 yudao-module-system 服务为例子。**
+**友情提示：以 bpp-module-system 服务为例子。**
 
-在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L40-L62)配置文件中，通过 `spring.datasource.dynamic` 配置项，配置了 Master-Slave 主从两个数据源。如下图所示：
+在`application-local.yaml`配置文件中，通过 `spring.datasource.dynamic` 配置项，配置了 Master-Slave 主从两个数据源。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c396b957-7491-44a2-b14e-1eb911f9cfb3.png)
 

@@ -4,7 +4,7 @@ outline: deep
 
 # 消息队列（Redis）
 
-[`yudao-spring-boot-starter-mq`](https://github.com/YunaiV/yudao-cloud)技术组件，基于 Redis 实现分布式消息队列：
+`bpp-spring-boot-starter-mq`技术组件，基于 Redis 实现分布式消息队列：
 
 - 使用 [Stream](http://www.redis.cn/topics/streams-intro.html)特性，提供【集群】消费的能力。
 
@@ -24,9 +24,9 @@ outline: deep
 
 集群消费在项目中的使用场景，主要是提供可靠的、可堆积的异步任务的能力。例如说：
 
-- 短信模块，使用它[异步](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/sms/SmsSendConsumer.java)发送短信。
+- 短信模块，使用它[异步](https://github.com/YunaiV/bpp-cloud/blob/master/bpp-module-system/bpp-module-system-server/src/main/java/cn/sgmt/bpp/module/system/mq/consumer/sms/SmsSendConsumer.java)发送短信。
 
-- 邮件模块，使用它[异步](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/mail/MailSendConsumer.java)发送邮件。
+- 邮件模块，使用它[异步](https://github.com/YunaiV/bpp-cloud/blob/master/bpp-module-system/bpp-module-system-server/src/main/java/cn/sgmt/bpp/module/system/mq/consumer/mail/MailSendConsumer.java)发送邮件。
 
 相比 《异步任务》 来说，Spring Async 在 JVM 实例重启时，会导致未执行完的任务丢失。而集群消费，因为消息是存储在 Redis 中，所以不会存在该问题。
 
@@ -46,7 +46,7 @@ outline: deep
 
 ### 1.3 实战案例
 
-**友情提示：下文操作的都是 yudao-module-system 服务**
+**友情提示：下文操作的都是 bpp-module-system 服务**
 
 以【短信发送】举例子，改造使用 Redis 作为消息队列，同时也是讲解集群消费的使用。如下图所示：
 
@@ -54,12 +54,12 @@ outline: deep
 
 #### 1.3.0 引入依赖
 
-在 `yudao-module-system-server` 模块中，引入 `yudao-spring-boot-starter-mq` 技术组件。如下所示：
+在 `bpp-module-system-server` 模块中，引入 `bpp-spring-boot-starter-mq` 技术组件。如下所示：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-spring-boot-starter-mq</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-spring-boot-starter-mq</artifactId>
 </dependency>
 
 ```
@@ -159,11 +159,11 @@ public class SmsSendConsumer extends AbstractRedisStreamMessageListener<SmsSendM
 
 〇 Run 启动 Gateway 网关服务，因为需要它来调用服务。
 
-① Debug 启动 `yudao-module-system` 服务，可以在 SmsProducer 和 SmsSendConsumer 上面打上断点，稍微调试下。
+① Debug 启动 `bpp-module-system` 服务，可以在 SmsProducer 和 SmsSendConsumer 上面打上断点，稍微调试下。
 
 ② 打开 `SmsTemplateController.http` 文件，使用 IDEA httpclient 发起请求，发送短信。如下图所示：
 
-**图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务**
+**图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务**
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7924a32b-dcf5-44f5-9f88-e9213ecd12e5.png)
 
@@ -191,6 +191,6 @@ public class SmsSendConsumer extends AbstractRedisStreamMessageListener<SmsSendM
 
 - 实现 AbstractRedisChannelMessageListener 接口，消费消息。
 
-最终使用 YudaoRedisMQAutoConfiguration 配置类，扫描所有的 AbstractRedisChannelMessageListener 监听器，初始化对应的消费者。如下图所示：
+最终使用 bppRedisMQAutoConfiguration 配置类，扫描所有的 AbstractRedisChannelMessageListener 监听器，初始化对应的消费者。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a07cc12f-9928-4d55-ad48-439ad0ae28b5.png)

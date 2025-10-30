@@ -203,11 +203,11 @@ export JAVA_HOME=/usr/lib/jvm/jre-1.8.0
 
 #### 第一步，修改配置
 
-① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
+① `gateway-server` 网关，dev 开发环境对应的是 `application-dev.yaml`配置文件，主要是修改 Nacos 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/56114025-4ffd-4c19-ae09-da756645f460.png)
 
-② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
+② `system-server` 服务，dev 开发环境对应的是 `application-dev.yaml`配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/71821bcc-25d0-4637-bb1a-c0a5e12ca436.png)
 
@@ -227,11 +227,11 @@ export JAVA_HOME=/usr/lib/jvm/jre-1.8.0
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/469fc51e-5ca3-46ca-9dbe-31ef6ef3baf2.png)
 
-① 在 Linux 服务器上创建 `/work/projects/gateway-server` 目录，使用 `scp` 命令或者 FTP 工具，将 `yudao-gateway.jar` 上传到该目录下，并重名为 `gateway-server.jar`。
+① 在 Linux 服务器上创建 `/work/projects/gateway-server` 目录，使用 `scp` 命令或者 FTP 工具，将 `bpp-gateway.jar` 上传到该目录下，并重名为 `gateway-server.jar`。
 
-② 在 Linux 服务器上创建 `/work/projects/system-server` 目录，使用 `scp` 命令或者 FTP 工具，将 `yudao-module-system-biz.jar` 上传到该目录下，并重名为 `system-server.jar`。
+② 在 Linux 服务器上创建 `/work/projects/system-server` 目录，使用 `scp` 命令或者 FTP 工具，将 `bpp-module-system-biz.jar` 上传到该目录下，并重名为 `system-server.jar`。
 
-③ 在 Linux 服务器上创建 `/work/projects/infra-server` 目录，使用 `scp` 命令或者 FTP 工具，将 `yudao-module-infra-biz.jar` 上传到该目录下，并重名为 `infra-server.jar`。
+③ 在 Linux 服务器上创建 `/work/projects/infra-server` 目录，使用 `scp` 命令或者 FTP 工具，将 `bpp-module-infra-biz.jar` 上传到该目录下，并重名为 `infra-server.jar`。
 
 #### 第四步，编写脚本
 
@@ -350,7 +350,7 @@ deploy
 之后，执行 `tail -f nohup.out` 命令，查看启动日志。看到如下内容，说明启动完成：
 
 ```bash
-2022-04-13 00:06:20.049  INFO 1395 --- [main] [TID: N/A] c.i.yudao.server.YudaoServerApplication  : Started YudaoServerApplication in 35.315 seconds (JVM running for 36.282)
+2022-04-13 00:06:20.049  INFO 1395 --- [main] [TID: N/A] c.i.bpp.server.YudaoServerApplication  : Started YudaoServerApplication in 35.315 seconds (JVM running for 36.282)
 
 ```
 
@@ -366,21 +366,21 @@ deploy
 
 项目的管理后台有 3 个版本（只需要看你的版本即可）：
 
-- `yudao-ui-admin-vue3`：基于 Vue3 + element-plus
+- `bpp-ui-admin-vue3`：基于 Vue3 + element-plus
 
-- `yudao-ui-admin-vben`：基于 Vue3 + vben5.0(ant-design-vue)
+- `bpp-ui-admin-vben`：基于 Vue3 + vben5.0(ant-design-vue)
 
-- `yudao-ui-admin-vue2`：基于 Vue2 + element-ui
+- `bpp-ui-admin-vue2`：基于 Vue2 + element-ui
 
-注意，前端无法直接启动，而是需要通过 Nginx 转发读取前端构建出来的静态文件，最终都放在服务器上的 `/work/projects/yudao-ui-admin` 目录下。
+注意，前端无法直接启动，而是需要通过 Nginx 转发读取前端构建出来的静态文件，最终都放在服务器上的 `/work/projects/bpp-ui-admin` 目录下。
 
-### 3.1 yudao-ui-admin-vue3
+### 3.1 bpp-ui-admin-vue3
 
 基于 Vue3 + element-plus
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 `.env.dev`配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b6aa5296-0ecf-47ce-abf6-376068906335.png)
 
@@ -414,21 +414,21 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ```
 
-第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
+第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.bpp.sgmt.cn/` 。
 
 #### 第三步，上传 `**dist**` 文件
 
-在 Linux 服务器上创建 `/work/projects/yudao-ui-admin` 目录，使用 `scp` 命令或者 FTP 工具，将 `dist` 上传到该目录下。如下图所示：
+在 Linux 服务器上创建 `/work/projects/bpp-ui-admin` 目录，使用 `scp` 命令或者 FTP 工具，将 `dist` 上传到该目录下。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4d68dc4b-2878-47c1-b78a-46c8251fb9c9.png)
 
-### 3.2 yudao-ui-admin-vben
+### 3.2 bpp-ui-admin-vben
 
 基于 Vue3 + vben5.0(ant-design-vue)
 
 #### 第一步，修改配置
 
-前端 production 开发环境对应的是 [`.env.production`](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
+前端 production 开发环境对应的是 `.env.production`配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a2264508-3f9a-4f6e-abe2-4c3494fc0ee6.png)
 
@@ -441,14 +441,14 @@ npm run build:stage ## 打包 stage 预发布环境
 ```bash
         location /demo { # 注意点 1：不需要 / 结尾
             # 注意点 2：二级路由时需要使用别名 alias，不用 root
-            alias   /work/projects/yudao-ui-admin/; # 注意点 3：需要 / 结尾
+            alias   /work/projects/bpp-ui-admin/; # 注意点 3：需要 / 结尾
             index  index.html index.htm;
             try_files $uri $uri/ /index.html;
         }
 
 ```
 
-第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
+第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.bpp.sgmt.cn/` 。
 
 #### 第二步，编译前端
 
@@ -458,17 +458,17 @@ npm run build:stage ## 打包 stage 预发布环境
 
 #### 第三步，上传 `**dist**` 文件
 
-在 Linux 服务器上创建 `/work/projects/yudao-ui-admin` 目录，使用 `scp` 命令或者 FTP 工具，将 `dist` 上传到该目录下。如下图所示：
+在 Linux 服务器上创建 `/work/projects/bpp-ui-admin` 目录，使用 `scp` 命令或者 FTP 工具，将 `dist` 上传到该目录下。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/50b39fc3-9f9f-4b7a-9355-8ff69f655310.png)
 
-### 3.3 yudao-ui-admin-vue2
+### 3.3 bpp-ui-admin-vue2
 
 基于 Vue2 + element-ui
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 `.env.dev`配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d3ff2795-4181-4ce5-ba45-6ba5d27838cb.png)
 
@@ -494,13 +494,13 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ② `VUE_APP_APP_NAME`：二级部署路径，默认为 `/` 根目录，一般不用修改。
 
-③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
+③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 `router/index.js`来设置为 `hash` 路由，示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ca737a3d-27eb-46fc-aed1-4fdb4175d3e3.png)
 
 #### 第三步，上传 `**dist**` 文件
 
-在 Linux 服务器上创建 `/work/projects/yudao-ui-admin` 目录，使用 `scp` 命令或者 FTP 工具，将 `dist` 上传到该目录下。如下图所示：
+在 Linux 服务器上创建 `/work/projects/bpp-ui-admin` 目录，使用 `scp` 命令或者 FTP 工具，将 `dist` 上传到该目录下。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/09ec2024-e9c0-42a3-b14c-5c4fd0f1d432.png)
 
@@ -540,7 +540,7 @@ http {
         server_name  192.168.225.2; ## 重要！！！修改成你的外网 IP/域名
 
         location / { ## 前端项目
-            root   /work/projects/yudao-ui-admin;
+            root   /work/projects/bpp-ui-admin;
             index  index.html index.htm;
             try_files $uri $uri/ /index.html;
         }
@@ -585,7 +585,7 @@ http {
 
 **友情提示：在前端项目的编译时，需要把 \`VUE_APP_BASE_API\` 修改为后端项目对应的域名。**
 
-例如说，这里使用的是 `http://api.iocoder.cn`
+例如说，这里使用的是 `http://api.sgmt.cn`
 
 ① 修改 Nginx 配置，内容如下：
 
@@ -612,10 +612,10 @@ http {
 
     server { ## 前端项目
         listen       80;
-        server_name  admin.iocoder.cn; ## 重要！！！修改成你的前端域名
+        server_name  admin.sgmt.cn; ## 重要！！！修改成你的前端域名
 
         location / { ## 前端项目
-            root   /work/projects/yudao-ui-admin;
+            root   /work/projects/bpp-ui-admin;
             index  index.html index.htm;
             try_files $uri $uri/ /index.html;
         }
@@ -624,7 +624,7 @@ http {
 
     server { ## 后端项目
         listen       80;
-        server_name  api.iocoder.cn; ## 重要！！！修改成你的外网 IP/域名
+        server_name  api.sgmt.cn; ## 重要！！！修改成你的外网 IP/域名
 
         ## 不要使用 location / 转发到后端项目，因为 druid、admin 等监控，不需要外网可访问。或者增加 Nginx IP 白名单限制也可以。
 
@@ -651,12 +651,12 @@ http {
 
 ② 执行 `nginx -s reload` 命令，重新加载 Nginx 配置。
 
-③ 请求 [http://api.iocoder.cn/admin-api/](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
+③ 请求 [http://api.sgmt.cn/admin-api/](http://api.sgmt.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-④ 请求 [http://admin.iocoder.cn](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
+④ 请求 [http://admin.sgmt.cn](http://admin.sgmt.cn/)地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7c0d87ff-2f28-4548-8b3c-a33d448126d6.png)

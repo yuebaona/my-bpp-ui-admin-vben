@@ -54,14 +54,14 @@ outline: deep
 
 | 框架 | 说明 | 版本 |
 | --- | --- | --- |
-| [Spring Boot Admin)](https://github.com/codecentric/spring-boot-admin) | Spring Boot 监控平台 | 3.6.1 |
+| [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin) | Spring Boot 监控平台 | 3.6.1 |
 | [SkyWalking](https://skywalking.apache.org/) | 分布式应用追踪系统 | 9.0.0 |
 
 ### 单元测试
 
 | 框架 | 说明 | 版本 |
 | --- | --- | --- |
-| [JUnit | Java 单元测试框架 | 5.10.1 |
+| JUnit | Java 单元测试框架 | 5.10.1 |
 | [Mockito](https://github.com/mockito/mockito) | Java Mock 框架 | 5.7.0 |
 
 ### 其它工具

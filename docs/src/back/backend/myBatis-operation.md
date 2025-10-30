@@ -23,10 +23,10 @@ outline: deep
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper">
+<mapper namespace="cn.sgmt.bpp.module.system.dal.mysql.user.AdminUserMapper">
 
     <select id="selectPage01List"
-            resultType="cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO" >
+            resultType="cn.sgmt.bpp.module.system.dal.dataobject.user.AdminUserDO" >
         SELECT * FROM system_users
         <where>
             <if test="reqVO.username != null and reqVO.username !=''">
@@ -82,7 +82,7 @@ public interface AdminUserMapper extends BaseMapperX<AdminUserDO> {
 
 ```
 
-其中 [UserPageReqVO.java](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/user/vo/user/UserPageReqVO.java)是分页查询的请求 VO。
+其中 `UserPageReqVO.java`是分页查询的请求 VO。
 
 ③ 在 AdminUserServiceImplService 层，调用这两个方法，实现分页查询：
 
@@ -117,10 +117,10 @@ public class AdminUserServiceImpl implements AdminUserService {
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.iocoder.yudao.module.system.dal.mysql.user.AdminUserMapper">
+<mapper namespace="cn.sgmt.bpp.module.system.dal.mysql.user.AdminUserMapper">
 
     <select id="selectPage02"
-            resultType="cn.iocoder.yudao.module.system.dal.dataobject.user.AdminUserDO" >
+            resultType="cn.sgmt.bpp.module.system.dal.dataobject.user.AdminUserDO" >
         SELECT * FROM system_users
         <where>
             <if test="reqVO.username != null and reqVO.username !=''">

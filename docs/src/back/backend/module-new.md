@@ -12,15 +12,15 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a2752ddc-7424-4668-bee4-b2322a2da2ff.png)
 
-② 选择 Maven 类型，选择父模块为 `yudao`，输入名字为 `yudao-module-demo`，并点击 Create 按钮，如下图所示：
+② 选择 Maven 类型，选择父模块为 `bpp`，输入名字为 `bpp-module-demo`，并点击 Create 按钮，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e6fe2b54-f7e8-4916-a8ba-68141b0c3231.png)
 
-③ 打开 `yudao-module-demo` 模块，删除 src 文件，如下图所示：
+③ 打开 `bpp-module-demo` 模块，删除 src 文件，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/9c598be9-653e-4db8-944d-4c19e828dcc9.png)
 
-④ 打开 `yudao-module-demo` 模块的 `pom.xml` 文件，修改内容如下：
+④ 打开 `bpp-module-demo` 模块的 `pom.xml` 文件，修改内容如下：
 
 **提示**
 
@@ -52,11 +52,11 @@ outline: deep
 
 ### 1.2 新建 demo-api 子模块
 
-① 新建 `yudao-module-demo-api` 子模块，整个过程和“新建 demo 模块”是基本一致的，如下图所示：
+① 新建 `bpp-module-demo-api` 子模块，整个过程和“新建 demo 模块”是基本一致的，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/570faf85-46a7-493b-b405-e628554eec99.png)
 
-② 打开 `yudao-module-demo-api` 模块的 `pom.xml` 文件，修改内容如下：
+② 打开 `bpp-module-demo-api` 模块的 `pom.xml` 文件，修改内容如下：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -77,7 +77,7 @@ outline: deep
         demo 模块 API，暴露给其它模块调用
     </description>
 
-    <dependencies>  <!-- 5. 新增 yudao-common 依赖 -->
+    <dependencies>  <!-- 5. 新增 bpp-common 依赖 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
             <artifactId>yudao-common</artifactId>
@@ -88,17 +88,17 @@ outline: deep
 
 ```
 
-③ 【可选】新建 `cn.iocoder.yudao.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `api` 和 `enums` 包。如下图所示：
+③ 【可选】新建 `cn.iocoder.bpp.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `api` 和 `enums` 包。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/70c28b15-dc99-4c15-a039-7e9f8e0f9a09.png)
 
 ### 1.3 新建 demo-server 子模块
 
-① 新建 `yudao-module-demo-server` 子模块，整个过程和“新建 demo 模块”是基本一致的，如下图所示：
+① 新建 `bpp-module-demo-server` 子模块，整个过程和“新建 demo 模块”是基本一致的，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c99bab91-ce5c-445f-932f-2e9a5f28849e.png)
 
-② 打开 `yudao-module-demo-server` 模块的 `pom.xml` 文件，修改成内容如下：
+② 打开 `bpp-module-demo-server` 模块的 `pom.xml` 文件，修改成内容如下：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -106,14 +106,14 @@ outline: deep
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>yudao-module-demo</artifactId>
+        <artifactId>bpp-module-demo</artifactId>
         <groupId>cn.iocoder.cloud</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging> <!-- 2. 新增 packaging 为 jar -->
 
-    <artifactId>yudao-module-demo-server</artifactId>
+    <artifactId>bpp-module-demo-server</artifactId>
 
     <name>${project.artifactId}</name> <!-- 3. 新增 name 为 ${project.artifactId} -->
     <description> <!-- 4. 新增 description 为该模块的描述 -->
@@ -124,63 +124,63 @@ outline: deep
         <!-- Spring Cloud 基础 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-env</artifactId>
+            <artifactId>bpp-spring-boot-starter-env</artifactId>
         </dependency>
 
         <!-- 依赖服务 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-module-system-api</artifactId>
+            <artifactId>bpp-module-system-api</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-module-infra-api</artifactId>
+            <artifactId>bpp-module-infra-api</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-module-demo-api</artifactId>
+            <artifactId>bpp-module-demo-api</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <!-- 业务组件 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-biz-data-permission</artifactId>
+            <artifactId>bpp-spring-boot-starter-biz-data-permission</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-biz-tenant</artifactId>
+            <artifactId>bpp-spring-boot-starter-biz-tenant</artifactId>
         </dependency>
 
         <!-- Web 相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-web</artifactId>
+            <artifactId>bpp-spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-security</artifactId>
+            <artifactId>bpp-spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- DB 相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-mybatis</artifactId>
+            <artifactId>bpp-spring-boot-starter-mybatis</artifactId>
         </dependency>
 
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-redis</artifactId>
+            <artifactId>bpp-spring-boot-starter-redis</artifactId>
         </dependency>
 
         <!-- RPC 远程调用相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-rpc</artifactId>
+            <artifactId>bpp-spring-boot-starter-rpc</artifactId>
         </dependency>
 
         <!-- Registry 注册中心相关 -->
@@ -198,31 +198,31 @@ outline: deep
         <!-- Job 定时任务相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-job</artifactId>
+            <artifactId>bpp-spring-boot-starter-job</artifactId>
         </dependency>
 
         <!-- 消息队列相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-mq</artifactId>
+            <artifactId>bpp-spring-boot-starter-mq</artifactId>
         </dependency>
 
         <!-- Test 测试相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-test</artifactId>
+            <artifactId>bpp-spring-boot-starter-test</artifactId>
         </dependency>
 
         <!-- 工具类相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-excel</artifactId>
+            <artifactId>bpp-spring-boot-starter-excel</artifactId>
         </dependency>
 
         <!-- 监控相关 -->
         <dependency>
             <groupId>cn.iocoder.cloud</groupId>
-            <artifactId>yudao-spring-boot-starter-monitor</artifactId>
+            <artifactId>bpp-spring-boot-starter-monitor</artifactId>
         </dependency>
     </dependencies>
 
@@ -252,17 +252,17 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/01415974-4ca4-4358-9f71-ae4e7e14a184.png)
 
-④ 新建 `cn.iocoder.yudao.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `controller.admin` 和 `controller.app` 等包。如下图所示：
+④ 新建 `cn.iocoder.bpp.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `controller.admin` 和 `controller.app` 等包。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/bd69ed4e-4754-4191-81ea-9ebb66ecbc4f.png)
 
 ⑤ 新建安全配置 SecurityConfiguration 类。代码如下：
 
 ```java
-package cn.iocoder.yudao.module.demo.framework.security.config;
+package cn.iocoder.bpp.module.demo.framework.security.config;
 
-import cn.iocoder.yudao.framework.security.config.AuthorizeRequestsCustomizer;
-import cn.iocoder.yudao.module.infra.enums.ApiConstants;
+import cn.iocoder.bpp.framework.security.config.AuthorizeRequestsCustomizer;
+import cn.iocoder.bpp.module.infra.enums.ApiConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -305,7 +305,7 @@ public class SecurityConfiguration {
 ⑥ 新建 DemoServerApplication 启动类。代码如下：
 
 ```java
-package cn.iocoder.yudao.module.demo;
+package cn.iocoder.bpp.module.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -429,13 +429,13 @@ xxl:
     accessToken: default_token # 执行器通讯TOKEN
 --- #################### 芋道相关配置 ####################
 
-yudao:
+bpp:
   info:
     version: 1.0.0
-    base-package: cn.iocoder.yudao.module.demo
+    base-package: cn.sgmt.bpp.module.demo
   web:
     admin-ui:
-      url: http://dashboard.yudao.iocoder.cn # Admin 管理后台 UI 的地址
+      url: http://dashboard.bpp.iocoder.cn # Admin 管理后台 UI 的地址
   xss:
     enable: false
     exclude-urls: # 如下两个 url，仅仅是为了演示，去掉配置也没关系
@@ -444,7 +444,7 @@ yudao:
   swagger:
     title: 管理后台
     description: 提供管理员管理的所有功能
-    version: ${yudao.info.version}
+    version: ${bpp.info.version}
   tenant: # 多租户相关配置项
     enable: true
 
@@ -455,7 +455,7 @@ debug: false
 
 - `server.port` 配置项：可以改成你想要的端口号。
 
-- `yudao.info.version.base-package` 配置项：可以改成你的项目的基准包名。
+- `bpp.info.version.base-package` 配置项：可以改成你的项目的基准包名。
 
 其中 `application-local.yaml` 的配置如下：
 
@@ -582,13 +582,13 @@ spring:
 logging:
   level:
     # 配置自己写的 MyBatis Mapper 打印日志
-    cn.iocoder.yudao.module.demo.dal.mysql: debug
+    cn.sgmt.bpp.module.demo.dal.mysql: debug
     org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
 
 --- #################### 芋道相关配置 ####################
 
 # 芋道配置项，设置当前项目所有自定义的配置
-yudao:
+bpp:
   env: # 多环境的配置项
     tag: ${HOSTNAME}
   security:
@@ -597,7 +597,7 @@ yudao:
     enable: false
 ```
 
-- `logging.level.cn.iocoder.yudao.module.demo.dal.mysql` 配置项：可以改成你的项目的基准包名。
+- `logging.level.cn.sgmt.bpp.module.demo.dal.mysql` 配置项：可以改成你的项目的基准包名。
 
 其中 `logback-spring.xml` 的配置如下：
 
@@ -605,8 +605,8 @@ yudao:
 <configuration>
     <!-- 引用 Spring Boot 的 logback 基础配置 -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-    <!-- 变量 yudao.info.base-package，基础业务包 -->
-    <springProperty scope="context" name="yudao.info.base-package" source="yudao.info.base-package"/>
+    <!-- 变量 bpp.info.base-package，基础业务包 -->
+    <springProperty scope="context" name="bpp.info.base-package" source="bpp.info.base-package"/>
     <!-- 格式化输出：%d 表示日期，%X{tid} SkWalking 链路追踪编号，%thread 表示线程名，%-5level：级别从左显示 5 个字符宽度，%msg：日志消息，%n是换行符 -->
     <property name="PATTERN_DEFAULT" value="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} | %highlight(${LOG_LEVEL_PATTERN:-%5p} ${PID:- }) | %boldYellow(%thread [%tid]) %boldGreen(%-40.40logger{39}) | %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
 
@@ -686,9 +686,9 @@ yudao:
 ① 在 `controller.admin` 包，新建一个 DemoTestController 类，并新建一个 `/demo/test/get` 接口。代码如下：
 
 ```java
-package cn.iocoder.yudao.module.demo.controller.admin;
+package cn.sgmt.bpp.module.demo.controller.admin;
 
-import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.sgmt.bpp.framework.common.pojo.CommonResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.validation.annotation.Validated;
@@ -696,7 +696,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.sgmt.bpp.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - Test")
 @RestController
@@ -724,9 +724,9 @@ public class DemoTestController {
 ② 在 `controller.app` 包，新建一个 AppDemoTestController 类，并新建一个 `/demo/test/get` 接口。代码如下：
 
 ```java
-package cn.iocoder.yudao.module.demo.controller.app;
+package cn.sgmt.bpp.module.demo.controller.app;
 
-import cn.iocoder.yudao.framework.common.pojo.CommonResult;
+import cn.sgmt.bpp.framework.common.pojo.CommonResult;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.validation.annotation.Validated;
@@ -734,7 +734,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
+import static cn.sgmt.bpp.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "用户 App - Test")
 @RestController
@@ -772,8 +772,8 @@ public class AppDemoTestController {
 ② 运行 DemoServerApplication 类，将新建的 `demo` 服务进行启动。启动完成后，可以看到如下日志：
 
 ```bash
-class cn.iocoder.yudao.module.demo.controller.admin.DemoTestController生效啦！！！
-class cn.iocoder.yudao.module.demo.controller.app.AppDemoTestController生效啦！！！
+class cn.sgmt.bpp.module.demo.controller.admin.DemoTestController生效啦！！！
+class cn.sgmt.bpp.module.demo.controller.app.AppDemoTestController生效啦！！！
 
 ```
 
@@ -791,7 +791,7 @@ class cn.iocoder.yudao.module.demo.controller.app.AppDemoTestController生效啦
 
 ## 5. 网关配置
 
-① 打开 `yudao-gateway` 网关项目的 `application.yaml` 配置文件，增加 `demo` 服务的路由配置。代码如下：
+① 打开 `bpp-gateway` 网关项目的 `application.yaml` 配置文件，增加 `demo` 服务的路由配置。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/48e024aa-cec5-4424-8a09-8c8968f35f14.png)
 
@@ -830,12 +830,12 @@ class cn.iocoder.yudao.module.demo.controller.app.AppDemoTestController生效啦
 
 ### 6.1 访问接口返回 404？
 
-请检查，你新建的模块的 `package` 包名是不是在 `cn.iocoder.yudao.module` 下！
+请检查，你新建的模块的 `package` 包名是不是在 `cn.sgmt.bpp.module` 下！
 
 如果不是，修改模块的 ServerApplication 类，增加新建的模块的 `package` 包名。例如说：
 
 ```java
-@SpringBootApplication(scanBasePackages = {"${yudao.info.base-package}.server", "${yudao.info.base-package}.module",
+@SpringBootApplication(scanBasePackages = {"${bpp.info.base-package}.server", "${bpp.info.base-package}.module",
     "xxx.yyy.zzz"}) // xxx.yyy.zzz 是你新建的模块的 `package` 包名
 
 ```

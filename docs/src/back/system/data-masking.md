@@ -14,7 +14,7 @@ outline: deep
 
 ## 1. 脱敏组件
 
-脱敏组件，由 `yudao-spring-boot-starter-web` 的 [`desensitize`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-web/src/main/java/cn/iocoder/yudao/framework/desensitize)包实现，基于 Jackson 拓展，只需要在字段上添加脱敏注解，即可实现对该字段进行脱敏。
+脱敏组件，由 `bpp-spring-boot-starter-web` 的 `desensitize`包实现，基于 Jackson 拓展，只需要在字段上添加脱敏注解，即可实现对该字段进行脱敏。
 
 使用步骤如下：
 
@@ -133,8 +133,8 @@ public static class DesensitizeDemo {
 ① 创建 `@DigestDesensitize` 注解，使用 `@DesensitizeBy` 标记它使用的处理器。代码如下：
 
 ```java
-import cn.iocoder.yudao.framework.desensitize.core.base.annotation.DesensitizeBy;
-import cn.iocoder.yudao.framework.desensitize.core.handler.DigestHandler;
+import cn.sgmt.bpp.framework.desensitize.core.base.annotation.DesensitizeBy;
+import cn.sgmt.bpp.framework.desensitize.core.handler.DigestHandler;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 
 import java.lang.annotation.*;
@@ -159,8 +159,8 @@ public @interface DigestDesensitize {
 
 ```java
 import cn.hutool.crypto.digest.DigestUtil;
-import cn.iocoder.yudao.framework.desensitize.core.annotation.DigestDesensitize;
-import cn.iocoder.yudao.framework.desensitize.core.base.handler.DesensitizationHandler;
+import cn.sgmt.bpp.framework.desensitize.core.annotation.DigestDesensitize;
+import cn.sgmt.bpp.framework.desensitize.core.base.handler.DesensitizationHandler;
 
 public class DigestHandler implements DesensitizationHandler<DigestDesensitize> {
 

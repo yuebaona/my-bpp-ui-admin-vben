@@ -6,7 +6,7 @@ outline: deep
 
 项目使用`Hibernate Validator`框架，对 RESTful API 接口进行参数的校验，以保证最终数据入库的正确性。例如说，用户注册时，会校验手机格式的正确性，密码非弱密码。
 
-如果参数校验不通过，会抛出 ConstraintViolationException 异常，被全局的[异常处理](https://cloud.iocoder.cn/exception)捕获，返回“请求参数不正确”的响应。示例如下：
+如果参数校验不通过，会抛出 ConstraintViolationException 异常，被全局的**异常处理**捕获，返回“请求参数不正确”的响应。示例如下：
 
 ```json
 {
@@ -144,7 +144,7 @@ public interface DictDataService {
 
 如果 Validator 内置的参数校验注解不满足需求时，我们也可以**自定义**参数校验的注解。
 
-在项目的`yudao-common`的`validation`包下，就自定义了多个参数校验的注解，以`@Mobile`注解来举例，它提供了手机格式的校验。
+在项目的`bpp-common`的`validation`包下，就自定义了多个参数校验的注解，以`@Mobile`注解来举例，它提供了手机格式的校验。
 
 ① 第一步，新建 `@Mobile` 注解，并设置自定义校验器为`MobileValidator`类。代码如下：
 
@@ -229,7 +229,7 @@ private LocalDateTime[] createTime;
 
 ```
 
-② 前端传递时间参数时，需要时间格式为 `yyyy-MM-dd HH:mm:ss`，和上面的 `FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND` 对应。例如说前端 `yudao-ui-admin-vue3` 项目：
+② 前端传递时间参数时，需要时间格式为 `yyyy-MM-dd HH:mm:ss`，和上面的 `FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND` 对应。例如说前端 `bpp-ui-admin-vue3` 项目：
 
 - `views/infra/job/logger/index.vue` 的 `beginTime` 或 `endTime` 参数 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/87af3daf-8c4c-4126-840c-0d4a6b8ffae8.png)
 
@@ -241,7 +241,7 @@ Request Body 时间传参，指的是 `Post`、`PUT` 等请求，通过 JSO
 
 ① 后端接收时间参数时，需要添加 SpringMVC 的 `@RequestBody` 注解，使用 LocalDateTime 属性进行接收。例如说：
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
 
 :::
 

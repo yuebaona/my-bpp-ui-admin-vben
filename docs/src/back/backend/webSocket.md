@@ -6,17 +6,17 @@ outline: deep
 
 ## 1. 功能简介
 
-项目的 [`yudao-spring-boot-starter-websocket`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-websocket)组件，基于 [Spring WebSocket](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket)进行二次封装，实现了更加简单的使用方式。例如说，WebSocket 的认证、Session 的管理、WebSocket 集群的消息广播等等。
+项目的 `bpp-spring-boot-starter-websocket`组件，基于 [Spring WebSocket](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket)进行二次封装，实现了更加简单的使用方式。例如说，WebSocket 的认证、Session 的管理、WebSocket 集群的消息广播等等。
 
 ### 1.1 Token 身份认证
 
 ① 在 WebSocket 连接建立时，通过 QueryString 的 `token` 参数，进行认证。例如说：`ws://127.0.0.1:48080/ws?token=xxx`。
 
-由于 WebSocket 是基于 HTTP 建立连接，所以它的认证可以复用项目的 [TokenAuthenticationFilter](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java)实现。
+由于 WebSocket 是基于 HTTP 建立连接，所以它的认证可以复用项目的 TokenAuthenticationFilter实现。
 
-② 认证完成后，会通过 [LoginUserHandshakeInterceptor](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/security/LoginUserHandshakeInterceptor.java)拦截器，将用户信息存储到 WebSocket Session 的 `attributes` 中。
+② 认证完成后，会通过 `LoginUserHandshakeInterceptor`拦截器，将用户信息存储到 WebSocket Session 的 `attributes` 中。
 
-这样，后续可以使用 [WebSocketFrameworkUtils](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/util/WebSocketFrameworkUtils.java)获取用户信息，例如说：
+这样，后续可以使用 `WebSocketFrameworkUtils`获取用户信息，例如说：
 
 ```java
 // WebSocketFrameworkUtils.java
@@ -39,7 +39,7 @@ public static Long getTenantId(WebSocketSession session)
 
 每个前端和后端建立的 WebSocket 连接，对应后端的一个 WebSocketSession 会话对象。由于后续需要对 WebSocketSession 进行消息的发送，所以需要进行管理。
 
-① WebSocketSession 的管理，由 [WebSocketSessionManager](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionManager.java)定义接口，由 `WebSocketSessionManagerImpl`具体实现。
+① WebSocketSession 的管理，由 `WebSocketSessionManager`定义接口，由 `WebSocketSessionManagerImpl`具体实现。
 
 ```java
 // 添加和移除 Session
@@ -53,32 +53,32 @@ Collection<WebSocketSession> getSessionList(Integer userType, Long userId); // �
 
 ```
 
-② WebSocket 建立和关闭连接时，通过 [WebSocketSessionHandlerDecorator](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/session/WebSocketSessionHandlerDecorator.java)处理器，分别调用 WebSocketSessionManager 进行 Session 的添加和移除。
+② WebSocket 建立和关闭连接时，通过 `WebSocketSessionHandlerDecorator`处理器，分别调用 WebSocketSessionManager 进行 Session 的添加和移除。
 
 ### 1.3 Message 消息格式
 
-WebSocket 默认使用“文本”进行通信，而业务需要按照不同类型的消息，进行不同的处理。因此，项目定义了 [JsonWebSocketMessage](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/message/JsonWebSocketMessage.java)消息对象，包含 `type` 消息类型 + `content` 消息内容。
+WebSocket 默认使用“文本”进行通信，而业务需要按照不同类型的消息，进行不同的处理。因此，项目定义了 `JsonWebSocketMessage`消息对象，包含 `type` 消息类型 + `content` 消息内容。
 
 和 Spring MVC 对比，可以理解为：
 
 |  | 标识 | 方法 | 参数 |
 | --- | --- | --- | --- |
 | Spring MVC | URL + Method 等 | Controller 的 Method 方法 | QueryString 或 RequestBody 等 |
-| 项目 WebSocket | `type` 消息类型 | [WebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/listener/WebSocketMessageListener.java)实现类 | 解析 `content` 消息内容后的 Message 对象 |
+| 项目 WebSocket | `type` 消息类型 | `WebSocketMessageListener`实现类 | 解析 `content` 消息内容后的 Message 对象 |
 
 具体 JsonWebSocketMessage 和 WebSocketMessageListener 详细说明，参见**「1.4 Message 消息接收」**小节。
 
 ### 1.4 Message 消息接收
 
-① WebSocket 接收到项目后，会先交给 [JsonWebSocketMessageHandler](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/handler/JsonWebSocketMessageHandler.java)消息处理器，将消息解析成 JsonWebSocketMessage 对象。
+① WebSocket 接收到项目后，会先交给 `JsonWebSocketMessageHandler`消息处理器，将消息解析成 JsonWebSocketMessage 对象。
 
 之后，根据 `type` 消息类型，获得到 WebSocketMessageListener 实现类，并将 `content` 消息内容进一步解析成 Message 对象，交给它进行处理。
 
-② 具体案例，可见 [DemoWebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)、[DemoSendMessage](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/message/DemoSendMessage.java)类。
+② 具体案例，可见 `DemoWebSocketMessageListener`、`DemoSendMessage`类。
 
 ### 1.5 Message 消息推送
 
-① 项目的 [WebSocketMessageSender](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-websocket/src/main/java/cn/iocoder/yudao/framework/websocket/core/sender/WebSocketMessageSender.java)接口，定义了给 Session 发送消息的方法。如下所示：
+① 项目的 `WebSocketMessageSender`接口，定义了给 Session 发送消息的方法。如下所示：
 
 ```java
 // WebSocketMessageSender.java
@@ -113,10 +113,10 @@ default void sendObject(String sessionId, String messageType, Object messageCont
 | KafkaWebSocketMessageSender | ✅ | 开启《消息队列（Kafka）》 |
 | RabbitMQWebSocketMessageSender | ✅ | 开启《消息队列（RabbitMQ）》 |
 
-默认配置下，使用 LocalWebSocketMessageSender 本地发送消息，不支持 WebSocket 集群。可通过修改 `application.yaml` 配置文件的 `yudao.websocket.sender-type` 来切换，如下：
+默认配置下，使用 LocalWebSocketMessageSender 本地发送消息，不支持 WebSocket 集群。可通过修改 `application.yaml` 配置文件的 `bpp.websocket.sender-type` 来切换，如下：
 
 ```yaml
-yudao:
+bpp:
   websocket:
     enable: true # websocket的开关
     path: /infra/ws # 路径
@@ -132,7 +132,7 @@ yudao:
       consumer-group: ${spring.application.name}-websocket-consumer # 消息发送的 Kafka Consumer Group
 ```
 
-另外，默认的 WebSocket 连接地址是 `ws://127.0.0.1:48080/infra/ws`，可通过 `yudao.websocket.path` 配置项进行修改。
+另外，默认的 WebSocket 连接地址是 `ws://127.0.0.1:48080/infra/ws`，可通过 `bpp.websocket.path` 配置项进行修改。
 
 ## 2. 使用方案
 
@@ -151,28 +151,28 @@ yudao:
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1494e932-25b9-4985-be83-41d93e4793c9.png)
 
-- 前端：见 \[基础设施 -> WebSocket 测试\] 菜单，对应 [/views/infra/websocket/index.vue](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/infra/webSocket/index.vue)界面
+- 前端：见 \[基础设施 -> WebSocket 测试\] 菜单，对应 `/views/infra/websocket/index.vue`界面
 
-- 后端：见 `yudao-module-infra-server` 模块，对应 [DemoWebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)监听器
+- 后端：见 `bpp-module-infra-server` 模块，对应 `DemoWebSocketMessageListener`监听器
 
 基于 WebSocket 实现的单聊和群聊，暂时不支持消息的持久化（刷新后，消息会消息）。建议，多多调试，更好的理解 WebSocket 流程。
 
 #### 2.1.1 后端代码
 
-① 在 `yudao-module-infra-server` 模块的 `pom.xml` 文件中，引入 `yudao-spring-boot-starter-websocket` 依赖。如下所示：
+① 在 `bpp-module-infra-server` 模块的 `pom.xml` 文件中，引入 `bpp-spring-boot-starter-websocket` 依赖。如下所示：
 
 ```xml
     <dependency>
-        <groupId>cn.iocoder.cloud</groupId>
-        <artifactId>yudao-spring-boot-starter-websocket</artifactId>
+        <groupId>cn.sgmt.cloud</groupId>
+        <artifactId>bpp-spring-boot-starter-websocket</artifactId>
     </dependency>
 
 ```
 
-修改该模块的 `application.yaml` 配置文件中，配置 `yudao.websocket.enable` 配置项，开启 WebSocket 功能。如下所示：
+修改该模块的 `application.yaml` 配置文件中，配置 `bpp.websocket.enable` 配置项，开启 WebSocket 功能。如下所示：
 
 ```yaml
-yudao:
+bpp:
   websocket:
     enable: true # websocket的开关
     path: /infra/ws # 路径
@@ -181,11 +181,11 @@ yudao:
 
 ② 新建 DemoWebSocketMessageListener 类，实现对应消息的处理。如下图所示：
 
-::: danger 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+::: danger 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
 
 :::
 
-③ 在 `yudao-gateway` 模块的 `application.yaml` 配置文件中，在 `spring.cloud.gateway.routes` 配置项中，添加 `/infra/ws` WebSocket 路径的路由。如下所示：
+③ 在 `bpp-gateway` 模块的 `application.yaml` 配置文件中，在 `spring.cloud.gateway.routes` 配置项中，添加 `/infra/ws` WebSocket 路径的路由。如下所示：
 
 ```yaml
 - id: infra-websocket # 路由的编号（WebSocket）
@@ -212,9 +212,9 @@ yudao:
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/678e27f5-ba3c-420c-a647-b1e16b7f304f.png)
 
-- 前端：见 \[系统管理 -> 消息中心 -> 通知公告\] 菜单，对应 [/views/system/notice/index.vue](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/system/notice/index.vue)界面的【推送】按钮
+- 前端：见 \[系统管理 -> 消息中心 -> 通知公告\] 菜单，对应 `/views/system/notice/index.vue`界面的【推送】按钮
 
-- 后端：见 `yudao-module-system-server` 模块，对应 [DemoWebSocketMessageListener](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/websocket/DemoWebSocketMessageListener.java)监听器
+- 后端：见 `bpp-module-system-server` 模块，对应 `DemoWebSocketMessageListener`监听器
 
 点击某条公告的【推送】按钮，仅仅推送给所有在线用户。由于 WebSocket 目前暂时没全局建立，所以还是使用 \[基础设施 -> WebSocket 测试\] 菜单演示。如下图所示：
 
@@ -222,24 +222,24 @@ yudao:
 
 #### 2.2.1 后端代码
 
-【相同】① 在 `yudao-module-infra-server` 模块的 `pom.xml` 文件中，引入 `yudao-spring-boot-starter-websocket` 依赖。
+【相同】① 在 `bpp-module-infra-server` 模块的 `pom.xml` 文件中，引入 `bpp-spring-boot-starter-websocket` 依赖。
 
-修改该模块的 `application.yaml` 配置文件中，配置 `yudao.websocket.enable` 配置项，开启 WebSocket 功能。如下所示：
+修改该模块的 `application.yaml` 配置文件中，配置 `bpp.websocket.enable` 配置项，开启 WebSocket 功能。如下所示：
 
 ```yaml
-yudao:
+bpp:
   websocket:
     enable: true # websocket的开关
     path: /infra/ws # 路径
     sender-type: local # 消息发送的类型，可选值为 local、redis、rocketmq、kafka、rabbitmq
 ```
 
-【不同】② 在 `yudao-module-system-server` 模块的 `pom.xml` 文件中，引入 `yudao-module-infra-api` 依赖。如下所示：
+【不同】② 在 `bpp-module-system-server` 模块的 `pom.xml` 文件中，引入 `bpp-module-infra-api` 依赖。如下所示：
 
 ```xml
     <dependency>
-        <groupId>cn.iocoder.cloud</groupId>
-        <artifactId>yudao-module-infra-api</artifactId>
+        <groupId>cn.sgmt.cloud</groupId>
+        <artifactId>bpp-module-infra-api</artifactId>
         <version>${revision}</version>
     </dependency>
 
@@ -257,13 +257,13 @@ public class RpcConfiguration {
 
 ```
 
-【不同】③ 在 `yudao-module-system-server` 模块，在 NoticeController 类中，新建 `#push(...)` 方法，用于推送公告消息。如下图所示：
+【不同】③ 在 `bpp-module-system-server` 模块，在 NoticeController 类中，新建 `#push(...)` 方法，用于推送公告消息。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c8422d07-1bbd-4775-afaa-ba518047b79c.png)
 
 本质上，它替代了方案一的 DemoWebSocketMessageListener 类，走 HTTP 上行消息，替代 WebSocket 上行消息。
 
-④ 在 `yudao-gateway` 模块的 `application.yaml` 配置文件中，在 `spring.cloud.gateway.routes` 配置项中，添加 `/infra/ws` WebSocket 路径的路由。如下所示：
+④ 在 `bpp-gateway` 模块的 `application.yaml` 配置文件中，在 `spring.cloud.gateway.routes` 配置项中，添加 `/infra/ws` WebSocket 路径的路由。如下所示：
 
 ```yaml
 - id: infra-websocket # 路由的编号（WebSocket）
@@ -288,16 +288,16 @@ public class RpcConfiguration {
 
 我个人是倾向于方案二的，使用 HTTP 上行消息，使用 WebSocket 下行消息。原因如下：
 
-① `yudao-module-infra-server` 扮演一个 WebSocket 服务的角色，可以通过它来主动发送（下行）消息给前端。这样，未来如果使用 MQTT 中间件（例如说，EMQX、阿里云 MQTT、腾讯云 MQTT 等）替换现有 WebSocket 也比较方便。
+① `bpp-module-infra-server` 扮演一个 WebSocket 服务的角色，可以通过它来主动发送（下行）消息给前端。这样，未来如果使用 MQTT 中间件（例如说，EMQX、阿里云 MQTT、腾讯云 MQTT 等）替换现有 WebSocket 也比较方便。
 
 ② HTTP 上行消息，相比 WebSocket 上行消息来说，更加方便，也比较符合我们的编码习惯。
 
-③ 在微服务架构下，多个服务是拆分开的，无法提供相同的 WebSocket 连接。例如说，`yudao-module-infra-server` 和 `yudao-module-system-server` 两个服务都需要有 WebSocket 推送能力时，需要前端分别连接它们两个服务。
+③ 在微服务架构下，多个服务是拆分开的，无法提供相同的 WebSocket 连接。例如说，`bpp-module-infra-server` 和 `bpp-module-system-server` 两个服务都需要有 WebSocket 推送能力时，需要前端分别连接它们两个服务。
 
-考虑到 `yudao-cloud` 和 `yudao-cloud` 架构的统一性，还是只让 `yudao-module-infra-server` 提供 WebSocket 服务：
+考虑到 `bpp-cloud` 和 `bpp-cloud` 架构的统一性，还是只让 `bpp-module-infra-server` 提供 WebSocket 服务：
 
-- 前端连接 `yudao-module-infra-server` 的 WebSocket 服务，其它服务通过 `yudao-module-infra-server` 下行消息。
+- 前端连接 `bpp-module-infra-server` 的 WebSocket 服务，其它服务通过 `bpp-module-infra-server` 下行消息。
 
 - 前端 HTTP 上行消息时，还是通过 HTTP 调用各个服务。
 
-ps：如果只用 `yudao-cloud` 单体架构，不会存在 ③ 的困扰，方案一也没问题。
+ps：如果只用 `bpp-cloud` 单体架构，不会存在 ③ 的困扰，方案一也没问题。

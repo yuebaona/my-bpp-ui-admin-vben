@@ -6,20 +6,11 @@ outline: deep
 
 **重要说明：**
 
-① 由于大家普遍反馈，“本地缓存”学习成本太高，一般 Redis 缓存足够满足大多数场景的性能要求，所以基本使用 [Spring Cache](https://cloud.iocoder.cn/redis-cache) + Redis 所替代。
+① 由于大家普遍反馈，“本地缓存”学习成本太高，一般 Redis 缓存足够满足大多数场景的性能要求，所以基本使用 Spring Cache) + Redis 所替代。
 
 也因此，本章节更多的，是讲解如何在项目中使用本地缓存。如果你不需要本地缓存，可以忽略本章节。
 
 ② 项目中还保留了部分地方使用本地缓存，例如说：短信客户端、文件客户端、敏感词等。主要原因是，它们是“有状态”的 Java 对象，无法缓存到 Redis 中。
-
-系统使用本地缓存，提升公用逻辑的执行性能。 例如说： \*
-
-*   [租户模块](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/service/tenant/TenantServiceImpl.java)缓存租户信息，每次 RESTful API 校验租户是否禁用、过期时，无需读库。
-
-*   [部门模块](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/service/dept/DeptServiceImpl.java)缓存部门信息，每次数据权限校验时，无需读库。
-
-*   [权限模块](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/service/permission/PermissionServiceImpl.java)缓存权限信息，每次功能权限校验时，无需读库。
-
 
 ## 1. 实现原理
 
@@ -34,11 +25,11 @@ outline: deep
 
 ## 2. 实战案例
 
-以 [角色模块](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)为例，讲解如何实现角色信息的本地缓存。
+以**角色模块**为例，讲解如何实现角色信息的本地缓存。
 
 ### 2.1 初始化缓存
 
-① 在 [RoleService](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleService.java)接口中，定义 `#initLocalCache()` 方法。代码如下：
+① 在 `RoleService`接口中，定义 `#initLocalCache()` 方法。代码如下：
 
 ```java
 // RoleService.java
@@ -50,7 +41,7 @@ void initLocalCache();
 
 ```
 
-② 在 [RoleServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)类中，实现 `#initLocalCache()` 方法，通过 `@PostConstruct` 注解，在项目启动时进行本地缓存的初始化。代码如下：
+② 在 `RoleServiceImpl`类中，实现 `#initLocalCache()` 方法，通过 `@PostConstruct` 注解，在项目启动时进行本地缓存的初始化。代码如下：
 
 ```java
 // RoleServiceImpl.java
@@ -90,13 +81,9 @@ public void initLocalCache() {
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/511b844a-fb0a-4ee7-b669-8d8944022c38.png)
 
-**友情提示：**
-
-对 Spring Cloud Bus 不熟悉的同学，可以后续阅读 [《芋道 Spring Cloud Alibaba 事件总线 Bus RocketMQ 入门 》](https://www.iocoder.cn/Spring-Cloud-Alibaba/Bus-RocketMQ/?yudao)文档。
-
 #### 2.2.1 RoleRefreshMessage
 
-新建 [RoleRefreshMessage](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/mq/message/permission/RoleRefreshMessage.java)类，角色数据刷新 Message。代码如下：
+新建 `RoleRefreshMessage`类，角色数据刷新 Message。代码如下：
 
 ```java
 @Data
@@ -115,7 +102,7 @@ public class RoleRefreshMessage extends RemoteApplicationEvent {
 
 #### 2.2.2 RoleProducer
 
-① 新建 [RoleProducer](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/mq/producer/permission/RoleProducer.java)类，RoleRefreshMessage 的 Producer 生产者。代码如下：
+① 新建 `RoleProducer`类，RoleRefreshMessage 的 Producer 生产者。代码如下：
 
 ```java
 @Component
@@ -138,7 +125,7 @@ public class RoleProducer extends AbstractBusProducer {
 
 #### 2.2.3 RoleRefreshConsumer
 
-新建 [RoleRefreshConsumer](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/java/cn/iocoder/yudao/module/system/mq/consumer/permission/RoleRefreshConsumer.java)类，RoleRefreshMessage 的 Consumer 消费者，刷新本地缓存。代码如下：
+新建 `RoleRefreshConsumer`类，RoleRefreshMessage 的 Consumer 消费者，刷新本地缓存。代码如下：
 
 ```java
 @Component

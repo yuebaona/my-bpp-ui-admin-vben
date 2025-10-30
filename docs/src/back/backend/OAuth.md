@@ -31,7 +31,7 @@ outline: deep
 
 ### 实战一：基于授权码模式，实现 SSO 单点登录
 
-示例代码见 [https://gitee.com/yudaocode/yudao-demo/tree/master/yudao-sso-demo-by-code](https://gitee.com/yudaocode/yudao-demo/tree/master/yudao-sso-demo-by-code)地址，整体流程如下图所示：
+示例代码整体流程如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1fe8ee1a-5097-4f7c-b215-4d35dc15e100.png)
 
@@ -43,7 +43,7 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/01b3555c-06b6-4106-a8ae-5a45ea7eb5db.png)
 
-- 客户端编号：`yudao-sso-demo-by-code`
+- 客户端编号：`bpp-sso-demo-by-code`
 
 - 客户端密钥：`test`
 
@@ -57,13 +57,13 @@ outline: deep
 
 ps：如果已经有这个客户端，可以不用新增。
 
-**③ 第三步**，运行 [SSODemoApplication](https://gitee.com/yudaocode/yudao-demo/blob/master/yudao-sso-demo-by-code/src/main/java/cn/iocoder/yudao/ssodemo/SSODemoApplication.java)类，启动接入方的项目，它已经包含前端和后端部分。启动成功的日志如下：
+**③ 第三步**，运行 `SSODemoApplication`类，启动接入方的项目，它已经包含前端和后端部分。启动成功的日志如下：
 
 ::: info 友情提示：如果你使用的是 Vue3 + element-plus 的前端项目，一定要操作！！！
 
 :::
 
-需要把 yudao-sso-demo-by-code 的 `index.html` 文件中的 `http://127.0.0.1:1024` 改成 `http://127.0.0.1:8080`！！！否则在后续的“授权回调”时，会跳转失败噢！！！
+需要把 bpp-sso-demo-by-code 的 `index.html` 文件中的 `http://127.0.0.1:1024` 改成 `http://127.0.0.1:8080`！！！否则在后续的“授权回调”时，会跳转失败噢！！！
 
 ```bash
 2022-10-01 21:24:35.572  INFO 60265 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 18080 (http) with context path ''
@@ -94,7 +94,7 @@ ps：如果已经有这个客户端，可以不用新增。
 
 ### 实战二：基于密码模式，实现 SSO 登录
 
-示例代码见 [https://gitee.com/yudaocode/yudao-demo/tree/master/yudao-sso-demo-by-password ](https://gitee.com/yudaocode/yudao-demo/tree/master/yudao-sso-demo-by-password)地址，整体流程如下图所示：
+示例代码整体流程如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/ab973182-551e-4283-bc35-ee1ac9fe8b2e.png)
 
@@ -106,7 +106,7 @@ ps：如果已经有这个客户端，可以不用新增。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/9fcb609a-fc5e-411a-bfad-531992d5aea5.png)
 
-- 客户端编号：`yudao-sso-demo-by-password`
+- 客户端编号：`bpp-sso-demo-by-password`
 
 - 客户端密钥：`test`
 
@@ -120,7 +120,7 @@ ps：如果已经有这个客户端，可以不用新增。
 
 ps：如果已经有这个客户端，可以不用新增。
 
-**③ 第三步**，运行 [SSODemoApplication](https://gitee.com/yudaocode/yudao-demo/blob/master/yudao-sso-demo-by-password/src/main/java/cn/iocoder/yudao/ssodemo/SSODemoApplication.java)类，启动接入方的项目，它已经包含前端和后端部分。启动成功的日志如下：
+**③ 第三步**，运行 `SSODemoApplication`类，启动接入方的项目，它已经包含前端和后端部分。启动成功的日志如下：
 
 ```bash
 2022-10-04 21:24:35.572  INFO 60265 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 18080 (http) with context path ''

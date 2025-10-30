@@ -204,11 +204,11 @@ nacos.core.auth.server.identity.value=admin
 
 #### 第一步，修改配置
 
-① `gateway-server` 网关，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-gateway/src/main/resources/application-dev.yaml#L3-L14)配置文件，主要是修改 Nacos 为你的地址。如下图所示：
+① `gateway-server` 网关，dev 开发环境对应的是 `application-dev.yaml`配置文件，主要是修改 Nacos 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/07ff156f-d624-4df4-86c5-75b3fba7b731.png)
 
-② `system-server` 服务，dev 开发环境对应的是 [`application-dev.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-biz/src/main/resources/application-dev.yaml#L57-L73)配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
+② `system-server` 服务，dev 开发环境对应的是 `application-dev.yaml`配置文件，主要是修改 Nacos、MySQL、Redis 为你的地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/14b26db8-2374-4c63-807f-75374ac27c49.png)
 
@@ -226,13 +226,13 @@ nacos.core.auth.server.identity.value=admin
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/13d90444-f60d-4e10-8e8a-c2db6fa3e699.png)
 
-② 将 `yudao-gateway.jar` 上传到 `gateway-server` 目录下，并重名为 `gateway-server.jar`。
+② 将 `bpp-gateway.jar` 上传到 `gateway-server` 目录下，并重名为 `gateway-server.jar`。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a2b49913-2299-42a9-89bc-65d2aab19374.png)
 
-③ 将 `yudao-module-system-biz.jar` 上传到 `system-server` 目录下，并重名为 `system-server.jar`。
+③ 将 `bpp-module-system-biz.jar` 上传到 `system-server` 目录下，并重名为 `system-server.jar`。
 
-④ 将 `yudao-module-infra-biz.jar` 上传到 `infra-server` 目录下，并重名为 `infra-server.jar`。
+④ 将 `bpp-module-infra-biz.jar` 上传到 `infra-server` 目录下，并重名为 `infra-server.jar`。
 
 #### 第四步，启动后端
 
@@ -258,21 +258,21 @@ nacos.core.auth.server.identity.value=admin
 
 项目的管理后台有 3 个版本（只需要看你的版本即可）：
 
-- `yudao-ui-admin-vue3`：基于 Vue3 + element-plus
+- `bpp-ui-admin-vue3`：基于 Vue3 + element-plus
 
-- `yudao-ui-admin-vben`：基于 Vue3 + vben5.0(ant-design-vue)
+- `bpp-ui-admin-vben`：基于 Vue3 + vben5.0(ant-design-vue)
 
-- `yudao-ui-admin-vue2`：基于 Vue2 + element-ui
+- `bpp-ui-admin-vue2`：基于 Vue2 + element-ui
 
-注意，前端无法直接启动，而是需要通过 Nginx 转发读取前端构建出来的静态文件，最终都放在服务器上的 `/www/wwwroot/yudao-ui-admin` 目录下。
+注意，前端无法直接启动，而是需要通过 Nginx 转发读取前端构建出来的静态文件，最终都放在服务器上的 `/www/wwwroot/bpp-ui-admin` 目录下。
 
-### 3.1 yudao-ui-admin-vue3
+### 3.1 bpp-ui-admin-vue3
 
 基于 Vue3 + element-plus
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env.dev#L6-L7)配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 `.env.dev`配置文件，主要是修改 `VITE_BASE_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/aae30a50-9c48-4460-b024-bd843c34eff6.png)
 
@@ -290,8 +290,6 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ```
 
-如果是在服务器上构建，并且出现卡死的情况，可以参考 [https://t.zsxq.com/Quq1U](https://t.zsxq.com/Quq1U)或 [https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3](https://gitee.com/yudaocode/yudao-ui-admin-vue3/issues/IAU0T3)解决
-
 **其它高级参数说明【可暂时不看】：**
 
 ① `VITE_PUBLIC_PATH`：前端打包的路径（静态资源的基础路径），一般默认为 `/` 即可。目前有两种用法：
@@ -301,14 +299,14 @@ npm run build:stage ## 打包 stage 预发布环境
 ```bash
         location /demo { # 注意点 1：不需要 / 结尾
             # 注意点 2：二级路由时需要使用别名 alias，不用 root
-            alias   /work/projects/yudao-ui-admin/; # 注意点 3：需要 / 结尾
+            alias   /work/projects/bpp-ui-admin/; # 注意点 3：需要 / 结尾
             index  index.html index.htm;
             try_files $uri $uri/ /index.html;
         }
 
 ```
 
-第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
+第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.bpp.sgmt.cn/` 。
 
 具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
@@ -316,19 +314,19 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ① 选中本地的 `dist` 内的所有文件，进行压缩。（注意，不是压缩 `dist` 文件夹，而是选中它里面所有的内容！！！）
 
-② 在宝塔首页，点击左侧的 \[文件\] 菜单， 在 `/www/wwwroot` 目录下，创建一个名字为 `yudao-ui-admin` 的目录。
+② 在宝塔首页，点击左侧的 \[文件\] 菜单， 在 `/www/wwwroot` 目录下，创建一个名字为 `bpp-ui-admin` 的目录。
 
 之后，上传 `dist.zip` 到该目录下，并进行解压。最终如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/cecc5f1a-f4d4-4915-893c-fae918845b64.png)
 
-### 3.2 yudao-ui-admin-vben
+### 3.2 bpp-ui-admin-vben
 
 基于 Vue3 + vben5.0(ant-design-vue)
 
 #### 第一步，修改配置
 
-前端 production 开发环境对应的是 [`.env.production`](https://github.com/yudaocode/yudao-ui-admin-vben/blob/master/.env.production#L15-L21)配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
+前端 production 开发环境对应的是 `.env.production`配置文件，主要是修改 `VITE_GLOB_BASE_URL`、`VITE_GLOB_API_URL` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/28695547-791e-4bd7-a4c7-02c9a4dfd789.png)
 
@@ -341,14 +339,14 @@ npm run build:stage ## 打包 stage 预发布环境
 ```bash
         location /demo { # 注意点 1：不需要 / 结尾
             # 注意点 2：二级路由时需要使用别名 alias，不用 root
-            alias   /work/projects/yudao-ui-admin/; # 注意点 3：需要 / 结尾
+            alias   /work/projects/bpp-ui-admin/; # 注意点 3：需要 / 结尾
             index  index.html index.htm;
             try_files $uri $uri/ /index.html;
         }
 
 ```
 
-第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.yudao.iocoder.cn/` 。
+第二种，可用于七牛等 CDN 服务，读取前端的静态文件，提升访问速度，建议 prod 生产环境使用。例如说，我们演示环境的 `VITE_PUBLIC_PATH` 是 `http://static-vue3.bpp.sgmt.cn/` 。
 
 具体操作，可参考文章的 [《Vue 项目使用七牛云 CDN 存放静态资源》](https://blog.csdn.net/weixin_71403100/article/details/132037721)的「二、实现方式 」部分，只是最终的“修改 index.html 中静态资源引用”，变成 `PUBLIC_PATH` 修改即可。
 
@@ -362,19 +360,19 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ① 选中本地的 `dist` 内的所有文件，进行压缩。（注意，不是压缩 `dist` 文件夹，而是选中它里面所有的内容！！！）
 
-② 在宝塔首页，点击左侧的 \[文件\] 菜单， 在 `/www/wwwroot` 目录下，创建一个名字为 `yudao-ui-admin` 的目录。
+② 在宝塔首页，点击左侧的 \[文件\] 菜单， 在 `/www/wwwroot` 目录下，创建一个名字为 `bpp-ui-admin` 的目录。
 
 之后，上传 `dist.zip` 到该目录下，并进行解压。最终如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a20d1e42-2124-4954-8093-448df6ae2772.png)
 
-### 3.3 yudao-ui-admin-vue2
+### 3.3 bpp-ui-admin-vue2
 
 基于 Vue2 + element-ui
 
 #### 第一步，修改配置
 
-前端 dev 开发环境对应的是 [`.env.dev`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.dev)配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
+前端 dev 开发环境对应的是 `.env.dev`配置文件，主要是修改 `VUE_APP_BASE_API` 为你的后端项目的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/11471f5d-f394-4357-a5d4-5961f4814093.png)
 
@@ -400,7 +398,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ② `VUE_APP_APP_NAME`：二级部署路径，默认为 `/` 根目录，一般不用修改。
 
-③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 [`router/index.js`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/router/index.js#L173-L178)来设置为 `hash` 路由，示例如下：
+③ `mode`：前端路由的模式，默认采用 `history` 路由，一般不用修改。可以通过修改 `router/index.js`来设置为 `hash` 路由，示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/392fc513-e163-4aaf-8554-a1769a3310be.png)
 
@@ -408,7 +406,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 ① 选中本地的 `dist` 内的所有文件，进行压缩。（注意，不是压缩 `dist` 文件夹，而是选中它里面所有的内容！！！）
 
-② 在宝塔首页，点击左侧的 \[文件\] 菜单， 在 `/www/wwwroot` 目录下，创建一个名字为 `yudao-ui-admin` 的目录。
+② 在宝塔首页，点击左侧的 \[文件\] 菜单， 在 `/www/wwwroot` 目录下，创建一个名字为 `bpp-ui-admin` 的目录。
 
 之后，上传 `dist.zip` 到该目录下，并进行解压。最终如下图所示：
 
@@ -424,7 +422,7 @@ npm run build:stage ## 打包 stage 预发布环境
 
 在宝塔首页，点击左侧的 \[网站\] 菜单，之后选择 \[HTML项目\] 选项。
 
-之后，点击 \[添加HTML项目\] 按钮，填写备注为 `yudao-ui-admin`，并在“根目录”选择 `/www/wwwroot/yudao-ui-admin` 目录。如下图所示：
+之后，点击 \[添加HTML项目\] 按钮，填写备注为 `bpp-ui-admin`，并在“根目录”选择 `/www/wwwroot/bpp-ui-admin` 目录。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1bf05507-26d3-4985-a105-38a15f244ad6.png)
 
@@ -476,13 +474,13 @@ location /app-api/ { ## 后端项目 - 用户 App
 
 **友情提示：在前端项目的编译时，需要把 \`VUE_APP_BASE_API\` 修改为后端项目对应的域名。**
 
-例如说，这里使用的是 `http://api.iocoder.cn`
+例如说，这里使用的是 `http://api.sgmt.cn`
 
 #### 第一步，配置前端转发
 
 ① 在宝塔首页，点击左侧的 \[网站\] 菜单，之后选择 \[HTML项目\] 选项。
 
-之后，点击 \[添加HTML项目\] 按钮，填写备注为 `yudao-ui-admin`，并在“根目录”选择 `/www/wwwroot/yudao-ui-admin` 目录。如下图所示：
+之后，点击 \[添加HTML项目\] 按钮，填写备注为 `bpp-ui-admin`，并在“根目录”选择 `/www/wwwroot/bpp-ui-admin` 目录。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c2a9164c-21f7-4728-b394-ba9a7d0826b7.png)
 
@@ -500,7 +498,7 @@ location / {
 
 #### 第二步，配置后端转发
 
-① 点击 Java 项目的 \[设置\] 按钮，选中 \[域名管理\] 选项，在“域名”输入后端的域名，如 `api.iocoder.cn`。如下图所示：
+① 点击 Java 项目的 \[设置\] 按钮，选中 \[域名管理\] 选项，在“域名”输入后端的域名，如 `api.sgmt.cn`。如下图所示：
 
 **友情提示：这里操作的是 \`gateway-server\` 项目！！！**
 
@@ -536,12 +534,12 @@ location /app-api/ { ## 后端项目 - 用户 App
 
 #### 第三步，简单测试
 
-① 请求 [http://api.iocoder.cn/admin-api/](http://api.iocoder.cn/admin-api/)地址，成功访问后端项目，返回结果如下：
+① 请求 `http://api.sgmt.cn/admin-api/`地址，成功访问后端项目，返回结果如下：
 
 ```json
 { "code": 401, "data": null, "msg": "账号未登录" }
 ```
 
-② 请求 [http://admin.iocoder.cn](http://admin.iocoder.cn/)地址，成功访问前端项目，返回前端界面如下：
+② 请求 `http://admin.sgmt.cn`地址，成功访问前端项目，返回前端界面如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/65548e36-e37c-485b-81ec-ee745873da03.png)
