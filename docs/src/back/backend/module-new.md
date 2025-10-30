@@ -33,7 +33,7 @@ outline: deep
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>yudao</artifactId>
-        <groupId>cn.iocoder.cloud</groupId>
+        <groupId>cn.sgmt.cloud</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -65,7 +65,7 @@ outline: deep
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>yudao-module-demo</artifactId>
-        <groupId>cn.iocoder.cloud</groupId>
+        <groupId>cn.sgmt.cloud</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -79,7 +79,7 @@ outline: deep
 
     <dependencies>  <!-- 5. 新增 bpp-common 依赖 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>yudao-common</artifactId>
         </dependency>
     </dependencies>
@@ -88,7 +88,7 @@ outline: deep
 
 ```
 
-③ 【可选】新建 `cn.iocoder.bpp.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `api` 和 `enums` 包。如下图所示：
+③ 【可选】新建 `cn.sgmt.bpp.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `api` 和 `enums` 包。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/70c28b15-dc99-4c15-a039-7e9f8e0f9a09.png)
 
@@ -107,7 +107,7 @@ outline: deep
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>bpp-module-demo</artifactId>
-        <groupId>cn.iocoder.cloud</groupId>
+        <groupId>cn.sgmt.cloud</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -123,63 +123,63 @@ outline: deep
     <dependencies>  <!-- 5. 新增依赖，这里引入的都是比较常用的业务组件、技术组件 -->
         <!-- Spring Cloud 基础 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-env</artifactId>
         </dependency>
 
         <!-- 依赖服务 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-module-system-api</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-module-infra-api</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-module-demo-api</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <!-- 业务组件 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-biz-data-permission</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-biz-tenant</artifactId>
         </dependency>
 
         <!-- Web 相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- DB 相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-mybatis</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-redis</artifactId>
         </dependency>
 
         <!-- RPC 远程调用相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-rpc</artifactId>
         </dependency>
 
@@ -197,31 +197,31 @@ outline: deep
 
         <!-- Job 定时任务相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-job</artifactId>
         </dependency>
 
         <!-- 消息队列相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-mq</artifactId>
         </dependency>
 
         <!-- Test 测试相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-test</artifactId>
         </dependency>
 
         <!-- 工具类相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-excel</artifactId>
         </dependency>
 
         <!-- 监控相关 -->
         <dependency>
-            <groupId>cn.iocoder.cloud</groupId>
+            <groupId>cn.sgmt.cloud</groupId>
             <artifactId>bpp-spring-boot-starter-monitor</artifactId>
         </dependency>
     </dependencies>
@@ -252,17 +252,17 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/01415974-4ca4-4358-9f71-ae4e7e14a184.png)
 
-④ 新建 `cn.iocoder.bpp.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `controller.admin` 和 `controller.app` 等包。如下图所示：
+④ 新建 `cn.sgmt.bpp.module.demo` **基础**包，其中 `demo` 为模块名。之后，新建 `controller.admin` 和 `controller.app` 等包。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/bd69ed4e-4754-4191-81ea-9ebb66ecbc4f.png)
 
 ⑤ 新建安全配置 SecurityConfiguration 类。代码如下：
 
 ```java
-package cn.iocoder.bpp.module.demo.framework.security.config;
+package cn.sgmt.bpp.module.demo.framework.security.config;
 
-import cn.iocoder.bpp.framework.security.config.AuthorizeRequestsCustomizer;
-import cn.iocoder.bpp.module.infra.enums.ApiConstants;
+import cn.sgmt.bpp.framework.security.config.AuthorizeRequestsCustomizer;
+import cn.sgmt.bpp.module.infra.enums.ApiConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -305,7 +305,7 @@ public class SecurityConfiguration {
 ⑥ 新建 DemoServerApplication 启动类。代码如下：
 
 ```java
-package cn.iocoder.bpp.module.demo;
+package cn.sgmt.bpp.module.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -435,7 +435,7 @@ bpp:
     base-package: cn.sgmt.bpp.module.demo
   web:
     admin-ui:
-      url: http://dashboard.bpp.iocoder.cn # Admin 管理后台 UI 的地址
+      url: http://dashboard.bpp.sgmt.cn # Admin 管理后台 UI 的地址
   xss:
     enable: false
     exclude-urls: # 如下两个 url，仅仅是为了演示，去掉配置也没关系
