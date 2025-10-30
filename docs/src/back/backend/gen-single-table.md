@@ -45,7 +45,6 @@ CREATE TABLE `system_group` (
 
 ⑤ 添加 `creator`、`create_time`、`updater`、`update_time`、`deleted` 是必须设置的系统字段；如果开启多租户的功能，并且该表需要多租户的隔离，则需要添加 `tenant_id` 字段。
 
-
 ## 2. 代码生成
 
 ### 2.1 导入表

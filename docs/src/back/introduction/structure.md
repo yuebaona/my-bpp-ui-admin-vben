@@ -12,8 +12,8 @@ outline: deep
 
 一共有**四**类 Maven Module：
 
-| Maven Module         | 作用                         |
-| -------------------- | ---------------------------- |
+| Maven Module       | 作用                         |
+| ------------------ | ---------------------------- |
 | `bpp-dependencies` | Maven 依赖版本管理           |
 | `bpp-framework`    | Java 框架拓展                |
 | `bpp-module-xxx`   | XXX 功能的 Module 模块       |
@@ -91,8 +91,8 @@ outline: deep
 
 该模块是 XXX 功能的 Module 模块，目前内置了 12 个模块。
 
-| 项目                  | 说明       | 是否必须 |
-| --------------------- | ---------- | -------- |
+| 项目                | 说明       | 是否必须 |
+| ------------------- | ---------- | -------- |
 | `bpp-module-system` | 系统功能   | √        |
 | `bpp-module-infra`  | 基础设施   | √        |
 | `bpp-module-member` | 会员中心   | x        |
@@ -110,8 +110,8 @@ outline: deep
 
 每个模块包含两个 Maven Module，分别是：
 
-| Maven Module              | 作用                               |
-| ------------------------- | ---------------------------------- |
+| Maven Module            | 作用                               |
+| ----------------------- | ---------------------------------- |
 | `bpp-module-xxx-api`    | 提供给其它模块的 API 定义          |
 | `bpp-module-xxx-server` | 模块的功能的具体实现（服务提供者） |
 

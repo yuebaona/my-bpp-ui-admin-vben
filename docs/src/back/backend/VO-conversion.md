@@ -34,7 +34,7 @@ outline: deep
 
 2、在复杂场景，可以通过 Consumer 进一步拼接，如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-erp-biz 子模块，重命名为 bpp-module-erp-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-erp-biz 子模块，重命名为 bpp-module-erp-server 子模块，更好表达它是一个服务
 
 :::
 
@@ -54,7 +54,7 @@ outline: deep
 
 - 方案二：数据库多次单表查询，然后在 Java 代码中进行数据拼接（翻译）。其实就是「1.2 BeanUtils」的“复杂场景”。如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-erp-biz 子模块，重命名为 bpp-module-erp-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-erp-biz 子模块，重命名为 bpp-module-erp-server 子模块，更好表达它是一个服务
 
 :::
 
@@ -142,7 +142,7 @@ public class OperateLogController {
 
 ② 第二步，给 CrmProductRespVO 的 `ownerUserId` 字段，添加 `@Trans` 注解，如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-crm-biz 子模块，重命名为 bpp-module-crm-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-crm-biz 子模块，重命名为 bpp-module-crm-server 子模块，更好表达它是一个服务
 
 :::
 

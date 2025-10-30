@@ -59,10 +59,10 @@ outline: deep
 
 ### 单元测试
 
-| 框架 | 说明 | 版本 |
-| --- | --- | --- |
-| JUnit | Java 单元测试框架 | 5.10.1 |
-| [Mockito](https://github.com/mockito/mockito) | Java Mock 框架 | 5.7.0 |
+| 框架                                          | 说明              | 版本   |
+| --------------------------------------------- | ----------------- | ------ |
+| JUnit                                         | Java 单元测试框架 | 5.10.1 |
+| [Mockito](https://github.com/mockito/mockito) | Java Mock 框架    | 5.7.0  |
 
 ### 其它工具
 

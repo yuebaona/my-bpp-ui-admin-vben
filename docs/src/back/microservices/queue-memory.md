@@ -16,9 +16,7 @@ outline: deep
 
 以【短信发送】举例子，我们来看看 Spring Event 的使用。如下图所示：
 
-::: info 图片纠错：
-最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
-:::
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 :::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/f208c4f7-4ec7-497c-9666-246ddc68cd53.png)
 
@@ -122,9 +120,7 @@ public class SmsSendConsumer {
 
 ② 打开 `SmsTemplateController.http` 文件，使用 IDEA httpclient 发起请求，发送短信。如下图所示：
 
-::: info 图片纠错：
-最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
-:::
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 :::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e2711213-7f59-4654-bdb0-0bb01b3889e7.png)
 

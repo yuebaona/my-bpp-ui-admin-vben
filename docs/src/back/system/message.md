@@ -199,7 +199,6 @@ outline: deep
 
 ② 短信发送回调 URL，可以通过我们项目的 \[系统管理 -> 消息中心 -> 短信管理 -> 短信渠道\] 菜单，配置它的“短信发送回调 URL”字段即可。它对应的是 SmsCallbackController 的 `#receiveHuaweiSmsStatus(...)` 地址。
 
-
 ### 6.4 七牛云
 
 ① 短信 API 的账号、密钥，可通过 [七牛云 —— 密钥管理](https://portal.qiniu.com/developer/user/key)获取。

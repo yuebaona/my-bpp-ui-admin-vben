@@ -22,7 +22,6 @@ outline: deep
 
 因此，项目参考多个 OAuth 2.0 框架，**自研**实现 OAuth 2.0 的功能，具备学习成本小、排查问题容易、定制成本低的优点，支持多种授权模式，并内置 SSO 单点登录的功能。
 
-
 最终实现的整体架构，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eaae0a95-0bce-47dd-a436-8ee12c9ef76b.png)
