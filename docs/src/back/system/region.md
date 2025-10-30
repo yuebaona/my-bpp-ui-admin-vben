@@ -4,13 +4,13 @@ outline: deep
 
 # 地区 & IP 库
 
-[`yudao-spring-boot-starter-biz-ip`](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-framework/yudao-spring-boot-starter-biz-ip)业务组件，提供地区 & IP 库的封装。
+`bpp-spring-boot-starter-biz-ip`业务组件，提供地区 & IP 库的封装。
 
 ## 1. 地区
 
-[AreaUtils](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/main/java/cn/iocoder/yudao/framework/ip/core/utils/AreaUtils.java)是地区工具类，可以查询中国的省、市、区县，也可以查询国外的国家。
+`AreaUtils`是地区工具类，可以查询中国的省、市、区县，也可以查询国外的国家。
 
-它的数据来自 [Administrative-divisions-of-China](https://github.com/modood/Administrative-divisions-of-China)项目，最终整理到项目的 [area.csv](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/main/resources/area.csv)文件。每一行的数据，对应 [Area](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/main/java/cn/iocoder/yudao/framework/ip/core/Area.java)对象。代码所示：
+它的数据来自 [Administrative-divisions-of-China](https://github.com/modood/Administrative-divisions-of-China)项目，最终整理到项目的 `area.csv`文件。每一行的数据，对应 `Area`对象。代码所示：
 
 ```java
 public class Area {
@@ -82,21 +82,21 @@ public static String format(Integer id, String separator) {
 
 ```
 
-- 具体的使用，可见 [AreaUtilsTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/test/java/cn/iocoder/yudao/framework/ip/core/utils/AreaUtilsTest.java)测试类。
+- 具体的使用，可见 `AreaUtilsTest`测试类。
 
 另外，管理后台提供了 \[系统管理 -> 地区管理\] 菜单，可以按照树形结构查看地区列表。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/51fe5bd0-0363-443b-b28d-4c9ed794d2ed.png)
 
-- 后端代码，对应 [AreaController](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/ip/AreaController.java#L29-L35)的 `/admin-api/system/area/tree` 接口
+- 后端代码，对应 `AreaController`的 `/admin-api/system/area/tree` 接口
 
-- 前端代码，对应 [system/area/index.vue](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/area/index.vue)界面
+- 前端代码，对应 `system/area/index.vue`界面
 
 ## 2. IP
 
-[IPUtils](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/main/java/cn/iocoder/yudao/framework/ip/core/utils/IPUtils.java)是 IP 工具类，可以查询 IP 对应的城市信息。
+`IPUtils`是 IP 工具类，可以查询 IP 对应的城市信息。
 
-它的数据来自 [ip2region](https://gitee.com/lionsoul/ip2region)项目，最终整理到项目的 [ip2region.xdb](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/main/resources/ip2region.xdb)文件。
+它的数据来自 [ip2region](https://gitee.com/lionsoul/ip2region)项目，最终整理到项目的 `ip2region.xdb`文件。
 
 IPUtils 主要有如下两个方法：
 
@@ -123,10 +123,10 @@ public static Area getArea(String ip) {
 
 ```
 
-- 具体的使用，可见 [IPUtilsTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-ip/src/test/java/cn/iocoder/yudao/framework/ip/core/utils/IPUtilsTest.java)测试类。
+- 具体的使用，可见 `IPUtilsTest`测试类。
 
 另外，管理后台提供了 \[系统管理 -> 地区管理\] 菜单，也提供了 IP 查询城市的示例。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4fc47c20-c906-46aa-810d-1d98c446ac74.png)
 
-- 后端代码，对应 [AreaController](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/ip/AreaController.java#L37-L48)的 `/admin-api/system/area/get-by-ip` 接口
+- 后端代码，对应 `AreaController`的 `/admin-api/system/area/get-by-ip` 接口

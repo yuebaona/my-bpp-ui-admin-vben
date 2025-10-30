@@ -4,7 +4,7 @@ outline: deep
 
 # 请求限流（RateLimiter）
 
-[`yudao-spring-boot-starter-protection`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/)技术组件，由它的 [`ratelimiter`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/ratelimiter/)包，提供声明式的限流特性，可防止请求过多。例如说，用户疯狂的点击了某个按钮，导致发送了大量的请求。
+`bpp-spring-boot-starter-protection`技术组件，由它的 `ratelimiter`包，提供声明式的限流特性，可防止请求过多。例如说，用户疯狂的点击了某个按钮，导致发送了大量的请求。
 
 ```java
 
@@ -49,19 +49,19 @@ public String createUser(User user){
 
 - 如果**未超过**，则使用 Redis 计数 +1
 
-默认参数的 Redis Key 的计算规则由 [DefaultRateLimiterKeyResolver](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/ratelimiter/core/keyresolver/impl/DefaultRateLimiterKeyResolver.java)实现，使用 MD5(方法名 + 方法参数)，避免 Redis Key 过长。
+默认参数的 Redis Key 的计算规则由 `DefaultRateLimiterKeyResolver`实现，使用 MD5(方法名 + 方法参数)，避免 Redis Key 过长。
 
 ## 2. `**@RateLimiter**` 注解
 
-[`@RateLimiter`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/ratelimiter/core/annotation/RateLimiter.java)注解，声明在方法上，表示该方法需要开启限流。代码如下：
+`@RateLimiter`注解，声明在方法上，表示该方法需要开启限流。代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5889d64e-d187-4ca2-95b9-aa719307a447.png)
 
-① 对应的 AOP 切面是 [RateLimiterAspect](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/ratelimiter/core/aop/RateLimiterAspect.java)类，核心就 10 行左右的代码，如下图所示：
+① 对应的 AOP 切面是 `RateLimiterAspect`类，核心就 10 行左右的代码，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/92ff5632-33a4-4a4c-a92a-919eba590696.png)
 
-② 对应的 Redis Key 的前缀是 `rate_limiter:%` ，可见 [IdempotentRedisDAO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/ratelimiter/core/redis/RateLimiterRedisDAO.java)类，如下图所示：
+② 对应的 Redis Key 的前缀是 `rate_limiter:%` ，可见 `IdempotentRedisDAO`类，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c8d66e58-6e93-4c9c-87c1-4a6b0f1d989e.png)
 
@@ -69,12 +69,12 @@ public String createUser(User user){
 
 本小节，我们实现 `/admin-api/system/user/page` RESTful API 接口的限流。
 
-① 在 `pom.xml` 文件中，引入 `yudao-spring-boot-starter-protection` 依赖。
+① 在 `pom.xml` 文件中，引入 `bpp-spring-boot-starter-protection` 依赖。
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-spring-boot-starter-protection</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-spring-boot-starter-protection</artifactId>
 </dependency>
 
 ```

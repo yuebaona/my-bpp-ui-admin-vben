@@ -28,17 +28,17 @@ outline: deep
 
 管理后台的登录界面，默认开启验证码。如果需要关闭验证码，操作如下：
 
-① 后端的 `application-local.yaml` 配置文件中，将 [`yudao.captcha.enable`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L138-L139)设置为 `false`。
+① 后端的 `application-local.yaml` 配置文件中，将 `bpp.captcha.enable`设置为 `false`。
 
-② 如果前端使用 `yudao-ui-admin-vue2` 项目，将 `.env.local` 配置文件中，将 [`VUE_APP_DOC_ENABLE`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/.env.local#L17-L18)设置为 `false`。
+② 如果前端使用 `bpp-ui-admin-vue2` 项目，将 `.env.local` 配置文件中，将 `VUE_APP_DOC_ENABLE`设置为 `false`。
 
-如果前端使用 `yudao-ui-admin-vue3` 项目，将 `.env` 配置文件中，将 [`VITE_APP_CAPTCHA_ENABLE`](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/.env#L13-L14)设置为 `false`。
+如果前端使用 `bpp-ui-admin-vue3` 项目，将 `.env` 配置文件中，将 `VITE_APP_CAPTCHA_ENABLE`设置为 `false`。
 
 ## 3. 接入场景
 
 ### 3.1 后端接入
 
-`yudao-module-system-server` 模块，默认在 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml#L104-L107)) 已经引入 `spring-boot-starter-captcha-plus` 依赖，代码如下：
+`bpp-module-system-server` 模块，默认在 `pom.xml` 已经引入 `spring-boot-starter-captcha-plus` 依赖，代码如下：
 
 ```xml
 <dependency>
@@ -48,7 +48,7 @@ outline: deep
 
 ```
 
-② 验证码的配置，在 [`application.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml#L95-L112)配置文件中，配置项如下：
+② 验证码的配置，在 `application.yaml`配置文件中，配置项如下：
 
 ```yaml
 aj:
@@ -69,15 +69,15 @@ aj:
     req-verify-minute-limit: 60 # verify 接口一分钟内请求数限制
 ```
 
-如果想修改验证码的 **图片**，修改 [resources/images](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-system/yudao-module-system-server/src/main/resources/images)目录即可。
+如果想修改验证码的 **图片**，修改 `resources/images`目录即可。
 
-③ 验证码的使用，可以参考 [CaptchaController](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/captcha/CaptchaController.java)和 [AuthController](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L61-L67)两个类的实现代码。
+③ 验证码的使用，可以参考 CaptchaController和 `AuthController`两个类的实现代码。
 
 ### 3.2 Vue2.X 管理后台
 
-① 验证码组件：[Verifition(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/components/Verifition/)
+① 验证码组件：`Verifition`
 
-② 登录界面的接入：[login.vue(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/login.vue#L91-L93)
+② 登录界面的接入：`login.vue`
 
 ```vue
 <!-- 图形验证码 -->
@@ -91,9 +91,9 @@ aj:
 
 ### 3.3 Vue3.X 管理后台
 
-① 验证码组件：[Verifition(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/components/Verifition/)
+① 验证码组件：`Verifition`
 
-② 登录界面的接入：[LoginForm.vue(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue3/blob/master/src/views/Login/components/LoginForm.vue#L77-L83)
+② 登录界面的接入：`LoginForm.vue`
 
 ```vue
 <Verify
@@ -107,9 +107,9 @@ aj:
 
 ### 3.4 uni-app 用户 App
 
-① 验证码组件：[verifition(opens new window)](https://github.com/yudaocode/yudao-ui-admin-uniapp/tree/master/components/verifition)
+① 验证码组件：`verifition`
 
-② 登录界面的接入：[login.vue(opens new window)](https://github.com/yudaocode/yudao-ui-admin-uniapp/blob/master/pages/login.vue#L17-L18)
+② 登录界面的接入：`login.vue`
 
 ```vue
 <Verify

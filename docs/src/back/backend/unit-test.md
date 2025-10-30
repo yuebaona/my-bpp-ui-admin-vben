@@ -8,7 +8,7 @@ outline: deep
 
 ## 1.测试组件
 
-[`yudao-spring-boot-starter-test`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/)是项目提供的测试组件，用于单元测试、集成测试等等。
+`-spring-boot-starter-test`是项目提供的测试组件，用于单元测试、集成测试等等。
 
 ### 1.1 快速测试的基类
 
@@ -16,10 +16,10 @@ outline: deep
 
 | 基类 | 作用 |
 | --- | --- |
-| [BaseMockitoUnitTest(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseMockitoUnitTest.java) | 纯 Mockito 的单元测试 |
-| [BaseDbUnitTest(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseDbUnitTest.java) | 使用内嵌的 H2 数据库的单元测试 |
-| [BaseRedisUnitTest(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseRedisUnitTest.java) | 使用内嵌的 Redis 缓存的单元测试 |
-| [BaseDbAndRedisUnitTest(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseDbAndRedisUnitTest.java) | 使用内嵌的 H2 数据库 + Redis 缓存的单元测试 |
+| [BaseMockitoUnitTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseMockitoUnitTest.java) | 纯 Mockito 的单元测试 |
+| [BaseDbUnitTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseDbUnitTest.java) | 使用内嵌的 H2 数据库的单元测试 |
+| [BaseRedisUnitTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseRedisUnitTest.java) | 使用内嵌的 Redis 缓存的单元测试 |
+| [BaseDbAndRedisUnitTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/ut/BaseDbAndRedisUnitTest.java) | 使用内嵌的 H2 数据库 + Redis 缓存的单元测试 |
 
 ### 1.2 测试工具类
 
@@ -29,16 +29,16 @@ outline: deep
 
 ## 2. BaseDbUnitTest 实战案例
 
-以字典类型模块的 [DictTypeServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/dict/DictDataServiceImpl.java)为例子，讲解它的 [DictTypeServiceTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/java/cn/iocoder/yudao/module/system/service/dict/DictDataServiceImplTest.java)单元测试的编写实现。
+以字典类型模块的 `DictTypeServiceImpl`为例子，讲解它的 `DictTypeServiceTest`单元测试的编写实现。
 
 ### 2.1 引入依赖
 
-在 `yudao-module-system-server` 模块中，引入 `yudao-spring-boot-starter-test` 技术组件。如下所示：
+在 `bpp-module-system-server` 模块中，引入 `bpp-spring-boot-starter-test` 技术组件。如下所示：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-spring-boot-starter-test</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-spring-boot-starter-test</artifactId>
     <scope>test</scope>
 </dependency>
 
@@ -46,15 +46,15 @@ outline: deep
 
 ### 2.2 新建 ut 配置文件
 
-在 [`test/resources`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/resources/)目录，新建单元测试的 [`application-unit-test.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/resources/application-unit-test.yaml)配置文件，内容如下：
+在 `test/resources`目录，新建单元测试的 `application-unit-test.yaml`配置文件，内容如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fb163d25-edfd-41ae-b677-dea47d58341f.png)
 
 ### 2.3 添加 H2 SQL 脚本
 
-修改 [`test/resources/sql`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/resources/sql/)目录的两个 H2 SQL 脚本：
+修改 `test/resources/sql`目录的两个 H2 SQL 脚本：
 
-① 在 [`create_tables.sql`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/resources/sql/create_tables.sql)文件中，添加 `system_dict_type` 的 H2 建表语句。SQL 如下：
+① 在 `create_tables.sql`文件中，添加 `system_dict_type` 的 H2 建表语句。SQL 如下：
 
 ```sql
 CREATE TABLE IF NOT EXISTS "system_dict_type" (
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS "system_dict_type" (
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a9811da0-e36b-42c5-8332-325250a668f9.png)
 
-② 在 [`clean.sql`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/resources/sql/clean.sql)文件中，添加 `system_dict_type` 的清空数据的语句。SQL 如下：
+② 在 `clean.sql`文件中，添加 `system_dict_type` 的清空数据的语句。SQL 如下：
 
 ```sql
 DELETE FROM "system_dict_type";
@@ -122,7 +122,7 @@ DELETE FROM "system_dict_type";
 
 ## 3. BaseMockitoUnitTest 实战案例
 
-一些类由于不依赖 MySQL 和 Redis，可以通过继承 BaseMockitoUnitTest 基类，实现纯 Mockito 的单元测试。例如说 [SmsSendServiceTest](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/test/java/cn/iocoder/yudao/module/system/service/sms/SmsSendServiceImplTest.java)单元测试类，代码如下：
+一些类由于不依赖 MySQL 和 Redis，可以通过继承 BaseMockitoUnitTest 基类，实现纯 Mockito 的单元测试。例如说 `SmsSendServiceTest`单元测试类，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/85a73ebf-7466-482f-8843-d5a67ff72e97.png)
 

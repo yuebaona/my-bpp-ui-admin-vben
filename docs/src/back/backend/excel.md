@@ -4,7 +4,7 @@ outline: deep
 
 # Excel导入导出
 
-项目的`yudao-spring-boot-starter-excel`技术组件，基于 FastExcel 实现 Excel 的读写操作，可用于实现最常见的 Excel 导入导出等功能。
+项目的`sgmt-spring-boot-starter-excel`技术组件，基于 FastExcel 实现 Excel 的读写操作，可用于实现最常见的 Excel 导入导出等功能。
 
 ::: info FastExcel 的介绍？
 
@@ -64,7 +64,7 @@ public class PostRespVO {
     @ExcelProperty("岗位名称")
     private String name;
 
-    @Schema(description = "岗位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "yudao")
+    @Schema(description = "岗位编码", requiredMode = Schema.RequiredMode.REQUIRED, example = "sgmt")
     @ExcelProperty("岗位编码")
     private String code;
 
@@ -90,7 +90,7 @@ public class PostRespVO {
 
 - ① 每个字段上，添加`@ExcelProperty`注解，声明 Excel Head 头部的名字。每个字段的**值**，就是它对应的 Excel Row 行的数据值。
 
-- ② 如果字段的的注解 `converter` 属性是 DictConvert 转换器，用于字典的转换。例如说，通过 `status` 字段，将 `status = 1` 转换成“开启”列，`status = 0` 转换成”禁用”列。稍后，我们会在 [「3. 字段转换器」](https://cloud.iocoder.cn/excel-import-and-export/#_3-%E5%AD%97%E6%AE%B5%E8%BD%AC%E6%8D%A2%E5%99%A8) 小节来详细讲讲。
+- ② 如果字段的的注解 `converter` 属性是 DictConvert 转换器，用于字典的转换。例如说，通过 `status` 字段，将 `status = 1` 转换成“开启”列，`status = 0` 转换成”禁用”列。稍后，我们会在 「3. 字段转换器」小节来详细讲讲。
 
 - ③ 在类上，添加`@ExcelIgnoreUnannotated`注解，表示未添加 `@ExcelProperty` 的字段，不进行导出。
 
@@ -164,7 +164,7 @@ EasyExcel 定义了`Converter`接口，用于实现字段的转换。它有两�
 
 ### 3.1 DictConvert 使用示例
 
-在需要转换的字段上，声明注解 `@ExcelProperty` 的 `converter` 属性是 DictConvert 转换器，注解 [`@DictFormat`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-excel/src/main/java/cn/iocoder/yudao/framework/excel/core/annotations/DictFormat.java)为对应的字典数据的类型。示例如下：
+在需要转换的字段上，声明注解 `@ExcelProperty` 的 `converter` 属性是 DictConvert 转换器，注解 `@DictFormat`为对应的字典数据的类型。示例如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/8b6b4824-6a29-4f23-a8ea-eb7c6940abac.png)
 

@@ -94,7 +94,7 @@ public CommonResult<String> uploadFile(FileUploadReqVO uploadReqVO) throws Excep
 
 ### 2.2 方式二：后端上传
 
-`yudao-module-infra` 的`FileApi`提供了 `#createFile(...)` 方法，用于后端需要上传文件的逻辑。
+`bpp-module-infra` 的`FileApi`提供了 `#createFile(...)` 方法，用于后端需要上传文件的逻辑。
 
 ```java
 // FileApi.java
@@ -112,22 +112,22 @@ String createFile(String path, byte[] content);
 
 例如说，个人中心修改头像时，需要进行头像的上传。如下图所示：
 
-::: info 图片纠错：最新版本将 yudao-module-member-biz 子模块，重命名为 yudao-module-member-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-member-biz 子模块，重命名为 bpp-module-member-server 子模块，更好表达它是一个服务 
 
 :::
 
-::: info 图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
 
 :::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5304235c-4818-4aa3-8bf2-9e91ff28307f.png)
 
-注意，需要使用到后端上传的 Maven 模块，需要引入 `yudao-module-infra-api` 依赖。例如说 `yudao-module-system-server` 模块的 `pom.xml` 文件，引用如下：
+注意，需要使用到后端上传的 Maven 模块，需要引入 `bpp-module-infra-api` 依赖。例如说 `bpp-module-system-server` 模块的 `pom.xml` 文件，引用如下：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-module-infra-api</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-module-infra-api</artifactId>
     <version>${revision}</version>
 </dependency>
 
@@ -173,7 +173,7 @@ public void getFileContent(HttpServletRequest request,
 
 ## 4. 文件客户端
 
-在 `yudao-module-infra-server` 模块中，它的`framework/file`包下，定义了`FileClient`接口，抽象了文件客户端的方法。代码如下所示：
+在 `bpp-module-infra-server` 模块中，它的`framework/file`包下，定义了`FileClient`接口，抽象了文件客户端的方法。代码如下所示：
 
 ```java
 public interface FileClient {
@@ -231,7 +231,7 @@ FileClient 有 5 个实现类，使用不同存储器进行文件的上传与
 
 ## 6. 前端直传 S3 存储【推荐】
 
-::: info 友情提示：目前仅 yudao-ui-admin-vue3 前端项目支持，Vue3 + Element Plus 版本 
+::: info 友情提示：目前仅 bpp-ui-admin-vue3 前端项目支持，Vue3 + Element Plus 版本 
 
 :::
 
@@ -259,7 +259,7 @@ FileClient 有 5 个实现类，使用不同存储器进行文件的上传与
 
 ### 6.3 配置前端直传
 
-修改 `yudao-ui-admin-vue3` 前端项目的配置文件的 `VITE_UPLOAD_TYPE` 为 `client` 前端直传模式。例如说，你是本地环境，则修改 `.env.local` 文件，如下图所示：
+修改 `bpp-ui-admin-vue3` 前端项目的配置文件的 `VITE_UPLOAD_TYPE` 为 `client` 前端直传模式。例如说，你是本地环境，则修改 `.env.local` 文件，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/63ca414e-7b83-4082-8dc7-65b3b01398da.png)
 

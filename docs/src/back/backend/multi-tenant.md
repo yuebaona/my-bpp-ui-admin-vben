@@ -70,7 +70,7 @@ outline: deep
 
 | 配置项 | 说明 | 配置文件 |
 | --- | --- | --- |
-| `yudao.server.tenant` | 后端开关 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5e77449c-b799-493e-9137-cb789e0045f7.png) |
+| `bpp.server.tenant` | 后端开关 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5e77449c-b799-493e-9137-cb789e0045f7.png) |
 | `VUE_APP_TENANT_ENABLE` | 前端开关 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/60d1705e-0d89-4f22-b438-22e042b98d3c.png) |
 
 ## 4. 多租户的业务功能
@@ -98,11 +98,11 @@ outline: deep
 
 ## 5. 多租户的技术组件
 
-技术组件 `yudao-spring-boot-starter-biz-tenant`，实现透明化的多租户能力，针对 Web、Security、DB、Redis、AOP、Job、MQ、Async 等多个层面进行封装。
+技术组件 `bpp-spring-boot-starter-biz-tenant`，实现透明化的多租户能力，针对 Web、Security、DB、Redis、AOP、Job、MQ、Async 等多个层面进行封装。
 
 ### 5.1 租户上下文
 
-[TenantContextHolder](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/context/TenantContextHolder.java)是租户上下文，通过 ThreadLocal 实现租户编号的共享与传递。
+`TenantContextHolder`是租户上下文，通过 ThreadLocal 实现租户编号的共享与传递。
 
 通过调用 TenantContextHolder 的 `#getTenantId()` **静态**方法，获得当前的租户编号。绝绝绝大多数情况下，并不需要。
 
@@ -115,7 +115,7 @@ outline: deep
 
 如果不带该请求头，会报“租户的请求未传递，请进行排查”错误提示。
 
-😜 方式一：通过 `yudao.tenant.ignore-urls` 配置项，可以设置哪些 URL 无需带该请求头。例如说：
+😜 方式一：通过 `bpp.tenant.ignore-urls` 配置项，可以设置哪些 URL 无需带该请求头。例如说：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e9ab2cc5-d5b6-47fc-b48b-e4df08a63592.png)
 
@@ -159,7 +159,7 @@ CREATE TABLE `system_role` (
 
 并且该表对应的 DO 需要使用到 `tenantId` 属性时，建议继承`TenantBaseDO`类。
 
-② **无需**开启多租户的表，需要添加表名到 `yudao.tenant.ignore-tables` 配置项目。例如说：
+② **无需**开启多租户的表，需要添加表名到 `bpp.tenant.ignore-tables` 配置项目。例如说：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/242be41f-469b-4f0a-ae09-9367822f65f5.png)
 
@@ -172,7 +172,7 @@ CREATE TABLE `system_role` (
 解决方案：需要手动自己拼接，可见 `ErpPurchaseStatisticsMapper.xml` 案例，如下所示：
 
 ```sql
-tenant_id = ${@cn.iocoder.yudao.framework.tenant.core.context.TenantContextHolder@getRequiredTenantId()}
+tenant_id = ${@cn.sgmt.bpp.framework.tenant.core.context.TenantContextHolder@getRequiredTenantId()}
 
 ```
 
@@ -200,9 +200,9 @@ public class DictDataDO extends BaseDO {
 
 只需要一步，在方法上添加 Spring Cache 注解，例如说 `@Cachable`、`@CachePut`、`@CacheEvict`。
 
-具体的实现原理，可见 [TenantRedisCacheManager](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/redis/TenantRedisCacheManager.java)的源码。
+具体的实现原理，可见 `TenantRedisCacheManager`的源码。
 
-注意！！！默认配置下，Spring Cache 都开启 Redis Key 的多租户隔离。如果不需要，可以将 Key 添加到 `yudao.tenant.ignore-caches` 配置项中。如下图所示：
+注意！！！默认配置下，Spring Cache 都开启 Redis Key 的多租户隔离。如果不需要，可以将 Key 添加到 `bpp.tenant.ignore-caches` 配置项中。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/498dcf7d-7e84-483a-bb25-69e01e0129d8.png)
 
@@ -214,9 +214,9 @@ public class DictDataDO extends BaseDO {
 
 ### 5.6 AOP【重要】
 
-① 声明 [`@TenantIgnore`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/aop/TenantIgnore.java)注解在方法上，标记指定方法不进行租户的自动过滤，避免**自动**拼接 `WHERE tenant_id = ?` 条件等等。
+① 声明 `@TenantIgnore`注解在方法上，标记指定方法不进行租户的自动过滤，避免**自动**拼接 `WHERE tenant_id = ?` 条件等等。
 
-例如说：[RoleServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java)的 [`#initLocalCache()`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/service/permission/RoleServiceImpl.java#L83-L100)方法，加载**所有**租户的角色到内存进行缓存，如果不声明 `@TenantIgnore` 注解，会导致租户的自动过滤，只加载了某个租户的角色。
+例如说：`RoleServiceImpl`的 `#initLocalCache()`方法，加载**所有**租户的角色到内存进行缓存，如果不声明 `@TenantIgnore` 注解，会导致租户的自动过滤，只加载了某个租户的角色。
 
 ```java
 // RoleServiceImpl.java
@@ -251,7 +251,7 @@ public class RoleServiceImpl implements RoleService {
 
 ### 5.7 Job【重要】
 
-声明 [`@TenantJob`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-tenant/src/main/java/cn/iocoder/yudao/framework/tenant/core/job/TenantJob.java)注解在 Job 方法上，实现**并行**遍历每个租户，执行定时任务的逻辑。
+声明 `@TenantJob`注解在 Job 方法上，实现**并行**遍历每个租户，执行定时任务的逻辑。
 
 ### 5.8 MQ
 
@@ -273,13 +273,13 @@ RPC 使用 Feign 调用时，会自动将租户上下文的租户编号，设
 
 ## 6. 租户独立域名
 
-在我们使用 SaaS 云产品的时候，每个租户会拥有 **独立的子域名**，例如说：租户 A 对应 `a.iocoder.cn`，租户 B 对应 `b.iocoder.cn`。
+在我们使用 SaaS 云产品的时候，每个租户会拥有 **独立的子域名**，例如说：租户 A 对应 `a.sgmt.cn`，租户 B 对应 `b.sgmt.cn`。
 
 目前管理后台已经提供类似的能力，更多大家可以基于它去拓展。实现方式：
 
 1.  在 `system_tenant` 表里，有个 `website` 字段为该租户的独立域名，你可以填写你希望分配给它的子域名。
 
-2.  在 Nginx 上做 **泛域名解析** 到你的前端项目，例如说 Nginx 的 `server_name` `*.iocoder.cn` 解析到 Vue3 管理后台。
+2.  在 Nginx 上做 **泛域名解析** 到你的前端项目，例如说 Nginx 的 `server_name` `*.sgmt.cn` 解析到 Vue3 管理后台。
 
 这样用户在访问管理后台的登录界面，会自动根据当前访问域名的 `host`，向后端获得对应的 `tenant-id` 编号，后续请求都带上它！
 
@@ -291,10 +291,10 @@ RPC 使用 Feign 调用时，会自动将租户上下文的租户编号，设
 
 `system:tenant:visit` 权限的分配，可以在角色管理时，分配 \[系统管理 -> 租户管理 -> 租户切换\] 权限。
 
-② 注意：如果你的 HTTP 接口是查询个人相关的信息，不能进行租户的切换，例如说：登录用户的个人信息等。此时，`yudao.tenant.ignore-urls` 配置项进行添加。
+② 注意：如果你的 HTTP 接口是查询个人相关的信息，不能进行租户的切换，例如说：登录用户的个人信息等。此时，`bpp.tenant.ignore-urls` 配置项进行添加。
 
 ```yaml
-yudao:
+bpp:
   tenant:
     ignore-urls:
       - /admin-api/system/user/profile/**

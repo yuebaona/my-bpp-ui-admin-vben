@@ -6,10 +6,9 @@ outline: deep
 
 系统对接国内多个第三方平台，实现三方登录的功能。例如说：
 
-*   管理后台：企业微信、阿里钉钉
+- 管理后台：企业微信、阿里钉钉
 
-*   用户 App：微信公众号、微信小程序
-
+- 用户 App：微信公众号、微信小程序
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/6571190f-1150-4fbf-9b6f-42ddfcd09cd5.png)
 
@@ -21,25 +20,25 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/567c3203-6505-4234-a2b3-330a2a5c3b0e.png)
 
-① 三方登录完成时，系统会将三方用户存储到 [`system_social_user`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/social/SocialUserDO.java)表中，通过 [`type`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/enums/social/SocialTypeEnum.java)标记对应的第三方平台。
+① 三方登录完成时，系统会将三方用户存储到 `system_social_user`表中，通过 `type`标记对应的第三方平台。
 
-② 【未】关联本系统 User 的三方用户，需要在三方登录完成后，使用账号密码进行「**绑定登录**」，成功后记录到 [`system_social_user_bind`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/dataobject/social/SocialUserBindDO.java)表中。
+② 【未】关联本系统 User 的三方用户，需要在三方登录完成后，使用账号密码进行「**绑定登录**」，成功后记录到 `system_social_user_bind`表中。
 
 【已】关联本系统 User 的三方用户，在三方登录完成后，直接进入系统，即「**快捷登录**」。
 
 ## 2. 绑定登录
 
-① 使用浏览器访问 [http://127.0.0.1:1024/login](http://127.0.0.1:1024/login)地址，点击 \[钉钉\] 或者 \[企业微信\] 进行三方登录。此时，会调用 [`/admin-api/system/auth/social-auth-redirect`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L97-L106)接口，获得第三方平台的登录地址，并进行跳转。
+① 使用浏览器访问 [http://127.0.0.1:1024/login](http://127.0.0.1:1024/login)地址，点击 \[钉钉\] 或者 \[企业微信\] 进行三方登录。此时，会调用 `/admin-api/system/auth/social-auth-redirect`接口，获得第三方平台的登录地址，并进行跳转。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/04d99c03-51b5-44f4-8355-844357f23182.png)
 
 然后，使用 \[钉钉\] 或者 \[企业微信\] 进行扫码，完成三方登录。
 
-② 三方登录成功后，跳转回 [http://127.0.0.1:1024/social-login](http://127.0.0.1:1024/social-login)地址。此时，会调用 [`/admin-api/system/auth/social-login`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L149-L154)接口，尝试「快捷登录」。由于该三方用户【未】关联管理后台的 AdminUser 用户，所以会看到 “未绑定账号，需要进行绑定” 报错。
+② 三方登录成功后，跳转回 [http://127.0.0.1:1024/social-login](http://127.0.0.1:1024/social-login)地址。此时，会调用 `/admin-api/system/auth/social-login`接口，尝试「快捷登录」。由于该三方用户【未】关联管理后台的 AdminUser 用户，所以会看到 “未绑定账号，需要进行绑定” 报错。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7a18fbaf-2f2d-4db9-9818-080b2cbb6640.png)
 
-③ 输入账号密码，点击 \[提交\] 按钮，进行「绑定登录」。此时，会调用 [`/admin-api/system/auth/login`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L61-L66)接口（在账号密码登录的基础上，额外带上 `socialType` + `socialCode` + `socialState` 参数）。成功后，即可进入系统的首页。
+③ 输入账号密码，点击 \[提交\] 按钮，进行「绑定登录」。此时，会调用 `/admin-api/system/auth/login`接口（在账号密码登录的基础上，额外带上 `socialType` + `socialCode` + `socialState` 参数）。成功后，即可进入系统的首页。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/12124c02-fee3-48e1-a469-fa8e7b702879.png)
 
@@ -47,11 +46,11 @@ outline: deep
 
 **退出系统，再进行一次三方登录的流程。**
 
-【相同】① 使用浏览器访问 [http://127.0.0.1:1024/login](http://127.0.0.1:1024/login)地址，点击 \[钉钉\] 或者 \[企业微信\] 进行三方登录。此时，会调用 [`/admin-api/system/auth/social-auth-redirect`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L97-L106)接口，获得第三方平台的登录地址，并进行跳转。
+【相同】① 使用浏览器访问 [http://127.0.0.1:1024/login](http://127.0.0.1:1024/login)地址，点击 \[钉钉\] 或者 \[企业微信\] 进行三方登录。此时，会调用 `/admin-api/system/auth/social-auth-redirect`接口，获得第三方平台的登录地址，并进行跳转。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/51a2de25-dfa4-4af6-8354-5c1f631ce5e9.png)
 
-【不同】② 三方登录成功后，跳转回 [http://127.0.0.1:1024/social-login](http://127.0.0.1:1024/social-login)地址。此时，会调用 [`/admin-api/system/auth/social-login`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L149-L154)接口，尝试「快捷登录」。由于该三方用户【已】关联管理后台的 AdminUser 用户，所以直接进入系统的首页。
+【不同】② 三方登录成功后，跳转回 [http://127.0.0.1:1024/social-login](http://127.0.0.1:1024/social-login)地址。此时，会调用 `/admin-api/system/auth/social-login`接口，尝试「快捷登录」。由于该三方用户【已】关联管理后台的 AdminUser 用户，所以直接进入系统的首页。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/12124c02-fee3-48e1-a469-fa8e7b702879.png)
 
@@ -65,7 +64,7 @@ outline: deep
 
 ### 5.1 配置文件
 
-在 [`application-{env}.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L196-L211)配置文件中，对应 `justauth` 配置项，填写你的第三方平台的配置信息。
+在 `application-{env}.yaml`配置文件中，对应 `justauth` 配置项，填写你的第三方平台的配置信息。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/189bf6a4-8d39-4583-b782-0b4afe821f37.png)
 
@@ -101,17 +100,7 @@ CREATE TABLE `system_social_client` (
 
 2.  在多用户类型的项目中，通过 `user_type` 字段区分，实现不同用户类型对应不同第三方平台的配置
 
-
 注意，`system_social_client` 表的优先级，比 `application-{env}.yaml` 配置文件高！具体逻辑，可见 SocialClientServiceImpl 类的 `#buildAuthRequest(...)` 方法。
-
-**疑问：系统目前支持指定租户 + 用户类型 + 社交平台，对应多套配置吗？**
-
-不支持，需要自己改造。总体思路是：
-
-1.  `system_social_client` 额外再增加一个 `application` 应用字段，存储应用名，进行一步隔离
-
-2.  前端调用三方登录时，额外传递 `application` 应用字段，用于查询对应应用的配置
-
 
 ② 在 \[系统管理 -> 三方登录 -> 三方应用\] 菜单下，可以进行**当前租户**的 `system_social_client` 表的配置管理。如下图所示：
 
@@ -123,11 +112,10 @@ CREATE TABLE `system_social_client` (
 
 ## 6. 第三方平台的申请
 
-*   [阿里钉钉](https://justauth.cn/guide/oauth/dingtalk/)
+- [阿里钉钉](https://justauth.cn/guide/oauth/dingtalk/)
 
-*   [企业微信扫码登录](https://justauth.cn/guide/oauth/wechat_enterprise_qrcode/)
+- [企业微信扫码登录](https://justauth.cn/guide/oauth/wechat_enterprise_qrcode/)
 
-*   [微信开放平台](https://justauth.cn/guide/oauth/wechat_open/)
-
+- [微信开放平台](https://justauth.cn/guide/oauth/wechat_open/)
 
 注意，如果第三方平台如果需要配置具体的授信地址，需要添加 `/social-login` 用于三方登录回调页、`/user/profile` 用于三方用户的绑定与解绑。

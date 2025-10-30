@@ -26,15 +26,9 @@ outline: deep
 
 邮件功能提供统一的 API 给其它模块，使它们可以快速实现发送邮件的功能，无需关心不同邮件平台的具体对接。
 
-邮件采用异步发送，基于 [消息队列](https://cloud.iocoder.cn/message-queue/event)，如下图所示：
+邮件采用异步发送，基于 消息队列，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/dc94e58c-8014-49ba-a158-4acbc4775212.png)
-
-**友情提示：图中的【Redis 消息队列】，应该是【RocketMQ 消息队列】哈~**
-
-- 前端代码：[views/system/mail(opens new window)](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/system/mail/)
-
-- 后端代码：[controller/admin/mail(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/mail/)
 
 最终使用 Hutool 的 [MailUtil](https://apidoc.gitee.com/loolly/hutool/cn/hutool/extra/mail/MailUtil.html)发送邮件。
 
@@ -121,20 +115,20 @@ public void testDemo() {
 
 ### 4.1 MailSendApi
 
-邮箱配置完成后，可使用 [MailSendApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/mail/MailSendApi.java)进行邮件的发送，支持多种用户类型。它的方法如下：
+邮箱配置完成后，可使用 `MailSendApi`进行邮件的发送，支持多种用户类型。它的方法如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/9f0e9c6b-ec50-41c3-b376-fb3915428f18.png)
 
 ### 4.2 接入示例
 
-以 `yudao-module-bpm` 模块，需要发邮件为例子，讲解 MailSendApi 的使用。
+以 `bpp-module-bpm` 模块，需要发邮件为例子，讲解 MailSendApi 的使用。
 
-① 在 `yudao-module-bpm-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/pom.xml)引入 `yudao-module-system-api` 依赖，如所示：
+① 在 `bpp-module-bpm-server` 模块的 `pom.xml`引入 `bpp-module-system-api` 依赖，如所示：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-module-system-api</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-module-system-api</artifactId>
     <version>${revision}</version>
 </dependency>
 

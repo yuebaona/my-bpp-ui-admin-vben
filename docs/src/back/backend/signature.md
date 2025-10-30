@@ -4,7 +4,7 @@ outline: deep
 
 # HTTP接口签名（防篡改）
 
-[`yudao-spring-boot-starter-protection`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/)技术组件，由它的 [`signature`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-protection/src/main/java/cn/iocoder/yudao/framework/signature/)包，提供 HTTP 接口签名特性，提高安全性。
+`bpp-spring-boot-starter-protection`技术组件，由它的 `signature`包，提供 HTTP 接口签名特性，提高安全性。
 
 例如说：项目给第三方提供 HTTP 接口时，为了提高对接中数据传输的安全性（防止请求参数被篡改），同时校验调用方的有效性，通常都需要增加签名 sign。
 
@@ -52,12 +52,12 @@ DigestUtil.sha256Hex(serverSignatureString);
 
 ## 2. 使用示例
 
-① 在需要使用的 `yudao-module-xxx-server` 模块的 ，引入 `yudao-spring-boot-starter-protection` 依赖：
+① 在需要使用的 `bpp-module-xxx-server` 模块的 ，引入 `bpp-spring-boot-starter-protection` 依赖：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-spring-boot-starter-protection</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-spring-boot-starter-protection</artifactId>
 </dependency>
 
 ```

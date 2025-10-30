@@ -144,6 +144,6 @@ public static ServiceException exception(ErrorCode errorCode, Object... params) 
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/86fbf925-1058-4195-8678-6d0bcb1d67b0.png)
 
-② 每个业务模块，定义自己的 ErrorCodeConstants 错误码枚举类。以 `yudao-module-system` 模块举例子，代码如下：
+② 每个业务模块，定义自己的 ErrorCodeConstants 错误码枚举类。以 `sgmt-module-system` 模块举例子，代码如下：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/5e7a36de-9a22-4414-a5fa-f6347ad8a12c.png)

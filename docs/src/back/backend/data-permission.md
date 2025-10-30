@@ -14,12 +14,12 @@ outline: deep
 
 上述的这个示例，使用硬编码是可以实现的，并且也非常简单。但是，在业务快速迭代的过程中，类似这种数据需求会越来越多，如果全部采用硬编码的方式，无疑会给我们带来非常大的开发与维护成本。
 
-因此，项目提供 [`yudao-spring-boot-starter-biz-data-permission`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-data-permission/)技术组件，只需要少量的编码，无需入侵到业务代码，即可实现数据权限。
+因此，项目提供 `bpp-spring-boot-starter-biz-data-permission`技术组件，只需要少量的编码，无需入侵到业务代码，即可实现数据权限。
 
 
 ## 1. 实现原理
 
-`yudao-spring-boot-starter-biz-data-permission` 技术组件的实现原理非常简单，每次对数据库操作时，他会**自动**拼接 `WHERE data_column = ?` 条件来进行数据的过滤。
+`bpp-spring-boot-starter-biz-data-permission` 技术组件的实现原理非常简单，每次对数据库操作时，他会**自动**拼接 `WHERE data_column = ?` 条件来进行数据的过滤。
 
 例如说，查看员工信息的功能，对应 SQL 是 `SELECT * FROM system_users`，那么拼接后的 SQL 结果会是：
 
@@ -64,7 +64,7 @@ outline: deep
 
 ### 2.2 字段配置
 
-每个 Maven Module， 通过自定义 `DeptDataPermissionRuleCustomizer`Bean，配置哪些表的哪些字段，进行数据权限的过滤。以 `yudao-module-system` 模块来举例子，代码如下：
+每个 Maven Module， 通过自定义 `DeptDataPermissionRuleCustomizer`Bean，配置哪些表的哪些字段，进行数据权限的过滤。以 `bpp-module-system` 模块来举例子，代码如下：
 
 ```java
 @Configuration(proxyBeanMethods = false)
@@ -124,9 +124,9 @@ public CommonResult<UserProfileRespVO> profile() {
 
 ```
 
-② `includeRules` 属性，配置生效的 [DataPermissionRule](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-data-permission/src/main/java/cn/iocoder/yudao/framework/datapermission/core/rule/DataPermissionRule.java)数据权限规则。例如说，项目里有 10 种 DataPermissionRule 规则，某个方法**只想**其中的 1 种生效，则可以使用该属性。
+② `includeRules` 属性，配置生效的 `DataPermissionRule`数据权限规则。例如说，项目里有 10 种 DataPermissionRule 规则，某个方法**只想**其中的 1 种生效，则可以使用该属性。
 
-③ `excludeRules` 属性，配置排除的 [DataPermissionRule](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-data-permission/src/main/java/cn/iocoder/yudao/framework/datapermission/core/rule/DataPermissionRule.java)数据权限规则。例如说，项目里有 10 种 DataPermissionRule 规则，某个方法**不想**其中的 1 种生效，则可以使用该属性。
+③ `excludeRules` 属性，配置排除的 `DataPermissionRule`数据权限规则。例如说，项目里有 10 种 DataPermissionRule 规则，某个方法**不想**其中的 1 种生效，则可以使用该属性。
 
 ::: info 友情提示：
 
@@ -142,7 +142,7 @@ public CommonResult<UserProfileRespVO> profile() {
 
 ## 4. 自定义的数据权限规则
 
-如果想要自定义数据权限规则，只需要实现 [DataPermissionRule](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-biz-data-permission/src/main/java/cn/iocoder/yudao/framework/datapermission/core/rule/DataPermissionRule.java)数据权限规则接口，并声明成 Spring Bean 即可。需要实现的只有两个方法：
+如果想要自定义数据权限规则，只需要实现 `DataPermissionRule`数据权限规则接口，并声明成 Spring Bean 即可。需要实现的只有两个方法：
 
 ```java
 public interface DataPermissionRule {
@@ -183,11 +183,11 @@ public interface DataPermissionRule {
 具体实现代码如下：
 
 ```java
-package cn.iocoder.yudao.module.system.framework.datapermission;
+package cn.sgmt.bpp.module.system.framework.datapermission;
 
-import cn.iocoder.yudao.framework.datapermission.core.rule.DataPermissionRule;
-import cn.iocoder.yudao.framework.mybatis.core.util.MyBatisUtils;
-import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
+import cn.sgmt.bpp.framework.datapermission.core.rule.DataPermissionRule;
+import cn.sgmt.bpp.framework.mybatis.core.util.MyBatisUtils;
+import cn.sgmt.bpp.framework.security.core.util.SecurityFrameworkUtils;
 import com.google.common.collect.Sets;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
@@ -197,7 +197,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-@Component // 声明为 Spring Bean，保证被 yudao-spring-boot-starter-biz-data-permission 组件扫描到
+@Component // 声明为 Spring Bean，保证被 bpp-spring-boot-starter-biz-data-permission 组件扫描到
 public class DemoDataPermissionRule implements DataPermissionRule {
 
     @Override

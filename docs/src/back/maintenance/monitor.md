@@ -8,11 +8,11 @@ outline: deep
 
 ## 1. Spring Boot Admin
 
-注意，Spring Boot Admin 是内嵌在 `yudao-infra-server` 服务中，无需单独启动。
+注意，Spring Boot Admin 是内嵌在 `bpp-infra-server` 服务中，无需单独启动。
 
 ### 1.1 如何配置？
 
-① 【开启 Spring Boot Admin Client 客户端】修改 `yudao-spring-boot-starter-monitor` 模块的 `pom.xml` 依赖，将如下依赖打开（去掉 `<optional>true</optional>` 部分）：
+① 【开启 Spring Boot Admin Client 客户端】修改 `bpp-spring-boot-starter-monitor` 模块的 `pom.xml` 依赖，将如下依赖打开（去掉 `<optional>true</optional>` 部分）：
 
 ```xml
         <dependency>
@@ -22,7 +22,7 @@ outline: deep
 
 ```
 
-② 【开启 Spring Boot Admin Server 服务端】修改 `yudao-module-infra-server` 服务的 `pom.xml` 依赖，将如下依赖打开（去掉注释）：
+② 【开启 Spring Boot Admin Server 服务端】修改 `bpp-module-infra-server` 服务的 `pom.xml` 依赖，将如下依赖打开（去掉注释）：
 
 ```xml
         <dependency>
@@ -42,7 +42,7 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/456bfc58-1a2f-4ab0-91bc-c71ca16990af.png)
 
-② 点击 `yudao-server` 应用，再点击实例，可以查看到该实例的细节信息。如下图所示：
+② 点击 `bpp-server` 应用，再点击实例，可以查看到该实例的细节信息。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/650869a5-3e7b-48e3-8eaa-f9f95a279fb7.png)
 
@@ -100,7 +100,7 @@ outline: deep
 
 ### 2.1 如何配置？
 
-① 修改 `yudao-spring-boot-starter-monitor` 模块的 `pom.xml` 依赖，将如下依赖打开（去掉 `<optional>true</optional>` 部分）：
+① 修改 `bpp-spring-boot-starter-monitor` 模块的 `pom.xml` 依赖，将如下依赖打开（去掉 `<optional>true</optional>` 部分）：
 
 ```xml
         <!-- 监控相关 -->
@@ -144,7 +144,7 @@ outline: deep
 
 - `<pattern>` 里面的重点是 `[%tid]` 部分，并且要写对 `CONSOLE_LOG_PATTERN` 或 `FILE_LOG_PATTERN` 噢！！！
 
-③ 修改 SkyWalking 在前端项目的 \[基础设施 -> 监控中心 -> 链路追踪\] 对应的 [`skywaling/index.vue`](https://github.com/yudaocode/yudao-ui-admin-vue2/blob/master/src/views/infra/skywalking/index.vue#L11)文件，调整为你 SkyWalking 的访问地址。如下图所示：
+③ 修改 SkyWalking 在前端项目的 \[基础设施 -> 监控中心 -> 链路追踪\] 对应的 `skywaling/index.vue`文件，调整为你 SkyWalking 的访问地址。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/c7cda297-b3d7-422f-b788-f7923f793630.png)
 
@@ -154,13 +154,13 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/43f353be-f7ec-40e2-9cca-569e5b179bcf.png)
 
-② 点击 `yudao-server` 服务，查看该服务的监控信息。如下图所示：
+② 点击 `bpp-server` 服务，查看该服务的监控信息。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/121502bf-5daf-40ab-94e8-168f9c0e6941.png)
 
 **补充说明：**
 
-前端 \[基础设施 -> 监控中心 -> 链路追踪\] 菜单，通过 iframe 内嵌 `http://skywalking.iocoder.cn` 路径。
+前端 \[基础设施 -> 监控中心 -> 链路追踪\] 菜单，通过 iframe 内嵌 `http://skywalking.sgmt.cn` 路径。
 
 如果你想自定义地址，可以前往 \[基础设置 -> 配置管理\] 菜单，设置 key 为 `url.skywalking` 配置项。
 
@@ -168,7 +168,7 @@ outline: deep
 
 ### 3.1 Prometheus
 
-注意，修改项目的 `yudao-spring-boot-starter-monitor` 模块的 `pom.xml` 依赖，将如下依赖打开（去掉 `<optional>true</optional>` 部分）：
+注意，修改项目的 `bpp-spring-boot-starter-monitor` 模块的 `pom.xml` 依赖，将如下依赖打开（去掉 `<optional>true</optional>` 部分）：
 
 ```xml
         <!-- Micrometer 对 Prometheus 的支持 -->

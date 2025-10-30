@@ -12,7 +12,7 @@ outline: deep
 
 ### 1.1 API 前缀
 
-API 使用 HTTP 协议，所有的 API 前缀，都以 [`/rpc-api`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/enums/RpcConstants.java#L15)开头，方便做统一的全局处理。
+API 使用 HTTP 协议，所有的 API 前缀，都以 `/rpc-api`开头，方便做统一的全局处理。
 
 ### 1.2 API 权限
 
@@ -26,7 +26,7 @@ registry.antMatchers(ApiConstants.PREFIX + "/**").permitAll();
 
 ### 1.3 API 全局返回
 
-所有 API 接口返回使用 [CommonResult](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/pojo/CommonResult.java)返回，和前端 RESTful API 保持统一。例如说：
+所有 API 接口返回使用 `CommonResult`返回，和前端 RESTful API 保持统一。例如说：
 
 ```java
 public interface DeptApi {
@@ -42,7 +42,7 @@ public interface DeptApi {
 
 ### 1.4 用户传递
 
-服务调用时，已经封装 Feign 将用户信息通过 HTTP 请求头 `login-user` 传递，通过 [LoginUserRequestInterceptor](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/rpc/LoginUserRequestInterceptor.java)类实现。
+服务调用时，已经封装 Feign 将用户信息通过 HTTP 请求头 `login-user` 传递，通过 `LoginUserRequestInterceptor`类实现。
 
 这样，被调用服务，可以通过 SecurityFrameworkUtils 获取到用户信息，例如说：
 
@@ -60,7 +60,7 @@ AdminUserApi 由 `system-server` 服务所提供。
 
 #### 2.1.1 ApiConstants
 
-在 `yudao-module-system-api` 模块，创建 [ApiConstants](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/enums/ApiConstants.java)类，定义 API 相关的枚举。代码如下：
+在 `yudao-module-system-api` 模块，创建 `ApiConstants`类，定义 API 相关的枚举。代码如下：
 
 ```java
 public class ApiConstants {
@@ -82,7 +82,7 @@ public class ApiConstants {
 
 #### 2.1.2 AdminUserApi
 
-在 `yudao-module-system-api` 模块，创建 [AdminUserApi](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/user/AdminUserApi.java)类，定义 API 接口。代码如下：
+在 `yudao-module-system-api` 模块，创建 `AdminUserApi`类，定义 API 接口。代码如下：
 
 ```java
 @FeignClient(name = ApiConstants.NAME) // ① @FeignClient 注解
@@ -100,7 +100,7 @@ public interface AdminUserApi {
 
 ```
 
-另外，需要创建 [AdminUserRespDTO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/iocoder/yudao/module/system/api/user/dto/AdminUserRespDTO.java)类，定义用户 Response DTO。代码如下：
+另外，需要创建 [AdminUserRespDTO](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-api/src/main/java/cn/bpp/yudao/module/system/api/user/dto/AdminUserRespDTO.java)类，定义用户 Response DTO。代码如下：
 
 ```java
 @Data
@@ -140,7 +140,7 @@ public class AdminUserRespDTO {
 
 #### 2.1.3 AdminUserRpcImpl
 
-在 `yudao-module-system-server` 模块，创建 [AdminUserRpcImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/api/user/AdminUserApiImpl.java)类，实现 API 接口。代码如下：
+在 `yudao-module-system-server` 模块，创建 `AdminUserRpcImpl`类，实现 API 接口。代码如下：
 
 ```java
 @RestController // 提供 RESTful API 接口，给 Feign 调用
@@ -170,7 +170,7 @@ public class AdminUserApiImpl implements AdminUserApi {
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
+    <groupId>cn.sgmt.cloud</groupId>
     <artifactId>yudao-module-system-api</artifactId>
     <version>${revision}</version>
 </dependency>
@@ -179,7 +179,7 @@ public class AdminUserApiImpl implements AdminUserApi {
 
 #### 2.2.2 引用 API
 
-在 `yudao-module-bpm-server` 模块，创建 [RpcConfiguration](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/src/main/java/cn/iocoder/yudao/module/bpm/framework/rpc/config/RpcConfiguration.java)配置类，注入 AdminUserApi 接口。代码如下：
+在 `yudao-module-bpm-server` 模块，创建 `RpcConfiguration`配置类，注入 AdminUserApi 接口。代码如下：
 
 ```java
 @Configuration(proxyBeanMethods = false)
@@ -191,7 +191,7 @@ public class RpcConfiguration {
 
 #### 2.2.3 调用 API
 
-例如说，[BpmTaskServiceImpl](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-bpm/yudao-module-bpm-server/src/main/java/cn/iocoder/yudao/module/bpm/service/task/BpmTaskServiceImpl.java#L302)调用了 AdminUserApi 接口，代码如下：
+例如说，`BpmTaskServiceImpl`调用了 AdminUserApi 接口，代码如下：
 
 ```java
 @Service

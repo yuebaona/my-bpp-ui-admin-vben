@@ -26,16 +26,16 @@ outline: deep
 
 ## 2. 如何编写 XXL Job 定时任务
 
-**友情提示：以 yudao-module-system 服务为例子。**
+**友情提示：以 bpp-module-system 服务为例子。**
 
 ### 2.1 引入依赖
 
-在 `yudao-module-system-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml)中，引入 `yudao-spring-boot-starter-job` 技术组件。如下所示：
+在 `bpp-module-system-server` 模块的 `pom.xml`中，引入 `bpp-spring-boot-starter-job` 技术组件。如下所示：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-spring-boot-starter-job</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-spring-boot-starter-job</artifactId>
 </dependency>
 
 ```
@@ -44,7 +44,7 @@ outline: deep
 
 ### 2.2 添加配置
 
-① 在 [`application.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application.yaml#L86-L93)中，添加 `xxl.job` 配置。如下所示：
+① 在 `application.yaml`中，添加 `xxl.job` 配置。如下所示：
 
 ```yaml
 --- #################### 定时任务相关配置 ####################
@@ -59,7 +59,7 @@ xxl:
 
 - 注意，`xxl.job.accessToken` 配置，需要改成你的 XXL Job 调度中心的访问令牌。
 
-② 在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L80-L85)中，添加 `xxl.job` 配置。如下所示：
+② 在 `application-local.yaml`中，添加 `xxl.job` 配置。如下所示：
 
 ```yaml
 --- #################### 定时任务相关配置 ####################
@@ -86,13 +86,13 @@ xxl:
 ```bash
 2024-07-27 13:21:52.724 |  INFO 2109 | main [TID: N/A] c.i.y.f.q.c.YudaoXxlJobAutoConfiguration | [xxlJobExecutor][初始化 XXL-Job 执行器的配置]
 
-2024-07-27 13:21:53.432 |  INFO 2109 | main [TID: N/A] c.xxl.job.core.executor.XxlJobExecutor   | >>>>>>>>>>> xxl-job register jobhandler success, name:demoJob, jobHandler:com.xxl.job.core.handler.impl.MethodJobHandler@7827b580[class cn.iocoder.yudao.module.system.job.demo.DemoJob$$SpringCGLIB$$0#execute]
+2024-07-27 13:21:53.432 |  INFO 2109 | main [TID: N/A] c.xxl.job.core.executor.XxlJobExecutor   | >>>>>>>>>>> xxl-job register jobhandler success, name:demoJob, jobHandler:com.xxl.job.core.handler.impl.MethodJobHandler@7827b580[class cn.sgmt.bpp.module.system.job.demo.DemoJob$$SpringCGLIB$$0#execute]
 
 2024-07-27 13:21:53.496 |  INFO 2109 | Thread-13 [TID: N/A] com.xxl.job.core.server.EmbedServer      | >>>>>>>>>>> xxl-job remoting server start success, nettype = class com.xxl.job.core.server.EmbedServer, port = 10000
 
 ```
 
-- 其中，第 2 行的 `demoJob` 是我们在 yudao-module-system 提供的一个示例 Job。
+- 其中，第 2 行的 `demoJob` 是我们在 bpp-module-system 提供的一个示例 Job。
 
 另外，我们也可以在 XXL-Job 的 \[任务管理\] 菜单中，看到注册成功的信息。如下图所示：
 
@@ -100,9 +100,9 @@ xxl:
 
 ### 2.3 创建 Job 定时任务
 
-**友情提示：继续以 yudao-module-system 服务为例子。**
+**友情提示：继续以 bpp-module-system 服务为例子。**
 
-在 `yudao-module-system-server` 模块的 `job` 包下，我们已经提供了一个 DemoJob 示例，代码如下：
+在 `bpp-module-system-server` 模块的 `job` 包下，我们已经提供了一个 DemoJob 示例，代码如下：
 
 ```java
 @Component

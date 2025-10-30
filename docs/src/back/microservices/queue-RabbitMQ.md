@@ -6,27 +6,27 @@ outline: deep
 
 ## RabbitMQ-Spring
 
-[`yudao-spring-boot-starter-mq`](https://github.com/YunaiV/yudao-cloud)技术组件，基于 RabbitMQ 实现分布式消息队列。
+`bpp-spring-boot-starter-mq`技术组件，基于 RabbitMQ 实现分布式消息队列。
 
 ## 2. 使用示例
 
-**友情提示：下文操作的都是 yudao-module-system 服务**
+**友情提示：下文操作的都是 bpp-module-system 服务**
 
 以【短信发送】举例子，改造使用 RabbitMQ 作为消息队列。
 
 ## 2.0 引入依赖与配置
 
-① 在 `yudao-module-system-server` 模块中，引入 `yudao-spring-boot-starter-mq` 技术组件。如下所示：
+① 在 `bpp-module-system-server` 模块中，引入 `bpp-spring-boot-starter-mq` 技术组件。如下所示：
 
 ```xml
 <dependency>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao-spring-boot-starter-mq</artifactId>
+    <groupId>cn.sgmt.cloud</groupId>
+    <artifactId>bpp-spring-boot-starter-mq</artifactId>
 </dependency>
 
 ```
 
-② 修改 `yudao-spring-boot-starter-mq` 的 `pom.xml` 文件，引入 `spring-rabbit` 依赖。如下所示：
+② 修改 `bpp-spring-boot-starter-mq` 的 `pom.xml` 文件，引入 `spring-rabbit` 依赖。如下所示：
 
 ```xml
 <!-- 实际只要删除  <optional>true</optional> 部分即可 -->
@@ -159,7 +159,7 @@ public class SmsSendConsumer {
 
 ② 打开 `SmsTemplateController.http` 文件，使用 IDEA httpclient 发起请求，发送短信。如下图所示：
 
-**图片纠错：最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务**
+**图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务**
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4a81be67-1d81-4421-a5c5-73e3c5aee6e9.png)
 

@@ -6,11 +6,11 @@ outline: deep
 
 大部分项目里，其实有很多代码是重复的，几乎每个模块都有 CRUD 增删改查的功能，而这些功能的实现代码往往是大同小异的。如果这些功能都要自己去手写，非常无聊枯燥，浪费时间且效率很低，还可能会写错。
 
-所以这种重复性的代码，项目提供了 [codegen](https://github.com/YunaiV/yudao-cloud/tree/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/service/codegen)代码生成器，只需要在数据库中设计好表结构，就可以一键生成前后端代码 + 单元测试 + Swagger 接口文档 + Validator 参数校验。
+所以这种重复性的代码，项目提供了 `codegen`代码生成器，只需要在数据库中设计好表结构，就可以一键生成前后端代码 + 单元测试 + Swagger 接口文档 + Validator 参数校验。
 
 针对不同的业务场景，项目提供了三种模式：单表、树表、主子表。
 
-本文，将演示“单表”的使用，基于代码生成器，在 `yudao-module-system` 模块中，开发一个【**用户组**】的功能。
+本文，将演示“单表”的使用，基于代码生成器，在 `bpp-module-system` 模块中，开发一个【**用户组**】的功能。
 
 ## 1. 数据库表结构设计
 
@@ -35,7 +35,7 @@ CREATE TABLE `system_group` (
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/fb59e41e-32c1-4c75-bf12-6085d4ab53ee.png)
 
-① 表名的前缀，要和 Maven Module 的模块名保持一致。例如说，用户组在 `yudao-module-system` 模块，所以表名的前缀是 `system_`。
+① 表名的前缀，要和 Maven Module 的模块名保持一致。例如说，用户组在 `bpp-module-system` 模块，所以表名的前缀是 `system_`。
 
 ② 设置 ID 主键，一般推荐使用 `bigint` 长整形，并设置自增长。
 
@@ -88,7 +88,7 @@ CREATE TABLE `system_group` (
 
 - 将【上级菜单】设置为【系统管理】。
 
-- 将【前端类型】设置为“前端项目”对应的“前端类型”。例如说，我们这里演示的是 `yudao-ui-admin-vue3` 前端项目，则选择了【Vue3 Element Plus 标准模版】。
+- 将【前端类型】设置为“前端项目”对应的“前端类型”。例如说，我们这里演示的是 `bpp-ui-admin-vue3` 前端项目，则选择了【Vue3 Element Plus 标准模版】。
 
 **生成信息**
 
@@ -96,7 +96,7 @@ CREATE TABLE `system_group` (
 
 - 上级菜单：生成场景是管理后台时，需要设置其所属的上级菜单。
 
-- 前端类型： 提供多种 UI 模版。后端的 `application.yaml` 配置文件中的 `yudao.codegen.front-type` 配置项，设置默认的 UI 模版，避免每次都需要设置。
+- 前端类型： 提供多种 UI 模版。后端的 `application.yaml` 配置文件中的 `bpp.codegen.front-type` 配置项，设置默认的 UI 模版，避免每次都需要设置。
 
 完成后，点击 \[提交\] 按钮，保存生成配置。
 
@@ -106,7 +106,7 @@ CREATE TABLE `system_group` (
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/6c625fa0-2f08-4fa2-bc00-4563cc00c8ab.png)
 
-后端的 `application.yaml` 配置文件中的 `yudao.codegen.vo-type` 配置项，修改为 20 时，可以直接使用数据库 DO 作为 Controller 的参数。
+后端的 `application.yaml` 配置文件中的 `bpp.codegen.vo-type` 配置项，修改为 20 时，可以直接使用数据库 DO 作为 Controller 的参数。
 
 ### 2.4 生成代码
 
@@ -130,7 +130,7 @@ CREATE TABLE `system_group` (
 
 ③ （可选，默认关闭，一般可不操作）将 `h2.sql` 的 CREATE 语句复制到该模块的 `create_tables.sql` 文件，DELETE 语句复制到该模块的 `clean.sql`。操作如下图：
 
-如果想要开启，可以把 `yudao.codegen.unit-test-enable` 配置项设置为 `true`，然后重新生成代码。
+如果想要开启，可以把 `bpp.codegen.unit-test-enable` 配置项设置为 `true`，然后重新生成代码。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b55baf3b-87e1-4fd9-b4fe-afc9ccd50e64.png)
 

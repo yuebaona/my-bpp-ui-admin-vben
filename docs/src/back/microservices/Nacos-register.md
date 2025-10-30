@@ -18,11 +18,11 @@ outline: deep
 
 ## 2. 项目接入 Nacos
 
-**友情提示：以 yudao-module-system 服务为例子。**
+**友情提示：以 bpp-module-system 服务为例子。**
 
 ### 2.1 引入依赖
 
-在 `yudao-module-system-server` 模块的 [`pom.xml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/pom.xml)中，引入 Nacos 对应的依赖。如下所示：
+在 `bpp-module-system-server` 模块的 `pom.xml`中，引入 Nacos 对应的依赖。如下所示：
 
 ```xml
 <!-- Registry 注册中心相关 -->
@@ -35,7 +35,7 @@ outline: deep
 
 ### 2.2 添加配置
 
-在 [`application-local.yaml`](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/resources/application-local.yaml#L9-L13)中，添加 `nacos.config` 配置。如下所示：
+在 `application-local.yaml`中，添加 `nacos.config` 配置。如下所示：
 
 ```yaml
 --- #################### 注册中心相关配置 ####################

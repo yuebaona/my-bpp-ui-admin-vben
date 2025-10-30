@@ -32,12 +32,7 @@ outline: deep
 }
 ```
 
-- 管理后台的登录实现，可见 [代码(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/controller/admin/auth/AuthController.java#L56-L63)
-
-- 用户 App 的登录实现，可见 [代码(opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-member/yudao-module-member-server/src/main/java/cn/iocoder/yudao/module/member/controller/app/auth/AppAuthController.java#L34-L41)
-
-Token 存储在数据库中，对应 `system_oauth2_access_token` 访问令牌表的 `id` 字段。考虑到访问的性能，缓存在 Redis 的 [`oauth2_access_token:%s` (opens new window)](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-system/yudao-module-system-server/src/main/java/cn/iocoder/yudao/module/system/dal/redis/RedisKeyConstants.java#L21)键中。
-
+Token 存储在数据库中，对应 `system_oauth2_access_token` 访问令牌表的 `id` 字段。考虑到访问的性能，缓存在 Redis 的 `oauth2_access_token:%s`
 默认配置下，Token 有效期为 30 天，可通过 `system_oauth2_client` 表中 `client_id = default` 的记录进行自定义：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/64c452cf-3029-45cf-b679-2048ab17922b.png)
@@ -54,7 +49,7 @@ Authorization: Bearer d2a3cdbc6c53470db67a582bd115103f
 
 ```
 
-- 具体的代码实现，可见 [TokenAuthenticationFilter](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/core/filter/TokenAuthenticationFilter.java)过滤器
+- 具体的代码实现，可见 `TokenAuthenticationFilter`过滤器
 
 考虑到使用 Postman、Swagger 调试接口方便，提供了 **Token 的模拟机制**。请求头格式如下：
 
@@ -69,7 +64,7 @@ Authorization: Bearer test1
 ```yaml
 ### application-local.yaml
 
-yudao:
+bpp:
   security:
     mock-enable: true # 是否开启 Token 的模拟机制
     mock-secret: test # Token 模拟机制的 Token 前缀
@@ -127,7 +122,7 @@ yudao:
 
 ### 4.1 方式一：自定义 AuthorizeRequestsCustomizer 实现
 
-每个 Maven Module 可以实现自定义的 [AuthorizeRequestsCustomizer](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-security/src/main/java/cn/iocoder/yudao/framework/security/config/YudaoWebSecurityConfigurerAdapter.java)Bean，额外定义每个 Module 的 API 接口的访问规则。例如说 `yudao-module-infra` 模块的 [SecurityConfiguration ](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-module-infra/yudao-module-infra-server/src/main/java/cn/iocoder/yudao/module/infra/framework/security/config/SecurityConfiguration.java)类，代码如下：
+每个 Maven Module 可以实现自定义的 `AuthorizeRequestsCustomizer`Bean，额外定义每个 Module 的 API 接口的访问规则。例如说 `bpp-module-infra` 模块的 `SecurityConfiguration`类，代码如下：
 
 ```java
 @Configuration(proxyBeanMethods = false, value = "infraSecurityConfiguration")
@@ -190,12 +185,12 @@ public void getFileContent(HttpServletResponse response,
 
 ```
 
-### 4.3 方式三：`**yudao.security.permit-all-urls**` 配置项
+### 4.3 方式三：`**bpp.security.permit-all-urls**` 配置项
 
-在 `application.yaml` 配置文件，通过 `yudao.security.permit-all-urls` 配置项设置，示例如下：
+在 `application.yaml` 配置文件，通过 `bpp.security.permit-all-urls` 配置项设置，示例如下：
 
 ```yaml
-yudao:
+bpp:
   security:
     permit-all-urls:
       - /admin-ui/** # /resources/admin-ui 目录下的静态资源

@@ -6,18 +6,18 @@ outline: deep
 
 ## 1. Spring Event
 
-[`yudao-spring-boot-starter-mq`](https://github.com/YunaiV/yudao-cloud)技术组件，提供了 Redis、RocketMQ、RabbitMQ、Kafka 分布式消息队列的封装。
+`bpp-spring-boot-starter-mq`技术组件，提供了 Redis、RocketMQ、RabbitMQ、Kafka 分布式消息队列的封装。
 
 **默认**使用 Spring Event 实现【内存】级别的消息队列。
 
 ## 2. 使用示例
 
-**友情提示：下文操作的都是 yudao-module-system 服务**
+**友情提示：下文操作的都是 bpp-module-system 服务**
 
 以【短信发送】举例子，我们来看看 Spring Event 的使用。如下图所示：
 
 ::: info 图片纠错：
-最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务 
+最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
 :::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/f208c4f7-4ec7-497c-9666-246ddc68cd53.png)
@@ -118,12 +118,12 @@ public class SmsSendConsumer {
 
 〇 Run 启动 Gateway 网关服务，因为需要它来调用服务。
 
-① Debug 启动 `yudao-module-system` 服务，可以在 SmsProducer 和 SmsSendConsumer 上面打上断点，稍微调试下。
+① Debug 启动 `bpp-module-system` 服务，可以在 SmsProducer 和 SmsSendConsumer 上面打上断点，稍微调试下。
 
 ② 打开 `SmsTemplateController.http` 文件，使用 IDEA httpclient 发起请求，发送短信。如下图所示：
 
 ::: info 图片纠错：
-最新版本将 yudao-module-system-biz 子模块，重命名为 yudao-module-system-server 子模块，更好表达它是一个服务
+最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 :::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/e2711213-7f59-4654-bdb0-0bb01b3889e7.png)
