@@ -6,7 +6,6 @@ outline: deep
 
 ## RocketMQ-Spring
 
-
 ## 2. 使用示例
 
 **友情提示：下文操作的都是 bpp-module-system 服务**

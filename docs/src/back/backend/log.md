@@ -42,7 +42,7 @@ outline: deep
 
 ② 在 Service 方法上，添加 `@LogRecord` 注解，如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 
@@ -56,7 +56,7 @@ outline: deep
 
 ① 在 `LogRecordConstants`类中，定义 `SYSTEM_USER_UPDATE_SUB_TYPE`、`SYSTEM_USER_UPDATE_SUCCESS` 变量。如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 
@@ -64,7 +64,7 @@ outline: deep
 
 这里我们使用了 `_DIFF` 函数，实现对象 diff 功能，即“【备注】从【132】修改为【1324】”。因此，我们需要在 `UserSaveReqVO`类上添加 `@DiffLogField` 注解，如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 

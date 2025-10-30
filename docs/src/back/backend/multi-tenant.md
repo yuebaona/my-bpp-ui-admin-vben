@@ -77,10 +77,10 @@ outline: deep
 
 多租户主要有两个业务功能：
 
-| 业务功能 | 说明 | 界面 | 
-| --- | --- | --- | 
+| 业务功能 | 说明 | 界面 |
+| --- | --- | --- |
 | 租户管理 | 配置系统租户，创建对应的租户管理员 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/31aa9b72-17b5-4577-9f39-19d86d3d13e6.png) |
-| 租户套餐 | 配置租户套餐，自定每个租户的菜单、操作、按钮的权限 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eefe202b-50d0-4d97-a249-7873205fcab6.png) | 
+| 租户套餐 | 配置租户套餐，自定每个租户的菜单、操作、按钮的权限 | ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eefe202b-50d0-4d97-a249-7873205fcab6.png) |
 
 **下面，我们来新增一个租户，它使用 COLUMN 模式。**
 
@@ -108,7 +108,6 @@ outline: deep
 
 ### 5.2 Web 层【重要】
 
-
 默认情况下，前端的每个请求 Header **必须**带上 `tenant-id`，值为租户编号，即 `system_tenant` 表的主键编号。
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/b977603e-9c98-410c-b81f-dd4ee2665f60.png)
@@ -133,7 +132,6 @@ public CommonResult<Long> getTenantIdByName(@RequestParam("name") String name) {
 ```
 
 ### 5.3 Security 层
-
 
 主要是校验登录的用户，校验是否有权限访问该租户，避免越权问题。
 
@@ -190,7 +188,6 @@ public class DictDataDO extends BaseDO {
 ```
 
 ### 5.5 Redis 层【重要】
-
 
 由于 Redis 不同于 DB 有 `tenant_id` 字段，无法通过类似 `WHERE tenant_id` = ? 的方式过滤，所以需要通过在 Redis Key 上增加 `:t{tenantId}` 后缀的方式，进行租户之间的隔离。
 

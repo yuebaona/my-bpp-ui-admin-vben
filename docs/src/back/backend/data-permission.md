@@ -16,7 +16,6 @@ outline: deep
 
 因此，项目提供 `bpp-spring-boot-starter-biz-data-permission`技术组件，只需要少量的编码，无需入侵到业务代码，即可实现数据权限。
 
-
 ## 1. 实现原理
 
 `bpp-spring-boot-starter-biz-data-permission` 技术组件的实现原理非常简单，每次对数据库操作时，他会**自动**拼接 `WHERE data_column = ?` 条件来进行数据的过滤。
@@ -40,7 +39,6 @@ outline: deep
 主要还是基于 MyBatis Plus 的 数据权限插件 。
 
 具体的条件生成，可见项目的 DataPermissionRuleHandler 类。
-
 
 ## 2. 基于部门的数据权限
 

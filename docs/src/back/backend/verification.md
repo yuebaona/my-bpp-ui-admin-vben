@@ -241,7 +241,7 @@ Request Body 时间传参，指的是 `Post`、`PUT` 等请求，通过 JSO
 
 ① 后端接收时间参数时，需要添加 SpringMVC 的 `@RequestBody` 注解，使用 LocalDateTime 属性进行接收。例如说：
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 

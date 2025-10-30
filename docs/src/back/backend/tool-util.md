@@ -41,7 +41,6 @@ outline: deep
 | 校验工具 | [ValidationUtil](https://plus.hutool.cn/apidocs/cn/hutool/extra/validation/ValidationUtil.html) | [ValidationUtils](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-common/src/main/java/cn/iocoder/yudao/framework/common/util/validation/ValidationUtils.java) |
 | 断言工具 | [Assert](https://www.bookstack.cn/read/hutool/cf382b4542d5861e.md) | [AssertUtils](https://github.com/YunaiV/yudao-cloud/blob/master/yudao-framework/yudao-spring-boot-starter-test/src/main/java/cn/iocoder/yudao/framework/test/core/util/AssertUtils.java) |
 
-
 ## 2. Lombok
 
 [Lombok](https://github.com/projectlombok/lombok)是一个 Java 工具，通过使用其定义的注解，自动生成常见的冗余代码，提升开发效率。

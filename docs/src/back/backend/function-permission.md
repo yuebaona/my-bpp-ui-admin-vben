@@ -32,8 +32,7 @@ outline: deep
 }
 ```
 
-Token 存储在数据库中，对应 `system_oauth2_access_token` 访问令牌表的 `id` 字段。考虑到访问的性能，缓存在 Redis 的 `oauth2_access_token:%s`
-默认配置下，Token 有效期为 30 天，可通过 `system_oauth2_client` 表中 `client_id = default` 的记录进行自定义：
+Token 存储在数据库中，对应 `system_oauth2_access_token` 访问令牌表的 `id` 字段。考虑到访问的性能，缓存在 Redis 的 `oauth2_access_token:%s` 默认配置下，Token 有效期为 30 天，可通过 `system_oauth2_client` 表中 `client_id = default` 的记录进行自定义：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/64c452cf-3029-45cf-b679-2048ab17922b.png)
 

@@ -181,7 +181,7 @@ bpp:
 
 ② 新建 DemoWebSocketMessageListener 类，实现对应消息的处理。如下图所示：
 
-::: danger 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: danger 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 

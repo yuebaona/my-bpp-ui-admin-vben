@@ -18,10 +18,9 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/afc99983-8a49-4de3-8c73-be7c4c40c2d2.png)
 
-*   项目启动时，初始化缓存：从数据库中读取数据，写入到本地缓存（例如说一个 Map 对象）
+- 项目启动时，初始化缓存：从数据库中读取数据，写入到本地缓存（例如说一个 Map 对象）
 
-*   数据变化时，实时刷新缓存：（例如说通过管理后台修改数据）重新从数据库中读取数据，重新写入到本地缓存
-
+- 数据变化时，实时刷新缓存：（例如说通过管理后台修改数据）重新从数据库中读取数据，重新写入到本地缓存
 
 ## 2. 实战案例
 
@@ -66,14 +65,13 @@ public void initLocalCache() {
         // 第一步：查询数据
         List<RoleDO> roleList = roleMapper.selectList();
         log.info("[initLocalCache][缓存角色，数量为:{}]", roleList.size());
-    
+
         // 第二步：构建缓存
         roleCache = CollectionUtils.convertMap(roleList, RoleDO::getId);
     });
 }
 
 ```
-
 
 ### 2.2 实时刷新缓存
 

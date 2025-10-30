@@ -12,7 +12,6 @@ outline: deep
 
 3.  数据库存储：MySQL、Oracle、PostgreSQL、SQL Server 等等。
 
-
 ## 1. 快速入门
 
 本小节，来添加个文件配置，并使用它上传下载文件。
@@ -112,11 +111,11 @@ String createFile(String path, byte[] content);
 
 例如说，个人中心修改头像时，需要进行头像的上传。如下图所示：
 
-::: info 图片纠错：最新版本将 bpp-module-member-biz 子模块，重命名为 bpp-module-member-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-member-biz 子模块，重命名为 bpp-module-member-server 子模块，更好表达它是一个服务
 
 :::
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 
@@ -231,7 +230,7 @@ FileClient 有 5 个实现类，使用不同存储器进行文件的上传与
 
 ## 6. 前端直传 S3 存储【推荐】
 
-::: info 友情提示：目前仅 bpp-ui-admin-vue3 前端项目支持，Vue3 + Element Plus 版本 
+::: info 友情提示：目前仅 bpp-ui-admin-vue3 前端项目支持，Vue3 + Element Plus 版本
 
 :::
 

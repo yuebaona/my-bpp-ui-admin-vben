@@ -245,7 +245,7 @@ public interface TenantMapper extends BaseMapperX<TenantDO> {
 
 默认配置下，MyBatis Mapper XML 需要写在各 `bpp-module-xxx-server` 模块的 `resources/mapper` 目录下。示例 `TestDemoMapper.xml` 如下：
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务
 
 :::
 

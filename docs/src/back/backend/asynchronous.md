@@ -6,7 +6,6 @@ outline: deep
 
 `bpp-spring-boot-starter-job`技术组件，除了提供定时任务的功能，还提供了 Async 异步任务的能力。系统使用异步任务，提升执行效率。例如说：
 
-
 ## 1.Async配置
 
 ### 安装依赖

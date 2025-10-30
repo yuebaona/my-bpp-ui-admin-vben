@@ -1,6 +1,7 @@
 ---
 outline: deep
 ---
+
 # 多源数据（读写分离）、事务
 
 `bpp-spring-boot-starter-mybatis`技术组件，除了提供 MyBatis 数据库操作，还提供了如下 2 种功能：
