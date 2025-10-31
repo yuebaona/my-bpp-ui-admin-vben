@@ -176,7 +176,7 @@ function sidebarBack(): DefaultTheme.SidebarItem[] {
         { link: 'backend/myBatis', text: 'MyBatis'},
         { link: 'backend/myBatis-operation', text: 'MyBatis联表&分页查询'},
         { link: 'backend/data', text: '多源数据（读写分离）、事务'},
-        { link: 'backend/redis', text: 'Redis缓存'},
+        { link: 'backend/redis-cache', text: 'Redis缓存'},
         { link: 'backend/local-cache', text: '本地缓存'},
         { link: 'backend/asynchronous', text: '异步任务'},
         { link: 'backend/distributed-lock', text: '分布式锁'},

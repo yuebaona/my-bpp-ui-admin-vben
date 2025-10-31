@@ -32,13 +32,13 @@ outline: deep
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>yudao</artifactId>
+        <artifactId>bpp</artifactId>
         <groupId>cn.sgmt.cloud</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>yudao-module-demo</artifactId>
+    <artifactId>bpp-module-demo</artifactId>
     <packaging>pom</packaging> <!-- 2. 新增 packaging 为 pom -->
 
     <name>${project.artifactId}</name> <!-- 3. 新增 name 为 ${project.artifactId} -->
@@ -64,12 +64,12 @@ outline: deep
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>yudao-module-demo</artifactId>
+        <artifactId>bpp-module-demo</artifactId>
         <groupId>cn.sgmt.cloud</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>yudao-module-demo-api</artifactId>
+    <artifactId>bpp-module-demo-api</artifactId>
     <packaging>jar</packaging> <!-- 2. 新增 packaging 为 jar -->
 
     <name>${project.artifactId}</name> <!-- 3. 新增 name 为 ${project.artifactId} -->
@@ -80,7 +80,7 @@ outline: deep
     <dependencies>  <!-- 5. 新增 bpp-common 依赖 -->
         <dependency>
             <groupId>cn.sgmt.cloud</groupId>
-            <artifactId>yudao-common</artifactId>
+            <artifactId>bpp-common</artifactId>
         </dependency>
     </dependencies>
 
@@ -406,7 +406,7 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
     banner: false # 关闭控制台的 Banner 打印
-  type-aliases-package: ${yudao.info.base-package}.module.*.dal.dataobject
+  type-aliases-package: ${bpp.info.base-package}.module.*.dal.dataobject
   encryptor:
     password: XDV71a+xqStEA3WH # 加解密的秘钥，可使用 https://www.imaegoo.com/2020/aes-key-generator/ 网站生成
 

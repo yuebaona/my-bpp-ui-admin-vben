@@ -54,7 +54,11 @@ outline: deep
 
 新建 `OAuth2AccessTokenDO`类，访问令牌 Access Token 类。代码如下：
 
-::: info 图片纠错：最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 :::
+::: info 图片纠错：
+
+最新版本将 bpp-module-system-biz 子模块，重命名为 bpp-module-system-server 子模块，更好表达它是一个服务 
+
+:::
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/55003353-24c2-4970-9c4b-c2acbee81c04.png)
 
