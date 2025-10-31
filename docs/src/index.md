@@ -6,7 +6,7 @@ sidebar: false
 hero:
   name: 业务处理平台
   text: 用户手册与开发指南
-  tagline: 
+  tagline:
   image:
     src: http://rsim.portsgmt.com:9001/bgbpp-vben/北港单LOGO.png
     alt: Vben Admin
@@ -20,7 +20,6 @@ hero:
     - theme: alt
       text: 后端指南
       link: /back/introduction/api
-
 #features:
 #  - icon: 🚀
 #    title: 最新技术栈
@@ -105,4 +104,4 @@ const members = [
   />
 </VPTeamPage> -->
 
-[//]: # (<VbenContributors />)
+[//]: # '<VbenContributors />'
