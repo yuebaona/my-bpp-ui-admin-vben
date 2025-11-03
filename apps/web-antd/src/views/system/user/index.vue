@@ -14,12 +14,11 @@ import { Card, message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  createByDing,
   deleteUser,
   deleteUserList,
   exportUser,
   getUserPage,
-  updateByDing,
+  syncDingUser,
   updateUserStatus,
 } from '#/api/system/user';
 import { $t } from '#/locales';
@@ -74,15 +73,9 @@ function handleCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 从钉钉用户表同步 */
-async function handleSyncFormDingUser() {
-  await createByDing();
-  handleRefresh();
-}
-
-/** 从钉钉用户表更新 */
-async function handleSyncUpdateDingUser() {
-  await updateByDing();
+/** 同步钉钉用户信息 */
+async function handleSyncDingUser() {
+  await syncDingUser();
   handleRefresh();
 }
 
@@ -228,18 +221,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
             <TableAction
               :actions="[
                 {
-                  label: $t('从钉钉用户同步'),
+                  label: $t('同步钉钉用户信息'),
                   type: 'primary',
                   icon: ACTION_ICON.ADD,
-                  auth: ['system:user:create'],
-                  onClick: handleSyncFormDingUser,
-                },
-                {
-                  label: $t('从钉钉用户更新'),
-                  type: 'primary',
-                  icon: ACTION_ICON.ADD,
-                  auth: ['system:user:update'],
-                  onClick: handleSyncUpdateDingUser,
+                  auth: ['system:user:sync'],
+                  onClick: handleSyncDingUser,
                 },
                 {
                   label: $t('ui.actionTitle.create', ['用户']),

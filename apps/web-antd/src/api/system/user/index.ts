@@ -87,12 +87,7 @@ export function getSimpleUserList() {
   return requestClient.get<SystemUserApi.User[]>('/system/user/simple-list');
 }
 
-/** 从钉钉用户表导入系统用户 */
-export function createByDing() {
-  return requestClient.post('/system/user/create-by-ding');
-}
-
 /** 从钉钉用户表更新系统用户 */
-export function updateByDing() {
-  return requestClient.put('/system/user/update-by-ding');
+export function syncDingUser() {
+  return requestClient.post('/tptc/ding/user/sync');
 }
