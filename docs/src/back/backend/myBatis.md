@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# MyBatis
+# MyBatis 数据库
 
 `bpp-spring-boot-starter-mybatis`技术组件，基于 MyBatis Plus 实现数据库的操作。
 

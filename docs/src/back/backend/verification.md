@@ -210,9 +210,9 @@ public class AppAuthLoginReqVO {
 
 ```
 
-## 5. 时间传参
+## 4. 时间传参
 
-### 5.1 Query 时间传参
+### 4.1 Query 时间传参
 
 Query 时间传参，指的是 `GET` 请求、或者 `POST` 的 form-data 请求。
 
@@ -235,7 +235,7 @@ private LocalDateTime[] createTime;
 
 - `views/system/user/index.vue` 的 `createTime` 参数 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/1bb0bf17-6d38-4e47-889e-1ed551aedb5b.png)
 
-### 5.2 Request Body 时间传参
+### 4.2 Request Body 时间传参
 
 Request Body 时间传参，指的是 `Post`、`PUT` 等请求，通过 JSON 格式。
 
@@ -253,7 +253,7 @@ Request Body 时间传参，指的是 `Post`、`PUT` 等请求，通过 JSO
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/f74068f2-731c-409c-91df-ab244ee91735.png)
 
-### 5.3 Response Body 时间响应
+### 4.3 Response Body 时间响应
 
 JSON 返回的时间，使用 LocalDateTime 定义属性，会被序列化为 Long 时间戳进行相应。
 
@@ -261,9 +261,9 @@ JSON 返回的时间，使用 LocalDateTime 定义属性，会被序列化为
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/85242e37-c0d3-425d-b4db-61ca9101232a.png)
 
-### 5.4 如何自定义 JSON 时间格式？
+### 4.4 如何自定义 JSON 时间格式？
 
-#### 5.4.1 为什么使用 Long 时间戳呢？
+#### 4.4.1 为什么使用 Long 时间戳呢？
 
 每个项目希望展示的时间格式可能不同，有希望 `yyyy-MM-dd HH:mm:ss`，也有希望 `yyyy/MM/dd HH:mm:ss`，又或者是其它。
 
@@ -273,13 +273,13 @@ JSON 返回的时间，使用 LocalDateTime 定义属性，会被序列化为
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/bc6fe81e-aa47-47d3-9c70-4816061c778c.png)
 
-#### 5.4.1 全局配置时间格式
+#### 4.4.1 全局配置时间格式
 
 如果你想 JSON 全局配置成 `yyyy-MM-dd HH:mm:ss` 或其它时间格式，通过使用 Jackson 内置的 LocalDateTimeSerializer 和 LocalDateTimeDeserializer 即可，如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/4e80b4fd-9eeb-452a-9903-8d5c8766bb70.png)
 
-#### 5.4.2 局部配置时间格式
+#### 4.4.2 局部配置时间格式
 
 如果只是部分 VO 的字段想自定义 `yyyy-MM-dd HH:mm:ss` 或其它时间格式，可通过 Jackson 内置的 `@JsonFormat` 注解，如下所示：
 

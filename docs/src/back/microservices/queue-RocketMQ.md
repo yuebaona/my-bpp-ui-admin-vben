@@ -4,7 +4,8 @@ outline: deep
 
 # 消息队列（RocketMQ）
 
-## RocketMQ-Spring
+## 1. RocketMQ-Spring
+`yudao-spring-boot-starter-mq`技术组件，基于 RocketMQ 实现分布式消息队列。
 
 ## 2. 使用示例
 

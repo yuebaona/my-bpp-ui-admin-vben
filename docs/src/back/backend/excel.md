@@ -313,7 +313,7 @@ public class ImeiEncrypt {
 | `fillForegroundColor` | 设置前景色 |
 | `shrinkToFit` | 设置自动单元格自动大小 |
 
-#### 4.10 `**@ExcelIgnore**`
+### 4.10 `**@ExcelIgnore**`
 
 不将该字段转换成 Excel。
 

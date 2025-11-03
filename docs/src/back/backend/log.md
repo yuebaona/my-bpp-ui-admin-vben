@@ -96,7 +96,7 @@ outline: deep
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d9878557-374d-444c-bd22-d3a3c8f69a8b.png)
 
-### 3.1 数据库记录
+### 2.1 数据库记录
 
 API 访问日志，记录 API 的每次调用，包括 HTTP 请求、用户、开始时间、时长等等信息。
 
@@ -128,7 +128,7 @@ API 访问日志，记录 API 的每次调用，包括 HTTP 请求、用户
 
 ④ 在 `local` 本地环境下，一般做一些日常开发，使用不到“访问日志”，所以默认在 `application-local.yaml` 配置文件里，我们设置 `bpp.access-log.enable` 为 `false` 默认不记录，大家如果有需要，可以设置为 `true` 打开进行记录。
 
-### 3.2 文件记录
+### 2.2 文件记录
 
 项目还提供了 `ApiAccessLogInterceptor`拦截器，打印 HTTP 请求、参数、耗时到文件（IDEA 控制台）中，方便大家进行调试。如下图所示：
 
@@ -138,7 +138,7 @@ API 访问日志，记录 API 的每次调用，包括 HTTP 请求、用户
 
 另外，考虑到 ApiAccessLogInterceptor 的定位是开发调试，所以 `prod` 生产环境默认不开启噢，当然你也可以按照自己需要修改。
 
-## 4. API 错误日志
+## 3. API 错误日志
 
 API 错误日志，记录每次 API 的异常调用，包括 HTTP 请求、用户、异常的堆栈等等信息。
 

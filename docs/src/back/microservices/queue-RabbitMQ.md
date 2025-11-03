@@ -4,7 +4,7 @@ outline: deep
 
 # 消息队列（RabbitMQ）
 
-## RabbitMQ-Spring
+##  1. RabbitMQ-Spring
 
 `bpp-spring-boot-starter-mq`技术组件，基于 RabbitMQ 实现分布式消息队列。
 
