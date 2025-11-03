@@ -75,8 +75,18 @@ function handleCreate() {
 
 /** 同步钉钉用户信息 */
 async function handleSyncDingUser() {
-  await syncDingUser();
-  handleRefresh();
+  await confirm($t('是否立即执行数据同步？'));
+  const hideLoading = message.loading({
+    content: $t('同步中，请稍候...'),
+    duration: 0,
+  });
+  try{
+    await syncDingUser();
+    message.success($t('同步成功'))
+    handleRefresh();
+  }finally {
+    hideLoading();
+  }
 }
 
 /** 导入用户 */

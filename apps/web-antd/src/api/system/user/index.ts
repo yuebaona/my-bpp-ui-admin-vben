@@ -89,5 +89,5 @@ export function getSimpleUserList() {
 
 /** 从钉钉用户表更新系统用户 */
 export function syncDingUser() {
-  return requestClient.post('/tptc/ding/user/sync');
+  return requestClient.post('/tptc/ding/user/sync', null, {timeout: 1000 * 20});
 }
