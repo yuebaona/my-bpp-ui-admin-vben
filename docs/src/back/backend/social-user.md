@@ -1,0 +1,121 @@
+---
+outline: deep
+---
+
+# 三方登录
+
+系统对接国内多个第三方平台，实现三方登录的功能。例如说：
+
+- 管理后台：企业微信、阿里钉钉
+
+- 用户 App：微信公众号、微信小程序
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/6571190f-1150-4fbf-9b6f-42ddfcd09cd5.png)
+
+**友情提示：为了表述方便，本文主要使用管理后台的三方登录作为示例。**
+
+用户 App 也是支持该功能，你可以自己去体验一下。
+
+## 1. 表结构
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/567c3203-6505-4234-a2b3-330a2a5c3b0e.png)
+
+① 三方登录完成时，系统会将三方用户存储到 `system_social_user`表中，通过 `type`标记对应的第三方平台。
+
+② 【未】关联本系统 User 的三方用户，需要在三方登录完成后，使用账号密码进行「**绑定登录**」，成功后记录到 `system_social_user_bind`表中。
+
+【已】关联本系统 User 的三方用户，在三方登录完成后，直接进入系统，即「**快捷登录**」。
+
+## 2. 绑定登录
+
+① 使用浏览器访问 [http://127.0.0.1:1024/login](http://127.0.0.1:1024/login)地址，点击 \[钉钉\] 或者 \[企业微信\] 进行三方登录。此时，会调用 `/admin-api/system/auth/social-auth-redirect`接口，获得第三方平台的登录地址，并进行跳转。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/04d99c03-51b5-44f4-8355-844357f23182.png)
+
+然后，使用 \[钉钉\] 或者 \[企业微信\] 进行扫码，完成三方登录。
+
+② 三方登录成功后，跳转回 [http://127.0.0.1:1024/social-login](http://127.0.0.1:1024/social-login)地址。此时，会调用 `/admin-api/system/auth/social-login`接口，尝试「快捷登录」。由于该三方用户【未】关联管理后台的 AdminUser 用户，所以会看到 “未绑定账号，需要进行绑定” 报错。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/7a18fbaf-2f2d-4db9-9818-080b2cbb6640.png)
+
+③ 输入账号密码，点击 \[提交\] 按钮，进行「绑定登录」。此时，会调用 `/admin-api/system/auth/login`接口（在账号密码登录的基础上，额外带上 `socialType` + `socialCode` + `socialState` 参数）。成功后，即可进入系统的首页。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/12124c02-fee3-48e1-a469-fa8e7b702879.png)
+
+## 3. 快捷登录
+
+**退出系统，再进行一次三方登录的流程。**
+
+【相同】① 使用浏览器访问 [http://127.0.0.1:1024/login](http://127.0.0.1:1024/login)地址，点击 \[钉钉\] 或者 \[企业微信\] 进行三方登录。此时，会调用 `/admin-api/system/auth/social-auth-redirect`接口，获得第三方平台的登录地址，并进行跳转。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/51a2de25-dfa4-4af6-8354-5c1f631ce5e9.png)
+
+【不同】② 三方登录成功后，跳转回 [http://127.0.0.1:1024/social-login](http://127.0.0.1:1024/social-login)地址。此时，会调用 `/admin-api/system/auth/social-login`接口，尝试「快捷登录」。由于该三方用户【已】关联管理后台的 AdminUser 用户，所以直接进入系统的首页。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/12124c02-fee3-48e1-a469-fa8e7b702879.png)
+
+## 4. 绑定与解绑
+
+访问 [http://127.0.0.1:1024/user/profile](http://127.0.0.1:1024/user/profile)地址，选择 \[社交信息\] 选项，可以三方用户的绑定与解绑。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/eb355d4b-e949-4642-9c4c-2c7d3f9db650.png)
+
+## 5. 配置管理
+
+### 5.1 配置文件
+
+在 `application-{env}.yaml`配置文件中，对应 `justauth` 配置项，填写你的第三方平台的配置信息。
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/189bf6a4-8d39-4583-b782-0b4afe821f37.png)
+
+系统使用 JustAuth 组件，想要对接其它第三方平台，只需要新增对应的配置信息即可。
+
+### 5.2 数据库配置
+
+① `system_social_client` 表，它本质上是 JustAuth 配置的 DB 存储。
+
+主要实现两个目的：
+
+```sql
+CREATE TABLE `system_social_client` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '应用名',
+  `status` tinyint NOT NULL COMMENT '状态',
+  // JustAuth 配置项
+  `social_type` tinyint NOT NULL COMMENT '社交平台的类型',
+  `client_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端编号',
+  `client_secret` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '客户端密钥',
+  `agent_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '代理编号',
+  // 目的 1
+  `tenant_id` bigint NOT NULL DEFAULT '0' COMMENT '租户编号',
+  // 目的 2
+  `user_type` tinyint NOT NULL COMMENT '用户类型',
+  // ... 省略其它非关键字段
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='社交客户端表';
+
+```
+
+1.  在需要 SaaS 多租户的项目中，通过 `tenant_id` 字段隔离，实现不同租户对应不同第三方平台的配置
+
+2.  在多用户类型的项目中，通过 `user_type` 字段区分，实现不同用户类型对应不同第三方平台的配置
+
+注意，`system_social_client` 表的优先级，比 `application-{env}.yaml` 配置文件高！具体逻辑，可见 SocialClientServiceImpl 类的 `#buildAuthRequest(...)` 方法。
+
+② 在 \[系统管理 -> 三方登录 -> 三方应用\] 菜单下，可以进行**当前租户**的 `system_social_client` 表的配置管理。如下图所示：
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d0cc9429-c68c-4ef8-ada7-505e512f47e9.png)
+
+另外，在 \[系统管理 -> 三方登录 -> 三方用户\] 菜单下，可以进行**当前租户**的 `system_social_user` 三方用户表的查询。如下图所示：
+
+![image](http://rsim.portsgmt.com:9001/bgbpp-vben/d82ffb12-dae2-4305-8260-eeb1b95fe569.png)
+
+## 6. 第三方平台的申请
+
+- [阿里钉钉](https://justauth.cn/guide/oauth/dingtalk/)
+
+- [企业微信扫码登录](https://justauth.cn/guide/oauth/wechat_enterprise_qrcode/)
+
+- [微信开放平台](https://justauth.cn/guide/oauth/wechat_open/)
+
+注意，如果第三方平台如果需要配置具体的授信地址，需要添加 `/social-login` 用于三方登录回调页、`/user/profile` 用于三方用户的绑定与解绑。
