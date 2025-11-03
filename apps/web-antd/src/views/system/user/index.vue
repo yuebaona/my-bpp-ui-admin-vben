@@ -80,11 +80,11 @@ async function handleSyncDingUser() {
     content: $t('同步中，请稍候...'),
     duration: 0,
   });
-  try{
+  try {
     await syncDingUser();
-    message.success($t('同步成功'))
+    message.success($t('同步成功'));
     handleRefresh();
-  }finally {
+  } finally {
     hideLoading();
   }
 }
