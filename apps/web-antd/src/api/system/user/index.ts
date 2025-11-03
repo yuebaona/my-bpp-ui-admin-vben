@@ -86,3 +86,10 @@ export function updateUserStatus(id: number, status: number) {
 export function getSimpleUserList() {
   return requestClient.get<SystemUserApi.User[]>('/system/user/simple-list');
 }
+
+/** 从钉钉用户表更新系统用户 */
+export function syncDingUser() {
+  return requestClient.post('/tptc/ding/user/sync', null, {
+    timeout: 1000 * 20,
+  });
+}
