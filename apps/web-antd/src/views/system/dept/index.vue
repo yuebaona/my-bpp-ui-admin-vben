@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemDeptApi } from '#/api/system/dept';
-import type { SystemUserApi } from '#/api/system/user';
+import {syncFromDing, type SystemDeptApi} from '#/api/system/dept';
 
 import { onMounted, ref } from 'vue';
 
@@ -44,6 +43,22 @@ function handleRefresh() {
 /** 创建部门 */
 function handleCreate() {
   formModalApi.setData(null).open();
+}
+
+/** 同步部门 */
+async function handleSync() {
+  await confirm($t('是否立即执行数据同步？'));
+  const hideLoading = message.loading({
+    content: $t('同步中，请稍候...'),
+    duration: 0,
+  });
+  try {
+    await syncFromDing();
+    message.success($t('同步成功'));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
 /** 添加下级部门 */
@@ -146,6 +161,13 @@ onMounted(async () => {
       <template #toolbar-tools>
         <TableAction
           :actions="[
+            {
+              label: $t('同步钉钉架构'),
+              type: 'primary',
+              icon: ACTION_ICON.ADD,
+              auth: ['system:dept:sync'],
+              onClick: handleSync,
+            },
             {
               label: $t('ui.actionTitle.create', ['部门']),
               type: 'primary',
