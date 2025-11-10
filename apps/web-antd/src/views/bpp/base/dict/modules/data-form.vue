@@ -17,7 +17,7 @@ import { $t } from '#/locales';
 
 import { useDataFormSchema } from '../data';
 
-defineOptions({ name: 'SystemDictDataForm' });
+defineOptions({ name: 'BppBaseDictDataForm' });
 
 const emit = defineEmits(['success']);
 const formData = ref<BaseDictDataApi.DictData>();
