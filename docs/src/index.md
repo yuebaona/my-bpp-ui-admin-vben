@@ -14,9 +14,9 @@ hero:
     - theme: brand
       text: 前端指南
       link: /guide/introduction/vben
-    - theme: alt
-      text: 前端组件
-      link: /components/introduction
+#    - theme: alt
+#      text: 前端组件
+#      link: /components/introduction
     - theme: alt
       text: 后端指南
       link: /back/introduction/api
