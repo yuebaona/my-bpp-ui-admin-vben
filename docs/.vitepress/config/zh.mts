@@ -44,6 +44,7 @@ export const zh = defineConfig({
       '/components/': { base: '/components/', items: sidebarComponents() },
       '/guide/': { base: '/guide/', items: sidebarGuide() },
       '/back/': { base: '/back/', items: sidebarBack () },
+      '/bpp-guide/': { base: '/bpp-guide/', items: sidebarBggGuide() },
     },
     sidebarMenuLabel: '菜单',
   },
@@ -140,6 +141,18 @@ function sidebarCommercial(): DefaultTheme.SidebarItem[] {
   ];
 }
 
+function sidebarBggGuide(): DefaultTheme.SidebarItem[] {
+  return [
+    {
+      collapsed: false,
+      text: '使用说明1',
+      items:[
+        { link: 'guide/new-module', text: '新建模块'},
+      ]
+    },
+  ];
+}
+
 function sidebarBack(): DefaultTheme.SidebarItem[] {
   return [
     {
@@ -228,8 +241,6 @@ function sidebarBack(): DefaultTheme.SidebarItem[] {
       { link: 'maintenance/monitor', text: '服务监控'},
     ],
   },
-
-
   ];
 }
 
@@ -327,6 +338,10 @@ function nav(): DefaultTheme.NavItem[] {
       link: '/back/introduction/api',
       text: '后端',
     },
+    {
+      link: '/bpp-guide/guide/new-module',
+      text: '文档使用说明'
+    }
 //     {
 //       text: '演示',
 //       items: [
