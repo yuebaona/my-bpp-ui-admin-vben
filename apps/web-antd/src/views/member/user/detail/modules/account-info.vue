@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MemberUserApi } from '#/api/member/user';
-import type { PayWalletApi } from '#/api/pay/wallet/balance';
+// import type { PayWalletApi } from '#/api/pay/wallet/balance';
 
 import { fenToYuan } from '@vben/utils';
 
@@ -12,7 +12,7 @@ withDefaults(
   defineProps<{
     mode?: 'kefu' | 'member';
     user: MemberUserApi.User;
-    wallet: PayWalletApi.Wallet;
+    // wallet: PayWalletApi.Wallet;
   }>(),
   {
     mode: 'member',

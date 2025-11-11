@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MemberUserApi } from '#/api/member/user';
-import type { PayWalletApi } from '#/api/pay/wallet/balance';
+// import type { PayWalletApi } from '#/api/pay/wallet/balance';
 
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -11,12 +11,12 @@ import { useTabs } from '@vben/hooks';
 import { Button, Card, message, TabPane, Tabs } from 'ant-design-vue';
 
 import { getUser } from '#/api/member/user';
-import { getWallet } from '#/api/pay/wallet/balance';
+// import { getWallet } from '#/api/pay/wallet/balance';
 import { $t } from '#/locales';
 
 import UserAccountInfo from '../components/user-account-info.vue';
 import UserAddressList from '../components/user-address-list.vue';
-import UserBalanceList from '../components/user-balance-list.vue';
+// import UserBalanceList from '../components/user-balance-list.vue';
 import UserBasicInfo from '../components/user-basic-info.vue';
 import UserExperienceRecordList from '../components/user-experience-record-list.vue';
 import UserPointList from '../components/user-point-list.vue';
@@ -33,13 +33,13 @@ const [FormModal, formModalApi] = useVbenModal({
 
 const userId = Number(route.query.id);
 const user = ref<MemberUserApi.User>();
-const wallet = ref<PayWalletApi.Wallet>();
+// const wallet = ref<PayWalletApi.Wallet>();
 /* 钱包初始化数据 */
-const WALLET_INIT_DATA = {
-  balance: 0,
-  totalExpense: 0,
-  totalRecharge: 0,
-} as PayWalletApi.Wallet;
+// const WALLET_INIT_DATA = {
+//   balance: 0,
+//   totalExpense: 0,
+//   totalRecharge: 0,
+// } as PayWalletApi.Wallet;
 
 async function getUserDetail() {
   if (!userId) {
@@ -48,7 +48,7 @@ async function getUserDetail() {
     return;
   }
   user.value = await getUser(userId);
-  wallet.value = (await getWallet({ userId })) || WALLET_INIT_DATA;
+  // wallet.value = (await getWallet({ userId })) || WALLET_INIT_DATA;
 }
 
 function handleEdit() {

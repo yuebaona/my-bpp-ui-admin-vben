@@ -12,9 +12,9 @@ import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getUserPage } from '#/api/member/user';
 import { $t } from '#/locales';
 
-import { CouponSendForm } from '../../mall/promotion/coupon/components';
+// import { CouponSendForm } from '../../mall/promotion/coupon/components';
 import { useGridColumns, useGridFormSchema } from './data';
-import BalanceForm from './modules/balance-form.vue';
+// import BalanceForm from './modules/balance-form.vue';
 import Form from './modules/form.vue';
 import LevelForm from './modules/level-form.vue';
 import PointForm from './modules/point-form.vue';
@@ -31,20 +31,20 @@ const [PointFormModal, pointFormModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-const [BalanceFormModal, balanceFormModalApi] = useVbenModal({
-  connectedComponent: BalanceForm,
-  destroyOnClose: true,
-});
+// const [BalanceFormModal, balanceFormModalApi] = useVbenModal({
+//   connectedComponent: BalanceForm,
+//   destroyOnClose: true,
+// });
 
 const [LevelFormModal, levelFormModalApi] = useVbenModal({
   connectedComponent: LevelForm,
   destroyOnClose: true,
 });
 
-const [CouponSendFormModal, couponSendFormModalApi] = useVbenModal({
-  connectedComponent: CouponSendForm,
-  destroyOnClose: true,
-});
+// const [CouponSendFormModal, couponSendFormModalApi] = useVbenModal({
+//   connectedComponent: CouponSendForm,
+//   destroyOnClose: true,
+// });
 
 /** 刷新表格 */
 function handleRefresh() {
@@ -68,16 +68,16 @@ function handleUpdatePoint(row: MemberUserApi.User) {
 
 /** 修改会员余额 */
 function handleUpdateBalance(row: MemberUserApi.User) {
-  balanceFormModalApi.setData(row).open();
+  // balanceFormModalApi.setData(row).open();
 }
 
 /** 发送优惠券 */
 async function handleSendCoupon() {
-  couponSendFormModalApi
-    .setData({
-      userIds: checkedIds.value,
-    })
-    .open();
+  // couponSendFormModalApi
+  //   .setData({
+  //     userIds: checkedIds.value,
+  //   })
+  //   .open();
 }
 
 const checkedIds = ref<number[]>([]);
