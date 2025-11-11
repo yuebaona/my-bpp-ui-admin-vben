@@ -5,6 +5,7 @@ import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
 import { getCategorySimpleList } from '#/api/bpm/category';
+import { getSimpleProcessDefinitionList } from '#/api/bpm/definition';
 import { getRangePickerDefaultProps } from '#/utils';
 
 /** 列表的搜索表单 */
@@ -20,12 +21,15 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'processDefinitionId',
+      fieldName: 'processDefinitionKey',
       label: '所属流程',
-      component: 'Input',
+      component: 'ApiSelect',
       componentProps: {
-        placeholder: '请输入流程定义的编号',
+        placeholder: '请选择流程定义',
         allowClear: true,
+        api: getSimpleProcessDefinitionList,
+        labelField: 'name',
+        valueField: 'key',
       },
     },
     {
@@ -69,7 +73,6 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       field: 'processInstance.name',
       title: '流程',
       minWidth: 200,
-      fixed: 'left',
     },
     {
       field: 'processInstance.summary',
@@ -87,6 +90,12 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
       field: 'processInstance.startUser.nickname',
       title: '发起人',
       minWidth: 120,
+    },
+    {
+      field: 'processInstance.createTime',
+      title: '发起时间',
+      minWidth: 180,
+      formatter: 'formatDateTime',
     },
     {
       field: 'name',
