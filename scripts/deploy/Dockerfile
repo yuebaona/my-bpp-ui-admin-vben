@@ -19,7 +19,7 @@ RUN pnpm run build --filter=\!./docs
 
 RUN echo "Builder Success 🎉"
 
-FROM swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:stable-alpine AS production
+FROM nginx:stable-alpine AS production
 
 # 配置 nginx
 RUN echo "types { application/javascript js mjs; }" > /etc/nginx/conf.d/mjs.conf \
