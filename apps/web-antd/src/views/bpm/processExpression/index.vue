@@ -22,7 +22,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /** 刷新表格 */
-function onRefresh() {
+function handleRefresh() {
   gridApi.query();
 }
 
@@ -44,10 +44,8 @@ async function handleDelete(row: BpmProcessExpressionApi.ProcessExpression) {
   });
   try {
     await deleteProcessExpression(row.id as number);
-    message.success({
-      content: $t('ui.actionMessage.deleteSuccess', [row.name]),
-    });
-    onRefresh();
+    message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
+    handleRefresh();
   } finally {
     hideLoading();
   }
@@ -74,6 +72,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
       refresh: true,

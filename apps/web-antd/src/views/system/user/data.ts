@@ -26,7 +26,7 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'username',
-      label: '登录名',
+      label: '用户名称',
       component: 'Input',
       rules: 'required',
     },
@@ -42,7 +42,7 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'nickname',
-      label: '用户名',
+      label: '用户昵称',
       component: 'Input',
       rules: 'required',
     },
@@ -194,7 +194,7 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'username',
-      label: '登录名',
+      label: '用户名称',
       component: 'Input',
       componentProps: {
         disabled: true,
@@ -202,7 +202,7 @@ export function useAssignRoleFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'nickname',
-      label: '用户名',
+      label: '用户昵称',
       component: 'Input',
       componentProps: {
         disabled: true,
@@ -251,11 +251,11 @@ export function useImportFormSchema(): VbenFormSchema[] {
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'nickname',
-      label: '用户名',
+      fieldName: 'username',
+      label: '用户名称',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入用户名',
+        placeholder: '请输入用户名称',
         allowClear: true,
       },
     },
@@ -296,12 +296,12 @@ export function useGridColumns(
     },
     {
       field: 'username',
-      title: '登录名',
+      title: '用户名称',
       minWidth: 120,
     },
     {
       field: 'nickname',
-      title: '用户名',
+      title: '用户昵称',
       minWidth: 120,
     },
     {
