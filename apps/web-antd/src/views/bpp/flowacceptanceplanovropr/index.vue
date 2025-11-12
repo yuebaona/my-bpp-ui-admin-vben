@@ -4,7 +4,7 @@ import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { reactive, ref } from 'vue';
 
-import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenModal } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
 
