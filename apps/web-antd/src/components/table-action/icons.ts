@@ -12,5 +12,5 @@ export const ACTION_ICON = {
   COPY: 'lucide:copy',
   AUDIT: 'ant-design:audit-outlined',
   UNDO: 'ant-design:undo-outlined',
-  LOG: 'material-symbols-light:docs-outline'
+  LOG: 'material-symbols-light:docs-outline',
 };
