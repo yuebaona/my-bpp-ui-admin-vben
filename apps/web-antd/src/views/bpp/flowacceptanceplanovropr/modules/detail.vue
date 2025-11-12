@@ -5,6 +5,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { computed, reactive, ref } from 'vue';
+import dayjs from 'dayjs';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -152,6 +153,9 @@ const [Modal, modalApi] = useVbenModal({
         data.acceptancePlanBillMessageRespVO,
       );
       formData.value = data.acceptancePlanRespVO;
+      formData.value.plannedOperationTime = dayjs(
+        formData.value.plannedOperationTime,
+      ).format('YYYY-MM-DD HH:mm:ss');
       const arr = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
       arr.forEach((item: fileVo) => {
         const lastSlashIndex = item.lastIndexOf('/');
