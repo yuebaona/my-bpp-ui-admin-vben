@@ -44,12 +44,12 @@ export const shared = defineConfig({
       },
       provider: 'local',
     },
-    siteTitle: 'BGBPP',
+    siteTitle: '文档中心',
 //     socialLinks: [
 //       { icon: 'github', link: 'https://github.com/vbenjs/vue-vben-admin' },
 //     ],
   },
-  title: 'BGBPP',
+  title: '文档中心',
   vite: {
     build: {
       chunkSizeWarningLimit: Infinity,
