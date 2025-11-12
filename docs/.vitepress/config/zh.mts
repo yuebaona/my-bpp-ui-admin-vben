@@ -368,7 +368,7 @@ function nav(): DefaultTheme.NavItem[] {
     },
     {
       link: '/bpp-guide/module1/document.md',
-      text: '业务系统开发'
+      text: '业务系统文档'
     },
     {
       link: '/introduction/guide/new-module',
