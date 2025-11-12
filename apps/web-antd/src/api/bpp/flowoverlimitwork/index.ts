@@ -1,54 +1,126 @@
-import request from '@/config/axios'
-import type { Dayjs } from 'dayjs';
+import type { PageParam, PageResult } from '@vben/request';
 
-/** 超限作业申请信息 */
-export interface FlowOverlimitWork {
-          id: number; // ID
-          applicationNo: string; // 申请编号
-          applicationCompany: string; // 申请单位代码
-          applicant: string; // 申请人代码
-          shipCode: string; // 船舶代码
-          voyageCode: string; // 航次代码
-          billNo: string; // 提单号
-          cargoName: string; // 货名
-          impExpType: string; // 进出口类别
-          processId: string; // 申请工作流id
+import { requestClient } from '#/api/request';
+
+export namespace FlowOverLimitWorkApi {
+  // 受理计划VO
+  export interface AcceptancePlanVO {
+    id: number;
+    acceptancePlanNo: string;
+    acceptancePlanWebNo: string;
+    applicantCode: string;
+    applicantCompanyName: string;
+    payerCodeGate: string;
+    paymentTypeGate: string;
+    payerCodeSea: string;
+    paymentTypeSea: string;
+    category: string;
+    vesselCode: string;
+    vesselName: string;
+    vesselVoyage: string;
+    plannedOperationTime: string;
+    attachmentFile: string;
+    handlingPerson: string;
+    handlerRemark: string;
+    handlerConfirmation: string;
+    handlerConfirmTime: string;
+    isSystemRate: boolean;
+    planStatus: string;
+    conclusionTime: string;
+    dataSource: string;
+    applicantPlanType: string;
+    applicantType: string;
+    applicantPlanCount: number;
+    applicantPlanStart: string;
+    applicantPlanEnd: string;
+    cargoOwnerCode: string;
+    cargoAgentCode: string;
+    invoiceTitle: string;
+    handlingPhoneNumber: string;
   }
-
-// 超限作业申请 API
-export const FlowOverlimitWorkApi = {
-  // 查询超限作业申请分页
-  getFlowOverlimitWorkPage: async (params: any) => {
-    return await request.get({ url: `/bpp/flow-overlimit-work/page`, params })
-  },
-
-  // 查询超限作业申请详情
-  getFlowOverlimitWork: async (id: number) => {
-    return await request.get({ url: `/bpp/flow-overlimit-work/get?id=` + id })
-  },
-
-  // 新增超限作业申请
-  createFlowOverlimitWork: async (data: FlowOverlimitWork) => {
-    return await request.post({ url: `/bpp/flow-overlimit-work/create`, data })
-  },
-
-  // 修改超限作业申请
-  updateFlowOverlimitWork: async (data: FlowOverlimitWork) => {
-    return await request.put({ url: `/bpp/flow-overlimit-work/update`, data })
-  },
-
-  // 删除超限作业申请
-  deleteFlowOverlimitWork: async (id: number) => {
-    return await request.delete({ url: `/bpp/flow-overlimit-work/delete?id=` + id })
-  },
-
-  /** 批量删除超限作业申请 */
-  deleteFlowOverlimitWorkList: async (ids: number[]) => {
-    return await request.delete({ url: `/bpp/flow-overlimit-work/delete-list?ids=${ids.join(',')}` })
-  },
-
-  // 导出超限作业申请 Excel
-  exportFlowOverlimitWork: async (params) => {
-    return await request.download({ url: `/bpp/flow-overlimit-work/export-excel`, params })
+  // 超限受理计划信息
+  export interface AcceptancePlanOverOperationVO {
+    id: number;
+    isAllowedStacking: boolean;
+    plannedMachineryType: string;
+    acceptancePlanNo: string;
+    processInstanceId: string;
+  }
+  // 超限受理计划箱信息
+  export interface AcceptancePlanOverOperationContainerVO {
+    id: number;
+    containerNo: string;
+    containerSize: string;
+    containerType: string;
+    containerCargoWeight: number;
+    containerTotalWeight: number;
+    containerCargoSize: string;
+    containerOverlimitDetails: string;
+    containerPhysicalStatus: string;
+    containerOperationNode: string;
+    acceptancePlanNo: string;
+    overOperationContainerNo: string;
+    processInstanceId: string;
+    priceSea: number;
+    priceGate: number;
+    machineSpreaderChangeType: string;
+    machineSpreaderType: string;
+    plannedSpreaderType: string;
+  }
+  // 提单信息表
+  export interface AcceptancePlanBillMessageVO {
+    id: number;
+    acceptancePlanNo: string;
+    billNo: string;
+    cargoType: string;
+    cargoName: string;
+    cargoCount: number;
+    billType: string;
+  }
+  // 总数据
+  export interface OverLimitWorkSaveReqVO {
+    acceptancePlanSaveReqVO: AcceptancePlanVO;
+    acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
+    acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
+    acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
+
+// 创建超限受理计划信息
+export const createAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation/create',
+    data,
+  );
+};
+// 修改超限受理计划信息
+export const updateAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
+) => {
+  return requestClient.put(
+    '/bpp/flow/acceptance-plan-over-operation/update',
+    data,
+  );
+};
+// 查询超限受理计划信息详情
+export const getAcceptancePlanOverOperation = (id: number) => {
+  return requestClient.get(
+    `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
+  );
+};
+// 超限受理计划信息分页查询
+export const getAcceptancePlanOverOperationPage = (params: PageParam) => {
+  return requestClient.get<
+    PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>
+  >('/bpp/flow/acceptance-plan-over-operation/page', { params });
+};
+// 超限受理计划信息箱分页查询
+export const getAcceptancePlanOverOperationContainerPage = (
+  params: PageParam,
+) => {
+  return requestClient.get<
+    PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>
+  >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
+};

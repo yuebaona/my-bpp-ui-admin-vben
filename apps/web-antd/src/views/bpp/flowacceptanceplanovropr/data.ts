@@ -1,116 +1,409 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { DescriptionItemSchema } from '#/components/description';
 
+import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
 
-// 超限作业申请数据类型
-export interface OverLimitPlan {
-  id: number;
-  acceptance_plan_no: string;
-  acceptance_plan_webno: string;
-  applicant_code: string;
-  applicant_company_name: string;
-  payer_code: string;
-  payer_name: string;
-  payment_type: string;
-  category: string;
-  vessel_code: string;
-  vessel_name: string;
-  voyage_code: string;
-  voyage_no: string;
-  planned_operation_time: string;
-  is_jc: string;
-  bill_no: string;
-  cargo_name: string;
-  attachment_file: string;
-  handling_person: string;
-  handler_remark: string;
-  handler_confirmation: string;
-  res_confirm_time: string;
-  is_allowed: string;
-  allowed_time: string;
-  planned_machinery_type: string;
-  planned_spreader_type: string;
-  system_rate: string;
-  plan_price: number;
-  plan_status: string;
-  approval_workflow_current_node: string;
-  appro_workflow_current_status: string;
-  appr_result: string;
-  approval_workflow_next_node: string;
-  submission_time: string;
-  workflow_com_time: string;
-  creator: string;
-  create_time: string;
-  updater: string;
-  update_time: string;
-  deleted: number;
-  tenant_id: number;
+export interface fileVo {
+  fileName: string;
+  fileUrl: string;
 }
-
-// 箱列表数据类型
-export interface BoxData {
-  id: number;
-  container_no: string;
-  container_size: string;
-  container_type: string;
-  container_cargo_weight_kg: number;
-  container_total_weight_kg: number;
-  container_cargo_size_cm: string;
-  container_overlimit_details: string;
-  container_physical_status: string;
-  container_node: string;
-  acceptance_plan_no: string;
-  spreader_operation_id: number;
-  creator: string;
-  create_time: string;
-  updater: string;
-  update_time: string;
-  deleted: number;
-  tenant_id: number;
-}
-// 变更吊具记录数据类型
-export interface ToolChangeRecord {
-  id: number;
-  global_id: string;
-  operation_type: string;
-  drive_source: string;
-  change_reason: string;
-  vessel_code: string;
-  voyage_code: string;
-  container_no: string;
-  operation_position: string;
-  machine_type: string;
-  machine_no: string;
-  spreader_type: string;
-  start_time: string;
-  end_time: string;
-  operation_file: string;
-  remark: string;
-  container_over_id: number;
-  machine_stop_id: number;
-  creator: string;
-  create_time: string;
-  updater: string;
-  update_time: string;
-  deleted: number;
-  tenant_id: number;
-}
-
-/** 超限作业申请列表的搜索表单 */
-export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
+export function containerInfoColumns(): VxeTableGridOptions['columns'] {
   return [
     {
-      fieldName: 'acceptance_plan_no',
+      title: '序号',
+      field: 'serialNumber',
+      type: 'seq',
+      minWidth: 80,
+      slots: { footer: 'serialNumber' },
+    },
+    {
+      title: '箱号',
+      field: 'containerNo',
+      minWidth: 120,
+      editRender: { name: 'input' },
+      formatter({ cellValue }) {
+        // 小写字母转换成大写字母
+        return cellValue.toUpperCase();
+      },
+    },
+    {
+      title: '尺寸',
+      field: 'containerSize',
+      minWidth: 80,
+      editRender: {
+        name: 'select',
+        options: [
+          { label: '20', value: '20' },
+          { label: '40', value: '40' },
+        ],
+      },
+    },
+    {
+      title: '箱型',
+      field: 'containerType',
+      minWidth: 80,
+      editRender: {
+        name: 'select',
+        options: [
+          { label: 'FR', value: 'FR' },
+          { label: 'OT', value: 'OT' },
+        ],
+      },
+    },
+    {
+      title: '货重KG',
+      field: 'containerCargoWeight',
+      minWidth: 100,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '箱货总重KG',
+      field: 'containerTotalWeight',
+      minWidth: 120,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '货物尺寸CM',
+      field: 'containerCargoSize',
+      minWidth: 120,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '超限明细CM',
+      field: 'containerOverlimitDetails',
+      minWidth: 120,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '操作',
+      minWidth: 120,
+      slots: { default: 'actions' },
+      fixed: 'right',
+    },
+  ];
+}
+export function containerInfoDetailColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '序号',
+      field: 'serialNumber',
+      type: 'seq',
+      minWidth: 80,
+      slots: { footer: 'serialNumber' },
+    },
+    {
+      title: '箱号',
+      field: 'containerNo',
+      minWidth: 120,
+    },
+    {
+      title: '尺寸',
+      field: 'containerSize',
+      minWidth: 80,
+    },
+    {
+      title: '箱型',
+      field: 'containerType',
+      minWidth: 80,
+    },
+    {
+      title: '货重KG',
+      field: 'containerCargoWeight',
+      minWidth: 100,
+    },
+    {
+      title: '箱货总重KG',
+      field: 'containerTotalWeight',
+      minWidth: 120,
+    },
+    {
+      title: '货物尺寸CM',
+      field: 'containerCargoSize',
+      minWidth: 120,
+    },
+    {
+      title: '超限明细CM',
+      field: 'containerOverlimitDetails',
+      minWidth: 120,
+    },
+  ];
+}
+// 附件详情
+export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '序号',
+      field: 'serialNumber',
+      type: 'seq',
+      minWidth: 80,
+    },
+    {
+      title: '附件名称',
+      field: 'fileName',
+      minWidth: 120,
+    },
+    {
+      title: '附件地址',
+      field: 'filePath',
+      minWidth: 80,
+    },
+    {
+      title: '操作',
+      minWidth: 120,
+      slots: { default: 'actions' },
+      fixed: 'right',
+    },
+  ];
+}
+export function acceptancePlanFormSchema(): VbenFormSchema[] {
+  return [
+    // 基本信息
+    {
+      fieldName: 'basic',
+      component: 'none',
+      label: '基础信息',
+      formItemClass: 'md:col-span-2',
+    },
+    {
+      fieldName: 'acceptancePlanWebNo',
       label: '申请编号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入编号',
+        placeholder: '请输入申请编号',
         allowClear: true,
       },
     },
     {
-      fieldName: 'vessel_name',
+      fieldName: 'applicantCompanyName',
+      label: '申请公司名称',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入申请公司名称',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'handlingPerson',
+      label: '经办人',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入经办人',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'handlingPhoneNumber',
+      label: '经办人联系电话',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入经办人联系电话',
+        allowClear: true,
+      },
+      // 更严格的手机号码校验
+      rules: z
+        .string()
+        .min(11, '手机号码必须是11位')
+        .max(11, '手机号码必须是11位')
+        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码格式'),
+    },
+    {
+      fieldName: 'paymentTypeSea',
+      label: '缴费方式（海侧）',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '现结', value: 'cash' },
+          { label: '账期', value: 'credit' },
+          { label: '现付', value: 'spot' },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'payerCodeSea',
+      label: '缴费方（海侧）',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入缴费方（海侧）',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'paymentTypeGate',
+      label: '缴费方式（陆侧）',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '月结', value: 'export' },
+          { label: '预收', value: 'import' },
+          { label: '现结', value: 'transit' },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'payerCodeGate',
+      label: '缴费方（陆侧）',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入缴费方（海侧）',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'category',
+      label: '进出口类别',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '收箱出口', value: 'export' },
+          { label: '卸船进口提箱', value: 'import' },
+          { label: '海运中转', value: 'transit' },
+          { label: '船翻倒', value: 'additional' },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'vesselName',
+      label: '作业船名（中文名称）',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业船名（中文名称）',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'vesselVoyage',
+      label: '作业航次',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业航次',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'plannedOperationTime',
+      label: '预计作业时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        placeholder: '请选择预计作业时间',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'divider',
+      component: 'Divider',
+      formItemClass: 'w-full p-0 md:col-span-2',
+    },
+    // 箱信息
+    {
+      fieldName: 'basic',
+      component: 'none',
+      label: '箱货信息',
+      formItemClass: 'md:col-span-2',
+    },
+    {
+      fieldName: 'billNo',
+      label: '提单号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入提单号',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'cargoName',
+      label: '货名',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入货名',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'containerInfo',
+      component: 'none',
+      label: '箱信息',
+      formItemClass: 'w-full p-0 md:col-span-2',
+      rules: 'required',
+    },
+    // 附件
+    {
+      fieldName: 'attachmentFile',
+      label: '附件',
+      component: 'Upload',
+      formItemClass: 'mt-3',
+      rules: 'required',
+    },
+    {
+      fieldName: 'divider',
+      component: 'Divider',
+      formItemClass: 'w-full p-0 md:col-span-2',
+    },
+    {
+      fieldName: 'handlerConfirmInfo',
+      component: 'none',
+      label: '经办人确认信息',
+      formItemClass: 'w-full p-0 md:col-span-2',
+    },
+    {
+      fieldName: 'handlerRemark',
+      label: '经办人备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入经办人备注',
+        allowClear: true,
+      },
+      formItemClass: 'w-full p-0 md:col-span-2 my-3',
+      rules: 'required',
+    },
+    {
+      fieldName: 'handlerConfirmation',
+      label: ' 经办人确认',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入经办人确认',
+        allowClear: true,
+      },
+      formItemClass: 'w-full p-0 md:col-span-2 my-3',
+      rules: 'required',
+    },
+    {
+      fieldName: 'handlingPersonLast',
+      label: '经办人：',
+      component: 'text',
+    },
+    {
+      fieldName: 'handlerConfirmTime',
+      label: '时间：',
+      component: 'text',
+    },
+  ];
+}
+/** 超限作业申请列表的搜索表单 */
+export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'acceptancePlanWebNo',
+      label: '线上申请编号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入线上申请编号',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'vesselName',
       label: '作业船名',
       component: 'Input',
       componentProps: {
@@ -119,7 +412,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'voyage_no',
+      fieldName: 'vesselVoyage',
       label: '作业航次',
       component: 'Input',
       componentProps: {
@@ -128,7 +421,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'bill_no',
+      fieldName: 'billNo',
       label: '提单号',
       component: 'Input',
       componentProps: {
@@ -137,7 +430,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'applicant_company_name',
+      fieldName: 'applicantCompanyName',
       label: '申请单位',
       component: 'Input',
       componentProps: {
@@ -146,16 +439,16 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'applicant_company_name',
+      fieldName: 'cargoOwnerCode',
       label: '箱号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入箱号',
+        placeholder: '请输箱号',
         allowClear: true,
       },
     },
     {
-      fieldName: 'submission_time',
+      fieldName: 'submissionTime',
       label: '提交时间',
       component: 'RangePicker',
       componentProps: {
@@ -164,7 +457,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'appr_workflow_com_time',
+      fieldName: 'conclusionTime',
       label: '审结时间',
       component: 'RangePicker',
       componentProps: {
@@ -180,223 +473,146 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
-      field: 'id',
-      title: 'ID',
-      minWidth: 80,
+      field: 'acceptancePlanNo',
+      title: '申请编号',
+      minWidth: 120,
     },
     {
-      field: 'acceptance_plan_no',
-      title: '受理计划编号',
-      minWidth: 180,
-    },
-    {
-      field: 'acceptance_plan_webno',
-      title: '受理计划Web编号',
+      field: 'acceptancePlanWebNo',
+      title: '网上编号',
       minWidth: 150,
     },
     {
-      field: 'applicant_code',
-      title: '申请人代码',
-      minWidth: 120,
-    },
-    {
-      field: 'applicant_company_name',
-      title: '申请公司名称',
+      field: 'applicantCompanyName',
+      title: '申请单位',
       minWidth: 150,
     },
     {
-      field: 'payer_code',
-      title: '付款方代码',
+      field: 'applicantCode',
+      title: '申请人',
       minWidth: 120,
     },
     {
-      field: 'payer_name',
-      title: '付款方名称',
-      minWidth: 120,
-    },
-    {
-      field: 'payment_type',
-      title: '付款方式',
-      minWidth: 100,
-    },
-    {
-      field: 'category',
-      title: '类型',
-      minWidth: 80,
-    },
-    {
-      field: 'vessel_code',
-      title: '船舶代码',
-      minWidth: 120,
-    },
-    {
-      field: 'vessel_name',
+      field: 'vesselName',
       title: '作业船名',
       minWidth: 120,
     },
     {
-      field: 'voyage_code',
-      title: '航次代码',
-      minWidth: 100,
-    },
-    {
-      field: 'voyage_no',
+      field: 'vesselVoyage',
       title: '作业航次',
       minWidth: 100,
     },
     {
-      field: 'planned_operation_time',
-      title: '预计作业时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
+      field: 'category',
+      title: '进出口类别',
+      minWidth: 100,
     },
     {
-      field: 'is_jc',
-      title: '是否JC',
-      minWidth: 80,
+      field: 'vesselCode',
+      title: '作业船名代码',
+      minWidth: 120,
     },
     {
-      field: 'bill_no',
+      field: 'billNo',
       title: '提单号',
-      minWidth: 150,
+      minWidth: 120,
     },
     {
-      field: 'cargo_name',
+      field: 'cargoName',
       title: '货名',
       minWidth: 120,
     },
     {
-      field: 'attachment_file',
-      title: '附件',
-      minWidth: 100,
+      field: 'payerCodeSea',
+      title: '海侧缴费方',
+      minWidth: 120,
     },
     {
-      field: 'handling_person',
+      field: 'paymentTypeSea',
+      title: '海侧缴费方式',
+      minWidth: 120,
+    },
+    {
+      field: 'payerCodeGate',
+      title: '陆侧缴费方',
+      minWidth: 120,
+    },
+    {
+      field: 'paymentTypeGate',
+      title: '陆侧缴费方式',
+      minWidth: 120,
+    },
+    {
+      field: 'handlingPerson',
       title: '经办人',
       minWidth: 100,
     },
     {
-      field: 'handler_remark',
-      title: '经办人备注',
-      minWidth: 120,
-    },
-    {
-      field: 'handler_confirmation',
-      title: '经办人确认',
+      field: 'isSystemRate',
+      title: '是否系统费率',
       minWidth: 100,
     },
     {
-      field: 'res_confirm_time',
-      title: '经办人确认时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'is_allowed',
-      title: '是否允许',
-      minWidth: 100,
-    },
-    {
-      field: 'allowed_time',
-      title: '允许时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'planned_machinery_type',
-      title: '预计机械类型',
-      minWidth: 120,
-    },
-    {
-      field: 'planned_spreader_type',
-      title: '预计吊具类型',
-      minWidth: 120,
-    },
-    {
-      field: 'system_rate',
-      title: '系统费率',
-      minWidth: 100,
-    },
-    {
-      field: 'plan_price',
-      title: '报价金额',
-      minWidth: 100,
-    },
-    {
-      field: 'plan_status',
+      field: 'planStatus',
       title: '受理状态',
       minWidth: 100,
     },
     {
-      field: 'approval_workflow_current_node',
-      title: '审批工作流当前节点',
-      minWidth: 150,
-    },
-    {
-      field: 'appro_workflow_current_status',
-      title: '审批工作流当前状态',
-      minWidth: 150,
-    },
-    {
-      field: 'appr_result',
-      title: '审批结果',
+      field: 'auditNode',
+      title: '审批节点',
       minWidth: 100,
     },
     {
-      field: 'approval_workflow_next_node',
-      title: '审批工作流下一节点',
-      minWidth: 150,
+      field: 'auditNodeStatus',
+      title: '审批状态',
+      minWidth: 100,
     },
     {
-      field: 'submission_time',
+      field: 'auditComment',
+      title: '审批意见',
+      minWidth: 180,
+    },
+    {
+      field: 'nextNode',
+      title: '下一节点',
+      minWidth: 100,
+    },
+    {
+      field: 'submissionTime',
       title: '提交时间',
       minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
-      field: 'workflow_com_time',
-      title: '工作流完成时间',
+      field: 'conclusionTime',
+      title: '审结时间',
       minWidth: 180,
       formatter: 'formatDateTime',
-    },
-    {
-      field: 'creator',
-      title: '创建人',
-      minWidth: 100,
-    },
-    {
-      field: 'create_time',
-      title: '创建时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'updater',
-      title: '更新人',
-      minWidth: 100,
-    },
-    {
-      field: 'update_time',
-      title: '更新时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'deleted',
-      title: '删除标记',
-      minWidth: 80,
-    },
-    {
-      field: 'tenant_id',
-      title: '租户ID',
-      minWidth: 80,
     },
     {
       title: '操作',
-      width: 150,
+      width: 200,
       fixed: 'right',
       slots: { default: 'actions' },
     },
+  ];
+}
+// 超限作业申请详情字段
+export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
+  return [
+    // 基础信息
+    { field: 'acceptancePlanNo', label: '申请编号' },
+    { field: 'applicantCompanyName', label: '申请公司名称' },
+    { field: 'handlingPerson', label: '经办人' },
+    { field: 'handlingPhoneNumber', label: '经办人联系电话' },
+    { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
+    { field: 'payerCodeSea', label: '缴费方（海侧）' },
+    { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
+    { field: 'payerCodeGate', label: '缴费方（陆侧）' },
+    { field: 'category', label: '进出口类别' },
+    { field: 'vesselName', label: '作业船名（中文名称）' },
+    { field: 'vesselVoyage', label: '作业航次' },
+    { field: 'plannedOperationTime', label: '预计作业时间' },
   ];
 }
 
@@ -408,102 +624,49 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       width: 40,
     },
     {
-      field: 'container_no',
+      field: 'containerNo',
       title: '箱号',
       minWidth: 150,
     },
     {
-      field: 'container_size',
+      field: 'containerSize',
       title: '尺寸',
       minWidth: 100,
     },
     {
-      field: 'container_type',
+      field: 'containerType',
       title: '箱型',
       minWidth: 100,
     },
     {
-      field: 'container_cargo_weight_kg',
+      field: 'containerCargoWeight',
       title: '货物重KG',
       minWidth: 100,
     },
     {
-      field: 'container_total_weight_kg',
+      field: 'containerTotalWeight',
       title: '箱货总重KG',
       minWidth: 100,
     },
     {
-      field: 'container_cargo_size_cm',
+      field: 'containerCargoSize',
       title: '货物尺寸CM',
       minWidth: 120,
     },
     {
-      field: 'container_overlimit_details',
+      field: 'containerOverlimitDetails',
       title: '超限明细CM',
       minWidth: 150,
     },
     {
-      field: 'container_physical_status',
+      field: 'containerPhysicalStatus',
       title: '受理节点时箱物理状态',
       minWidth: 150,
     },
     {
-      field: 'container_node',
-      title: '现场操作当前节点',
+      field: 'containerOperationNode',
+      title: '现场作业节点',
       minWidth: 150,
-    },
-    {
-      field: 'acceptance_plan_no',
-      title: '受理计划唯一标识',
-      minWidth: 200,
-    },
-    {
-      field: 'spreader_operation_id',
-      title: '变更吊具操作记录标识',
-      minWidth: 150,
-    },
-    {
-      field: 'id',
-      title: '主键',
-      minWidth: 80,
-    },
-    {
-      field: 'creator',
-      title: '创建人',
-      minWidth: 120,
-    },
-    {
-      field: 'create_time',
-      title: '创建时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'updater',
-      title: '更新人',
-      minWidth: 120,
-    },
-    {
-      field: 'update_time',
-      title: '更新时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'deleted',
-      title: '删除标记',
-      minWidth: 80,
-    },
-    {
-      field: 'tenant_id',
-      title: '租户ID',
-      minWidth: 80,
-    },
-    {
-      title: '操作',
-      width: 150,
-      fixed: 'right',
-      slots: { default: 'actions' },
     },
   ];
 }
@@ -520,74 +683,74 @@ export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 80,
     },
     {
-      field: 'global_id',
+      field: 'globalId',
       title: '全局唯一标识',
       minWidth: 150,
     },
     {
-      field: 'operation_type',
+      field: 'operationType',
       title: '现场作业类别',
       minWidth: 120,
     },
     {
-      field: 'drive_source',
+      field: 'driveSource',
       title: '驱动源',
       minWidth: 100,
     },
     {
-      field: 'change_reason',
+      field: 'changeReason',
       title: '变更原因',
       minWidth: 120,
     },
     {
-      field: 'vessel_code',
+      field: 'vesselCode',
       title: '作业船名',
       minWidth: 100,
     },
     {
-      field: 'voyage_code',
+      field: 'voyageCode',
       title: '作业航次',
       minWidth: 100,
     },
     {
-      field: 'container_no',
+      field: 'containerNo',
       title: '箱号',
       minWidth: 150,
     },
     {
-      field: 'operation_position',
+      field: 'operationPosition',
       title: '作业位置',
       minWidth: 100,
     },
     {
-      field: 'machine_type',
+      field: 'machineType',
       title: '作业机械类别',
       minWidth: 120,
     },
     {
-      field: 'machine_no',
+      field: 'machineNo',
       title: '作业机械号',
       minWidth: 120,
     },
     {
-      field: 'spreader_type',
+      field: 'spreaderType',
       title: '作业吊具类型',
       minWidth: 120,
     },
     {
-      field: 'start_time',
+      field: 'startTime',
       title: '换吊具开始时间',
       minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
-      field: 'end_time',
+      field: 'endTime',
       title: '换吊具结束时间',
       minWidth: 180,
       formatter: 'formatDateTime',
     },
     {
-      field: 'operation_file',
+      field: 'operationFile',
       title: '现场图片',
       minWidth: 100,
     },
@@ -597,12 +760,12 @@ export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 150,
     },
     {
-      field: 'container_over_id',
+      field: 'containerOverId',
       title: '关联箱计划标识',
       minWidth: 120,
     },
     {
-      field: 'machine_stop_id',
+      field: 'machineStopId',
       title: '关联机械停止标识',
       minWidth: 120,
     },

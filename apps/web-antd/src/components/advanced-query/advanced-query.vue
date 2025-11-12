@@ -392,7 +392,7 @@ const handleQuery = () => {
 }
 
 .advanced-query-component {
-  @apply mx-auto w-full max-w-[1200px] rounded-md bg-white shadow-md;
+  @apply mx-auto w-full rounded-md bg-white shadow-md;
 }
 
 /* 条件容器 */
