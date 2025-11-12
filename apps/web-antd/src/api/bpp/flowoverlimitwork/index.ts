@@ -26,7 +26,6 @@ export namespace FlowOverLimitWorkApi {
     handlerConfirmTime: string;
     isSystemRate: boolean;
     planStatus: string;
-    submissionTime: string;
     conclusionTime: string;
     dataSource: string;
     applicantPlanType: string;
@@ -37,13 +36,13 @@ export namespace FlowOverLimitWorkApi {
     cargoOwnerCode: string;
     cargoAgentCode: string;
     invoiceTitle: string;
+    handlingPhoneNumber: string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
     id: number;
     isAllowedStacking: boolean;
     plannedMachineryType: string;
-    plannedSpreaderType: string;
     acceptancePlanNo: string;
     processInstanceId: string;
   }
@@ -66,6 +65,7 @@ export namespace FlowOverLimitWorkApi {
     priceGate: number;
     machineSpreaderChangeType: string;
     machineSpreaderType: string;
+    plannedSpreaderType: string;
   }
   // 提单信息表
   export interface AcceptancePlanBillMessageVO {
@@ -79,12 +79,13 @@ export namespace FlowOverLimitWorkApi {
   }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
-    AcceptancePlanVO: AcceptancePlanVO;
-    AcceptancePlanOverOperationVO: AcceptancePlanOverOperationVO;
-    AcceptancePlanOverOperationContainerVO: AcceptancePlanOverOperationContainerVO[];
-    AcceptancePlanBillMessageVO: AcceptancePlanBillMessageVO;
+    acceptancePlanSaveReqVO: AcceptancePlanVO;
+    acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
+    acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
+    acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
+
 // 创建超限受理计划信息
 export const createAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
@@ -114,4 +115,12 @@ export const getAcceptancePlanOverOperationPage = (params: PageParam) => {
   return requestClient.get<
     PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>
   >('/bpp/flow/acceptance-plan-over-operation/page', { params });
+};
+// 超限受理计划信息箱分页查询
+export const getAcceptancePlanOverOperationContainerPage = (
+  params: PageParam,
+) => {
+  return requestClient.get<
+    PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>
+  >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
 };
