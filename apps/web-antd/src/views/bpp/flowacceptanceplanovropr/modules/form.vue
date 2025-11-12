@@ -411,14 +411,14 @@ const handleUpload = async (data: any) => {
           <FileUpload
             :multiple="true"
             :accept="[
-              '.doc',
-              '.docx',
-              '.xls',
-              '.xlsx',
-              '.pdf',
-              '.jpg',
-              '.jpeg',
-              '.png',
+              'doc',
+              'docx',
+              'xls',
+              'xlsx',
+              'pdf',
+              'jpg',
+              'jpeg',
+              'png',
               'JPG',
             ]"
             :show-description="true"
