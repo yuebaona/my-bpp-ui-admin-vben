@@ -10,7 +10,6 @@ import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
 import { Button, message } from 'ant-design-vue';
-import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -362,7 +361,7 @@ const handleUpload = async (data: any) => {
 </script>
 
 <template>
-  <Modal :title="modalTitle" width="1200px">
+  <Modal :title="modalTitle">
     <Form>
       <template #containerInfo>
         <div class="mt-4 w-full">
@@ -430,15 +429,6 @@ const handleUpload = async (data: any) => {
       <template #handlingPersonLast>
         <span class="text-gray-600" v-if="formData && formData.handlingPerson">
           {{ formData.handlingPerson }}
-        </span>
-      </template>
-      <template #handlerConfirmTime>
-        <span
-          class="jus flex text-gray-600"
-          v-if="formData && formData.plannedOperationTime"
-          >{{
-            dayjs(formData.plannedOperationTime).format('YYYY-MM-DD HH:mm:ss')
-          }}
         </span>
       </template>
     </Form>
