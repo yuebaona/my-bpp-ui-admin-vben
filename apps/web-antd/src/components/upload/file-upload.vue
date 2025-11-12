@@ -8,7 +8,7 @@ import type { AxiosProgressEvent } from '#/api/infra/file';
 
 import { ref, toRefs, watch } from 'vue';
 
-import { CloudUpload } from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 import { isFunction, isObject, isString } from '@vben/utils';
 
@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<FileUploadProps>(), {
   disabled: false,
   helpText: '',
   maxSize: 2,
-  maxNumber: 1,
+  maxNumber: 9,
   accept: () => [],
   multiple: false,
   api: undefined,
@@ -181,16 +181,15 @@ function getValue() {
     >
       <div v-if="fileList && fileList.length < maxNumber">
         <Button>
-          <CloudUpload />
-          {{ $t('ui.upload.upload') }}
+          <template #icon>
+            <IconifyIcon icon="octicon:upload-16" style="font-size: 16px" />
+          </template>
+          上传附件
         </Button>
       </div>
-      <div v-if="showDescription" class="mt-2 flex flex-wrap items-center">
-        请上传不超过
-        <div class="text-primary mx-1 font-bold">{{ maxSize }}MB</div>
-        的
-        <div class="text-primary mx-1 font-bold">{{ accept.join('/') }}</div>
-        格式文件
+      <div v-if="showDescription" class="mt-1 block text-sm text-gray-400">
+        请上传不超过{{ maxSize }}MB的文件
+        <div>支持扩展名：{{ accept.join(' ') }}</div>
       </div>
     </Upload>
   </div>
