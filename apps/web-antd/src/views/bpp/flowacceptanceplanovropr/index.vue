@@ -11,6 +11,7 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   getAcceptancePlanOverOperation,
+  getAcceptancePlanOverOperationContainerPage,
   getAcceptancePlanOverOperationPage,
 } from '#/api/bpp/flowoverlimitwork';
 import { advancedButton } from '#/components/advanced-button';
@@ -36,10 +37,6 @@ const [FormModal, formModalApi] = useVbenModal({
 const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
-});
-const acceptancePlanOverOperationContainerData = reactive({
-  list: [] as FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[],
-  total: 0,
 });
 
 /** 刷新表格 */
@@ -68,8 +65,15 @@ const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 };
 
 const checkedIds = ref<number[]>([]);
-function handleRowCheckboxChange({ records }: { records: OverLimitPlan[] }) {
+const acceptancePlanNo = ref<number[]>([]);
+function handleRowCheckboxChange({
+  records,
+}: {
+  records: FlowOverLimitWorkApi.AcceptancePlanVO[];
+}) {
   checkedIds.value = records.map((item) => item.id);
+  acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+  boxGridApi.query();
 }
 
 // 高级查询处理函数
@@ -109,12 +113,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          const res = await getAcceptancePlanOverOperationPage({
+          return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
           });
-          return res;
         },
       },
     },
@@ -126,7 +129,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 // 箱列表表格配置
-const [BoxGrid] = useVbenVxeGrid({
+const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useBoxGridColumns(),
     height: 'auto',
@@ -144,9 +147,22 @@ const [BoxGrid] = useVbenVxeGrid({
       enabled: true,
     },
     proxyConfig: {
+      autoLoad: false,
+      manual: true,
       ajax: {
-        query: async () => {
-          return acceptancePlanOverOperationContainerData.value;
+        query: async ({ page }, formValues) => {
+          if (acceptancePlanNo.value.length > 0) {
+            formValues.acceptancePlanNos = acceptancePlanNo.value;
+          }
+          if (formValues?.acceptancePlanNos?.length > 0) {
+            return await getAcceptancePlanOverOperationContainerPage({
+              pageNo: page.currentPage,
+              pageSize: page.pageSize,
+              ...formValues,
+            });
+          }
+          // 无参数时返回空数据（确保界面显示空）
+          return { list: [], total: 0 };
         },
       },
     },
@@ -350,8 +366,6 @@ const adcancedQueryModalOpen = () => {
         </BoxGrid>
       </div>
       <div class="ml-3 w-1/2">
-        <!-- 变更吊具记录头部选项 -->
-
         <!-- 变更吊具记录表格 -->
         <ToolChangeGrid table-title="变更吊具记录">
           <template #toolbar-tools>
