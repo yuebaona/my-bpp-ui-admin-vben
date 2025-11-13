@@ -183,8 +183,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 <template>
   <Page auto-content-height>
-    <template #doc> </template>
-
     <FormModal @success="handleRefresh" />
     <DetailModal />
     <Grid table-title="定时任务列表">

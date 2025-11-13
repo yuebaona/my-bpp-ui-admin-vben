@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { Demo01ContactApi } from '#/api/infra/demo/demo01';
 
-import { h, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { ContentWrap, Page, useVbenModal } from '@vben/common-ui';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
-import { Download, Plus, Trash2 } from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 import { useTableToolbar, VbenVxeTableToolbar } from '@vben/plugins/vxe-table';
 import {
   cloneDeep,
@@ -32,7 +32,6 @@ import {
   exportDemo01Contact,
   getDemo01ContactPage,
 } from '#/api/infra/demo/demo01';
-import { ContentWrap } from '#/components/content-wrap';
 import { DictTag } from '#/components/dict-tag';
 import { $t } from '#/locales';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -88,7 +87,7 @@ const [FormModal, formModalApi] = useVbenModal({
 
 /** 创建示例联系人 */
 function handleCreate() {
-  formModalApi.setData({}).open();
+  formModalApi.setData(null).open();
 }
 
 /** 编辑示例联系人 */
@@ -104,7 +103,7 @@ async function handleDelete(row: Demo01ContactApi.Demo01Contact) {
     key: 'action_process_msg',
   });
   try {
-    await deleteDemo01Contact(row.id as number);
+    await deleteDemo01Contact(row.id!);
     message.success({
       content: $t('ui.actionMessage.deleteSuccess', [row.id]),
       key: 'action_process_msg',
@@ -142,7 +141,7 @@ function handleRowCheckboxChange({
 }
 
 /** 导出表格 */
-async function onExport() {
+async function handleExport() {
   try {
     exportLoading.value = true;
     const data = await exportDemo01Contact(queryParams);
@@ -219,25 +218,24 @@ onMounted(() => {
         >
           <Button
             class="ml-2"
-            :icon="h(Plus)"
             type="primary"
             @click="handleCreate"
             v-access:code="['infra:demo01-contact:create']"
           >
+            <IconifyIcon icon="lucide:plus" />
             {{ $t('ui.actionTitle.create', ['示例联系人']) }}
           </Button>
           <Button
-            :icon="h(Download)"
             type="primary"
             class="ml-2"
             :loading="exportLoading"
-            @click="onExport"
+            @click="handleExport"
             v-access:code="['infra:demo01-contact:export']"
           >
+            <IconifyIcon icon="lucide:download" />
             {{ $t('ui.actionTitle.export') }}
           </Button>
           <Button
-            :icon="h(Trash2)"
             type="primary"
             danger
             class="ml-2"
@@ -245,6 +243,7 @@ onMounted(() => {
             @click="handleDeleteBatch"
             v-access:code="['infra:demo01-contact:delete']"
           >
+            <IconifyIcon icon="lucide:trash-2" />
             批量删除
           </Button>
         </VbenVxeTableToolbar>

@@ -1,6 +1,5 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemSocialUserApi } from '#/api/system/social/user';
 import type { DescriptionItemSchema } from '#/components/description';
 
 import { h } from 'vue';
@@ -8,9 +7,10 @@ import { h } from 'vue';
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
 
-import { getRangePickerDefaultProps } from '#/utils';
+import { Image } from 'ant-design-vue';
 
 import { DictTag } from '#/components/dict-tag';
+import { getRangePickerDefaultProps } from '#/utils';
 
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
@@ -112,10 +112,10 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'type',
       label: '社交平台',
-      content: (data: SystemSocialUserApi.SocialUser) => {
+      render: (val) => {
         return h(DictTag, {
           type: DICT_TYPE.SYSTEM_SOCIAL_TYPE,
-          value: data?.type,
+          value: val,
         });
       },
     },
@@ -126,20 +126,7 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     {
       field: 'avatar',
       label: '用户头像',
-      content: (data: SystemSocialUserApi.SocialUser) => {
-        if (data?.avatar) {
-          // TODO @芋艿：使用 antd 的 Image 组件
-          return h('img', {
-            src: data.avatar,
-            style: 'width: 30px; height: 30px; cursor: pointer;',
-            onClick: () => {
-              // 可以添加图片预览功能
-              window.open(data.avatar, '_blank');
-            },
-          });
-        }
-        return '无';
-      },
+      render: (val) => (val ? h(Image, { src: val }) : '无'),
     },
     {
       field: 'token',

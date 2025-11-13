@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { Demo03StudentApi } from '#/api/infra/demo/demo03/inner';
 
-import { h, nextTick, watch } from 'vue';
+import { nextTick, watch } from 'vue';
 
-import { Plus } from '@vben/icons';
+import { IconifyIcon } from '@vben/icons';
 
 import { Button, Input } from 'ant-design-vue';
 
@@ -26,6 +26,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     keepSource: true,
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     pagerConfig: {
       enabled: false,
@@ -37,14 +38,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 /** 添加学生课程 */
-const onAdd = async () => {
+async function handleAdd() {
   await gridApi.grid.insertAt({} as Demo03StudentApi.Demo03Course, -1);
-};
+}
 
 /** 删除学生课程 */
-const onDelete = async (row: Demo03StudentApi.Demo03Course) => {
+async function handleDelete(row: Demo03StudentApi.Demo03Course) {
   await gridApi.grid.remove(row);
-};
+}
 
 /** 提供获取表格数据的方法供父组件调用 */
 defineExpose({
@@ -98,7 +99,7 @@ watch(
             auth: ['infra:demo03-student:delete'],
             popConfirm: {
               title: $t('ui.actionMessage.deleteConfirm', [row.id]),
-              confirm: onDelete.bind(null, row),
+              confirm: handleDelete.bind(null, row),
             },
           },
         ]"
@@ -107,12 +108,12 @@ watch(
   </Grid>
   <div class="-mt-4 flex justify-center">
     <Button
-      :icon="h(Plus)"
       type="primary"
       ghost
-      @click="onAdd"
+      @click="handleAdd"
       v-access:code="['infra:demo03-student:create']"
     >
+      <IconifyIcon icon="lucide:plus" />
       {{ $t('ui.actionTitle.create', ['学生课程']) }}
     </Button>
   </div>

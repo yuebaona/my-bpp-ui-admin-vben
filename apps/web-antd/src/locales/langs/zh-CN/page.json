@@ -29,32 +29,5 @@
   "tenant": {
     "placeholder": "请选择租户",
     "success": "切换租户成功"
-  },
-  "help": {
-    "title": "帮助中心",
-    "systemDesc": "欢迎使用集装箱业务管理系统，您可以通过以下帮助文档快速了解系统功能和操作方法。",
-    "categories": {
-      "operation": "操作指南",
-      "features": "系统功能",
-      "support": "联系支持"
-    },
-    "items": {
-      "containerManage": "集装箱管理",
-      "loadingUnloading": "装卸管理",
-      "vesselBerthing": "船舶靠港",
-      "dataAnalysis": "数据分析",
-      "workflowConfig": "工作流配置",
-      "systemSettings": "系统设置",
-      "techSupport": "技术支持",
-      "businessConsulting": "业务咨询",
-      "emergencyReport": "紧急上报"
-    },
-    "shortcut": "快捷键:",
-    "shortcutHint": "Alt+H 快速打开帮助中心",
-    "contact": "联系方式",
-    "techSupportPhone": "技术支持电话: 400-123-4567",
-    "email": "邮箱: support@containersystem.com",
-    "systemInfo": "集装箱业务管理系统 v1.0.0",
-    "enterpriseEdition": "企业版"
   }
 }

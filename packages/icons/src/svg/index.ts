@@ -11,6 +11,11 @@ const SvgCardIcon = createIconifyIcon('svg:card');
 const SvgBellIcon = createIconifyIcon('svg:bell');
 const SvgCakeIcon = createIconifyIcon('svg:cake');
 const SvgAntdvLogoIcon = createIconifyIcon('svg:antdv-logo');
+const SvgGithubIcon = createIconifyIcon('svg:github');
+const SvgGoogleIcon = createIconifyIcon('svg:google');
+const SvgQQChatIcon = createIconifyIcon('svg:qqchat');
+const SvgWeChatIcon = createIconifyIcon('svg:wechat');
+const SvgDingDingIcon = createIconifyIcon('svg:dingding');
 
 /** AI */
 const SvgGptIcon = createIconifyIcon('svg:gpt');
@@ -29,6 +34,12 @@ const SvgWxBarIcon = createIconifyIcon('svg:wx-bar');
 const SvgWalletIcon = createIconifyIcon('svg:wallet');
 const SvgMockIcon = createIconifyIcon('svg:mock');
 
+/** BPM */
+const SvgBpmRunningIcon = createIconifyIcon('svg:bpm-running');
+const SvgBpmApproveIcon = createIconifyIcon('svg:bpm-approve');
+const SvgBpmRejectIcon = createIconifyIcon('svg:bpm-reject');
+const SvgBpmCancelIcon = createIconifyIcon('svg:bpm-cancel');
+
 export {
   SvgAlipayAppIcon,
   SvgAlipayBarIcon,
@@ -41,12 +52,21 @@ export {
   SvgAvatar3Icon,
   SvgAvatar4Icon,
   SvgBellIcon,
+  SvgBpmApproveIcon,
+  SvgBpmCancelIcon,
+  SvgBpmRejectIcon,
+  SvgBpmRunningIcon,
   SvgCakeIcon,
   SvgCardIcon,
+  SvgDingDingIcon,
   SvgDownloadIcon,
+  SvgGithubIcon,
+  SvgGoogleIcon,
   SvgGptIcon,
   SvgMockIcon,
+  SvgQQChatIcon,
   SvgWalletIcon,
+  SvgWeChatIcon,
   SvgWxAppIcon,
   SvgWxBarIcon,
   SvgWxLiteIcon,

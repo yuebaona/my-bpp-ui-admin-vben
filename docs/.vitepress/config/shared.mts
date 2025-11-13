@@ -35,7 +35,7 @@ export const shared = defineConfig({
   srcDir: 'src',
   themeConfig: {
     i18nRouting: true,
-    logo: 'https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp',
+    logo: 'http://rsim.portsgmt.com:9001/bgbpp-vben/北港单LOGO.png',
     search: {
       options: {
         locales: {
@@ -44,12 +44,12 @@ export const shared = defineConfig({
       },
       provider: 'local',
     },
-    siteTitle: 'Vben Admin',
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/vbenjs/vue-vben-admin' },
-    ],
+    siteTitle: 'BGBPP',
+//     socialLinks: [
+//       { icon: 'github', link: 'https://github.com/vbenjs/vue-vben-admin' },
+//     ],
   },
-  title: 'Vben Admin',
+  title: 'BGBPP',
   vite: {
     build: {
       chunkSizeWarningLimit: Infinity,
