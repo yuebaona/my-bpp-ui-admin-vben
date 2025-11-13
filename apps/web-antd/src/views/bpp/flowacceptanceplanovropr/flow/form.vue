@@ -362,7 +362,6 @@ const handleUpload = async (data: any) => {
 </script>
 
 <template>
-  <Modal :title="modalTitle" width="1200px">
     <Form>
       <template #containerInfo>
         <div class="mt-4 w-full">
@@ -442,5 +441,4 @@ const handleUpload = async (data: any) => {
         </span>
       </template>
     </Form>
-  </Modal>
 </template>
