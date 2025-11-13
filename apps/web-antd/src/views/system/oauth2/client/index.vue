@@ -47,7 +47,7 @@ async function handleDelete(row: SystemOAuth2ClientApi.OAuth2Client) {
     duration: 0,
   });
   try {
-    await deleteOAuth2Client(row.id as number);
+    await deleteOAuth2Client(row.id!);
     message.success($t('ui.actionMessage.deleteSuccess', [row.name]));
     handleRefresh();
   } finally {
@@ -119,14 +119,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <FormModal @success="handleRefresh" />
-    <Grid :table-title="$t('authentication.oauth2.clientList')">
+    <Grid table-title="OAuth2 客户端列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', [
-                $t('authentication.oauth2.client'),
-              ]),
+              label: $t('ui.actionTitle.create', [' OAuth2.0 客户端']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['system:oauth2-client:create'],

@@ -13,6 +13,7 @@ import './styles';
 
 import 'virtual:group-icons.css';
 import '@nolebase/vitepress-plugin-git-changelog/client/style.css';
+import './custom.css';
 
 export default {
   async enhanceApp(ctx: EnhanceAppContext) {

@@ -25,13 +25,9 @@ export function useImportTableFormSchema(): VbenFormSchema[] {
       label: '数据源',
       component: 'ApiSelect',
       componentProps: {
-        api: async () => {
-          const data = await getDataSourceConfigList();
-          return data.map((item) => ({
-            label: item.name,
-            value: item.id,
-          }));
-        },
+        api: getDataSourceConfigList,
+        labelField: 'name',
+        valueField: 'id',
         autoSelect: 'first',
         placeholder: '请选择数据源',
       },
@@ -366,8 +362,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '表名称',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入表名称',
         allowClear: true,
+        placeholder: '请输入表名称',
       },
     },
     {
@@ -375,8 +371,8 @@ export function useGridFormSchema(): VbenFormSchema[] {
       label: '表描述',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入表描述',
         allowClear: true,
+        placeholder: '请输入表描述',
       },
     },
     {

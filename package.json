@@ -117,5 +117,8 @@
       "canvas",
       "node-gyp"
     ]
+  },
+  "dependencies": {
+    "cssnano": "catalog:"
   }
 }

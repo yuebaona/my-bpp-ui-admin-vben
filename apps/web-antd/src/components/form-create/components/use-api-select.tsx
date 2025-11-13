@@ -15,7 +15,7 @@ import {
 
 import { requestClient } from '#/api/request';
 
-export const useApiSelect = (option: ApiSelectProps) => {
+export function useApiSelect(option: ApiSelectProps) {
   return defineComponent({
     name: option.name,
     props: {
@@ -202,7 +202,7 @@ export const useApiSelect = (option: ApiSelectProps) => {
               onUpdate:value={onUpdateModelValue as any}
               value={modelValue as any}
               {...restAttrs}
-              // TODO: remote 对等实现
+              // TODO @xingyu remote 对等实现, 还是说没作用
               // remote={props.remote}
               {...(props.remote && { remoteMethod })}
             >
@@ -223,7 +223,7 @@ export const useApiSelect = (option: ApiSelectProps) => {
             onUpdate:value={onUpdateModelValue as any}
             value={modelValue as any}
             {...restAttrs}
-            // TODO: @dhb52 remote 对等实现, 还是说没作用
+            // TODO: @xingyu remote 对等实现, 还是说没作用
             // remote={props.remote}
             {...(props.remote && { remoteMethod })}
           >
@@ -317,4 +317,4 @@ export const useApiSelect = (option: ApiSelectProps) => {
       );
     },
   });
-};
+}

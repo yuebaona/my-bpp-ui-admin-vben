@@ -8,10 +8,10 @@ import {
   AnalysisOverview,
 } from '@vben/common-ui';
 import {
-  MdiCargo,
-  MdiPackageVariantClosed,
-  MdiShip,
-  MdiTruck,
+  SvgBellIcon,
+  SvgCakeIcon,
+  SvgCardIcon,
+  SvgDownloadIcon,
 } from '@vben/icons';
 
 import AnalyticsTrends from './analytics-trends.vue';
@@ -20,46 +20,44 @@ import AnalyticsVisitsSales from './analytics-visits-sales.vue';
 import AnalyticsVisitsSource from './analytics-visits-source.vue';
 import AnalyticsVisits from './analytics-visits.vue';
 
-// 集装箱业务概览数据
 const overviewItems: AnalysisOverviewItem[] = [
   {
-    icon: MdiPackageVariantClosed,
-    title: '在港集装箱',
-    totalTitle: '总集装箱量',
-    totalValue: 12_500,
-    value: 450,
+    icon: SvgCardIcon,
+    title: '用户量',
+    totalTitle: '总用户量',
+    totalValue: 120_000,
+    value: 2000,
   },
   {
-    icon: MdiCargo,
-    title: '今日吞吐量',
-    totalTitle: '本月吞吐量',
-    totalValue: 35_600,
-    value: 1200,
+    icon: SvgCakeIcon,
+    title: '访问量',
+    totalTitle: '总访问量',
+    totalValue: 500_000,
+    value: 20_000,
   },
   {
-    icon: MdiShip,
-    title: '到港船只',
-    totalTitle: '本月到港',
-    totalValue: 125,
-    value: 5,
+    icon: SvgDownloadIcon,
+    title: '下载量',
+    totalTitle: '总下载量',
+    totalValue: 120_000,
+    value: 8000,
   },
   {
-    icon: MdiTruck,
-    title: '运输车辆',
-    totalTitle: '总运输量',
-    totalValue: 8900,
-    value: 320,
+    icon: SvgBellIcon,
+    title: '使用量',
+    totalTitle: '总使用量',
+    totalValue: 50_000,
+    value: 5000,
   },
 ];
 
-// 集装箱业务图表标签
 const chartTabs: TabOption[] = [
   {
-    label: '集装箱吞吐量趋势',
+    label: '流量趋势',
     value: 'trends',
   },
   {
-    label: '月度吞吐量统计',
+    label: '月访问量',
     value: 'visits',
   },
 ];
@@ -78,19 +76,13 @@ const chartTabs: TabOption[] = [
     </AnalysisChartsTabs>
 
     <div class="mt-5 w-full md:flex">
-      <AnalysisChartCard
-        class="mt-5 md:mr-4 md:mt-0 md:w-1/3"
-        title="集装箱类型分布"
-      >
+      <AnalysisChartCard class="mt-5 md:mr-4 md:mt-0 md:w-1/3" title="访问数量">
         <AnalyticsVisitsData />
       </AnalysisChartCard>
-      <AnalysisChartCard
-        class="mt-5 md:mr-4 md:mt-0 md:w-1/3"
-        title="货物类型占比"
-      >
+      <AnalysisChartCard class="mt-5 md:mr-4 md:mt-0 md:w-1/3" title="访问来源">
         <AnalyticsVisitsSource />
       </AnalysisChartCard>
-      <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/3" title="航线业务分布">
+      <AnalysisChartCard class="mt-5 md:mt-0 md:w-1/3" title="访问来源">
         <AnalyticsVisitsSales />
       </AnalysisChartCard>
     </div>

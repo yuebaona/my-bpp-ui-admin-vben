@@ -9,12 +9,12 @@ export default withPwa(
   defineConfigWithTheme({
     ...shared,
     locales: {
-      en: {
-        label: 'English',
-        lang: 'en',
-        link: '/en/',
-        ...en,
-      },
+//       en: {
+//         label: 'English',
+//         lang: 'en',
+//         link: '/en/',
+//         ...en,
+//       },
       root: {
         label: '简体中文',
         lang: 'zh-CN',
