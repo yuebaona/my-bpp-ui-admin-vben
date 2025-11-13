@@ -5,9 +5,10 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { computed, reactive, ref } from 'vue';
-import dayjs from 'dayjs';
 
 import { useVbenModal } from '@vben/common-ui';
+
+import dayjs from 'dayjs';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
@@ -98,8 +99,8 @@ const [Grid] = useVbenVxeGrid({
     footerData: [
       {
         serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
-        containerNo: formattedContainerTypes, // 被合并，留空
-        containerSize: '', // 剩余6列合并区域的内容（第2列字段）
+        containerNo: '', // 被合并，留空
+        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
         containerType: '',
         cargoWeight: '',
         totalWeight: '',
