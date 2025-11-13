@@ -4,7 +4,7 @@ import type { DescriptionItemSchema } from '#/components/description';
 
 import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
-
+import dayjs from 'dayjs';
 export interface fileVo {
   fileName: string;
   fileUrl: string;
@@ -294,7 +294,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       component: 'DatePicker',
       componentProps: {
         format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
         placeholder: '请选择预计作业时间',
+        showTime: true,
       },
       rules: 'required',
     },
@@ -394,11 +396,11 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
 export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'acceptancePlanWebNo',
-      label: '线上申请编号',
+      fieldName: 'acceptancePlanNo',
+      label: '申请编号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入线上申请编号',
+        placeholder: '请输入申请编号',
         allowClear: true,
       },
     },
@@ -439,7 +441,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'cargoOwnerCode',
+      fieldName: 'containerNo',
       label: '箱号',
       component: 'Input',
       componentProps: {
@@ -448,9 +450,9 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'submissionTime',
-      label: '提交时间',
-      component: 'RangePicker',
+      fieldName: 'createTime',
+      label: '创建时间',
+      component: 'TimeRangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
@@ -459,7 +461,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'conclusionTime',
       label: '审结时间',
-      component: 'RangePicker',
+      component: 'TimeRangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
@@ -612,7 +614,7 @@ export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
     { field: 'category', label: '进出口类别' },
     { field: 'vesselName', label: '作业船名（中文名称）' },
     { field: 'vesselVoyage', label: '作业航次' },
-    { field: 'plannedOperationTime', label: '预计作业时间' },
+    { field: 'plannedOperationTime', label: '预计作业时间'},
   ];
 }
 
