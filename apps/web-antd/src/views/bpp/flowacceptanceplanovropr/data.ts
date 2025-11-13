@@ -4,11 +4,201 @@ import type { DescriptionItemSchema } from '#/components/description';
 
 import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
-
+// 文件信息
 export interface fileVo {
   fileName: string;
   fileUrl: string;
 }
+// 现场操作确认表单字段
+export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'machineSpreaderChangeType',
+      label: '现场作业类别',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择现场作业类别',
+        allowClear: true,
+        // 数据字典配置
+        api: {
+          url: '/api/system/dict-data/type/operation_type',
+          method: 'GET',
+          params: {
+            type: 'operation_type',
+          },
+        },
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'operationSource',
+      label: '驱动源',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择驱动源',
+        allowClear: true,
+        // 数据字典配置
+        api: {
+          url: '/api/system/dict-data/type/operation_source',
+          method: 'GET',
+          params: {
+            type: 'operation_source',
+          },
+        },
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'changeReason',
+      label: '变更原因',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择变更原因',
+        allowClear: true,
+        // 数据字典配置
+        api: {
+          url: '/api/system/dict-data/type/change_reason',
+          method: 'GET',
+          params: {
+            type: 'change_reason',
+          },
+        },
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'operationFile',
+      label: '现场图片上传',
+      component: 'ImageUpload',
+      formItemClass: 'md:col-span-2',
+      componentProps: {
+        multiple: true,
+        maxNumber: 9,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'vesselCode',
+      label: '作业船名',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业船名',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'voyageCode',
+      label: '作业航次',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业航次',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'containerNo',
+      label: '箱号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入箱号',
+        allowClear: true,
+        disabled: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'operationPosition',
+      label: '作业位置',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业位置',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'machineNo',
+      label: '作业机械号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业机械号',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'spreaderType',
+      label: '实际吊具类型',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业吊具类型',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'startTime',
+      label: '更换换吊具开始时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具开始时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'endTime',
+      label: '更换换吊具结束时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具结束时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'startTimeBack',
+      label: '换回原吊具开始时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具开始时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'endTimeBack',
+      label: '换回原吊具结束时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具结束时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+        rows: 4,
+        allowClear: true,
+      },
+    },
+  ];
+}
+// 箱信息表格数据列表
 export function containerInfoColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -84,6 +274,7 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+// 箱信息详情表格数据列表
 export function containerInfoDetailColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -157,6 +348,7 @@ export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+// 受理计划表单字段
 export function acceptancePlanFormSchema(): VbenFormSchema[] {
   return [
     // 基本信息

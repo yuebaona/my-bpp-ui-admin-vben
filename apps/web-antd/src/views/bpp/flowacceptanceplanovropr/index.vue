@@ -25,6 +25,7 @@ import {
 } from './data';
 import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
+import OnSiteOperation from './modules/onSiteOperation.vue';
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -38,7 +39,11 @@ const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
-
+// 现场操作确认弹框
+const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
+  connectedComponent: OnSiteOperation,
+  destroyOnClose: true,
+});
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
@@ -62,6 +67,10 @@ const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   const res = await getAcceptancePlanOverOperation(row.id);
   formModalApi.setData(res).open();
+};
+/** 现场操作确认 */
+const handleOnSiteOperation = async () => {
+  OnSideOperationModalApi.setData(null).open();
 };
 
 const checkedIds = ref<number[]>([]);
@@ -234,6 +243,7 @@ const adcancedQueryModalOpen = () => {
       <AdvancedQuery />
     </AdvancedQueryModal>
     <DetailModal />
+    <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 超限作业申请列表 -->
     <div class="h-3/5 w-full">
       <Grid table-title="超限作业申请列表">
@@ -346,7 +356,7 @@ const adcancedQueryModalOpen = () => {
                   label: '现场操作确认',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick: handleOnSiteOperation,
                 },
                 {
                   label: '现场无此操作',
