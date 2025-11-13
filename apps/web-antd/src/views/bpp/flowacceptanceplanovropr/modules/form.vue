@@ -28,6 +28,25 @@ const fileList = ref<UploadProps['fileList']>([]);
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
+const containerDataList = reactive<
+  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
+>([]);
+const formattedContainerTypes = computed(() => {
+  const typeCountMap = new Map();
+
+  // 统计每种箱型的数量
+  containerDataList.forEach((item) => {
+    if (item.containerType) {
+      const count = typeCountMap.get(item.containerType) || 0;
+      typeCountMap.set(item.containerType, count + 1);
+    }
+  });
+  const result = [];
+  for (const [type, count] of typeCountMap.entries()) {
+    result.push(`${count}×${type}`);
+  }
+  return result.join('\n'); // 用换行符连接
+});
 const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   id: '',
   acceptancePlanNo: '',
@@ -119,6 +138,11 @@ const saveRow = async (
     await $grid.clearEdit(row);
     // 更新行数据并重置为初始状态
     await $grid.reloadRow(row, newRecord);
+    // 回显箱型
+    containerDataList.splice(0);
+    [...gridApi.grid.getInsertRecords()].map((record) => {
+      return containerDataList.push(toRaw(record));
+    });
     message.success('数据保存成功');
   }
 };
@@ -199,7 +223,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       {
         serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
         containerNo: '', // 被合并，留空
-        containerSize: '', // 剩余6列合并区域的内容（第2列字段）
+        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
         containerType: '',
         cargoWeight: '',
         totalWeight: '',
@@ -209,7 +233,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
 });
-
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
     // 首先验证containerInfo表格中是否有数据
@@ -250,11 +273,12 @@ const [Modal, modalApi] = useVbenModal({
     data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
     data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
     // 将箱id 置空
-    if (!formData?.id) {
-      data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
-        item.id = '';
-      });
-    }
+    data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
+      // 判断id 是row开头去掉
+      if (item.id && String(item.id).startsWith('row_')) {
+        item.id = item.id.replace('row_', '');
+      }
+    });
     data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
     // 调用API保存数据
     await (formData?.id
@@ -337,6 +361,10 @@ const [Modal, modalApi] = useVbenModal({
             if ($grid) {
               await $grid.insertAt(item, -1);
             }
+          }
+          // 箱信息
+          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+            containerDataList.push(item);
           }
         } finally {
           modalApi.unlock();
