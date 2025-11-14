@@ -77,6 +77,40 @@ export namespace FlowOverLimitWorkApi {
     cargoCount: number;
     billType: string;
   }
+  // 变更吊具记录表
+  export interface MachineSpreaderChangeRecordVO {
+    id: number;
+    operationType: string;
+    operationSource: string;
+    changeReason: string;
+    vesselCode: string;
+    voyageCode: string;
+    operationNo: string;
+    operationPosition: string;
+    machineSpreaderChangeType: string;
+    machineSpreaderType: string;
+    machineType: string;
+    machineNo: string;
+    spreaderType: string;
+    startTime: string;
+    endTime: string;
+    operationFile: string;
+    remark: string;
+    creator: string;
+    createTime: string;
+    updater: string;
+    updateTime: string;
+    deleted: boolean;
+    tenantId: number;
+    operationRecordStatus: string;
+    acceptancePlanNo: string;
+    operationContainerId: number;
+    stopCode: string;
+    stopType: string;
+    stopStartTime: string;
+    stopEndTime: string;
+    stopRemark: string;
+  }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
     acceptancePlanSaveReqVO: AcceptancePlanVO;
@@ -123,4 +157,10 @@ export const getAcceptancePlanOverOperationContainerPage = (
   return requestClient.get<
     PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>
   >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
+};
+// 获得机械吊具变更操作记录分页
+export const getMachineSpreaderChangeRecordPage = (params: PageParam) => {
+  return requestClient.get<
+    PageResult<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>
+  >('/bpp/flow/machine-spreader-record/page', { params });
 };

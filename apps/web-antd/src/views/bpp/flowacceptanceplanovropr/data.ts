@@ -861,44 +861,24 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 // 变更吊具记录的字段配置
-export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
+export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'checkbox',
       width: 40,
     },
     {
-      field: 'id',
-      title: '主键ID',
-      minWidth: 80,
-    },
-    {
-      field: 'globalId',
-      title: '全局唯一标识',
-      minWidth: 150,
-    },
-    {
-      field: 'operationType',
+      field: 'machineSpreaderChangeType',
       title: '现场作业类别',
       minWidth: 120,
     },
     {
-      field: 'driveSource',
-      title: '驱动源',
-      minWidth: 100,
-    },
-    {
-      field: 'changeReason',
-      title: '变更原因',
-      minWidth: 120,
-    },
-    {
-      field: 'vesselCode',
+      field: 'vesselName',
       title: '作业船名',
       minWidth: 100,
     },
     {
-      field: 'voyageCode',
+      field: 'vesselVoyage',
       title: '作业航次',
       minWidth: 100,
     },
@@ -908,9 +888,14 @@ export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 150,
     },
     {
-      field: 'operationPosition',
-      title: '作业位置',
+      field: 'operationSource',
+      title: '驱动源',
       minWidth: 100,
+    },
+    {
+      field: 'changeReason',
+      title: '变更原因',
+      minWidth: 120,
     },
     {
       field: 'machineType',
@@ -921,6 +906,11 @@ export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
       field: 'machineNo',
       title: '作业机械号',
       minWidth: 120,
+    },
+    {
+      field: 'operationPosition',
+      title: '作业位置',
+      minWidth: 100,
     },
     {
       field: 'spreaderType',
@@ -950,46 +940,14 @@ export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
       minWidth: 150,
     },
     {
-      field: 'containerOverId',
-      title: '关联箱计划标识',
-      minWidth: 120,
-    },
-    {
-      field: 'machineStopId',
-      title: '关联机械停止标识',
-      minWidth: 120,
-    },
-    {
       field: 'creator',
-      title: '创建人',
-      minWidth: 100,
+      title: '创建者',
+      minWidth: 150,
     },
     {
-      field: 'create_time',
+      field: 'createTime',
       title: '创建时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'updater',
-      title: '更新人',
-      minWidth: 100,
-    },
-    {
-      field: 'update_time',
-      title: '更新时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'deleted',
-      title: '删除标识',
-      minWidth: 80,
-    },
-    {
-      field: 'tenant_id',
-      title: '租户ID',
-      minWidth: 80,
+      minWidth: 150,
     },
   ];
 }

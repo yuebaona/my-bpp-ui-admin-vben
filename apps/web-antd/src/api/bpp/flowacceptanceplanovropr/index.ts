@@ -22,7 +22,7 @@ export namespace FlowAcceptancePlanOverApi {
     cargoName: string; // 货名
     attachmentFile: string; // 附件
     handlingPerson: string; // 经办人
-    andlerRemark: string; // 经办人备注
+    handlerRemark: string; // 经办人备注
     handlerConfirmation: string; // 经办人确认内容
     resConfirmTime: Dayjs | string; // 经办人确认时间
     isAllowedStacking: string; // 是否落堆
@@ -38,6 +38,39 @@ export namespace FlowAcceptancePlanOverApi {
     submissionTime: Dayjs | string; // 提交时间
     apprWorkflowComTime: Dayjs | string; // 审批工作流的审结时间
     id: number; // 主键
+  }
+
+  /** 变更吊具记录VO */
+  export interface MachineSpreaderChangeRecordVO {
+    id: number; // 主键ID
+    operationType: string; // 现场作业类别
+    operationSource: string; // 驱动源
+    changeReason: string; // 变更原因
+    vesselCode: string; // 作业船名
+    voyageCode: string; // 作业航次
+    operationNo: string; // 编号
+    operationPosition: string; // 作业位置
+    machineType: string; // 作业机械类别
+    machineNo: string; // 作业机械号
+    spreaderType: string; // 作业吊具类型
+    startTime: string; // 换吊具开始时间
+    endTime: string; // 换吊具结束时间
+    operationFile: string; // 现场图片
+    remark: string; // 备注
+    creator: string; // 创建人
+    createTime: string; // 创建时间
+    updater: string; // 更新人
+    updateTime: string; // 更新时间
+    deleted: boolean; // 删除标识
+    tenantId: number; // 租户ID
+    operationRecordStatus: string; // 操作记录状态
+    acceptancePlanNo: string; // 受理计划编号
+    operationContainerId: number; // 操作容器ID
+    stopCode: string; // 停时原因代码
+    stopType: string; // 停时分类代码
+    stopStartTime: string; // 停时开始时间
+    stopEndTime: string; // 停时结束时间
+    stopRemark: string; // 停时备注
   }
 }
 
