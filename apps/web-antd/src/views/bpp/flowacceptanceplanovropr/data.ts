@@ -949,5 +949,11 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       title: '创建时间',
       minWidth: 150,
     },
+    {
+      title: '操作',
+      width: 200,
+      fixed: 'right',
+      slots: { default: 'actions' },
+    },
   ];
 }

@@ -5,6 +5,7 @@ import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 import { ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
 
@@ -370,6 +371,28 @@ const adcancedQueryModalOpen = () => {
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleCreate,
+                },
+              ]"
+            />
+          </template>
+          <template #actions>
+            <TableAction
+              :actions="[
+                {
+                  label: $t('common.edit'),
+                  type: 'link',
+                  icon: ACTION_ICON.EDIT,
+                  auth: ['system:user:update'],
+                },
+                {
+                  label: $t('common.delete'),
+                  type: 'link',
+                  danger: true,
+                  icon: ACTION_ICON.DELETE,
+                  auth: ['system:user:delete'],
+                  popConfirm: {
+                    title: $t('ui.actionMessage.deleteConfirm'),
+                  },
                 },
               ]"
             />
