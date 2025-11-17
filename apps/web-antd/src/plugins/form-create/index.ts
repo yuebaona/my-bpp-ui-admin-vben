@@ -1,8 +1,36 @@
 import type { App } from 'vue';
 
-// import install from '@form-create/ant-design-vue/auto-import';
+import formCreate from '@form-create/ant-design-vue';
+import install from '@form-create/ant-design-vue/auto-import';
 import FcDesigner from '@form-create/antd-designer';
-import Antd from 'ant-design-vue';
+// 👇使用 form-create 需额外全局引入 ant-design-vue 组件
+import {
+  Alert,
+  Badge,
+  Card,
+  Collapse,
+  CollapsePanel,
+  ConfigProvider,
+  Divider,
+  Dropdown,
+  Image,
+  Layout,
+  LayoutContent,
+  LayoutFooter,
+  LayoutHeader,
+  LayoutSider,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  message,
+  Popconfirm,
+  Table,
+  TableColumn,
+  TabPane,
+  Tabs,
+  Tag,
+  Transfer,
+} from 'ant-design-vue';
 
 // ======================= 自定义组件 =======================
 import { useApiSelect } from '#/components/form-create';
@@ -29,23 +57,48 @@ const ApiSelect = useApiSelect({
 const ImagesUpload = useImagesUpload();
 
 const components = [
-  ImageUpload,
-  ImagesUpload,
-  FileUpload,
-  Tinymce,
-  DictSelect,
+  Alert,
+  Badge,
+  Card,
+  Collapse,
+  CollapsePanel,
+  ConfigProvider,
+  Divider,
+  Dropdown,
+  Image,
+  Layout,
+  LayoutContent,
+  LayoutFooter,
+  LayoutHeader,
+  LayoutSider,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Popconfirm,
+  Table,
+  TableColumn,
+  TabPane,
+  Tabs,
+  Tag,
+  Transfer,
   UserSelect,
   DeptSelect,
   ApiSelect,
+  ImagesUpload,
+  DictSelect,
+  Tinymce,
+  ImageUpload,
+  FileUpload,
 ];
 
-// TODO: @dhb52 按需导入，而不是app.use(Antd);
-// 参考 http://www.form-create.com/v3/ant-design-vue/auto-import.html 文档
-export const setupFormCreate = (app: App) => {
+// 参考 https://www.form-create.com/v3/ant-design-vue/auto-import 文档
+export function setupFormCreate(app: App) {
   components.forEach((component) => {
     app.component(component.name as string, component);
   });
-  app.use(Antd);
+  // TODO @xingyu：这里为啥 app.component('AMessage', message); 看官方是没有的；
+  app.component('AMessage', message);
+  formCreate.use(install);
+  app.use(formCreate);
   app.use(FcDesigner);
-  app.use(FcDesigner.formCreate);
-};
+}

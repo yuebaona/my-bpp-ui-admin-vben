@@ -18,7 +18,6 @@ import {
   deleteUserList,
   exportUser,
   getUserPage,
-  syncDingUser,
   updateUserStatus,
 } from '#/api/system/user';
 import { $t } from '#/locales';
@@ -71,22 +70,6 @@ async function handleDeptSelect(dept: SystemDeptApi.Dept) {
 /** 创建用户 */
 function handleCreate() {
   formModalApi.setData(null).open();
-}
-
-/** 同步钉钉用户信息 */
-async function handleSyncDingUser() {
-  await confirm($t('是否立即执行数据同步？'));
-  const hideLoading = message.loading({
-    content: $t('同步中，请稍候...'),
-    duration: 0,
-  });
-  try {
-    await syncDingUser();
-    message.success($t('同步成功'));
-    handleRefresh();
-  } finally {
-    hideLoading();
-  }
 }
 
 /** 导入用户 */
@@ -161,14 +144,10 @@ async function handleStatusChange(
     })
       .then(async () => {
         // 更新用户状态
-        const res = await updateUserStatus(row.id!, newStatus);
-        if (res) {
-          // 提示并返回成功
-          message.success($t('ui.actionMessage.operationSuccess'));
-          resolve(true);
-        } else {
-          reject(new Error('更新失败'));
-        }
+        await updateUserStatus(row.id!, newStatus);
+        // 提示并返回成功
+        message.success($t('ui.actionMessage.operationSuccess'));
+        resolve(true);
       })
       .catch(() => {
         reject(new Error('取消操作'));
@@ -230,13 +209,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
           <template #toolbar-tools>
             <TableAction
               :actions="[
-                {
-                  label: $t('同步钉钉用户信息'),
-                  type: 'primary',
-                  icon: ACTION_ICON.ADD,
-                  auth: ['system:user:sync'],
-                  onClick: handleSyncDingUser,
-                },
                 {
                   label: $t('ui.actionTitle.create', ['用户']),
                   type: 'primary',

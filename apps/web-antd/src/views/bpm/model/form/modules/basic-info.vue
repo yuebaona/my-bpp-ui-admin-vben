@@ -53,21 +53,15 @@ const [DeptSelectModalComp, deptSelectModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-// 表单引用
-const formRef = ref();
+const formRef = ref(); // 表单引用
+const modelData = defineModel<any>(); // 创建本地数据副本
 
-// 选中的发起人
-const selectedStartUsers = ref<SystemUserApi.User[]>([]);
+const selectedStartUsers = ref<SystemUserApi.User[]>([]); // 选中的发起人
+const selectedStartDepts = ref<SystemDeptApi.Dept[]>([]); // 选中的发起部门
 
-// 选中的发起部门
-const selectedStartDepts = ref<SystemDeptApi.Dept[]>([]);
-
-// 选中的流程管理员
-const selectedManagerUsers = ref<SystemUserApi.User[]>([]);
+const selectedManagerUsers = ref<SystemUserApi.User[]>([]); // 选中的流程管理员
 const currentSelectType = ref<'manager' | 'start'>('start');
-// 选中的用户
-const selectedUsers = ref<number[]>();
-
+const selectedUsers = ref<number[]>(); // 选中的用户
 const rules: Record<string, Rule[]> = {
   name: [{ required: true, message: '流程名称不能为空', trigger: 'blur' }],
   key: [
@@ -78,7 +72,7 @@ const rules: Record<string, Rule[]> = {
           callback();
           return;
         }
-        if (!/^[a-z_][\-\w.$]*$/i.test(value)) {
+        if (!/^[a-z_][-\w.$]*$/i.test(value)) {
           callback(
             new Error(
               '只能包含字母、数字、下划线、连字符和点号，且必须以字母或下划线开头',
@@ -99,10 +93,7 @@ const rules: Record<string, Rule[]> = {
   ],
 };
 
-// 创建本地数据副本
-const modelData = defineModel<any>();
-
-// 初始化选中的用户
+/** 初始化选中的用户 */
 watch(
   () => modelData.value,
   (newVal) => {
@@ -140,6 +131,7 @@ function openStartUserSelect() {
 function openStartDeptSelect() {
   deptSelectModalApi.setData({ selectedList: selectedStartDepts.value }).open();
 }
+
 /** 处理部门选择确认 */
 function handleDeptSelectConfirm(depts: SystemDeptApi.Dept[]) {
   modelData.value = {
@@ -191,7 +183,6 @@ function handleStartUserTypeChange(value: SelectValue) {
         startUserIds: [],
         startDeptIds: [],
       };
-
       break;
     }
     case 1: {
@@ -199,7 +190,6 @@ function handleStartUserTypeChange(value: SelectValue) {
         ...modelData.value,
         startDeptIds: [],
       };
-
       break;
     }
     case 2: {
@@ -207,7 +197,6 @@ function handleStartUserTypeChange(value: SelectValue) {
         ...modelData.value,
         startUserIds: [],
       };
-
       break;
     }
   }
@@ -460,7 +449,6 @@ defineExpose({ validate });
       class="w-3/5"
       v-model:value="selectedUsers"
       :multiple="true"
-      title="选择用户"
       @confirm="handleUserSelectConfirm"
       @closed="handleUserSelectClosed"
       @cancel="handleUserSelectCancel"
@@ -468,7 +456,6 @@ defineExpose({ validate });
     <!-- 部门选择对话框 -->
     <DeptSelectModalComp
       class="w-3/5"
-      title="发起人部门选择"
       :check-strictly="true"
       @confirm="handleDeptSelectConfirm"
     />
