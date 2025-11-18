@@ -3,8 +3,26 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
 import { z } from '#/adapter/form';
-import { getRangePickerDefaultProps } from '#/utils';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { getRangePickerDefaultProps } from '#/utils';
+import { bppBaseDictStore } from "#/store/bpp/base/dict";
+const bppBaseDict = bppBaseDictStore();
+
+// 预加载需要的字典数据
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
 // 文件信息
 export interface fileVo {
   fileName: string;
@@ -14,7 +32,7 @@ export interface fileVo {
 export function onSiteOperationConfirmFormSchema(
   disabledFields: string[] = [], // 需要禁用的字段名数组
 ): VbenFormSchema[] {
-// 判断字段是否应该禁用
+  // 判断字段是否应该禁用
   const shouldDisable = (fieldName: string): boolean => {
     return disabledFields.includes(fieldName);
   };
@@ -27,7 +45,7 @@ export function onSiteOperationConfirmFormSchema(
         placeholder: '请选择现场作业类别',
         allowClear: true,
         api: async (params?: any) => {
-          return await getDictDataPage( params );
+          return await getDictDataPage(params);
         },
         params: {
           pageNo: 1,
@@ -53,7 +71,7 @@ export function onSiteOperationConfirmFormSchema(
         placeholder: '请选择现场作业类别',
         allowClear: true,
         api: async (params?: any) => {
-          return await getDictDataPage( params );
+          return await getDictDataPage(params);
         },
         params: {
           pageNo: 1,
@@ -79,7 +97,7 @@ export function onSiteOperationConfirmFormSchema(
         placeholder: '请选择现场作业类别',
         allowClear: true,
         api: async (params?: any) => {
-          return await getDictDataPage( params );
+          return await getDictDataPage(params);
         },
         params: {
           pageNo: 1,
@@ -165,7 +183,7 @@ export function onSiteOperationConfirmFormSchema(
         placeholder: '请选择现场作业类别',
         allowClear: true,
         api: async (params?: any) => {
-          return await getDictDataPage( params );
+          return await getDictDataPage(params);
         },
         params: {
           pageNo: 1,
@@ -394,6 +412,8 @@ export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
 }
 // 受理计划表单字段
 export function acceptancePlanFormSchema(): VbenFormSchema[] {
+  // 调用预加载
+  loadDictData(['payment_method', 'import_export_type']);
   return [
     // 基本信息
     {
@@ -452,11 +472,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       label: '缴费方式（海侧）',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '现结', value: 'cash' },
-          { label: '账期', value: 'credit' },
-          { label: '现付', value: 'spot' },
-        ],
+        options: bppBaseDict.getBppBaseDictOptions('payment_method'),
       },
       rules: 'required',
     },
@@ -474,11 +490,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       label: '缴费方式（陆侧）',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '月结', value: 'export' },
-          { label: '预收', value: 'import' },
-          { label: '现结', value: 'transit' },
-        ],
+        options: bppBaseDict.getBppBaseDictOptions('payment_method'),
       },
       rules: 'required',
     },
@@ -496,12 +508,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       label: '进出口类别',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '收箱出口', value: 'export' },
-          { label: '卸船进口提箱', value: 'import' },
-          { label: '海运中转', value: 'transit' },
-          { label: '船翻倒', value: 'additional' },
-        ],
+        options: bppBaseDict.getBppBaseDictOptions('import_export_type'),
       },
       rules: 'required',
     },
@@ -905,7 +912,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 // 变更吊具记录的字段配置
-export function machineSpreaderChangeRecordGridColumns(dictStore?: any): VxeTableGridOptions['columns'] {
+export function machineSpreaderChangeRecordGridColumns(
+  dictStore?: any,
+): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'checkbox',
