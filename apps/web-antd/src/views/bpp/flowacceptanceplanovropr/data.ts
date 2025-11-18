@@ -4,29 +4,44 @@ import type { DescriptionItemSchema } from '#/components/description';
 
 import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
 // 文件信息
 export interface fileVo {
   fileName: string;
   fileUrl: string;
 }
 // 现场操作确认表单字段
-export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
+export function onSiteOperationConfirmFormSchema(
+  disabledFields: string[] = [], // 需要禁用的字段名数组
+): VbenFormSchema[] {
+// 判断字段是否应该禁用
+  const shouldDisable = (fieldName: string): boolean => {
+    return disabledFields.includes(fieldName)
+  };
   return [
     {
-      fieldName: 'machineSpreaderChangeType',
+      fieldName: 'operationType',
       label: '现场作业类别',
       component: 'ApiSelect',
       componentProps: {
         placeholder: '请选择现场作业类别',
         allowClear: true,
-        // 数据字典配置
-        api: {
-          url: '/api/system/dict-data/type/operation_type',
-          method: 'GET',
-          params: {
-            type: 'operation_type',
-          },
+        api: async (params?: any) => {
+          return await getDictDataPage( params );
         },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'on_site_operation_category',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
+        disabled: shouldDisable('operationType'),
       },
       rules: 'required',
     },
@@ -35,16 +50,24 @@ export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
       label: '驱动源',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请选择驱动源',
+        placeholder: '请选择现场作业类别',
         allowClear: true,
-        // 数据字典配置
-        api: {
-          url: '/api/system/dict-data/type/operation_source',
-          method: 'GET',
-          params: {
-            type: 'operation_source',
-          },
+        api: async (params?: any) => {
+          return await getDictDataPage( params );
         },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'driving_source',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
+        disabled: shouldDisable('operationSource'),
       },
       rules: 'required',
     },
@@ -53,16 +76,23 @@ export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
       label: '变更原因',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请选择变更原因',
+        placeholder: '请选择现场作业类别',
         allowClear: true,
-        // 数据字典配置
-        api: {
-          url: '/api/system/dict-data/type/change_reason',
-          method: 'GET',
-          params: {
-            type: 'change_reason',
-          },
+        api: async (params?: any) => {
+          return await getDictDataPage( params );
         },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'change_reason',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
       },
       rules: 'required',
     },
@@ -75,10 +105,9 @@ export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
         multiple: true,
         maxNumber: 9,
       },
-      rules: 'required',
     },
     {
-      fieldName: 'vesselCode',
+      fieldName: 'vesselName',
       label: '作业船名',
       component: 'Input',
       componentProps: {
@@ -88,7 +117,7 @@ export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'voyageCode',
+      fieldName: 'vesselVoyage',
       label: '作业航次',
       component: 'Input',
       componentProps: {
@@ -104,7 +133,7 @@ export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入箱号',
         allowClear: true,
-        disabled: true,
+        disabled: shouldDisable('containerNo'),
       },
       rules: 'required',
     },
@@ -131,10 +160,25 @@ export function onSiteOperationConfirmFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'spreaderType',
       label: '实际吊具类型',
-      component: 'Input',
+      component: 'ApiSelect',
       componentProps: {
-        placeholder: '请输入作业吊具类型',
+        placeholder: '请选择现场作业类别',
         allowClear: true,
+        api: async (params?: any) => {
+          return await getDictDataPage( params );
+        },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'spreader_type',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
       },
       rules: 'required',
     },
@@ -861,7 +905,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 // 变更吊具记录的字段配置
-export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['columns'] {
+export function machineSpreaderChangeRecordGridColumns(dictStore?: any): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'checkbox',
@@ -871,6 +915,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       field: 'machineSpreaderChangeType',
       title: '现场作业类别',
       minWidth: 120,
+      formatter: ({ cellValue }) => {
+        const dict = dictStore?.getDictData?.('operation_type', cellValue);
+        return dict?.label || cellValue;
+      },
     },
     {
       field: 'vesselName',
@@ -891,11 +939,19 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       field: 'operationSource',
       title: '驱动源',
       minWidth: 100,
+      formatter: ({ cellValue }) => {
+        const dict = dictStore?.getDictData?.('operation_source', cellValue);
+        return dict?.label || cellValue;
+      },
     },
     {
       field: 'changeReason',
       title: '变更原因',
       minWidth: 120,
+      formatter: ({ cellValue }) => {
+        const dict = dictStore?.getDictData?.('change_reason', cellValue);
+        return dict?.label || cellValue;
+      },
     },
     {
       field: 'machineType',

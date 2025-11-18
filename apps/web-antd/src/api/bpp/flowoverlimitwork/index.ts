@@ -84,7 +84,7 @@ export namespace FlowOverLimitWorkApi {
     operationSource: string;
     changeReason: string;
     vesselCode: string;
-    voyageCode: string;
+    vesselVoyage: string;
     operationNo: string;
     operationPosition: string;
     machineSpreaderChangeType: string;
@@ -98,10 +98,6 @@ export namespace FlowOverLimitWorkApi {
     remark: string;
     creator: string;
     createTime: string;
-    updater: string;
-    updateTime: string;
-    deleted: boolean;
-    tenantId: number;
     operationRecordStatus: string;
     acceptancePlanNo: string;
     operationContainerId: number;
@@ -110,6 +106,7 @@ export namespace FlowOverLimitWorkApi {
     stopStartTime: string;
     stopEndTime: string;
     stopRemark: string;
+    overOperationContainerIds:string[]; //用于现场操作新增
   }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
@@ -159,8 +156,15 @@ export const getAcceptancePlanOverOperationContainerPage = (
   >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
 };
 // 获得机械吊具变更操作记录分页
-export const getMachineSpreaderChangeRecordPage = (params: PageParam) => {
-  return requestClient.get<
-    PageResult<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>
-  >('/bpp/flow/machine-spreader-record/page', { params });
+export const getMachineSpreaderChangeRecordPage = (data: any) => {
+  return requestClient.post('/bpp/flow/machine-spreader-record/page', data);
+};
+// 现场操作确认
+export const confirmMachineSpreaderChangeRecord = (
+  data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation-container/confirm',
+    data,
+  );
 };
