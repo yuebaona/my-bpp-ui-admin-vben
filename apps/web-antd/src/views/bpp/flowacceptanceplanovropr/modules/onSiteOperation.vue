@@ -1,16 +1,17 @@
 <script lang="ts" setup>
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+
 import { ref } from 'vue';
-import type {
-  FlowOverLimitWorkApi
-} from "#/api/bpp/flowoverlimitwork";
 
 import { useVbenModal } from '@vben/common-ui';
+import { $t } from '@vben/locales';
+
+import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
+import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord } from '#/api/bpp/flowoverlimitwork';
 import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flowacceptanceplanovropr/data';
-import { confirmMachineSpreaderChangeRecord } from '#/api/bpp/flowoverlimitwork';
-import { message } from "ant-design-vue";
-import { $t } from "@vben/locales";
+
 const emit = defineEmits(['success']);
 const disabledFields = ref<string[]>([]);
 async function setFieldAndDisable(fieldName: string, value: any) {
@@ -22,12 +23,13 @@ async function setFieldAndDisable(fieldName: string, value: any) {
   }
 }
 const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
-  id: 0,
+  endTimeBack: 0,
+  id: '',
   operationType: '',
   operationSource: '',
   changeReason: '',
   vesselCode: '',
-  vesselVoyage:'',
+  vesselVoyage: '',
   operationNo: '',
   operationPosition: '',
   machineSpreaderChangeType: '',
@@ -49,7 +51,7 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   stopStartTime: '',
   stopEndTime: '',
   stopRemark: '',
-  overOperationContainerIds:[]
+  overOperationContainerIds: []
 });
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -71,33 +73,54 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     modalApi.lock();
-    //提交表单
-    const acceptancePlanNo = formData.value.acceptancePlanNo;
-    const data = (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
+    // 提交表单
+    const acceptancePlanNo = formData.value?.acceptancePlanNo;
+    const data =
+      (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
     formData.value.acceptancePlanNo = acceptancePlanNo;
     formData.value.vesselCode = 'TEST';
-    await confirmMachineSpreaderChangeRecord(formData.value);
+    await (formData.value?.id
+      ? updateMachineSpreaderRecord(formData.value)
+      : confirmMachineSpreaderChangeRecord(formData.value));
     // 关闭并提示
     await modalApi.close();
     emit('success');
     message.success($t('ui.actionMessage.operationSuccess'));
   },
-  async onOpenChange(isOpen: boolean){
-    if(!isOpen){
+  async onOpenChange(isOpen: boolean) {
+    if (!isOpen) {
       return;
     }
     // 加载数据
+    modalApi.lock();
     const data = modalApi.getData();
+    Object.assign(formData.value, data);
+    formData.value.acceptancePlanNo = data.value?.acceptancePlanNo;
+    if (data?.id) {
+      await formApi.setValues(data);
+    }
     // 数据回显
-    await setFieldAndDisable('containerNo', data.value?.containerNo);
-    await setFieldAndDisable('operationSource', data.value?.initiationType);
-    await setFieldAndDisable('operationType', data.value?.operationType);
-    await setFieldAndDisable('overOperationContainerIds', data.value?.overOperationContainerIds);
-    formData.value.acceptancePlanNo = data.value.acceptancePlanNo;
+    await setFieldAndDisable(
+      'containerNo',
+      data.value?.containerNo || data?.containerNo,
+    );
+    await setFieldAndDisable(
+      'operationSource',
+      data.value?.initiationType || data?.operationSource,
+    );
+    await setFieldAndDisable(
+      'operationType',
+      data.value?.operationType || data?.operationType,
+    );
+    await setFieldAndDisable(
+      'overOperationContainerIds',
+      data.value?.overOperationContainerIds,
+    );
     const newSchema = onSiteOperationConfirmFormSchema(disabledFields.value);
     formApi.updateSchema(newSchema);
-  }
+    modalApi.unlock();
+  },
 });
 
 const modalTitle = ref<string>('现场操作确认');

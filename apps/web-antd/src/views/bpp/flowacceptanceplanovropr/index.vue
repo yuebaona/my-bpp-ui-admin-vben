@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type {
-  FlowOverLimitWorkApi
+  FlowOverLimitWorkApi,
 } from "#/api/bpp/flowoverlimitwork";
 
-import { ref, onMounted,watch  } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -12,6 +12,7 @@ import { $t } from '@vben/locales';
 import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
   getAcceptancePlanOverOperation,
   getAcceptancePlanOverOperationContainerPage,
@@ -20,7 +21,8 @@ import {
 } from '#/api/bpp/flowoverlimitwork';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
+
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
@@ -30,7 +32,7 @@ import {
 import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
 import OnSiteOperation from './modules/onSiteOperation.vue';
-import { bppBaseDictStore } from '#/store/bpp/base/dict';
+
 interface OnSideOperation {
   overOperationContainerIds: string;
   initiationType: string;
@@ -38,7 +40,7 @@ interface OnSideOperation {
   acceptancePlanNo: string;
   containerNo: string;
 }
-interface batchQueryConditionsVO{
+interface batchQueryConditionsVO {
   acceptancePlanNo: string;
   containerNo: string;
 }
@@ -64,6 +66,8 @@ const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
+  boxGridApi.query();
+  machineSpreaderChangeRecordGridApi.query();
 }
 
 /** 创建新申请 */
@@ -85,30 +89,33 @@ const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   const res = await getAcceptancePlanOverOperation(row.id);
   formModalApi.setData(res).open();
 };
+/** 变更吊具修改 */
+const handleOnSiteEditOperation = async (
+  row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  console.log(row);
+  OnSideOperationModalApi.setData(row).open();
+};
 /** 现场操作确认 */
 const handleOnSiteOperation = async () => {
   const data = ref<OnSideOperation>({
-    overOperationContainerIds:'',
-    initiationType:'',
-    operationType:'',
-    acceptancePlanNo:'',
-    containerNo:''
+    overOperationContainerIds: '',
+    initiationType: '',
+    operationType: '',
+    acceptancePlanNo: '',
+    containerNo: '',
   });
-  if(!initiationTypeValue.value) {
+  if (!initiationTypeValue.value) {
     // 提示要选择发起类型
     message.error('请选择发起类型');
     return;
   }
-  switch(bppBaseDict.getBppBaseDictData('initiation_type',initiationTypeValue.value).label){
-    case '箱现场突发':
-      break;
-    case '舱盖板':
-      data.value = {
-        containerNo:'HATCH',
-      };
-      break;
-    case '客户发起':
-      if(!containerNos.value.length > 0){
+  switch (
+    bppBaseDict.getBppBaseDictData('initiation_type', initiationTypeValue.value)
+      .label
+  ) {
+    case '客户发起': {
+      if (!containerNos.value.length > 0) {
         message.error('请选择要操作的箱');
         return;
       }
@@ -121,12 +128,23 @@ const handleOnSiteOperation = async () => {
       }
       data.value = {
         overOperationContainerIds: containerIds,
-        initiationType:initiationTypeValue.value,
-        operationType:'DS_REV',
-        acceptancePlanNo:boxAcceptancePlanNo.value[0],
-        containerNo:containerNos.value.join(','),
+        initiationType: initiationTypeValue.value,
+        operationType: 'DS_REV',
+        acceptancePlanNo: boxAcceptancePlanNo.value[0],
+        containerNo: containerNos.value.join(','),
       };
       break;
+    }
+    case '箱现场突发': {
+      break;
+    }
+    case '舱盖板': {
+      data.value = {
+        containerNo: 'HATCH',
+        initiationType: initiationTypeValue.value,
+      };
+      break;
+    }
   }
   OnSideOperationModalApi.setData(data).open();
 };
@@ -157,7 +175,7 @@ function boxHandleRowCheckboxChange({
   boxAcceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
   containerNos.value = records.map((item) => item.containerNo);
   containerIds.value = records.map((item) => item.id);
-  batchQueryConditions.value = records.map(item => ({
+  batchQueryConditions.value = records.map((item) => ({
     acceptancePlanNo: item.acceptancePlanNo,
     containerNo: item.containerNo,
   }));
@@ -165,11 +183,15 @@ function boxHandleRowCheckboxChange({
 }
 /** 获取字典数据 */
 const getDictDataList = async () => {
-  bppBaseDict.setBppBaseDictCacheByData((await getDictDataPage({
-    dictType: 'initiation_type',
-    pageNo: 1,
-    pageSize: 100,
-  })).list);
+  bppBaseDict.setBppBaseDictCacheByData(
+    (
+      await getDictDataPage({
+        dictType: 'initiation_type',
+        pageNo: 1,
+        pageSize: 100,
+      })
+    ).list,
+  );
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -288,45 +310,55 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         enabled: true,
       },
       proxyConfig: {
-        autoLoad: false,
+        // autoLoad: false,
         manual: true,
         ajax: {
           query: async ({ page }, formValues) => {
-            if (batchQueryConditions.value.length > 0) {
-              formValues.batchQueryConditions = batchQueryConditions.value;
-              console.log(formValues.batchQueryConditions);
-            }
-            if (formValues?.batchQueryConditions?.length > 0) {
-              return await getMachineSpreaderChangeRecordPage({
-                pageNo: page.currentPage,
-                pageSize: page.pageSize,
-                ...formValues,
-              });
-            }
-            // 无参数时返回空数据（确保界面显示空）
-            return { list: [], total: 0 };
+            // if (batchQueryConditions.value.length > 0) {
+            //   formValues.batchQueryConditions = batchQueryConditions.value;
+            // }
+            // if (formValues?.batchQueryConditions?.length > 0) {
+            //   return await getMachineSpreaderChangeRecordPage({
+            //     pageNo: page.currentPage,
+            //     pageSize: page.pageSize,
+            //     ...formValues,
+            //   });
+            // }
+            // // 无参数时返回空数据（确保界面显示空）
+            // return { list: [], total: 0 };
+            return await getMachineSpreaderChangeRecordPage({
+              pageNo: page.currentPage,
+              pageSize: page.pageSize,
+              ...formValues,
+            });
           },
         },
       },
     } as VxeTableGridOptions<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>,
   });
 
-const initiationTypeValue = ref(null);
+const initiationTypeValue = ref<null | string>(null);
 
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
-onMounted( async () => {
-  await getDictDataList()
+onMounted(async () => {
+  await getDictDataList();
 });
-watch(() => bppBaseDict.getBppBaseDictOptions('initiation_type'), (options) => {
-  if (options && options.length > 0 && !initiationTypeValue.value) {
-    const customerInitiated = options.find(item => item.label === '客户发起');
-    if (customerInitiated) {
-      initiationTypeValue.value = customerInitiated.value;
+watch(
+  () => bppBaseDict.getBppBaseDictOptions('initiation_type'),
+  (options) => {
+    if (options && options.length > 0 && !initiationTypeValue.value) {
+      const customerInitiated = options.find(
+        (item) => item.label === '客户发起',
+      );
+      if (customerInitiated) {
+        initiationTypeValue.value = customerInitiated.value;
+      }
     }
-  }
-}, { immediate: true });
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -408,8 +440,19 @@ watch(() => bppBaseDict.getBppBaseDictOptions('initiation_type'), (options) => {
         <BoxGrid table-title="箱列表">
           <template #toolbar-tools>
             <div class="mr-4">
-              <a-radio-group name="radioGroup" v-model:value="initiationTypeValue">
-                <a-radio :value="item.value" v-for="(item,index) in bppBaseDict.getBppBaseDictOptions('initiation_type')" :key="index">{{ item.label}}</a-radio>
+              <a-radio-group
+                name="radioGroup"
+                v-model:value="initiationTypeValue"
+              >
+                <a-radio
+                  :value="item.value"
+                  v-for="(item, index) in bppBaseDict.getBppBaseDictOptions(
+                    'initiation_type',
+                  )"
+                  :key="index"
+                >
+                  {{ item.label }}
+                </a-radio>
               </a-radio-group>
             </div>
             <TableAction
@@ -458,7 +501,7 @@ watch(() => bppBaseDict.getBppBaseDictOptions('initiation_type'), (options) => {
               ]"
             />
           </template>
-          <template #actions>
+          <template #actions="{ row }">
             <TableAction
               :actions="[
                 {
@@ -466,6 +509,7 @@ watch(() => bppBaseDict.getBppBaseDictOptions('initiation_type'), (options) => {
                   type: 'link',
                   icon: ACTION_ICON.EDIT,
                   auth: ['system:user:update'],
+                  onClick: handleOnSiteEditOperation.bind(null, row),
                 },
                 {
                   label: $t('common.delete'),

@@ -79,7 +79,7 @@ export namespace FlowOverLimitWorkApi {
   }
   // 变更吊具记录表
   export interface MachineSpreaderChangeRecordVO {
-    id: number;
+    id: number | string;
     operationType: string;
     operationSource: string;
     changeReason: string;
@@ -92,21 +92,22 @@ export namespace FlowOverLimitWorkApi {
     machineType: string;
     machineNo: string;
     spreaderType: string;
-    startTime: string;
-    endTime: string;
+    startTime: number | string;
+    endTime: number | string;
     operationFile: string;
     remark: string;
     creator: string;
-    createTime: string;
+    createTime: number | string;
+    endTimeBack: number;
     operationRecordStatus: string;
     acceptancePlanNo: string;
     operationContainerId: number;
     stopCode: string;
     stopType: string;
-    stopStartTime: string;
-    stopEndTime: string;
+    stopStartTime: number | string;
+    stopEndTime: number | string;
     stopRemark: string;
-    overOperationContainerIds:string[]; //用于现场操作新增
+    overOperationContainerIds: string[]; // 用于现场操作新增
   }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
@@ -166,5 +167,17 @@ export const confirmMachineSpreaderChangeRecord = (
   return requestClient.post(
     '/bpp/flow/acceptance-plan-over-operation-container/confirm',
     data,
+  );
+};
+// 修改超限受理计划信息
+export const updateMachineSpreaderRecord = (
+  data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  return requestClient.put('/bpp/flow/machine-spreader-record/update', data);
+};
+// 删除机械吊具变更操作记录
+export const deleteMachineSpreaderRecord = (id: number) => {
+  return requestClient.delete(
+    `/bpp/flow/machine-spreader-record/delete?id=${id}`,
   );
 };

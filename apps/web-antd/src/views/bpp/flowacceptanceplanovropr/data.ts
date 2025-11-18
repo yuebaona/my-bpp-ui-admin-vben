@@ -16,7 +16,7 @@ export function onSiteOperationConfirmFormSchema(
 ): VbenFormSchema[] {
 // 判断字段是否应该禁用
   const shouldDisable = (fieldName: string): boolean => {
-    return disabledFields.includes(fieldName)
+    return disabledFields.includes(fieldName);
   };
   return [
     {
@@ -912,7 +912,7 @@ export function machineSpreaderChangeRecordGridColumns(dictStore?: any): VxeTabl
       width: 40,
     },
     {
-      field: 'machineSpreaderChangeType',
+      field: 'operationType',
       title: '现场作业类别',
       minWidth: 120,
       formatter: ({ cellValue }) => {
@@ -954,7 +954,7 @@ export function machineSpreaderChangeRecordGridColumns(dictStore?: any): VxeTabl
       },
     },
     {
-      field: 'machineType',
+      field: 'machineSpreaderType',
       title: '作业机械类别',
       minWidth: 120,
     },
@@ -984,11 +984,6 @@ export function machineSpreaderChangeRecordGridColumns(dictStore?: any): VxeTabl
       title: '换吊具结束时间',
       minWidth: 180,
       formatter: 'formatDateTime',
-    },
-    {
-      field: 'operationFile',
-      title: '现场图片',
-      minWidth: 100,
     },
     {
       field: 'remark',
