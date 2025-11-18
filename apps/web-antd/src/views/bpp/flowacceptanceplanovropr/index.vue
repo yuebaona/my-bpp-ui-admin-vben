@@ -14,6 +14,7 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
+  deleteMachineSpreaderRecord,
   getAcceptancePlanOverOperation,
   getAcceptancePlanOverOperationContainerPage,
   getAcceptancePlanOverOperationPage,
@@ -93,8 +94,23 @@ const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 const handleOnSiteEditOperation = async (
   row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
-  console.log(row);
   OnSideOperationModalApi.setData(row).open();
+};
+/** 删除变更吊具信息 */
+const handleMachineSpreaderDelete = async (
+  row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deleting', [row.id]),
+    duration: 0,
+  });
+  try {
+    await deleteMachineSpreaderRecord(row.id);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.id]));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 };
 /** 现场操作确认 */
 const handleOnSiteOperation = async () => {
@@ -519,6 +535,7 @@ watch(
                   auth: ['system:user:delete'],
                   popConfirm: {
                     title: $t('ui.actionMessage.deleteConfirm'),
+                    confirm: handleMachineSpreaderDelete.bind(null, row),
                   },
                 },
               ]"

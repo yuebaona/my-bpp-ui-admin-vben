@@ -176,7 +176,7 @@ export const updateMachineSpreaderRecord = (
   return requestClient.put('/bpp/flow/machine-spreader-record/update', data);
 };
 // 删除机械吊具变更操作记录
-export const deleteMachineSpreaderRecord = (id: number) => {
+export const deleteMachineSpreaderRecord = (id: number | string) => {
   return requestClient.delete(
     `/bpp/flow/machine-spreader-record/delete?id=${id}`,
   );
