@@ -330,23 +330,18 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         manual: true,
         ajax: {
           query: async ({ page }, formValues) => {
-            // if (batchQueryConditions.value.length > 0) {
-            //   formValues.batchQueryConditions = batchQueryConditions.value;
-            // }
-            // if (formValues?.batchQueryConditions?.length > 0) {
-            //   return await getMachineSpreaderChangeRecordPage({
-            //     pageNo: page.currentPage,
-            //     pageSize: page.pageSize,
-            //     ...formValues,
-            //   });
-            // }
-            // // 无参数时返回空数据（确保界面显示空）
-            // return { list: [], total: 0 };
-            return await getMachineSpreaderChangeRecordPage({
-              pageNo: page.currentPage,
-              pageSize: page.pageSize,
-              ...formValues,
-            });
+            if (batchQueryConditions.value.length > 0) {
+              formValues.batchQueryConditions = batchQueryConditions.value;
+            }
+            if (formValues?.batchQueryConditions?.length > 0) {
+              return await getMachineSpreaderChangeRecordPage({
+                pageNo: page.currentPage,
+                pageSize: page.pageSize,
+                ...formValues,
+              });
+            }
+            // 无参数时返回空数据（确保界面显示空）
+            return { list: [], total: 0 };
           },
         },
       },
