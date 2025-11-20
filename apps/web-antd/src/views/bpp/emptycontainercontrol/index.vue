@@ -23,69 +23,31 @@ import {
 } from './data';
 import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
+import LogQuery from './modules/log-query.vue';
+
+const checkedIds = ref<number[]>([]);
+const acceptancePlanNo = ref<number[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
 });
+
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
 });
+
 const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
 
-/** 刷新表格 */
-function handleRefresh() {
-  gridApi.query();
-}
-
-/** 创建新申请 */
-function handleCreate() {
-  formModalApi.setData(null).open();
-}
-
-function handleExport() {
-  message.info('导出功能');
-}
-/** 查看详情 */
-const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
-  detailModalApi.setData(res).open();
-};
-
-/** 编辑申请 */
-const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
-  formModalApi.setData(res).open();
-};
-
-/** 删除申请 */
-const handleDelete = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  // 这里实现删除逻辑
-  // 例如调用删除API
-  await deleteSubPlan(row.id);
-  message.success('删除成功');
-  handleRefresh(); // 删除后刷新表格
-};
-
-const checkedIds = ref<number[]>([]);
-const acceptancePlanNo = ref<number[]>([]);
-function handleRowCheckboxChange({
-                                   records,
-                                 }: {
-  records: FlowOverLimitWorkApi.AcceptancePlanVO[];
-}) {
-  checkedIds.value = records.map((item) => item.id);
-  acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
-}
-
-// 高级查询处理函数
-function handleHighPriceQuery() {
-  message.info('高级查询功能');
-}
+const [LogQueryModal, logQueryModalApi] = useVbenModal({
+  connectedComponent: LogQuery,
+  destroyOnClose: true,
+  footer: false,
+});
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -111,7 +73,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    // 禁用代理模式，确保不发送远程请求
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -130,6 +91,58 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
+function handleRowCheckboxChange({
+                                   records,
+                                 }: {
+  records: FlowOverLimitWorkApi.AcceptancePlanVO[];
+}) {
+  checkedIds.value = records.map((item) => item.id);
+  acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+}
+
+// 高级查询处理函数
+function handleHighPriceQuery() {
+  message.info('高级查询功能');
+}
+
+/** 刷新表格 */
+function handleRefresh() {
+  gridApi.query();
+}
+
+/** 创建新申请 */
+function handleCreate() {
+  formModalApi.setData(null).open();
+}
+
+function handleExport() {
+  message.info('导出功能');
+}
+
+/** 查看详情 */
+const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+  const res = await getAcceptancePlanOverOperation(row.id);
+  detailModalApi.setData(res).open();
+};
+
+/** 编辑申请 */
+const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+  const res = await getAcceptancePlanOverOperation(row.id);
+  formModalApi.setData(res).open();
+};
+
+/** 删除申请 */
+const handleDelete = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+  await deleteSubPlan(row.id);
+  message.success('删除成功');
+  handleRefresh();
+};
+
+/** 日志查询 */
+function handleLogQuery() {
+  logQueryModalApi.open();
+}
+
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
@@ -142,6 +155,7 @@ const adcancedQueryModalOpen = () => {
       <AdvancedQuery />
     </AdvancedQueryModal>
     <DetailModal />
+    <LogQueryModal />
     <!-- 子计划列表 -->
     <div class="h-3/5 w-full">
       <Grid table-title="子计划">
@@ -162,7 +176,7 @@ const adcancedQueryModalOpen = () => {
                 label: '导出',
                 type: 'primary',
                 icon: ACTION_ICON.DOWNLOAD,
-                onClick: handleHighPriceQuery,
+                onClick: handleExport,
               },
               {
                 label: '日志查询',

@@ -1,13 +1,13 @@
-import type { VbenFormSchema } from '#/adapter/form';
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { DescriptionItemSchema } from '#/components/description';
+import type { VbenFormSchema } from '#/adapter/form'
+import type { VxeTableGridOptions } from '#/adapter/vxe-table'
+import type { DescriptionItemSchema } from '#/components/description'
 
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
 
 export interface fileVo {
-  fileName: string;
-  fileUrl: string;
+  fileName: string
+  fileUrl: string
 }
 
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
@@ -498,6 +498,123 @@ export function subPlanDetailSchema(): DescriptionItemSchema[] {
     { field: 'vesselName', label: '作业船名（中文名称）' },
     { field: 'vesselVoyage', label: '作业航次' },
     { field: 'plannedOperationTime', label: '预计作业时间' },
+  ]
+}
+
+/** 日志查询表单 */
+export function logQueryFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'mainPlanNo',
+      label: '主计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入主计划号',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'containerHolder',
+      label: '持箱人',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入持箱人',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'iso',
+      label: 'ISO',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入ISO',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'containerArea',
+      label: '箱区',
+      component: 'Input',
+      componentProps: {
+        placeholder: '',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'createTime',
+      label: '创建时间',
+      component: 'RangePicker',
+      componentProps: {
+        ...getRangePickerDefaultProps(),
+        allowClear: true,
+      },
+    },
   ];
 }
 
+/** 日志查询列表字段 */
+export function logQueryColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '序号',
+      type: 'seq',
+      width: 60,
+      align: 'center',
+    },
+    {
+      field: 'mainPlanNo',
+      title: '主计划号',
+      minWidth: 120,
+    },
+    {
+      field: 'isRelease',
+      title: '是否放箱(Y/N)',
+      minWidth: 120,
+    },
+    {
+      field: 'acceptancePlanNo',
+      title: '提箱受理计划号',
+      minWidth: 150,
+    },
+    {
+      field: 'containerHolder',
+      title: '持箱人',
+      minWidth: 120,
+    },
+    {
+      field: 'tradeType',
+      title: '贸易类型',
+      minWidth: 100,
+    },
+    {
+      field: 'iso',
+      title: 'ISO',
+      minWidth: 100,
+    },
+    {
+      field: 'containerAreaRange',
+      title: '箱区范围',
+      minWidth: 120,
+    },
+    {
+      field: 'mainGateReleaseQty',
+      title: '主闸可放箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'modifier',
+      title: '修改人',
+      minWidth: 100,
+    },
+    {
+      field: 'modifyTime',
+      title: '修改时间',
+      minWidth: 150,
+    },
+    {
+      field: 'modifyType',
+      title: '修改类型',
+      minWidth: 100,
+    },
+  ];
+}
