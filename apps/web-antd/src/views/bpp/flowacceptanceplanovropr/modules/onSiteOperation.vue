@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
 
 import { ref } from 'vue';
 
@@ -9,7 +9,7 @@ import { $t } from '@vben/locales';
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord } from '#/api/bpp/flowoverlimitwork';
+import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord } from '#/api/bpp/flowacceptanceplanovropr';
 import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flowacceptanceplanovropr/data';
 
 const emit = defineEmits(['success']);

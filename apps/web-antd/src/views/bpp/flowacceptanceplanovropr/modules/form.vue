@@ -2,7 +2,7 @@
 import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
 
 import { computed, nextTick, reactive, ref, toRaw } from 'vue';
 
@@ -16,7 +16,7 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowoverlimitwork';
+} from '#/api/bpp/flowacceptanceplanovropr';
 import { FileUpload } from '#/components/upload';
 import { $t } from '#/locales';
 

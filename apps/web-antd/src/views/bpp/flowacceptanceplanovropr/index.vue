@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import {
-  type FlowOverLimitWorkApi,
-  machineSpreaderRecordDeleteList
-} from "#/api/bpp/flowoverlimitwork";
+import type{
+   FlowOverLimitWorkApi
+} from "#/api/bpp/flowacceptanceplanovropr";
 
 import { onMounted, ref, watch } from 'vue';
 
@@ -22,7 +21,7 @@ import {
   getAcceptancePlanOverOperationContainerPage,
   getAcceptancePlanOverOperationPage,
   getMachineSpreaderChangeRecordPage,
-} from '#/api/bpp/flowoverlimitwork';
+} from '#/api/bpp/flowacceptanceplanovropr';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
