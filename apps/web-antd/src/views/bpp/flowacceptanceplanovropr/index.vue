@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type {
-  FlowOverLimitWorkApi,
-} from "#/api/bpp/flowoverlimitwork";
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { onMounted, ref, watch } from 'vue';
 
@@ -117,7 +115,7 @@ const handleOnSiteOperation = async () => {
   const data = ref<OnSideOperation>({
     overOperationContainerIds: '',
     initiationType: '',
-    operationType: '',
+    machineSpreaderChangeType: '',
     acceptancePlanNo: '',
     containerNo: '',
   });
@@ -131,7 +129,7 @@ const handleOnSiteOperation = async () => {
       .label
   ) {
     case '客户发起': {
-      if (!containerNos.value.length > 0) {
+      if (containerNos.value.length === 0) {
         message.error('请选择要操作的箱');
         return;
       }
@@ -142,10 +140,37 @@ const handleOnSiteOperation = async () => {
           return;
         }
       }
+      if (vesselNames.value.length > 1) {
+        const uniqueNames = new Set(vesselNames.value);
+        if (uniqueNames.size > 1) {
+          message.error('存在不同的船名，请检查');
+          return;
+        }
+      }
+      if (vesselVoyages.value.length > 1) {
+        const uniqueVoyages = new Set(vesselVoyages.value);
+        if (uniqueVoyages.size > 1) {
+          message.error('存在不同的航次，请检查');
+          return;
+        }
+      }
+      if (machineSpreaderChangeTypes.value.length > 1) {
+        const uniqueTypes = new Set(machineSpreaderChangeTypes.value);
+        if (uniqueTypes.size > 1) {
+          message.error('存在不同的吊具类型，请检查');
+          return;
+        }
+      }
+      if (containerOperationNodes.value.length > 1) {
+        const uniqueNodes = new Set(containerOperationNodes.value);
+        if (uniqueNodes.size > 1) {
+          message.error('存在不同的现在作业节点，请检查');
+        }
+      }
       data.value = {
         overOperationContainerIds: containerIds,
         initiationType: initiationTypeValue.value,
-        operationType: 'DS_REV',
+        machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
         acceptancePlanNo: boxAcceptancePlanNo.value[0],
         containerNo: containerNos.value.join(','),
       };
@@ -182,6 +207,10 @@ const boxAcceptancePlanNo = ref<string[]>([]);
 const containerNos = ref<string[]>([]);
 const containerIds = ref<number[]>([]);
 const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
+const machineSpreaderChangeTypes = ref<string[]>([]);
+const containerOperationNodes = ref<string[]>([]);
+const vesselNames = ref<string[]>([]);
+const vesselVoyages = ref<string[]>([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
@@ -195,6 +224,14 @@ function boxHandleRowCheckboxChange({
     acceptancePlanNo: item.acceptancePlanNo,
     containerNo: item.containerNo,
   }));
+  machineSpreaderChangeTypes.value = records.map(
+    (item) => item.machineSpreaderChangeType,
+  );
+  containerOperationNodes.value = records.map(
+    (item) => item.containerOperationNode,
+  );
+  vesselNames.value = records.map((item) => item.vesselName);
+  vesselVoyages.value = records.map((item) => item.vesselVoyage);
   machineSpreaderChangeRecordGridApi.query();
 }
 /** 获取字典数据 */
@@ -370,6 +407,13 @@ watch(
   },
   { immediate: true },
 );
+
+const changeNameFilter = (option: any) => {
+  const $grid = gridApi.grid;
+  if ($grid) {
+    $grid.updateFilterOptionStatus(option, !!option.data);
+  }
+};
 </script>
 
 <template>
