@@ -141,8 +141,8 @@ const handleOnSiteOperation = async () => {
           return;
         }
       }
-      if (vesselNames.value.length > 1) {
-        const uniqueNames = new Set(vesselNames.value);
+      if (vesselCodes.value.length > 1) {
+        const uniqueNames = new Set(vesselCodes.value);
         if (uniqueNames.size > 1) {
           message.error('存在不同的船名，请检查');
           return;
@@ -239,7 +239,7 @@ const containerIds = ref<number[]>([]);
 const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
 const machineSpreaderChangeTypes = ref<string[]>([]);
 const containerOperationNodes = ref<string[]>([]);
-const vesselNames = ref<string[]>([]);
+const vesselCodes = ref<string[]>([]);
 const vesselVoyages = ref<string[]>([]);
 function boxHandleRowCheckboxChange({
   records,
@@ -260,7 +260,7 @@ function boxHandleRowCheckboxChange({
   containerOperationNodes.value = records.map(
     (item) => item.containerOperationNode,
   );
-  vesselNames.value = records.map((item) => item.vesselName);
+  vesselCodes.value = records.map((item) => item.vesselCode);
   vesselVoyages.value = records.map((item) => item.vesselVoyage);
   machineSpreaderChangeRecordGridApi.query();
 }
