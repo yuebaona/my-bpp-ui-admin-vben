@@ -269,7 +269,6 @@ const [Modal, modalApi] = useVbenModal({
         ...acceptancePlanBillMessageVO,
       } as FlowOverLimitWorkApi.AcceptancePlanBillMessageVO,
     };
-    data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
     data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
     data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
     // 将箱id 置空
@@ -355,8 +354,8 @@ const [Modal, modalApi] = useVbenModal({
             'cargoName',
             data?.acceptancePlanBillMessageRespVO?.cargoName,
           );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
-          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+          fileList.value = JSON.parse(data.acceptancePlanRespVO?.attachmentFile);
+          for (const item of data?.acceptancePlanOverOperationContainerRespVOS) {
             const $grid = gridApi.grid;
             if ($grid) {
               await $grid.insertAt(item, -1);
