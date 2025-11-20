@@ -11,17 +11,15 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   getAcceptancePlanOverOperation,
-  getAcceptancePlanOverOperationContainerPage,
+  deleteSubPlan,
   getAcceptancePlanOverOperationPage,
-} from '#/api/bpp/flowoverlimitwork';
+} from '#/api/bpp/emptycontainercontrol';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 
 import {
-  acceptancePlanOvrOprColumns,
-  acceptancePlanOvrOprFormSchema,
-  useBoxGridColumns,
-  useToolChangeGridColumns,
+  subPlanColumns,
+  acceptancePlanOvrOprFormSchema
 } from './data';
 import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
@@ -48,9 +46,9 @@ function handleRefresh() {
 function handleCreate() {
   formModalApi.setData(null).open();
 }
-/** 查看详情 */
-function handleViewDetail(row: OverLimitPlan) {
-  message.info(`查看编号 ${row.acceptancePlanNo} 的详情`);
+
+function handleExport() {
+  message.info('导出功能');
 }
 /** 查看详情 */
 const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
@@ -64,16 +62,24 @@ const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   formModalApi.setData(res).open();
 };
 
+/** 删除申请 */
+const handleDelete = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+  // 这里实现删除逻辑
+  // 例如调用删除API
+  await deleteSubPlan(row.id);
+  message.success('删除成功');
+  handleRefresh(); // 删除后刷新表格
+};
+
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<number[]>([]);
 function handleRowCheckboxChange({
-  records,
-}: {
+                                   records,
+                                 }: {
   records: FlowOverLimitWorkApi.AcceptancePlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
-  boxGridApi.query();
 }
 
 // 高级查询处理函数
@@ -90,7 +96,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
   },
   gridOptions: {
-    columns: acceptancePlanOvrOprColumns(),
+    columns: subPlanColumns(),
     height: 'auto',
     keepSource: false,
     rowConfig: {
@@ -98,12 +104,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      search: true,
-      custom: true,
-      export: true,
-      // import: true,
-      refresh: true,
-      zoom: true,
+      refresh: false,
+      search: false,
     },
     pagerConfig: {
       pageSize: 10,
@@ -127,100 +129,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxChange: handleRowCheckboxChange,
   },
 });
-
-// 箱列表表格配置
-const [BoxGrid, boxGridApi] = useVbenVxeGrid({
-  gridOptions: {
-    columns: useBoxGridColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    proxyConfig: {
-      autoLoad: false,
-      manual: true,
-      ajax: {
-        query: async ({ page }, formValues) => {
-          if (acceptancePlanNo.value.length > 0) {
-            formValues.acceptancePlanNos = acceptancePlanNo.value;
-          }
-          if (formValues?.acceptancePlanNos?.length > 0) {
-            return await getAcceptancePlanOverOperationContainerPage({
-              pageNo: page.currentPage,
-              pageSize: page.pageSize,
-              ...formValues,
-            });
-          }
-          // 无参数时返回空数据（确保界面显示空）
-          return { list: [], total: 0 };
-        },
-      },
-    },
-  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
-});
-
-// 变更吊具记录表格配置
-const [ToolChangeGrid] = useVbenVxeGrid({
-  gridOptions: {
-    columns: useToolChangeGridColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    data: [
-      {
-        id: 1,
-        global_id: 'GID000001',
-        operation_type: 'DS',
-        drive_source: '客户申请',
-        change_reason: '超高箱作业',
-        vessel_code: 'XX',
-        voyage_code: 'SG001E',
-        container_no: 'TESU00000001',
-        operation_position: '01BAY01',
-        machine_type: 'QC',
-        machine_no: 'QC01',
-        spreader_type: 'HIGH',
-        start_time: '2024-01-01 10:00:00',
-        end_time: '2024-01-01 10:30:00',
-        operation_file: 'file1.jpg,file2.jpg',
-        remark: '需要使用特殊吊具',
-        container_over_id: 1001,
-        machine_stop_id: 2001,
-        creator: 'admin',
-        create_time: '2024-01-01 09:00:00',
-        updater: 'admin',
-        update_time: '2024-01-01 09:30:00',
-        deleted: 0,
-        tenant_id: 1,
-      },
-    ],
-    // 禁用代理模式，确保不发送远程请求
-    proxyConfig: null,
-  } as VxeTableGridOptions<ToolChangeRecord>,
-});
-
-const radioValue = ref(null);
 
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
@@ -256,6 +164,12 @@ const adcancedQueryModalOpen = () => {
                 icon: ACTION_ICON.DOWNLOAD,
                 onClick: handleHighPriceQuery,
               },
+              {
+                label: '日志查询',
+                type: 'primary',
+                icon: ACTION_ICON.VIEW,
+                onClick: handleLogQuery,
+              }
             ]"
           />
         </template>
@@ -280,102 +194,13 @@ const adcancedQueryModalOpen = () => {
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleViewDetail.bind(null, row),
+                onClick: handleDelete.bind(null, row),
+                danger: true,
               },
             ]"
           />
         </template>
       </Grid>
-    </div>
-    <div class="my-3 flex h-2/5 w-full">
-      <div class="w-1/2">
-        <!-- 箱列表表格 -->
-        <BoxGrid table-title="箱列表">
-          <template #actions="{ row }">
-            <TableAction
-              :actions="[
-                {
-                  label: '查看',
-                  type: 'link',
-                  icon: ACTION_ICON.VIEW,
-                  onClick: () =>
-                    message.info(`查看箱 ${row.container_no} 的详情`),
-                },
-                {
-                  label: '编辑',
-                  type: 'link',
-                  icon: ACTION_ICON.EDIT,
-                  onClick: () => message.info(`编辑箱 ${row.container_no}`),
-                },
-                {
-                  label: '删除',
-                  type: 'link',
-                  danger: true,
-                  icon: ACTION_ICON.DELETE,
-                  popConfirm: {
-                    title: `确认删除箱 ${row.container_no} 吗？`,
-                    confirm: () => message.success('删除成功'),
-                  },
-                },
-              ]"
-            />
-          </template>
-          <template #toolbar-tools>
-            <div class="mr-4">
-              <a-radio-group name="radioGroup" v-model:value="radioValue">
-                <a-radio value="箱现场突发">箱现场突发</a-radio>
-                <a-radio value="舱盖板">舱盖板</a-radio>
-                <a-radio value="客户发起">客户发起</a-radio>
-              </a-radio-group>
-            </div>
-            <TableAction
-              :actions="[
-                {
-                  label: '现场操作确认',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
-                {
-                  label: '现场无此操作',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
-                {
-                  label: '无需变更道具',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
-              ]"
-            />
-          </template>
-        </BoxGrid>
-      </div>
-      <div class="ml-3 w-1/2">
-        <!-- 变更吊具记录表格 -->
-        <ToolChangeGrid table-title="变更吊具记录">
-          <template #toolbar-tools>
-            <TableAction
-              :actions="[
-                {
-                  label: '日志查询',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
-                {
-                  label: '无变更作业',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
-              ]"
-            />
-          </template>
-        </ToolChangeGrid>
-      </div>
     </div>
   </Page>
 </template>
