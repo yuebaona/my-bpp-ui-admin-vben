@@ -713,7 +713,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
 /** 超限作业申请列表的字段 */
 export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'checkbox', width: 40 },
+    { type: 'checkbox', width: 40 ,fixed: 'left',},
     {
       field: 'acceptancePlanNo',
       title: '申请编号',
@@ -1117,6 +1117,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       type: 'checkbox',
       width: 40,
+      fixed: 'left',
     },
     {
       field: 'containerNo',
@@ -1272,6 +1273,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       type: 'checkbox',
       width: 40,
+      fixed: 'left',
     },
     {
       field: 'machineSpreaderChangeType',
@@ -1532,6 +1534,7 @@ export function machineSpreaderChangeRecordGridColumns(
       title: '创建时间',
       minWidth: 150,
       sortable: true,
+      formatter: 'formatDateTime',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
