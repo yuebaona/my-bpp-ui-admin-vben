@@ -1414,6 +1414,22 @@ export function machineSpreaderChangeRecordGridColumns(
       },
     },
     {
+      field: 'isOnSiteWork',
+      title: '现场是否实际作业',
+      minWidth: 120,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
       field: 'operationPosition',
       title: '作业位置',
       minWidth: 100,

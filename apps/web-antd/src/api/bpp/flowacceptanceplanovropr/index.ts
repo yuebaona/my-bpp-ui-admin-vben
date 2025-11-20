@@ -108,6 +108,7 @@ export namespace FlowOverLimitWorkApi {
     stopEndTime: number | string;
     stopRemark: string;
     overOperationContainerIds: string[]; // 用于现场操作新增
+    isOnSiteWork:string ;
   }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
