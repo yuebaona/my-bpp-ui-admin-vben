@@ -36,7 +36,7 @@ import OnSiteOperation from './modules/onSiteOperation.vue';
 interface OnSideOperation {
   overOperationContainerIds: string;
   initiationType: string;
-  operationType: string;
+  machineSpreaderChangeType: string;
   acceptancePlanNo: string;
   containerNo: string;
 }
@@ -216,8 +216,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
         hideLoading();
       }
     })
-    .catch(() => {
-    });
+    .catch(() => {});
 };
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
@@ -246,22 +245,34 @@ function boxHandleRowCheckboxChange({
 }: {
   records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
 }) {
-  boxCheckedIds.value = records.map((item) => item.id);
-  boxAcceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
-  containerNos.value = records.map((item) => item.containerNo);
-  containerIds.value = records.map((item) => item.id);
+  const refMap = {
+    boxCheckedIds,
+    boxAcceptancePlanNo,
+    containerNos,
+    containerIds,
+    machineSpreaderChangeTypes,
+    containerOperationNodes,
+    vesselCodes,
+    vesselVoyages,
+  };
+  const fieldMappings = {
+    boxCheckedIds: 'id',
+    boxAcceptancePlanNo: 'acceptancePlanNo',
+    containerNos: 'containerNo',
+    containerIds: 'id',
+    machineSpreaderChangeTypes: 'machineSpreaderChangeType',
+    containerOperationNodes: 'containerOperationNode',
+    vesselCodes: 'vesselCode',
+    vesselVoyages: 'vesselVoyage',
+  };
+  Object.entries(fieldMappings).forEach(([refName, field]) => {
+    refMap[refName].value = records.map((item) => item[field]);
+  });
   batchQueryConditions.value = records.map((item) => ({
     acceptancePlanNo: item.acceptancePlanNo,
     containerNo: item.containerNo,
   }));
-  machineSpreaderChangeTypes.value = records.map(
-    (item) => item.machineSpreaderChangeType,
-  );
-  containerOperationNodes.value = records.map(
-    (item) => item.containerOperationNode,
-  );
-  vesselCodes.value = records.map((item) => item.vesselCode);
-  vesselVoyages.value = records.map((item) => item.vesselVoyage);
+
   machineSpreaderChangeRecordGridApi.query();
 }
 /** 获取字典数据 */
