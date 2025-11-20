@@ -193,3 +193,9 @@ export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
     `/bpp/flow/acceptance-plan-over-operation-container/complete?ids=${ids}`,
   );
 };
+// 批量删除机械吊具变更操作记录(无变更作业)
+export const machineSpreaderRecordDeleteList = (ids: any) => {
+  return requestClient.delete(
+    `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
+  );
+};

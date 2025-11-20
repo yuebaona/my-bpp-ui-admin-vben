@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type{
-   FlowOverLimitWorkApi
+import {
+  type FlowOverLimitWorkApi,
+  machineSpreaderRecordDeleteList
 } from "#/api/bpp/flowoverlimitwork";
 
 import { onMounted, ref, watch } from 'vue';
@@ -250,7 +251,33 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
       }
     })
     .catch(() => {});
-}
+};
+/** 无变更作业 */
+const handleMachineSpreaderRecordDeleteList = async () => {
+  // 判断是否选中箱
+  if (containerIds.value.length === 0) {
+    message.error('请选择要操作的箱');
+    return;
+  }
+  confirm({
+    content: `选中记录确认现场未进行变更吊具处理？`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.processing'),
+        duration: 0,
+      });
+      try {
+        await machineSpreaderRecordDeleteList(containerIds.value);
+        message.success($t('ui.actionMessage.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {});
+};
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<string[]>([]);
@@ -619,7 +646,7 @@ watch(
                   label: '无变更作业',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick: handleMachineSpreaderRecordDeleteList,
                 },
               ]"
             />
