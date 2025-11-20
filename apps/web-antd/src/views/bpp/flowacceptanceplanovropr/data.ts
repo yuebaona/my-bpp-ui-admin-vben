@@ -1274,7 +1274,7 @@ export function machineSpreaderChangeRecordGridColumns(
       width: 40,
     },
     {
-      field: 'operationType',
+      field: 'machineSpreaderChangeType',
       title: '现场作业类别',
       minWidth: 120,
       formatter: ({ cellValue }) => {
