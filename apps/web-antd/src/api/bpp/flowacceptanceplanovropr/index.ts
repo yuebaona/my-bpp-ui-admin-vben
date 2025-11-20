@@ -1,131 +1,201 @@
-import type { Dayjs } from 'dayjs';
+import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-export namespace FlowAcceptancePlanOverApi {
-  /** 受理计划操作信息 */
-  export interface FlowAcceptancePlanOvrOpr {
-    acceptancePlanNo?: string; // 受理计划编号
-    acceptancePlanWebno: string; // 线上申请编号
-    applicantCode: string; // 申请人
-    applicantCompanyName: string; // 申请公司名称
-    payerCode: string; // 缴费方编码
-    payerName: string; // 缴费方名称
-    paymentType: string; // 缴费方式
-    category: string; // 进出口类别
-    vesselCode: string; // 作业船编号
-    vesselName: string; // 作业船名（中文船名）
-    voyageCode: string; // 作业航次
-    plannedOperationTime: Dayjs | string; // 预计作业时间
-    isLcl: string; // 是否拼箱
-    billNo: string; // 提单号
-    cargoName: string; // 货名
-    attachmentFile: string; // 附件
-    handlingPerson: string; // 经办人
-    handlerRemark: string; // 经办人备注
-    handlerConfirmation: string; // 经办人确认内容
-    resConfirmTime: Dayjs | string; // 经办人确认时间
-    isAllowedStacking: string; // 是否落堆
-    plannedMachineryType: string; // 预判机械类型
-    plannedSpreaderType: string; // 预判作业吊具类型
-    isSystemRate: string; // 是否系统费率
-    planPrice: number; // 报价金额
-    planStatus: string; // 受理状态
-    approvalWorkflowCurrentNode: string; // 审批工作流当前节点
-    apprWorkflowCurrentStatus: string; // 审批工作流当前状态
-    apprResult: string; // 审核意见
-    apprWorkflowNextNode: string; // 审批工作流下一节点
-    submissionTime: Dayjs | string; // 提交时间
-    apprWorkflowComTime: Dayjs | string; // 审批工作流的审结时间
-    id: number; // 主键
+export namespace FlowOverLimitWorkApi {
+  // 受理计划VO
+  export interface AcceptancePlanVO {
+    id: number;
+    acceptancePlanNo: string;
+    acceptancePlanWebNo: string;
+    applicantCode: string;
+    applicantCompanyName: string;
+    payerCodeGate: string;
+    paymentTypeGate: string;
+    payerCodeSea: string;
+    paymentTypeSea: string;
+    category: string;
+    vesselCode: string;
+    vesselName: string;
+    vesselVoyage: string;
+    plannedOperationTime: string;
+    attachmentFile: string;
+    handlingPerson: string;
+    handlerRemark: string;
+    handlerConfirmation: string;
+    handlerConfirmTime: string;
+    isSystemRate: boolean;
+    planStatus: string;
+    conclusionTime: string;
+    dataSource: string;
+    applicantPlanType: string;
+    applicantType: string;
+    applicantPlanCount: number;
+    applicantPlanStart: string;
+    applicantPlanEnd: string;
+    cargoOwnerCode: string;
+    cargoAgentCode: string;
+    invoiceTitle: string;
+    handlingPhoneNumber: string;
   }
-
-  /** 变更吊具记录VO */
+  // 超限受理计划信息
+  export interface AcceptancePlanOverOperationVO {
+    id: number;
+    isAllowedStacking: boolean;
+    plannedMachineryType: string;
+    acceptancePlanNo: string;
+    processInstanceId: string;
+  }
+  // 超限受理计划箱信息
+  export interface AcceptancePlanOverOperationContainerVO {
+    id: number;
+    containerNo: string;
+    containerSize: string;
+    containerType: string;
+    containerCargoWeight: number;
+    containerTotalWeight: number;
+    containerCargoSize: string;
+    containerOverlimitDetails: string;
+    containerPhysicalStatus: string;
+    containerOperationNode: string;
+    acceptancePlanNo: string;
+    overOperationContainerNo: string;
+    processInstanceId: string;
+    priceSea: number;
+    priceGate: number;
+    machineSpreaderChangeType: string;
+    machineSpreaderType: string;
+    plannedSpreaderType: string;
+  }
+  // 提单信息表
+  export interface AcceptancePlanBillMessageVO {
+    id: number;
+    acceptancePlanNo: string;
+    billNo: string;
+    cargoType: string;
+    cargoName: string;
+    cargoCount: number;
+    billType: string;
+  }
+  // 变更吊具记录表
   export interface MachineSpreaderChangeRecordVO {
-    id: number; // 主键ID
-    operationType: string; // 现场作业类别
-    operationSource: string; // 驱动源
-    changeReason: string; // 变更原因
-    vesselCode: string; // 作业船名
-    voyageCode: string; // 作业航次
-    operationNo: string; // 编号
-    operationPosition: string; // 作业位置
-    machineType: string; // 作业机械类别
-    machineNo: string; // 作业机械号
-    spreaderType: string; // 作业吊具类型
-    startTime: string; // 换吊具开始时间
-    endTime: string; // 换吊具结束时间
-    operationFile: string; // 现场图片
-    remark: string; // 备注
-    creator: string; // 创建人
-    createTime: string; // 创建时间
-    updater: string; // 更新人
-    updateTime: string; // 更新时间
-    deleted: boolean; // 删除标识
-    tenantId: number; // 租户ID
-    operationRecordStatus: string; // 操作记录状态
-    acceptancePlanNo: string; // 受理计划编号
-    operationContainerId: number; // 操作容器ID
-    stopCode: string; // 停时原因代码
-    stopType: string; // 停时分类代码
-    stopStartTime: string; // 停时开始时间
-    stopEndTime: string; // 停时结束时间
-    stopRemark: string; // 停时备注
+    id: number | string;
+    operationType: string;
+    operationSource: string;
+    changeReason: string;
+    vesselCode: string;
+    vesselVoyage: string;
+    operationNo: string;
+    operationPosition: string;
+    machineSpreaderChangeType: string;
+    machineSpreaderType: string;
+    machineType: string;
+    machineNo: string;
+    spreaderType: string;
+    startTime: number | string;
+    endTime: number | string;
+    operationFile: string;
+    remark: string;
+    creator: string;
+    createTime: number | string;
+    endTimeBack: number;
+    operationRecordStatus: string;
+    acceptancePlanNo: string;
+    operationContainerId: number;
+    stopCode: string;
+    stopType: string;
+    stopStartTime: number | string;
+    stopEndTime: number | string;
+    stopRemark: string;
+    overOperationContainerIds: string[]; // 用于现场操作新增
+  }
+  // 总数据
+  export interface OverLimitWorkSaveReqVO {
+    acceptancePlanSaveReqVO: AcceptancePlanVO;
+    acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
+    acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
+    acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
 
-// 受理计划操作 API
-export const FlowAcceptancePlanOvrOprApi = {
-  // 查询受理计划操作分页
-  getFlowAcceptancePlanOvrOprPage: async (params: any) => {
-    return await requestClient.get(
-      '/flow/bpp/flow-acceptance-plan-ovr-opr/page',
-      { ...params, headers: { tag: 'bpp-flow-server-Hsl' } },
-    );
-  },
-
-  // 查询受理计划操作详情
-  getFlowAcceptancePlanOvrOpr: async (id: number) => {
-    return await requestClient.get(
-      `/bpp/flow-acceptance-plan-ovr-opr/get?id=${id}`,
-    );
-  },
-
-  // 新增受理计划操作
-  createFlowAcceptancePlanOvrOpr: async (data: FlowAcceptancePlanOverApi.FlowAcceptancePlanOvrOpr) => {
-    return await requestClient.post(
-      `/bpp/flow-acceptance-plan-ovr-opr/create`,
-      data,
-    );
-  },
-
-  // 修改受理计划操作
-  updateFlowAcceptancePlanOvrOpr: async (data: FlowAcceptancePlanOverApi.FlowAcceptancePlanOvrOpr) => {
-    return await requestClient.put(
-      `/bpp/flow-acceptance-plan-ovr-opr/update`,
-      data,
-    );
-  },
-
-  // 删除受理计划操作
-  deleteFlowAcceptancePlanOvrOpr: async (id: number) => {
-    return await requestClient.delete(
-      `/bpp/flow-acceptance-plan-ovr-opr/delete?id=${id}`,
-    );
-  },
-
-  /** 批量删除受理计划操作 */
-  deleteFlowAcceptancePlanOvrOprList: async (ids: number[]) => {
-    return await requestClient.delete(
-      `/bpp/flow-acceptance-plan-ovr-opr/delete-list?ids=${ids.join(',')}`,
-    );
-  },
-
-  // 导出受理计划操作 Excel
-  exportFlowAcceptancePlanOvrOpr: async (params: any) => {
-    return await requestClient.download(
-      `/bpp/flow-acceptance-plan-ovr-opr/export-excel`,
-      params,
-    );
-  },
+// 创建超限受理计划信息
+export const createAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation/create',
+    data,
+  );
+};
+// 修改超限受理计划信息
+export const updateAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
+) => {
+  return requestClient.put(
+    '/bpp/flow/acceptance-plan-over-operation/update',
+    data,
+  );
+};
+// 查询超限受理计划信息详情
+export const getAcceptancePlanOverOperation = (id: number) => {
+  return requestClient.get(
+    `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
+  );
+};
+// 超限受理计划信息分页查询
+export const getAcceptancePlanOverOperationPage = (params: PageParam) => {
+  return requestClient.get<
+    PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>
+  >('/bpp/flow/acceptance-plan-over-operation/page', { params });
+};
+// 超限受理计划信息箱分页查询
+export const getAcceptancePlanOverOperationContainerPage = (
+  params: PageParam,
+) => {
+  return requestClient.get<
+    PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>
+  >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
+};
+// 获得机械吊具变更操作记录分页
+export const getMachineSpreaderChangeRecordPage = (data: any) => {
+  return requestClient.post('/bpp/flow/machine-spreader-record/page', data);
+};
+// 现场操作确认
+export const confirmMachineSpreaderChangeRecord = (
+  data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation-container/confirm',
+    data,
+  );
+};
+// 修改超限受理计划信息
+export const updateMachineSpreaderRecord = (
+  data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  return requestClient.put('/bpp/flow/machine-spreader-record/update', data);
+};
+// 删除机械吊具变更操作记录
+export const deleteMachineSpreaderRecord = (id: number | string) => {
+  return requestClient.delete(
+    `/bpp/flow/machine-spreader-record/delete?id=${id}`,
+  );
+};
+// 现场无此操作（实际无作业）
+export const acceptancePlanOverOperationContainerNoOperation = (ids: any) => {
+  return requestClient.post(
+    `/bpp/flow/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
+  );
+};
+// 无需变更吊具（停止后续作业）
+export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
+  return requestClient.post(
+    `/bpp/flow/acceptance-plan-over-operation-container/complete?ids=${ids}`,
+  );
+};
+// 批量删除机械吊具变更操作记录(无变更作业)
+export const machineSpreaderRecordDeleteList = (ids: any) => {
+  return requestClient.delete(
+    `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
+  );
 };
