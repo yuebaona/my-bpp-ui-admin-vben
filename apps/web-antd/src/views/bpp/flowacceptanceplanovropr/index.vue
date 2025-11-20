@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type{
-   FlowOverLimitWorkApi
+import type {
+  FlowOverLimitWorkApi
 } from "#/api/bpp/flowacceptanceplanovropr";
 
 import { onMounted, ref, watch } from 'vue';
@@ -21,6 +21,7 @@ import {
   getAcceptancePlanOverOperationContainerPage,
   getAcceptancePlanOverOperationPage,
   getMachineSpreaderChangeRecordPage,
+  machineSpreaderRecordDeleteList,
 } from '#/api/bpp/flowacceptanceplanovropr';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -253,9 +254,9 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 };
 /** 无变更作业 */
 const handleMachineSpreaderRecordDeleteList = async () => {
-  // 判断是否选中箱
-  if (containerIds.value.length === 0) {
-    message.error('请选择要操作的箱');
+  // 判断是否选中变更记录
+  if (machineSpreaderChangeRecordCheckedIds.value.length === 0) {
+    message.error('请选择要变更吊具');
     return;
   }
   confirm({
@@ -333,6 +334,17 @@ function boxHandleRowCheckboxChange({
   }));
 
   machineSpreaderChangeRecordGridApi.query();
+}
+/** 吊具变更记录选中操作 */
+const machineSpreaderChangeRecordCheckedIds = ref<number[]>([]);
+const machineSpreaderChangeRecordHandleRowCheckboxChange=(
+  {
+    records,
+  }: {
+    records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
+  }
+)=>{
+  machineSpreaderChangeRecordCheckedIds.value = records.map((item) => item.id);
 }
 /** 获取字典数据 */
 const getDictDataList = async () => {
@@ -483,6 +495,10 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         },
       },
     } as VxeTableGridOptions<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>,
+    gridEvents: {
+      checkboxAll: machineSpreaderChangeRecordHandleRowCheckboxChange,
+      checkboxChange: machineSpreaderChangeRecordHandleRowCheckboxChange,
+    },
   });
 
 const initiationTypeValue = ref<null | string>(null);
