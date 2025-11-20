@@ -181,9 +181,15 @@ export const deleteMachineSpreaderRecord = (id: number | string) => {
     `/bpp/flow/machine-spreader-record/delete?id=${id}`,
   );
 };
-// 现场无此操作
+// 现场无此操作（实际无作业）
 export const acceptancePlanOverOperationContainerNoOperation = (ids: any) => {
   return requestClient.post(
     `/bpp/flow/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
+  );
+};
+// 无需变更吊具（停止后续作业）
+export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
+  return requestClient.post(
+    `/bpp/flow/acceptance-plan-over-operation-container/complete?ids=${ids}`,
   );
 };

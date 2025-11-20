@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type{
+   FlowOverLimitWorkApi
+} from "#/api/bpp/flowoverlimitwork";
 
 import { onMounted, ref, watch } from 'vue';
 
@@ -12,6 +14,7 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
+  acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
   deleteMachineSpreaderRecord,
   getAcceptancePlanOverOperation,
@@ -198,7 +201,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     return;
   }
   confirm({
-    content: `${containerNos.value.toString()}箱实际没有在本码头入港作业.`,
+    content: `${containerNos.value.toString()}箱实际没有在本码头入港作业。`,
     icon: 'info',
   })
     .then(async () => {
@@ -218,6 +221,36 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     })
     .catch(() => {});
 };
+/** 停止后续作业  */
+const handleAcceptancePlanOverOperationContainerComplete = async () => {
+  // 判断是否选中箱
+  if (containerIds.value.length === 0) {
+    message.error('请选择要操作的箱');
+    return;
+  }
+  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+    message.error('请选择现场作业节点不是初始化或完成的状态');
+    return;
+  }
+  confirm({
+    content: `${containerNos.value.toString()}箱是否确认现场操作已全部完成？`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.processing'),
+        duration: 0,
+      });
+      try {
+        await acceptancePlanOverOperationContainerComplete(containerIds.value);
+        message.success($t('ui.actionMessage.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {});
+}
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<string[]>([]);
@@ -553,17 +586,17 @@ watch(
                   onClick: handleOnSiteOperation,
                 },
                 {
-                  label: '实际未发生',
+                  label: '实际无作业',
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
-                  label: '无后续变更',
+                  label: '停止后续作业',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
             />
