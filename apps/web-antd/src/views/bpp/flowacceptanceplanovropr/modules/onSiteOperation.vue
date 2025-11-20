@@ -80,6 +80,7 @@ const [Modal, modalApi] = useVbenModal({
     Object.assign(formData.value, data);
     formData.value.acceptancePlanNo = acceptancePlanNo;
     formData.value.vesselCode = 'TEST';
+    formData.value.operationFile = JSON.stringify(data.operationFile);
     await (formData.value?.id
       ? updateMachineSpreaderRecord(formData.value)
       : confirmMachineSpreaderChangeRecord(formData.value));
@@ -110,8 +111,8 @@ const [Modal, modalApi] = useVbenModal({
       data.value?.initiationType || data?.operationSource,
     );
     await setFieldAndDisable(
-      'operationType',
-      data.value?.operationType || data?.operationType,
+      'machineSpreaderChangeType',
+      data.value?.machineSpreaderChangeType || data?.machineSpreaderChangeType,
     );
     await setFieldAndDisable(
       'overOperationContainerIds',
