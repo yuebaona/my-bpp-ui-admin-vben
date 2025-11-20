@@ -4,7 +4,7 @@ import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { onMounted, ref, watch } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
@@ -12,6 +12,7 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
+  acceptancePlanOverOperationContainerNoOperation,
   deleteMachineSpreaderRecord,
   getAcceptancePlanOverOperation,
   getAcceptancePlanOverOperationContainerPage,
@@ -188,6 +189,35 @@ const handleOnSiteOperation = async () => {
     }
   }
   OnSideOperationModalApi.setData(data).open();
+};
+/** 实际未发生 */
+const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
+  // 判断是否选中箱
+  if (containerIds.value.length === 0) {
+    message.error('请选择要操作的箱');
+    return;
+  }
+  confirm({
+    content: `${containerNos.value.toString()}箱实际没有在本码头入港作业.`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.processing'),
+        duration: 0,
+      });
+      try {
+        await acceptancePlanOverOperationContainerNoOperation(
+          containerIds.value,
+        );
+        message.success($t('ui.actionMessage.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {
+    });
 };
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
@@ -407,13 +437,6 @@ watch(
   },
   { immediate: true },
 );
-
-const changeNameFilter = (option: any) => {
-  const $grid = gridApi.grid;
-  if ($grid) {
-    $grid.updateFilterOptionStatus(option, !!option.data);
-  }
-};
 </script>
 
 <template>
@@ -519,13 +542,14 @@ const changeNameFilter = (option: any) => {
                   onClick: handleOnSiteOperation,
                 },
                 {
-                  label: '现场无此操作',
+                  label: '实际未发生',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick:
+                    handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
-                  label: '无需变更道具',
+                  label: '无后续变更',
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleCreate,

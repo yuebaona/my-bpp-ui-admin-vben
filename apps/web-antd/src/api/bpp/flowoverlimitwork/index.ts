@@ -181,3 +181,9 @@ export const deleteMachineSpreaderRecord = (id: number | string) => {
     `/bpp/flow/machine-spreader-record/delete?id=${id}`,
   );
 };
+// 现场无此操作
+export const acceptancePlanOverOperationContainerNoOperation = (ids: any) => {
+  return requestClient.post(
+    `/bpp/flow/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
+  );
+};
