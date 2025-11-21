@@ -292,6 +292,10 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
           { label: '40', value: '40' },
         ],
       },
+      // slots: {
+      //   // 编辑状态下的插槽
+      //   edit: 'containerSizeEdit'
+      // }
     },
     {
       title: '箱型',
@@ -300,8 +304,8 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
       editRender: {
         name: 'select',
         options: [
-          { label: 'FR', value: 'FR' },
-          { label: 'OT', value: 'OT' },
+          { label: 'FR', value: 'FR1' },
+          { label: 'OT', value: 'OT1' },
         ],
       },
     },
@@ -825,6 +829,11 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
+        const option = options.find(opt => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'vesselCode',
@@ -905,6 +914,11 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find(opt => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'payerCodeGate',
@@ -936,6 +950,11 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find(opt => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
     {
