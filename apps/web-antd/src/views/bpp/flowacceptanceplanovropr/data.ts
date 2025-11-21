@@ -765,7 +765,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'applicantCode',
       title: '申请人',
-      minWidth: 120,
+      minWidth: 150,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
@@ -781,7 +781,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'vesselName',
       title: '作业船名',
-      minWidth: 120,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -797,7 +797,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'vesselVoyage',
       title: '作业航次',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -813,7 +813,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'category',
       title: '进出口类别',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -829,7 +829,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'vesselCode',
       title: '作业船名代码',
-      minWidth: 120,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -845,7 +845,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'billNo',
       title: '提单号',
-      minWidth: 120,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -861,7 +861,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'cargoName',
       title: '货名',
-      minWidth: 120,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -877,7 +877,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'payerCodeSea',
       title: '海侧缴费方',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -893,7 +893,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'paymentTypeSea',
       title: '海侧缴费方式',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -909,7 +909,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'payerCodeGate',
       title: '陆侧缴费方',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -925,7 +925,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'paymentTypeGate',
       title: '陆侧缴费方式',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -957,7 +957,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'isSystemRate',
       title: '是否系统费率',
-      minWidth: 100,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -973,7 +973,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planStatus',
       title: '受理状态',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -989,7 +989,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'auditNode',
       title: '审批节点',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1005,7 +1005,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'auditNodeStatus',
       title: '审批状态',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1037,7 +1037,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'nextNode',
       title: '下一节点',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1138,7 +1138,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'containerSize',
       title: '尺寸',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1154,7 +1154,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'containerType',
       title: '箱型',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1170,7 +1170,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'containerCargoWeight',
       title: '货物重KG',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1186,7 +1186,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'containerTotalWeight',
       title: '箱货总重KG',
-      minWidth: 100,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1202,7 +1202,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'containerCargoSize',
       title: '货物尺寸CM',
-      minWidth: 120,
+      minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1278,7 +1278,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'machineSpreaderChangeType',
       title: '现场作业类别',
-      minWidth: 120,
+      minWidth: 200,
       formatter: ({ cellValue }) => {
         const dict = dictStore?.getDictData?.('operation_type', cellValue);
         return dict?.label || cellValue;
@@ -1298,7 +1298,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'vesselName',
       title: '作业船名',
-      minWidth: 100,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1314,7 +1314,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'vesselVoyage',
       title: '作业航次',
-      minWidth: 100,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1330,7 +1330,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'containerNo',
       title: '箱号',
-      minWidth: 150,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1346,7 +1346,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'operationSource',
       title: '驱动源',
-      minWidth: 100,
+      minWidth: 200,
       formatter: ({ cellValue }) => {
         const dict = dictStore?.getDictData?.('operation_source', cellValue);
         return dict?.label || cellValue;
@@ -1366,7 +1366,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'changeReason',
       title: '变更原因',
-      minWidth: 120,
+      minWidth: 200,
       formatter: ({ cellValue }) => {
         const dict = dictStore?.getDictData?.('change_reason', cellValue);
         return dict?.label || cellValue;
@@ -1386,7 +1386,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'machineSpreaderType',
       title: '作业机械类别',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1402,7 +1402,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'machineNo',
       title: '作业机械号',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1418,7 +1418,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'isOnSiteWork',
       title: '现场是否实际作业',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1434,7 +1434,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'operationPosition',
       title: '作业位置',
-      minWidth: 100,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1450,7 +1450,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'spreaderType',
       title: '作业吊具类型',
-      minWidth: 120,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1466,7 +1466,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'startTime',
       title: '换吊具开始时间',
-      minWidth: 180,
+      minWidth: 200,
       formatter: 'formatDateTime',
       sortable: true,
       filters: [{ data: '' }],
@@ -1483,7 +1483,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'endTime',
       title: '换吊具结束时间',
-      minWidth: 180,
+      minWidth: 200,
       formatter: 'formatDateTime',
       sortable: true,
       filters: [{ data: '' }],
@@ -1500,7 +1500,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'remark',
       title: '备注',
-      minWidth: 150,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1516,7 +1516,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'creator',
       title: '创建者',
-      minWidth: 150,
+      minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1532,7 +1532,7 @@ export function machineSpreaderChangeRecordGridColumns(
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 150,
+      minWidth: 200,
       sortable: true,
       formatter: 'formatDateTime',
       filters: [{ data: '' }],
