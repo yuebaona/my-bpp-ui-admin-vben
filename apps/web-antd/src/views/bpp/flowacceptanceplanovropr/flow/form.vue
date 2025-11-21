@@ -5,7 +5,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { computed, nextTick, reactive, ref, toRaw } from 'vue';
-
+import { confirm, Page } from '@vben/common-ui';
 import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
@@ -362,6 +362,7 @@ const handleUpload = async (data: any) => {
 </script>
 
 <template>
+  <Page>
     <Form>
       <template #containerInfo>
         <div class="mt-4 w-full">
@@ -441,4 +442,5 @@ const handleUpload = async (data: any) => {
         </span>
       </template>
     </Form>
+  </Page>
 </template>

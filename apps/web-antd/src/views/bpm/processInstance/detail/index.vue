@@ -38,7 +38,8 @@ import BpmProcessInstanceTaskList from './modules/task-list.vue';
 import ProcessInstanceTimeline from './modules/time-line.vue';
 
 defineOptions({ name: 'BpmProcessInstanceDetail' });
-
+const flowStatus = ref(null)  // 流程状态
+const todoTask = ref(null)  // 流程状态
 const props = defineProps<{
   activityId?: string; // 流程活动编号，用于抄送查看
   id: string; // 流程实例的编号
@@ -107,7 +108,8 @@ async function getApprovalDetail() {
 
     processInstance.value = data.processInstance;
     processDefinition.value = data.processDefinition;
-
+    flowStatus.value = data.status
+    todoTask.value = data.todoTask
     // 设置表单信息
     if (processDefinition.value.formType === BpmModelFormType.NORMAL) {
       // 获取表单字段权限
@@ -282,7 +284,7 @@ onMounted(async () => {
                   :xl="16"
                   class="h-full"
                 >
-                  <!-- 流程表单 -->
+                  <!-- 流程表单,动态表单 -->
                   <div
                     v-if="
                       processDefinition?.formType === BpmModelFormType.NORMAL
@@ -296,13 +298,19 @@ onMounted(async () => {
                       :rule="detailForm.rule"
                     />
                   </div>
+                  <!-- 流程表单,自定义表单 -->
                   <div
                     v-else-if="
                       processDefinition?.formType === BpmModelFormType.CUSTOM
                     "
                     class="h-full"
                   >
-                    <BusinessFormComponent :id="processInstance?.businessKey" />
+                    <BusinessFormComponent
+                      :id="processInstance?.businessKey"
+                      :todoTask="todoTask"
+                      :status="flowStatus"
+                      :processInstance="processInstance"
+                    />
                   </div>
                 </Col>
                 <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="8" class="h-full">
