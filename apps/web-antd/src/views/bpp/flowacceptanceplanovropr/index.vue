@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type {
-  FlowOverLimitWorkApi
-} from "#/api/bpp/flowacceptanceplanovropr";
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
 
 import { onMounted, ref, watch } from 'vue';
 
@@ -337,15 +335,13 @@ function boxHandleRowCheckboxChange({
 }
 /** 吊具变更记录选中操作 */
 const machineSpreaderChangeRecordCheckedIds = ref<number[]>([]);
-const machineSpreaderChangeRecordHandleRowCheckboxChange=(
-  {
-    records,
-  }: {
-    records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
-  }
-)=>{
+const machineSpreaderChangeRecordHandleRowCheckboxChange = ({
+  records,
+}: {
+  records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
+}) => {
   machineSpreaderChangeRecordCheckedIds.value = records.map((item) => item.id);
-}
+};
 /** 获取字典数据 */
 const getDictDataList = async () => {
   bppBaseDict.setBppBaseDictCacheByData(
