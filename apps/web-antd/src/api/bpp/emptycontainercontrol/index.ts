@@ -105,13 +105,13 @@ export const updateAcceptancePlanOverOperation = (
   );
 };
 // 查询超限受理计划信息详情
-export const getAcceptancePlanOverOperation = (id: number) => {
+export const getSubPlan = (id: number) => {
   return requestClient.get(
     `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
   );
 };
 // 超限受理计划信息分页查询
-export const getAcceptancePlanOverOperationPage = (params: PageParam) => {
+export const getSubPlanPage = (params: PageParam) => {
   return requestClient.get<
     PageResult<emptyContainerControlApi.AcceptancePlanOverOperationVO>
   >('/bpp/flow/acceptance-plan-over-operation/page', { params });

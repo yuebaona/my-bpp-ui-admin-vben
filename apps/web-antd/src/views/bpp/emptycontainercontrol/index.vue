@@ -10,9 +10,9 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getAcceptancePlanOverOperation,
+  getSubPlan,
   deleteSubPlan,
-  getAcceptancePlanOverOperationPage,
+  getSubPlanPage,
 } from '#/api/bpp/emptycontainercontrol';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -26,7 +26,7 @@ import Form from './modules/form.vue';
 import LogQuery from './modules/log-query.vue';
 
 const checkedIds = ref<number[]>([]);
-const acceptancePlanNo = ref<number[]>([]);
+const acceptancePlanNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -73,10 +73,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
+    editRules: {
+      applicantCompanyName: [{ required: true, message: '是否放箱不能为空' }],
+    },
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getAcceptancePlanOverOperationPage({
+          return await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -101,10 +104,6 @@ function handleRowCheckboxChange({
 }
 
 // 高级查询处理函数
-function handleHighPriceQuery() {
-  message.info('高级查询功能');
-}
-
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
@@ -121,13 +120,13 @@ function handleExport() {
 
 /** 查看详情 */
 const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
+  const res = await getSubPlan(row.id);
   detailModalApi.setData(res).open();
 };
 
 /** 编辑申请 */
 const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
+  const res = await getSubPlan(row.id);
   formModalApi.setData(res).open();
 };
 

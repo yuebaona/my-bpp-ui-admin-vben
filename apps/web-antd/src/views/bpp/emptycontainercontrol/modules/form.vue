@@ -17,7 +17,7 @@ import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
 } from '#/api/bpp/flowoverlimitwork';
-import { FileUpload } from '#/components/upload';
+
 import { $t } from '#/locales';
 
 import { subPlanFormSchema, containerAreaRangeColumns } from '../data';
@@ -396,27 +396,6 @@ const handleUpload = async (data: any) => {
               </template>
             </Grid>
           </div>
-        </div>
-      </template>
-      <template #attachmentFile>
-        <div class="flex flex-col">
-          <FileUpload
-            :multiple="true"
-            :accept="[
-              'doc',
-              'docx',
-              'xls',
-              'xlsx',
-              'pdf',
-              'jpg',
-              'jpeg',
-              'png',
-              'JPG',
-            ]"
-            :show-description="true"
-            @change="handleUpload"
-            :value="fileList"
-          />
         </div>
       </template>
       <template #handlingPersonLast>

@@ -15,7 +15,6 @@ import { useDescription } from '#/components/description';
 
 import {
   subPlanDetailSchema,
-  attachmentDetailColumns,
   containerInfoDetailColumns,
 } from '../data.ts';
 // 箱信息数据
@@ -110,31 +109,7 @@ const [Grid] = useVbenVxeGrid({
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
 });
-const [FileGrid] = useVbenVxeGrid({
-  gridOptions: {
-    columns: attachmentDetailColumns(),
-    height: '50px',
-    keepSource: true,
-    border: true,
-    showOverflow: false,
-    autoWidth: true,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-      zoom: false,
-      custom: false,
-    },
-    pagerConfig: {
-      enabled: false,
-    },
-    data: fileList.value,
-    showFooter: true,
-  } as VxeTableGridOptions,
-});
+
 const [Modal, modalApi] = useVbenModal({
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
@@ -180,47 +155,6 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal title="子计划详情" class="w-1/2">
     <Descriptions :data="formData" />
-    <div>
-      <div class="ant-descriptions-title my-5">箱货信息</div>
-      <div class="flex flex-col justify-start">
-        <div class="flex justify-normal font-serif text-base">
-          <div class="mx-5">
-            提单号：{{ acceptancePlanBillMessageVO.billNo }}
-          </div>
-          <div class="mx-20">
-            货名：{{ acceptancePlanBillMessageVO.cargoName }}
-          </div>
-        </div>
-
-        <Grid>
-          <template #serialNumber="{ row }">
-            <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
-          </template>
-        </Grid>
-      </div>
-    </div>
-    <div>
-      <div class="ant-descriptions-title my-5">附件列表</div>
-      <FileGrid>
-        <template #actions>
-          <TableAction
-            :actions="[
-              {
-                label: '下载',
-                type: 'link',
-              },
-              {
-                label: '预览',
-                type: 'link',
-              },
-            ]"
-          />
-        </template>
-      </FileGrid>
-    </div>
-    <div>
-      <div class="ant-descriptions-title my-5">审批记录</div>
-    </div>
   </Modal>
 </template>
 <style scoped lang="scss">
