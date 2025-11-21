@@ -1,20 +1,32 @@
 <script lang="ts" setup>
-import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
+import {type BpmProcessInstanceApi, createProcess} from '#/api/bpm/processInstance';
+
 import { computed, onMounted, ref, watch } from 'vue';
-import {confirm, Page, useVbenForm, useVbenModal} from '@vben/common-ui';
-import { BpmCandidateStrategyEnum, BpmNodeIdEnum } from '@vben/constants';
+
+import { confirm, Page } from '@vben/common-ui';
+import { useVbenForm } from '#/adapter/form';
+import {BpmCandidateStrategyEnum, BpmNodeIdEnum} from '@vben/constants';
 import { IconifyIcon } from '@vben/icons';
-import { Button, Card, message, Space } from 'ant-design-vue';
+
+import {Button, Card, message, Space} from 'ant-design-vue';
 import dayjs from 'dayjs';
+
 import { getProcessDefinition } from '#/api/bpm/definition';
 import { getApprovalDetail as getApprovalDetailApi } from '#/api/bpm/processInstance';
 import { $t } from '#/locales';
 import { router } from '#/router';
+import { useRouter } from 'vue-router';
 import ProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
 import acceptancePlanForm from '#/views/bpp/flowacceptanceplanovropr/flow/form.vue';
+import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
+import {
+  createAcceptancePlanOverOperation,
+  updateAcceptancePlanOverOperation
+} from "#/api/bpp/flowoverlimitwork";
 
+const userRouter = useRouter();
 const formLoading = ref(false); // 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
-
+const emit = defineEmits(['cancel']);
 // 审批相关：变量
 const processDefineKey = 'acceptancePlanFlow'; // 流程定义 Key
 const startUserSelectTasks = ref<any>([]); // 发起人需要选择审批人的用户任务列表
@@ -39,28 +51,45 @@ const [Form, formApi] = useVbenForm({
     labelWidth: 100,
   },
   layout: 'horizontal',
+  schema: acceptancePlanFormSchema(),
   showDefaultActions: false,
 });
 
 /** 提交申请 */
 async function onSubmit() {
-  const { valid } = await formApi.validate();
-  if (!valid) {
-    return;
-  }
-  // 1.2 审批相关：校验指定审批人
-  if (startUserSelectTasks.value?.length > 0) {
-    for (const userTask of startUserSelectTasks.value) {
-      if (
-        Array.isArray(startUserSelectAssignees.value[userTask.id]) &&
-        startUserSelectAssignees.value[userTask.id].length === 0
-      ) {
-        return message.warning(`请选择${userTask.name}的审批人`);
-      }
-    }
-  }
+  // 发起流程
+  await createProcess({
+    processDefinitionKey: processDefineKey,
+    processInstanceVariables: {
+      entity: {id: 71,},
+    },
+    businessKey: '71',
+    businessTableName: 'acceptance_plan_over_operation',
+  });
+  debugger
+  // const { valid } = await formApi.validate();
+  // if (!valid) {
+  //   return;
+  // }
+  // // 获取表单数据
+  // Object.assign(formData, await formApi.getValues());
+  // // 调用API保存数据
+  // await (formData?.id
+  //   ? updateAcceptancePlanOverOperation(data)
+  //   : createAcceptancePlanOverOperation(data));
+  // // 1.2 审批相关：校验指定审批人
+  // if (startUserSelectTasks.value?.length > 0) {
+  //   for (const userTask of startUserSelectTasks.value) {
+  //     if (
+  //       Array.isArray(startUserSelectAssignees.value[userTask.id]) &&
+  //       startUserSelectAssignees.value[userTask.id].length === 0
+  //     ) {
+  //       return message.warning(`请选择${userTask.name}的审批人`);
+  //     }
+  //   }
+  // }
   // 提交表单
-  const data = (await formApi.getValues());
+  // const data = await formApi.getValues();
   // 审批相关：设置指定审批人
   if (startUserSelectTasks.value?.length > 0) {
     data.startUserSelectAssignees = startUserSelectAssignees.value;
@@ -76,6 +105,15 @@ async function onSubmit() {
     // await (formData.value?.id
     //   ? updateLeave(submitData)
     //   : createLeave(submitData));
+    // 发起流程
+    createProcess({
+      processDefinitionKey: processDefineKey,
+      processInstanceVariables:{
+        entity: {id: 71},
+      },
+      businessKey: '71',
+      businessTableName: 'acceptance_plan_over_operation',
+    });
     // 关闭并提示
     message.success({
       content: $t('ui.actionMessage.operationSuccess'),
@@ -91,7 +129,15 @@ async function onSubmit() {
     formLoading.value = false;
   }
 }
-
+//取消，返回工作流发起主页
+async function handleCancel() {
+  // await router.push({
+  //   name: 'BpmProcessInstanceCreate',
+  //   query: { processInstanceId: '' },
+  //   replace: true
+  // });
+  router.go(-1)
+}
 /** 返回上一页 */
 function onBack() {
   confirm({
@@ -182,7 +228,7 @@ onMounted(async () => {
   );
 
   if (!processDefinitionDetail) {
-    message.error('OA 请假的流程模型未配置，请检查！');
+    message.error('受理审批的流程模型未配置，请检查！');
     return;
   }
 
@@ -197,17 +243,17 @@ onMounted(async () => {
   <Page>
     <a-row style="width: 100%">
       <a-col :span="18" style="margin-top: 10px">
-        <Card :title="getTitle" class="w-full" is-full>
+        <Card :title="getTitle" class="w-full">
           <template #extra>
             <Button type="default" @click="onBack">
               <IconifyIcon icon="lucide:arrow-left" />
               返回
             </Button>
           </template>
-            <acceptancePlanForm />
+          <acceptancePlanForm/>
           <template #actions>
-            <Space warp :size="12" class="w-full px-24" >
-              <Button type="default" @click="onSubmit"> 取消 </Button>
+            <Space warp :size="12" class="w-full px-24">
+              <Button type="default" @click="handleCancel"> 取消 </Button>
               <Button type="primary" @click="onSubmit"> 提交 </Button>
             </Space>
           </template>

@@ -621,6 +621,7 @@ onMounted(() => {
         </div>
       </div>
     </template>
+    <div style="width:100%;padding-bottom: 10px">节点ID: {{currentNode.id}}</div>
     <div
       v-if="currentNode.type === BpmNodeTypeEnum.USER_TASK_NODE"
       class="mb-3 flex items-center"
