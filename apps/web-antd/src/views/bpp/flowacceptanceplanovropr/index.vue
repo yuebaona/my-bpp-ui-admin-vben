@@ -76,10 +76,28 @@ function handleRefresh() {
 function handleCreate() {
   formModalApi.setData(null).open();
 }
-/** 查看详情 */
-function handleViewDetail(row: OverLimitPlan) {
-  message.info(`查看编号 ${row.acceptancePlanNo} 的详情`);
+
+/** 办理任务 */
+function handleAudit(row: BpmTaskApi.Task) {
+  router.push({
+    name: 'BpmProcessInstanceDetail',
+    query: {
+      id: row.processInstance!.id,
+      taskId: row.taskId,
+    },
+  });
 }
+
+/** 流程审核 */
+function handleViewDetail(row: OverLimitPlan) {
+  handleAudit({
+    processInstance:{
+      id: row.processInstanceId,
+    },
+    taskId: null
+  });
+}
+
 /** 查看详情 */
 const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   const res = await getAcceptancePlanOverOperation(row.id);
