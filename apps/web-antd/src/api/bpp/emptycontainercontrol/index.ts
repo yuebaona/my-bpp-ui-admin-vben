@@ -2,7 +2,7 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-export namespace emptyContainerControlApi {
+export namespace EmptyContainerControlApi {
   // 受理计划VO
   export interface subPlanVO {
     id: number;
@@ -88,7 +88,7 @@ export namespace emptyContainerControlApi {
 
 // 创建超限受理计划信息
 export const createAcceptancePlanOverOperation = (
-  data: emptyContainerControlApi.OverLimitWorkSaveReqVO,
+  data: EmptyContainerControlApi.OverLimitWorkSaveReqVO,
 ) => {
   return requestClient.post(
     '/bpp/flow/acceptance-plan-over-operation/create',
@@ -97,7 +97,7 @@ export const createAcceptancePlanOverOperation = (
 };
 // 修改超限受理计划信息
 export const updateAcceptancePlanOverOperation = (
-  data: emptyContainerControlApi.OverLimitWorkSaveReqVO,
+  data: EmptyContainerControlApi.OverLimitWorkSaveReqVO,
 ) => {
   return requestClient.put(
     '/bpp/flow/acceptance-plan-over-operation/update',
@@ -113,7 +113,7 @@ export const getSubPlan = (id: number) => {
 // 超限受理计划信息分页查询
 export const getSubPlanPage = (params: PageParam) => {
   return requestClient.get<
-    PageResult<emptyContainerControlApi.AcceptancePlanOverOperationVO>
+    PageResult<EmptyContainerControlApi.AcceptancePlanOverOperationVO>
   >('/bpp/flow/acceptance-plan-over-operation/page', { params });
 };
 

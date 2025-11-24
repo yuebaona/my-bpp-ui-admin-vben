@@ -5,10 +5,6 @@ import type { DescriptionItemSchema } from '#/components/description'
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
 
-export interface fileVo {
-  fileName: string
-  fileUrl: string
-}
 
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   return [
@@ -55,79 +51,6 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 
-export function containerInfoDetailColumns(): VxeTableGridOptions['columns'] {
-  return [
-    {
-      title: '序号',
-      field: 'serialNumber',
-      type: 'seq',
-      minWidth: 80,
-      slots: { footer: 'serialNumber' },
-    },
-    {
-      title: '箱号',
-      field: 'containerNo',
-      minWidth: 120,
-    },
-    {
-      title: '尺寸',
-      field: 'containerSize',
-      minWidth: 80,
-    },
-    {
-      title: '箱型',
-      field: 'containerType',
-      minWidth: 80,
-    },
-    {
-      title: '货重KG',
-      field: 'containerCargoWeight',
-      minWidth: 100,
-    },
-    {
-      title: '箱货总重KG',
-      field: 'containerTotalWeight',
-      minWidth: 120,
-    },
-    {
-      title: '货物尺寸CM',
-      field: 'containerCargoSize',
-      minWidth: 120,
-    },
-    {
-      title: '超限明细CM',
-      field: 'containerOverlimitDetails',
-      minWidth: 120,
-    },
-  ];
-}
-// 附件详情
-export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
-  return [
-    {
-      title: '序号',
-      field: 'serialNumber',
-      type: 'seq',
-      minWidth: 80,
-    },
-    {
-      title: '附件名称',
-      field: 'fileName',
-      minWidth: 120,
-    },
-    {
-      title: '附件地址',
-      field: 'filePath',
-      minWidth: 80,
-    },
-    {
-      title: '操作',
-      minWidth: 120,
-      slots: { default: 'actions' },
-      fixed: 'right',
-    },
-  ];
-}
 export function subPlanFormSchema(): VbenFormSchema[] {
   return [
     {
@@ -222,7 +145,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-/** 空箱空箱列表的搜索表单 */
+/** 空箱空箱列表的搜索栏 */
 export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
   return [
     {
@@ -316,7 +239,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     },
     {
       field: 'applicantCompanyName',
-      title: '是否放箱',
+      title: '是否放箱(Y/N)',
       minWidth: 150,
     },
     {

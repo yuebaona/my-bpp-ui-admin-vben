@@ -4,10 +4,9 @@ import type { UploadProps } from 'ant-design-vue';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
-import { computed, nextTick, reactive, ref, toRaw } from 'vue';
+import { computed, reactive, ref, toRaw } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
 
 import { Button, message, Select } from 'ant-design-vue';
 
@@ -187,6 +186,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editRules: {
       yardPosition: [{ required: true, message: '必须填写' }],
       yardColumns: [{ required: true, message: '必须选择堆场列' }],
+      totalCount: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -338,11 +338,6 @@ const modalTitle = computed(() => {
     : $t('ui.actionTitle.create', ['子计划']);
 });
 
-const handleUpload = async (data: any) => {
-  fileList.value = data;
-  await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
-  await formApi.validateField('attachmentFile');
-};
 </script>
 
 <template>

@@ -1,28 +1,112 @@
-<script setup lang="ts">
-import type { fileVo } from '../data.ts';
+<script lang="ts" setup>
+import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, toRaw } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import dayjs from 'dayjs';
+import { Button, message, Select } from 'ant-design-vue';
 
+import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { useDescription } from '#/components/description';
-
 import {
-  subPlanDetailSchema,
-  containerInfoDetailColumns,
-} from '../data.ts';
-// 箱信息数据
-const containerData = reactive<
-  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
->([]);
-const formData = ref<FlowOverLimitWorkApi.AcceptancePlanVO>();
-const fileList = ref<fileVo>([]);
+  createAcceptancePlanOverOperation,
+  updateAcceptancePlanOverOperation,
+} from '#/api/bpp/flowoverlimitwork';
+
+import { $t } from '#/locales';
+
+import { subPlanFormSchema, containerAreaRangeColumns } from '../data';
+import ContainerAreaModal from './containerarea.vue';
+
+const emit = defineEmits(['success']);
+const fileList = ref<UploadProps['fileList']>([]);
+
+const containerAreaModalVisible = ref(false);
+
+const containerAreaData = reactive<any[]>([
+  {
+    id: 'row_1',
+    yardPosition: 'A01-01-01',
+    yardColumns: ['A', 'B'],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+  {
+    id: 'row_2',
+    yardPosition: 'A02-01-01',
+    yardColumns: [],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+  {
+    id: 'row_3',
+    yardPosition: 'B01-01-01',
+    yardColumns: ['A', 'B', 'H'],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+  {
+    id: 'row_4',
+    yardPosition: 'B02-01-01',
+    yardColumns: [],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+]);
+
+const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
+  id: '',
+  acceptancePlanNo: '',
+  acceptancePlanWebNo: '',
+  applicantCode: '',
+  applicantCompanyName: '',
+  applicantPlanCount: 0,
+  applicantPlanEnd: '',
+  applicantPlanStart: '',
+  applicantPlanType: '',
+  applicantType: '',
+  attachmentFile: '',
+  cargoAgentCode: '',
+  cargoOwnerCode: '',
+  category: '',
+  conclusionTime: '',
+  dataSource: '',
+  handlerConfirmTime: '',
+  handlerConfirmation: '',
+  handlerRemark: '',
+  handlingPerson: '',
+  invoiceTitle: '',
+  isSystemRate: false,
+  payerCodeGate: '',
+  payerCodeSea: '',
+  paymentTypeGate: '',
+  paymentTypeSea: '',
+  planStatus: '',
+  plannedOperationTime: '',
+  submissionTime: '',
+  vesselCode: '',
+  vesselName: '',
+  vesselVoyage: '',
+});
+
+const acceptancePlanOverOperationRespVO =
+  reactive<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
+    id: 0,
+    isAllowedStacking: false,
+    plannedMachineryType: '',
+    plannedSpreaderType: '',
+    acceptancePlanNo: '',
+    processInstanceId: '',
+  });
+
 const acceptancePlanBillMessageVO =
   reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
     id: 0,
@@ -33,44 +117,59 @@ const acceptancePlanBillMessageVO =
     cargoCount: 0,
     billType: '',
   });
-const formattedContainerTypes = computed(() => {
-  const typeCountMap = new Map();
 
-  // 统计每种箱型的数量
-  containerData.forEach((item) => {
-    if (item.containerType) {
-      const count = typeCountMap.get(item.containerType) || 0;
-      typeCountMap.set(item.containerType, count + 1);
-    }
-  });
+const selectContainerArea = () => {
+  containerAreaModalVisible.value = true;
+};
 
-  // 按照图片格式生成显示文本
-  const result = [];
-  for (const [type, count] of typeCountMap.entries()) {
-    result.push(`${count}×${type}`);
+const handleContainerAreaConfirm = (positions: string[]) => {
+  const $grid = gridApi.grid;
+  if ($grid) {
+    // 清空现有数据
+    containerAreaData.splice(0);
+
+    // 添加新选择的数据
+    const newRows = positions.map((pos, index) => ({
+      id: `row_${Date.now()}_${index}`,
+      yardPosition: `${pos}-01`, // 假设默认层号为01
+      yardColumns: [],
+      totalCount: '',
+      minStorageDays: '',
+      maxStorageDays: '',
+    }));
+
+    containerAreaData.push(...newRows);
+    $grid.reloadData(containerAreaData);
   }
-  return result.join('\n'); // 用换行符连接
+};
+
+// 删除行方法
+const deleteRow = async (row: any) => {
+  const $grid = gridApi.grid;
+  await $grid.remove(row);
+};
+
+const [Form, formApi] = useVbenForm({
+  commonConfig: {
+    componentProps: {
+      class: 'w-full',
+    },
+    labelWidth: 150,
+  },
+  scrollToFirstError: true,
+  layout: 'horizontal',
+  schema: subPlanFormSchema(),
+  showDefaultActions: false,
+  wrapperClass: 'grid-cols-1 md:grid-cols-2',
+  handleValuesChange: async (values) => {
+    Object.assign(formData, values);
+  },
 });
-const [Descriptions] = useDescription({
-  componentProps: {
-    bordered: true,
-    column: 2,
-    class: 'm-10',
-    size: 'small',
-    title: '基础信息',
-  },
-  labelStyle: {
-    textAlign: 'right',
-  },
-  contentStyle: {
-    textAlign: 'left',
-  },
-  schema: subPlanDetailSchema(),
-});
-const [Grid] = useVbenVxeGrid({
+
+const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: containerInfoDetailColumns(),
-    height: '250px',
+    columns: containerAreaRangeColumns(),
+    height: '300px',
     keepSource: true,
     border: true,
     showOverflow: false,
@@ -78,6 +177,16 @@ const [Grid] = useVbenVxeGrid({
     rowConfig: {
       keyField: 'id',
       isHover: true,
+    },
+    editConfig: {
+      mode: 'row',
+      showIcon: false,
+      trigger: 'manual',
+    },
+    editRules: {
+      yardPosition: [{ required: true, message: '必须填写' }],
+      yardColumns: [{ required: true, message: '必须选择堆场列' }],
+      totalCount: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -88,84 +197,212 @@ const [Grid] = useVbenVxeGrid({
     pagerConfig: {
       enabled: false,
     },
-    data: containerData,
-    showFooter: true,
-    // 重点：完善合并规则
-    mergeFooterItems: [
-      { row: 0, col: 0, rowspan: 1, colspan: 2 },
-      { row: 0, col: 2, rowspan: 1, colspan: 7 },
-    ],
-    footerData: [
-      {
-        serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
-        containerNo: '', // 被合并，留空
-        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
-        containerType: '',
-        cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
-      },
-    ],
-  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
+    data: containerAreaData,
+  } as VxeTableGridOptions<any>,
 });
 
 const [Modal, modalApi] = useVbenModal({
+  async onConfirm() {
+    const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
+      (record) => toRaw(record),
+    );
+
+    if (containerAreaArray.length === 0) {
+      message.warning('请至少添加一条箱区范围数据');
+      return;
+    }
+
+    const { valid } = await formApi.validate();
+    const gridValid: boolean = await gridApi.grid.validate(true);
+
+    if (!valid || gridValid) {
+      return;
+    }
+
+    Object.assign(formData, await formApi.getValues());
+    const data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO = {
+      acceptancePlanSaveReqVO: {
+        ...formData,
+      } as FlowOverLimitWorkApi.AcceptancePlanVO,
+      acceptancePlanOverOperationSaveReqVO: {
+        ...acceptancePlanOverOperationRespVO,
+      } as FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+      acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
+      acceptancePlanBillMessageSaveReqVO: {
+        ...acceptancePlanBillMessageVO,
+      } as FlowOverLimitWorkApi.AcceptancePlanBillMessageVO,
+    };
+    data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
+    data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
+    data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
+
+    data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
+      if (item.id && String(item.id).startsWith('row_')) {
+        item.id = item.id.replace('row_', '');
+      }
+    });
+    data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
+
+    await (formData?.id
+      ? updateAcceptancePlanOverOperation(data)
+      : createAcceptancePlanOverOperation(data));
+
+    await modalApi.close();
+    emit('success');
+    message.success($t('ui.actionMessage.operationSuccess'));
+  },
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
+      Object.assign(formData, {
+        id: '',
+        acceptancePlanNo: '',
+        acceptancePlanWebNo: '',
+        applicantCode: '',
+        applicantCompanyName: '',
+        applicantPlanCount: 0,
+        applicantPlanEnd: '',
+        applicantPlanStart: '',
+        applicantPlanType: '',
+        applicantType: '',
+        attachmentFile: '',
+        cargoAgentCode: '',
+        cargoOwnerCode: '',
+        category: '',
+        conclusionTime: '',
+        dataSource: '',
+        handlerConfirmTime: '',
+        handlerConfirmation: '',
+        handlerRemark: '',
+        handlingPerson: '',
+        invoiceTitle: '',
+        isSystemRate: false,
+        payerCodeGate: '',
+        payerCodeSea: '',
+        paymentTypeGate: '',
+        paymentTypeSea: '',
+        planStatus: '',
+        plannedOperationTime: '',
+        submissionTime: '',
+        vesselCode: '',
+        vesselName: '',
+        vesselVoyage: '',
+      });
+      containerAreaData.splice(0);
       return;
     }
-    // 加载数据
+
     const data =
       await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
-    if (!data || !data.acceptancePlanRespVO.id) {
-      return;
-    }
-    modalApi.lock();
-    try {
-      // 基础信息
+
+    if (data) {
+      Object.assign(formData, data.acceptancePlanRespVO);
+      Object.assign(
+        acceptancePlanOverOperationRespVO,
+        data.acceptancePlanOverOperationRespVO,
+      );
       Object.assign(
         acceptancePlanBillMessageVO,
         data.acceptancePlanBillMessageRespVO,
       );
-      formData.value = data.acceptancePlanRespVO;
-      formData.value.plannedOperationTime = dayjs(
-        formData.value.plannedOperationTime,
-      ).format('YYYY-MM-DD HH:mm:ss');
-      const arr = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
-      arr.forEach((item: fileVo) => {
-        const lastSlashIndex = item.lastIndexOf('/');
-        const fileName =
-          lastSlashIndex === -1 ? item : item.slice(lastSlashIndex + 1);
-        fileList.value.push({
-          fileName: fileName.split('.')[0],
-          filePath: item,
-        });
-      });
-      // 箱信息
-      for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
-        containerData.push(item);
+      if (data?.acceptancePlanRespVO?.id) {
+        modalApi.lock();
+        try {
+          await formApi.setValues(data.acceptancePlanRespVO);
+          await formApi.setFieldValue(
+            'billNo',
+            data?.acceptancePlanBillMessageRespVO?.billNo,
+          );
+          await formApi.setFieldValue(
+            'cargoName',
+            data?.acceptancePlanBillMessageRespVO?.cargoName,
+          );
+          fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
+
+          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+            const $grid = gridApi.grid;
+            if ($grid) {
+              await $grid.insertAt(item, -1);
+            }
+          }
+        } finally {
+          modalApi.unlock();
+        }
       }
-    } finally {
-      modalApi.unlock();
     }
   },
 });
+
+const modalTitle = computed(() => {
+  return formData.id
+    ? $t('ui.actionTitle.edit', ['子计划'])
+    : $t('ui.actionTitle.create', ['子计划']);
+});
+
 </script>
+
 <template>
-  <Modal title="子计划详情" class="w-1/2">
-    <Descriptions :data="formData" />
+  <Modal :title="modalTitle">
+    <Form>
+      <!-- 箱区范围表格部分 -->
+      <template #containerAreaRange>
+        <div class="mt-4 w-full">
+          <div class="mb-2 flex items-center gap-2">
+            <span class="font-medium">箱区范围</span>
+            <Button type="primary" @click="selectContainerArea">
+              选择箱区范围
+            </Button>
+          </div>
+          <div class="table-container">
+            <Grid>
+              <!-- 堆场列下拉多选组件 -->
+              <template #yardColumns="{ row }">
+                <Select
+                  v-model:value="row.yardColumns"
+                  mode="multiple"
+                  placeholder="请选择堆场列"
+                  :options="[
+                    { label: 'A', value: 'A' },
+                    { label: 'B', value: 'B' },
+                    { label: 'C', value: 'C' },
+                    { label: 'D', value: 'D' },
+                    { label: 'E', value: 'E' },
+                    { label: 'F', value: 'F' },
+                    { label: 'G', value: 'G' },
+                    { label: 'H', value: 'H' },
+                    { label: 'I', value: 'I' },
+                    { label: 'J', value: 'J' },
+                  ]"
+                  style="width: 100%"
+                  :max-tag-count="3"
+                  :show-search="false"
+                />
+              </template>
+              <template #actions="{ row }">
+                <TableAction
+                  :actions="[
+                    {
+                      label: '删除',
+                      type: 'link',
+                      danger: true,
+                      onClick: () => deleteRow(row),
+                    },
+                  ]"
+                />
+              </template>
+            </Grid>
+          </div>
+        </div>
+      </template>
+      <template #handlingPersonLast>
+        <span class="text-gray-600" v-if="formData && formData.handlingPerson">
+          {{ formData.handlingPerson }}
+        </span>
+      </template>
+    </Form>
+    <!-- 添加箱区选择弹窗组件 -->
+    <ContainerAreaModal
+      v-model:visible="containerAreaModalVisible"
+      @confirm="handleContainerAreaConfirm"
+    />
   </Modal>
 </template>
-<style scoped lang="scss">
-.ant-descriptions-title {
-  flex: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.5;
-  color: rgb(50 54 57 / 88%);
-  white-space: nowrap;
-}
-</style>

@@ -66,8 +66,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      refresh: false,
-      search: false,
+      search: true,
+      custom: true,
+      export: true,
+      // import: true,
+      refresh: true,
+      zoom: true,
     },
     pagerConfig: {
       pageSize: 10,
@@ -75,6 +79,47 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     editRules: {
       applicantCompanyName: [{ required: true, message: '是否放箱不能为空' }],
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues) => {
+          return await getSubPlanPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
+          });
+        },
+      },
+    },
+  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanVO>,
+  gridEvents: {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+  },
+});
+
+const [ToolChangeGrid] = useVbenVxeGrid({
+  gridOptions: {
+    columns: subPlanColumns(),
+    height: 'auto',
+    keepSource: false,
+    rowConfig: {
+      keyField: 'id',
+      isHover: true,
+    },
+    toolbarConfig: {
+      refresh: false,
+      search: false,
+      zoom: false,
+      custom: false,
+    },
+    pagerConfig: {
+      pageSize: 10,
+      enabled: true,
+    },
+    editRules: {
+      applicantCompanyName: [{ required: true }],
+      acceptancePlanNo: [{ required: true }],
     },
     proxyConfig: {
       ajax: {
@@ -121,7 +166,7 @@ function handleExport() {
 /** 查看详情 */
 const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   const res = await getSubPlan(row.id);
-  detailModalApi.setData(res).open();
+  formModalApi.setData(res).open();
 };
 
 /** 编辑申请 */
@@ -157,7 +202,7 @@ const adcancedQueryModalOpen = () => {
     <LogQueryModal />
     <!-- 子计划列表 -->
     <div class="h-3/5 w-full">
-      <Grid table-title="子计划">
+      <Grid table-title="主计划">
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -172,7 +217,7 @@ const adcancedQueryModalOpen = () => {
                 onClick: handleCreate,
               },
               {
-                label: '导出',
+                label: '强制完成',
                 type: 'primary',
                 icon: ACTION_ICON.DOWNLOAD,
                 onClick: handleExport,
@@ -214,6 +259,56 @@ const adcancedQueryModalOpen = () => {
           />
         </template>
       </Grid>
+    </div>
+    <div class="h-2/5 w-full">
+      <ToolChangeGrid table-title="子计划">
+        <template #toolbar-tools>
+          <TableAction
+            :actions="[
+              {
+                label: '新增',
+                type: 'primary',
+                icon: ACTION_ICON.ADD,
+                auth: ['system:user:create'],
+                onClick: handleCreate,
+              },
+              {
+                label: '导出',
+                type: 'primary',
+                icon: ACTION_ICON.DOWNLOAD,
+                onClick: handleExport,
+              },
+            ]"
+          />
+        </template>
+        <template #actions="{ row }">
+          <TableAction
+            :actions="[
+              {
+                label: '修改',
+                type: 'link',
+                icon: ACTION_ICON.EDIT,
+                auth: ['system:user:update'],
+                onClick: handleEdit.bind(null, row),
+              },
+              {
+                label: '详情',
+                type: 'link',
+                icon: ACTION_ICON.VIEW,
+                onClick: handleDetail.bind(null, row),
+              },
+              {
+                label: '删除',
+                type: 'link',
+                icon: ACTION_ICON.DELETE,
+                auth: ['system:user:delete'],
+                onClick: handleDelete.bind(null, row),
+                danger: true,
+              },
+            ]"
+          />
+        </template>
+      </ToolChangeGrid>
     </div>
   </Page>
 </template>
