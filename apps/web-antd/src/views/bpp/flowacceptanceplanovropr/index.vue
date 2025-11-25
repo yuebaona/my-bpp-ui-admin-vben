@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
 
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -23,6 +23,7 @@ import {
 } from '#/api/bpp/flowacceptanceplanovropr';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 
 import {
@@ -91,10 +92,10 @@ function handleAudit(row: BpmTaskApi.Task) {
 /** 流程审核 */
 function handleViewDetail(row: OverLimitPlan) {
   handleAudit({
-    processInstance:{
+    processInstance: {
       id: row.processInstanceId,
     },
-    taskId: null
+    taskId: null,
   });
 }
 
@@ -285,7 +286,9 @@ const handleMachineSpreaderRecordDeleteList = async () => {
         duration: 0,
       });
       try {
-        await machineSpreaderRecordDeleteList(containerIds.value);
+        await machineSpreaderRecordDeleteList(
+          machineSpreaderChangeRecordCheckedIds.value,
+        );
         message.success($t('ui.actionMessage.success'));
         handleRefresh();
       } finally {
@@ -353,11 +356,12 @@ function boxHandleRowCheckboxChange({
 }
 /** 吊具变更记录选中操作 */
 const machineSpreaderChangeRecordCheckedIds = ref<number[]>([]);
-const machineSpreaderChangeRecordHandleRowCheckboxChange = ({
+const machineSpreaderChangeRecordHandleRowCheck = ({
   records,
 }: {
   records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
 }) => {
+  console.log('选中记录', records);
   machineSpreaderChangeRecordCheckedIds.value = records.map((item) => item.id);
 };
 /** 获取字典数据 */
@@ -483,6 +487,16 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
       toolbarConfig: {
         refresh: false,
         search: false,
+        export: true,
+        tools: [
+          // 方式3
+          { name: '自定义导出按钮', code: 'export', status: 'primary' },
+          {
+            name: '自定义高级导出按钮',
+            code: 'open_export',
+            status: 'success',
+          },
+        ],
       },
       pagerConfig: {
         pageSize: 10,
@@ -510,8 +524,8 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
       },
     } as VxeTableGridOptions<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>,
     gridEvents: {
-      checkboxAll: machineSpreaderChangeRecordHandleRowCheckboxChange,
-      checkboxChange: machineSpreaderChangeRecordHandleRowCheckboxChange,
+      checkboxAll: machineSpreaderChangeRecordHandleRowCheck,
+      checkboxChange: machineSpreaderChangeRecordHandleRowCheck,
     },
   });
 
@@ -537,13 +551,141 @@ watch(
   },
   { immediate: true },
 );
+// 字段配置
+const fields = ref([
+  {
+    fldName: 'name',
+    fldLabel: '姓名',
+    fldType: 'string',
+    options: [],
+  },
+  {
+    fldName: 'age',
+    fldLabel: '年龄',
+    fldType: 'number',
+    options: [],
+  },
+  {
+    fldName: 'gender',
+    fldLabel: '性别',
+    fldType: 'select',
+    options: [
+      { label: '男', value: 'male' },
+      { label: '女', value: 'female' },
+    ],
+  },
+  {
+    fldName: 'birthday',
+    fldLabel: '生日',
+    fldType: 'date',
+    options: [],
+  },
+  {
+    fldName: 'department',
+    fldLabel: '部门',
+    fldType: 'select',
+    options: [
+      { label: '技术部', value: 'tech' },
+      { label: '市场部', value: 'market' },
+      { label: '人事部', value: 'hr' },
+    ],
+  },
+  {
+    fldName: 'salary',
+    fldLabel: '薪资',
+    fldType: 'number',
+    options: [],
+  },
+]);
+
+// 运算符映射
+const operatorsMap = reactive({
+  default: [
+    {
+      refCode: 'eq',
+      refName: '等于',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+    {
+      refCode: 'ne',
+      refName: '不等于',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+    { refCode: 'gt', refName: '大于', supportedTypes: ['number', 'date'] },
+    { refCode: 'ge', refName: '大于等于', supportedTypes: ['number', 'date'] },
+    { refCode: 'lt', refName: '小于', supportedTypes: ['number', 'date'] },
+    { refCode: 'le', refName: '小于等于', supportedTypes: ['number', 'date'] },
+    { refCode: 'like', refName: '包含', supportedTypes: ['string'] },
+    { refCode: 'notlike', refName: '不包含', supportedTypes: ['string'] },
+    {
+      refCode: 'null',
+      refName: '为空',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+    {
+      refCode: 'notnull',
+      refName: '不为空',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+  ],
+});
+
+// 默认层级数据 - 空查询条件
+const defaultLevels = ref([
+  {
+    relation: 'AND',
+    conditions: [
+      {
+        relation: 'AND',
+        conditions: [
+          {
+            relation: 'AND',
+            conditions: [
+              {
+                field: '',
+                operator: '',
+                value: '',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]);
+// 查询结果
+const queryResult = ref<any>(null);
+
+// 处理查询事件
+const handleQuery = (params: any) => {
+  console.log('查询参数:', params);
+  queryResult.value = params;
+};
+
+// 处理重置事件
+const handleReset = () => {
+  console.log('重置查询条件');
+  queryResult.value = null;
+};
+
+// 处理保存模板事件
+const handleSaveTemplate = (templateName: string) => {
+  console.log('保存模板:', templateName);
+};
 </script>
 
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
-      <AdvancedQuery />
+      <AdvancedQuery
+        :fields="fields"
+        :operators-map="operatorsMap"
+        :default-levels="defaultLevels"
+        @query="handleQuery"
+        @reset="handleReset"
+        @save-template="handleSaveTemplate"
+      />
     </AdvancedQueryModal>
     <DetailModal />
     <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
@@ -569,6 +711,7 @@ watch(
                 icon: ACTION_ICON.UNDO,
                 onClick: handleHighPriceQuery,
               },
+
               {
                 label: '撤销审核',
                 type: 'default',

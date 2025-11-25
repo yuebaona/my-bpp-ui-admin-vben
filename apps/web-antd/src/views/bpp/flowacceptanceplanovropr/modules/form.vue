@@ -9,7 +9,7 @@ import { computed, nextTick, reactive, ref, toRaw } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
-import { Button, message } from 'ant-design-vue';
+import { Button, message,Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -21,6 +21,9 @@ import { FileUpload } from '#/components/upload';
 import { $t } from '#/locales';
 
 import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
+
+const bppBaseDict = bppBaseDictStore();
 
 const emit = defineEmits(['success']);
 const fileList = ref<UploadProps['fileList']>([]);
@@ -385,6 +388,12 @@ const handleUpload = async (data: any) => {
   await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
   await formApi.validateField('attachmentFile');
 };
+const getPopupContainer = (triggerNode) => {
+  return triggerNode.parentNode;
+};
+const filterOption = (input, option) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+};
 </script>
 
 <template>
@@ -428,6 +437,13 @@ const handleUpload = async (data: any) => {
                 </Button>
                 <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
               </template>
+<!--              <template #containerSizeEdit="{ row, index }">-->
+<!--                <Select :options="bppBaseDict.getBppBaseDictOptions(-->
+<!--                    'initiation_type',-->
+<!--                  )" v-model:value="row.containerSize"style="width: 100%"-->
+<!--                        :getPopupContainer="getPopupContainer" :showSearch="true"-->
+<!--                        :filterOption="filterOption"/>-->
+<!--              </template>-->
             </Grid>
           </div>
         </div>
