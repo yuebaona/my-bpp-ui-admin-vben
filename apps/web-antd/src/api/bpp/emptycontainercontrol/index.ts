@@ -3,7 +3,7 @@ import type { PageParam, PageResult } from '@vben/request';
 import { requestClient } from '#/api/request';
 
 export namespace EmptyContainerControlApi {
-  // 受理计划VO
+  // 子计划VO
   export interface subPlanVO {
     id: number;
     subPlanNo: string; //
@@ -38,7 +38,7 @@ export namespace EmptyContainerControlApi {
     invoiceTitle: string;
     handlingPhoneNumber: string;
   }
-  // 超限受理计划信息
+  // 子计划信息
   export interface AcceptancePlanOverOperationVO {
     id: number;
     isAllowedStacking: boolean;
@@ -46,7 +46,7 @@ export namespace EmptyContainerControlApi {
     acceptancePlanNo: string;
     processInstanceId: string;
   }
-  // 超限受理计划箱信息
+  // 子计划箱信息
   export interface AcceptancePlanOverOperationContainerVO {
     id: number;
     containerNo: string;
@@ -78,17 +78,17 @@ export namespace EmptyContainerControlApi {
     billType: string;
   }
   // 总数据
-  export interface OverLimitWorkSaveReqVO {
+  export interface SubPlanSaveReqVO {
     acceptancePlanSaveReqVO: subPlanVO;
     acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
-    acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
+    // acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
 
 // 创建超限受理计划信息
 export const createAcceptancePlanOverOperation = (
-  data: EmptyContainerControlApi.OverLimitWorkSaveReqVO,
+  data: EmptyContainerControlApi.SubPlanSaveReqVO,
 ) => {
   return requestClient.post(
     '/bpp/flow/acceptance-plan-over-operation/create',
@@ -97,7 +97,7 @@ export const createAcceptancePlanOverOperation = (
 };
 // 修改超限受理计划信息
 export const updateAcceptancePlanOverOperation = (
-  data: EmptyContainerControlApi.OverLimitWorkSaveReqVO,
+  data: EmptyContainerControlApi.SubPlanSaveReqVO,
 ) => {
   return requestClient.put(
     '/bpp/flow/acceptance-plan-over-operation/update',
@@ -110,7 +110,7 @@ export const getSubPlan = (id: number) => {
     `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
   );
 };
-// 超限受理计划信息分页查询
+// 子计划分页查询
 export const getSubPlanPage = (params: PageParam) => {
   return requestClient.get<
     PageResult<EmptyContainerControlApi.AcceptancePlanOverOperationVO>

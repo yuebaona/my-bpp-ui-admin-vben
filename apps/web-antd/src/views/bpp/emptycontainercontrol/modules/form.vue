@@ -2,7 +2,7 @@
 import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
 import { computed, reactive, ref, toRaw } from 'vue';
 
@@ -62,7 +62,7 @@ const containerAreaData = reactive<any[]>([
   },
 ]);
 
-const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
+const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
   acceptancePlanNo: '',
   acceptancePlanWebNo: '',
@@ -98,7 +98,7 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
 });
 
 const acceptancePlanOverOperationRespVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
+  reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
     id: 0,
     isAllowedStacking: false,
     plannedMachineryType: '',
@@ -108,7 +108,7 @@ const acceptancePlanOverOperationRespVO =
   });
 
 const acceptancePlanBillMessageVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
+  reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
     id: 0,
     acceptancePlanNo: '',
     billNo: '',
@@ -220,17 +220,17 @@ const [Modal, modalApi] = useVbenModal({
     }
 
     Object.assign(formData, await formApi.getValues());
-    const data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO = {
+    const data: EmptyContainerControlApi.SubPlanSaveReqVO = {
       acceptancePlanSaveReqVO: {
         ...formData,
-      } as FlowOverLimitWorkApi.AcceptancePlanVO,
+      } as EmptyContainerControlApi.subPlanVO,
       acceptancePlanOverOperationSaveReqVO: {
         ...acceptancePlanOverOperationRespVO,
-      } as FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+      } as EmptyContainerControlApi.AcceptancePlanOverOperationVO,
       acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
       acceptancePlanBillMessageSaveReqVO: {
         ...acceptancePlanBillMessageVO,
-      } as FlowOverLimitWorkApi.AcceptancePlanBillMessageVO,
+      } as EmptyContainerControlApi.AcceptancePlanBillMessageVO,
     };
     data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
     data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
@@ -292,7 +292,7 @@ const [Modal, modalApi] = useVbenModal({
     }
 
     const data =
-      await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
+      await modalApi.getData<EmptyContainerControlApi.subPlanVO>();
 
     if (data) {
       Object.assign(formData, data.acceptancePlanRespVO);

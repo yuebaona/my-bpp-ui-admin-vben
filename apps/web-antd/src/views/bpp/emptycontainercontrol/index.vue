@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
 import { ref } from 'vue';
 
@@ -26,7 +26,7 @@ import Form from './modules/form.vue';
 import LogQuery from './modules/log-query.vue';
 
 const checkedIds = ref<number[]>([]);
-const acceptancePlanNo = ref<string[]>([]);
+const subPlanNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -78,7 +78,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       enabled: true,
     },
     editRules: {
-      applicantCompanyName: [{ required: true, message: '是否放箱不能为空' }],
+      applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
     },
     proxyConfig: {
       ajax: {
@@ -91,7 +91,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanVO>,
+  } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
@@ -132,7 +132,7 @@ const [ToolChangeGrid] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanVO>,
+  } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
@@ -142,10 +142,10 @@ const [ToolChangeGrid] = useVbenVxeGrid({
 function handleRowCheckboxChange({
                                    records,
                                  }: {
-  records: FlowOverLimitWorkApi.AcceptancePlanVO[];
+  records: EmptyContainerControlApi.subPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
-  acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+  subPlanNo.value = records.map((item) => item.subPlanNo);
 }
 
 // 高级查询处理函数
@@ -155,7 +155,7 @@ function handleRefresh() {
 }
 
 /** 创建新申请 */
-function handleCreate() {
+function handleCreateSubPlan() {
   formModalApi.setData(null).open();
 }
 
@@ -164,19 +164,19 @@ function handleExport() {
 }
 
 /** 查看详情 */
-const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+const handleDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
   formModalApi.setData(res).open();
 };
 
 /** 编辑申请 */
-const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+const handleEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
   formModalApi.setData(res).open();
 };
 
 /** 删除申请 */
-const handleDelete = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+const handleDelete = async (row: EmptyContainerControlApi.subPlanVO) => {
   await deleteSubPlan(row.id);
   message.success('删除成功');
   handleRefresh();
@@ -200,7 +200,7 @@ const adcancedQueryModalOpen = () => {
     </AdvancedQueryModal>
     <DetailModal />
     <LogQueryModal />
-    <!-- 子计划列表 -->
+    <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <Grid table-title="主计划">
         <template #form-expand-before>
@@ -214,7 +214,7 @@ const adcancedQueryModalOpen = () => {
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
                 auth: ['system:user:create'],
-                onClick: handleCreate,
+                onClick: handleCreateSubPlan,
               },
               {
                 label: '强制完成',
@@ -270,7 +270,7 @@ const adcancedQueryModalOpen = () => {
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
                 auth: ['system:user:create'],
-                onClick: handleCreate,
+                onClick: handleCreateSubPlan,
               },
               {
                 label: '导出',
