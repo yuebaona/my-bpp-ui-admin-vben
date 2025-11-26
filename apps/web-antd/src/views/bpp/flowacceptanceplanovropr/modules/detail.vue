@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
+import taskComment from '#/views/bpp/flowacceptanceplanovropr/flow/taskComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
@@ -68,6 +69,8 @@ const [Descriptions] = useDescription({
   },
   schema: acceptancePlanOvrOprDetailSchema(),
 });
+const acceptancePlanOverOperationRespVO = ref(null);
+const containerDataArray = ref(null);
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
     columns: containerInfoDetailColumns(),
@@ -153,6 +156,8 @@ const [Modal, modalApi] = useVbenModal({
         acceptancePlanBillMessageVO,
         data.acceptancePlanBillMessageRespVO,
       );
+      acceptancePlanOverOperationRespVO.value=data.acceptancePlanOverOperationRespVO;
+      containerDataArray.value=data.acceptancePlanOverOperationContainerRespVOS;
       formData.value = data.acceptancePlanRespVO;
       formData.value.plannedOperationTime = dayjs(
         formData.value.plannedOperationTime,
@@ -219,7 +224,14 @@ const [Modal, modalApi] = useVbenModal({
       </FileGrid>
     </div>
     <div>
-      <div class="ant-descriptions-title my-5">审批记录</div>
+      {{containerDataArray}}
+      <!--审批记录-->
+      <taskComment
+        :isShowApply="false"
+        :acceptancePlanOverOperationData="formData"
+        :processInstanceId="acceptancePlanOverOperationRespVO?.processInstanceId"
+        :containerDataArray="containerDataArray"
+      />
     </div>
   </Modal>
 </template>

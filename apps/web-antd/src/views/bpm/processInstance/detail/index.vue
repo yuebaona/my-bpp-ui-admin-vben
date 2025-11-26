@@ -38,14 +38,14 @@ import BpmProcessInstanceTaskList from './modules/task-list.vue';
 import ProcessInstanceTimeline from './modules/time-line.vue';
 
 defineOptions({ name: 'BpmProcessInstanceDetail' });
-const flowStatus = ref(null)  // 流程状态
-const todoTask = ref(null)  // 流程状态
+// 流程状态
 const props = defineProps<{
   activityId?: string; // 流程活动编号，用于抄送查看
   id: string; // 流程实例的编号
   taskId?: string; // 任务编号
 }>();
-
+const flowStatus = ref(null); // 流程状态
+const todoTask = ref(null);
 const processInstanceLoading = ref(false); // 流程实例的加载中
 const processInstance = ref<BpmProcessInstanceApi.ProcessInstance>(); // 流程实例
 const processDefinition = ref<any>({}); // 流程定义
@@ -108,8 +108,8 @@ async function getApprovalDetail() {
 
     processInstance.value = data.processInstance;
     processDefinition.value = data.processDefinition;
-    flowStatus.value = data.status
-    todoTask.value = data.todoTask
+    flowStatus.value = data.status;
+    todoTask.value = data.todoTask;
     // 设置表单信息
     if (processDefinition.value.formType === BpmModelFormType.NORMAL) {
       // 获取表单字段权限
@@ -307,9 +307,11 @@ onMounted(async () => {
                   >
                     <BusinessFormComponent
                       :id="processInstance?.businessKey"
-                      :todoTask="todoTask"
+                      :business-key="processInstance?.businessKey"
+                      :todo-task="todoTask"
                       :status="flowStatus"
-                      :processInstance="processInstance"
+                      :activity-nodes="activityNodes"
+                      :process-instance="processInstance"
                     />
                   </div>
                 </Col>
@@ -368,7 +370,8 @@ onMounted(async () => {
       </div>
 
       <template #actions>
-        <div class="px-4">
+        <!--动态表单显示流程操作按钮-->
+        <div class="px-4" v-if="processDefinition?.formType === BpmModelFormType.NORMAL">
           <ProcessInstanceOperationButton
             ref="operationButtonRef"
             :process-instance="processInstance"

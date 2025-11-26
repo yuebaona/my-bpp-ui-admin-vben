@@ -1,20 +1,24 @@
 <script lang="ts" setup>
-import type { fileVo } from '../data.ts';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
-import {
-  getAcceptancePlanOverOperation
-} from '#/api/bpp/flowoverlimitwork';
-import {computed, onMounted, ref, watch, reactive,nextTick} from 'vue';
+
+import { computed, reactive, ref, watch } from 'vue';
+
 import { useVbenModal } from '@vben/common-ui';
+import {Card,Button} from 'ant-design-vue';
+
 import dayjs from 'dayjs';
+
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getAcceptancePlanOverOperation } from '#/api/bpp/flowoverlimitwork';
 import { useDescription } from '#/components/description';
+
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
   containerInfoDetailColumns,
 } from '../data.ts';
+import type { fileVo } from '../data.ts';
 
 /**
  * 参数
@@ -42,8 +46,8 @@ const acceptancePlanBillMessageVO =
     cargoCount: 0,
     billType: '',
   });
-//强制刷新，用于刷新表格，否则vxetable表格合并失败
-const gridKey = ref(0)
+// 强制刷新，用于刷新表格，否则vxetable表格合并失败
+const gridKey = ref(0);
 const formattedContainerTypes = computed(() => {
   const typeCountMap = new Map();
 
@@ -102,7 +106,7 @@ const [Grid] = useVbenVxeGrid({
     data: containerData,
     showFooter: true,
     // 重点：完善合并规则
-    mergeFooterItems : [
+    mergeFooterItems: [
       { row: 0, col: 0, rowspan: 1, colspan: 2 },
       { row: 0, col: 2, rowspan: 1, colspan: 7 },
     ],
@@ -187,9 +191,9 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 // 初始化数据
-async function getById(id){
+async function getById(id) {
   // 加载数据
-  const data = await getAcceptancePlanOverOperation(id)
+  const data = await getAcceptancePlanOverOperation(id);
   // 基础信息
   Object.assign(
     acceptancePlanBillMessageVO,
@@ -213,8 +217,8 @@ async function getById(id){
   for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
     containerData.push(item);
   }
-  gridKey.value++
-};
+  gridKey.value++;
+}
 // 监听 businessKey 变化
 watch(
   () => props.id,
@@ -224,53 +228,47 @@ watch(
       await getById(newVal);
     }
   },
-  { immediate: true } // 可选：初始值时立即执行一次
+  { immediate: true }, // 可选：初始值时立即执行一次
 );
-onMounted(async () => {
-});
 </script>
 <template>
-    <Descriptions :data="formData" />
-    <div>
-      <div class="ant-descriptions-title my-5">箱货信息</div>
-      <div class="flex flex-col justify-start">
-        <div class="flex justify-normal font-serif text-base">
-          <div class="mx-5">
-            提单号：{{ acceptancePlanBillMessageVO.billNo }}
-          </div>
-          <div class="mx-20">
-            货名：{{ acceptancePlanBillMessageVO.cargoName }}
-          </div>
+  <Descriptions :data="formData" />
+  <div>
+    <div class="ant-descriptions-title my-5">箱货信息</div>
+    <div class="flex flex-col justify-start">
+      <div class="flex justify-normal font-serif text-base">
+        <div class="mx-5">提单号：{{ acceptancePlanBillMessageVO.billNo }}</div>
+        <div class="mx-20">
+          货名：{{ acceptancePlanBillMessageVO.cargoName }}
         </div>
-
-        <Grid :key="gridKey">
-          <template #serialNumber="{ row }">
-            <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
-          </template>
-        </Grid>
       </div>
-    </div>
-    <div>
-      <div class="ant-descriptions-title my-5">附件列表</div>
-      <FileGrid>
-        <template #actions>
-          <TableAction
-            :actions="[
-              {
-                label: '下载',
-                type: 'link',
-              },
-              {
-                label: '预览',
-                type: 'link',
-              },
-            ]"
-          />
+
+      <Grid :key="gridKey">
+        <template #serialNumber="{ row }">
+          <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
         </template>
-      </FileGrid>
+      </Grid>
     </div>
-  <a-card
-  </a-card>
+  </div>
+  <div>
+    <div class="ant-descriptions-title my-5">附件列表</div>
+    <FileGrid>
+      <template #actions>
+        <TableAction
+          :actions="[
+            {
+              label: '下载',
+              type: 'link',
+            },
+            {
+              label: '预览',
+              type: 'link',
+            },
+          ]"
+        />
+      </template>
+    </FileGrid>
+  </div>
 </template>
 <style scoped lang="scss">
 .ant-descriptions-title {
@@ -282,5 +280,12 @@ onMounted(async () => {
   line-height: 1.5;
   color: rgb(50 54 57 / 88%);
   white-space: nowrap;
+}
+/* 标题样式 */
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
 }
 </style>
