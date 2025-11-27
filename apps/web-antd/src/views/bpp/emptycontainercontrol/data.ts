@@ -1,6 +1,6 @@
 import type { VbenFormSchema } from '#/adapter/form'
 import type { VxeTableGridOptions } from '#/adapter/vxe-table'
-import type { DescriptionItemSchema } from '#/components/description'
+// import type { DescriptionItemSchema } from '#/components/description'
 
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -327,23 +327,23 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 // 子计划详情字段
-export function subPlanDetailSchema(): DescriptionItemSchema[] {
-  return [
-    // 基础信息
-    { field: 'acceptancePlanNo', label: '子计划号' },
-    { field: 'applicantCompanyName', label: '申请公司名称' },
-    { field: 'handlingPerson', label: '经办人' },
-    { field: 'handlingPhoneNumber', label: '经办人联系电话' },
-    { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
-    { field: 'payerCodeSea', label: '缴费方（海侧）' },
-    { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
-    { field: 'payerCodeGate', label: '缴费方（陆侧）' },
-    { field: 'category', label: '进出口类别' },
-    { field: 'vesselName', label: '作业船名（中文名称）' },
-    { field: 'vesselVoyage', label: '作业航次' },
-    { field: 'plannedOperationTime', label: '预计作业时间' },
-  ]
-}
+// export function subPlanDetailSchema(): DescriptionItemSchema[] {
+//   return [
+//     // 基础信息
+//     { field: 'acceptancePlanNo', label: '子计划号' },
+//     { field: 'applicantCompanyName', label: '申请公司名称' },
+//     { field: 'handlingPerson', label: '经办人' },
+//     { field: 'handlingPhoneNumber', label: '经办人联系电话' },
+//     { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
+//     { field: 'payerCodeSea', label: '缴费方（海侧）' },
+//     { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
+//     { field: 'payerCodeGate', label: '缴费方（陆侧）' },
+//     { field: 'category', label: '进出口类别' },
+//     { field: 'vesselName', label: '作业船名（中文名称）' },
+//     { field: 'vesselVoyage', label: '作业航次' },
+//     { field: 'plannedOperationTime', label: '预计作业时间' },
+//   ]
+// }
 
 /** 日志查询表单 */
 export function logQueryFormSchema(): VbenFormSchema[] {

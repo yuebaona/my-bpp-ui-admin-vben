@@ -125,12 +125,18 @@ const [SubGrid] = useVbenVxeGrid({
     },
     proxyConfig: {
       ajax: {
-        query: async ({ page }, formValues) => {
-          // return await getSubPlanPage({
-          //   pageNo: page.currentPage,
-          //   pageSize: page.pageSize,
-          //   ...formValues,
-          // });
+        // query: async ({ page }, formValues) => {
+        //   // return await getSubPlanPage({
+        //   //   pageNo: page.currentPage,
+        //   //   pageSize: page.pageSize,
+        //   //   ...formValues,
+        //   // });
+        //   return {
+        //     list: STATIC_SUB_PLAN_LIST_DATA,
+        //     total: STATIC_SUB_PLAN_LIST_DATA.length
+        //   };
+        // },
+        query: async () => {
           return {
             list: STATIC_SUB_PLAN_LIST_DATA,
             total: STATIC_SUB_PLAN_LIST_DATA.length

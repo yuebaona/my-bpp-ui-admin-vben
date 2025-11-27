@@ -63,7 +63,7 @@ const containerAreaData = reactive<any[]>([
 ]);
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
-  id: '',
+  id:  '',
   subPlanNo: '',
   status: '',
   placeContainer: '',

@@ -61,18 +61,20 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     proxyConfig: {
       ajax: {
-        query: async ({ page }, formValues) => {
-          // 调用后端接口获取数据
-          // const res = await getLogQueryData({
-          //   pageNo: page.currentPage,
-          //   pageSize: page.pageSize,
-          //   ...formValues,
-          // });
-
-          // return {
-          //   list: res.items,
-          //   total: res.total,
-          // };
+        // query: async ({ page }, formValues) => {
+        //   // 调用后端接口获取数据
+        //   const res = await getLogQueryData({
+        //     pageNo: page.currentPage,
+        //     pageSize: page.pageSize,
+        //     ...formValues,
+        //   });
+        //
+        //   return {
+        //     list: res.items,
+        //     total: res.total,
+        //   };
+        // },
+        query: async () => {
           return {
             list: STATIC_MASTER_PLAN_QUERY_DATA,
             total: STATIC_MASTER_PLAN_QUERY_DATA.length
