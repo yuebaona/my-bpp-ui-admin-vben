@@ -2,12 +2,11 @@
 import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainer';
 
-import { computed, nextTick, reactive, ref, toRaw } from 'vue';
+import { computed, reactive, ref, toRaw } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
 
 import { Button, message, Select } from 'ant-design-vue';
 
@@ -62,8 +61,8 @@ const containerAreaData = reactive<any[]>([
     maxStorageDays: '',
   },
 ]);
-
-const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
+//子计划表单数据
+const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
   acceptancePlanNo: '',
   acceptancePlanWebNo: '',
@@ -99,7 +98,7 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
 });
 
 const acceptancePlanOverOperationRespVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
+  reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
     id: 0,
     isAllowedStacking: false,
     plannedMachineryType: '',
@@ -109,7 +108,7 @@ const acceptancePlanOverOperationRespVO =
   });
 
 const acceptancePlanBillMessageVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
+  reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
     id: 0,
     acceptancePlanNo: '',
     billNo: '',
@@ -187,6 +186,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editRules: {
       yardPosition: [{ required: true, message: '必须填写' }],
       yardColumns: [{ required: true, message: '必须选择堆场列' }],
+      totalCount: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -198,7 +198,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       enabled: false,
     },
     data: containerAreaData,
-  } as VxeTableGridOptions<any>,
+  } as VxeTableGridOptions,
 });
 
 const [Modal, modalApi] = useVbenModal({
@@ -220,17 +220,17 @@ const [Modal, modalApi] = useVbenModal({
     }
 
     Object.assign(formData, await formApi.getValues());
-    const data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO = {
+    const data: EmptyContainerControlApi.SubPlanSaveReqVO = {
       acceptancePlanSaveReqVO: {
         ...formData,
-      } as FlowOverLimitWorkApi.AcceptancePlanVO,
+      } as EmptyContainerControlApi.subPlanVO,
       acceptancePlanOverOperationSaveReqVO: {
         ...acceptancePlanOverOperationRespVO,
-      } as FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+      } as EmptyContainerControlApi.AcceptancePlanOverOperationVO,
       acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
       acceptancePlanBillMessageSaveReqVO: {
         ...acceptancePlanBillMessageVO,
-      } as FlowOverLimitWorkApi.AcceptancePlanBillMessageVO,
+      } as EmptyContainerControlApi.AcceptancePlanBillMessageVO,
     };
     data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
     data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
@@ -292,7 +292,7 @@ const [Modal, modalApi] = useVbenModal({
     }
 
     const data =
-      await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
+      await modalApi.getData<EmptyContainerControlApi.subPlanVO>();
 
     if (data) {
       Object.assign(formData, data.acceptancePlanRespVO);
@@ -337,12 +337,6 @@ const modalTitle = computed(() => {
     ? $t('ui.actionTitle.edit', ['子计划'])
     : $t('ui.actionTitle.create', ['子计划']);
 });
-
-const handleUpload = async (data: any) => {
-  fileList.value = data;
-  await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
-  await formApi.validateField('attachmentFile');
-};
 </script>
 
 <template>
