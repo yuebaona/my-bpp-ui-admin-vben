@@ -23,9 +23,9 @@ import {
   STATIC_SUB_PLAN_LIST_DATA,
   STATIC_SUB_PLAN_DETAIL_DATA
 } from './data';
-import Detail from '#/views/bpp/emptycontainercontrol/subPlanModules/detail.vue';
-import Form from '#/views/bpp/emptycontainercontrol/subPlanModules/form.vue';
-import LogQuery from '#/views/bpp/emptycontainercontrol/subPlanModules/logQuery.vue';
+import Detail from './modules/detail.vue';
+import Form from './modules/form.vue';
+import LogQuery from './modules/logQuery.vue';
 
 const checkedIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
@@ -100,7 +100,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
-const [ToolChangeGrid] = useVbenVxeGrid({
+const [SubGrid] = useVbenVxeGrid({
   gridOptions: {
     columns: subPlanColumns(),
     height: 'auto',
@@ -165,40 +165,24 @@ function handleCreateSubPlan() {
   formModalApi.setData(null).open();
 }
 
-function handleExport() {
+function handleSubExport() {
   message.info('导出功能');
 }
 
 /** 查看详情 */
-const handleDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
+const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
   formModalApi.setData(res).open();
 };
 
 /** 编辑申请 */
-const handleEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
+const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   // 使用固定数据填充弹窗
   const editData = {
     acceptancePlanRespVO: {
       ...STATIC_SUB_PLAN_DETAIL_DATA
     },
-    // acceptancePlanOverOperationRespVO: {
-    //   id: 1,
-    //   isAllowedStacking: true,
-    //   plannedMachineryType: 'RTG',
-    //   acceptancePlanNo: row.subPlanNo,
-    //   processInstanceId: 'process_001'
-    // },
-    // acceptancePlanBillMessageRespVO: {
-    //   id: 1,
-    //   acceptancePlanNo: row.subPlanNo,
-    //   billNo: 'BILL_' + row.subPlanNo,
-    //   cargoType: '普通货物',
-    //   cargoName: '电子产品',
-    //   cargoCount: 100,
-    //   billType: '海运提单'
-    // },
-    acceptancePlanOverOperationContainerRespVOS: [
+    yardPositionResp: [
       {
         id: 1,
         yardPosition: 'A01-01-01',
@@ -222,7 +206,7 @@ const handleEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
 };
 
 /** 删除申请 */
-const handleDelete = async (row: EmptyContainerControlApi.subPlanVO) => {
+const handleSubDelete = async (row: EmptyContainerControlApi.subPlanVO) => {
   await deleteSubPlan(row.id);
   message.success('删除成功');
   handleRefresh();
@@ -266,7 +250,7 @@ const adcancedQueryModalOpen = () => {
                 label: '强制完成',
                 type: 'primary',
                 icon: ACTION_ICON.DOWNLOAD,
-                onClick: handleExport,
+                onClick: handleSubExport,
               },
               {
                 label: '日志查询',
@@ -285,20 +269,20 @@ const adcancedQueryModalOpen = () => {
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
                 auth: ['system:user:update'],
-                onClick: handleEdit.bind(null, row),
+                onClick: handleSubEdit.bind(null, row),
               },
               {
                 label: '详情',
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
-                onClick: handleDetail.bind(null, row),
+                onClick: handleSubDetail.bind(null, row),
               },
               {
                 label: '删除',
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleDelete.bind(null, row),
+                onClick: handleSubDelete.bind(null, row),
                 danger: true,
               },
             ]"
@@ -307,7 +291,7 @@ const adcancedQueryModalOpen = () => {
       </Grid>
     </div>
     <div class="h-2/5 w-full">
-      <ToolChangeGrid table-title="子计划">
+      <SubGrid table-title="子计划">
         <template #toolbar-tools>
           <TableAction
             :actions="[
@@ -322,7 +306,7 @@ const adcancedQueryModalOpen = () => {
                 label: '导出',
                 type: 'primary',
                 icon: ACTION_ICON.DOWNLOAD,
-                onClick: handleExport,
+                onClick: handleSubExport,
               },
             ]"
           />
@@ -335,26 +319,26 @@ const adcancedQueryModalOpen = () => {
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
                 auth: ['system:user:update'],
-                onClick: handleEdit.bind(null, row),
+                onClick: handleSubEdit.bind(null, row),
               },
               {
                 label: '详情',
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
-                onClick: handleDetail.bind(null, row),
+                onClick: handleSubDetail.bind(null, row),
               },
               {
                 label: '删除',
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleDelete.bind(null, row),
+                onClick: handleSubDelete.bind(null, row),
                 danger: true,
               },
             ]"
           />
         </template>
-      </ToolChangeGrid>
+      </SubGrid>
     </div>
   </Page>
 </template>

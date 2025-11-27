@@ -211,25 +211,7 @@ const [Modal, modalApi] = useVbenModal({
       acceptancePlanSaveReqVO: {
         ...formData,
       } as EmptyContainerControlApi.subPlanVO,
-      // acceptancePlanOverOperationSaveReqVO: {
-      //   ...acceptancePlanOverOperationRespVO,
-      // } as EmptyContainerControlApi.AcceptancePlanOverOperationVO,
-      // acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
-      // acceptancePlanBillMessageSaveReqVO: {
-      //   ...acceptancePlanBillMessageVO,
-      // } as EmptyContainerControlApi.AcceptancePlanBillMessageVO,
     };
-    // data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
-    // data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
-    // data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
-    //
-    // data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
-    //   if (item.id && String(item.id).startsWith('row_')) {
-    //     item.id = item.id.replace('row_', '');
-    //   }
-    // });
-    // data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
-
     await (formData?.id
       ? updateSubPlan(data)
       : createSubPlan(data));
@@ -287,10 +269,10 @@ const [Modal, modalApi] = useVbenModal({
           await formApi.setValues(data.acceptancePlanRespVO);
 
           // 设置箱区范围数据
-          if (data.acceptancePlanOverOperationContainerRespVOS) {
+          if (data.yardPositionResp) {
             const $grid = gridApi.grid;
             if ($grid) {
-              for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+              for (const item of data.yardPositionResp) {
                 await $grid.insertAt({
                   ...item,
                   id: `row_${item.id}` // 确保ID格式正确
@@ -307,7 +289,9 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 const modalTitle = computed(() => {
-  return formData.id ? '修改子计划' : '新增子计划';
+  return formData.id
+    ? $t('ui.actionTitle.edit', ['子计划'])
+    : $t('ui.actionTitle.create', ['子计划']);
 });
 
 </script>
@@ -365,11 +349,6 @@ const modalTitle = computed(() => {
           </div>
         </div>
       </template>
-<!--      <template #handlingPersonLast>-->
-<!--        <span class="text-gray-600" v-if="formData && formData.handlingPerson">-->
-<!--          {{ formData.handlingPerson }}-->
-<!--        </span>-->
-<!--      </template>-->
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
     <ContainerArea
