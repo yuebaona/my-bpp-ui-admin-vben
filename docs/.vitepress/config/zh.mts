@@ -44,10 +44,32 @@ export const zh = defineConfig({
       '/components/': { base: '/components/', items: sidebarComponents() },
       '/guide/': { base: '/guide/', items: sidebarGuide() },
       '/back/': { base: '/back/', items: sidebarBack () },
+      '/bpp-guide': { base: '/bpp-guide/', items: sidebarBppGuide() },
+      '/introduction/': { base: '/introduction/', items: sidebarIntroduction() },
     },
     sidebarMenuLabel: '菜单',
   },
 });
+
+function sidebarBppGuide(): DefaultTheme.SidebarItem[] {
+  return [
+    {
+      collapsed: false,
+      text: '模块1',
+      items:[
+        { link: 'module1/document', text: '文件1'},
+      ]
+    },
+    {
+      collapsed: false,
+      text: '模块2',
+      items:[
+        { link: 'module2/document', text: '文件1'},
+      ]
+    },
+  ]
+ }
+
 
 function sidebarGuide(): DefaultTheme.SidebarItem[] {
   return [
@@ -140,6 +162,25 @@ function sidebarCommercial(): DefaultTheme.SidebarItem[] {
   ];
 }
 
+function sidebarIntroduction(): DefaultTheme.SidebarItem[] {
+  return [
+    {
+      collapsed: false,
+      text: '使用说明1',
+      items:[
+        { link: 'guide/new-module', text: '新建模块'},
+      ]
+    },
+    {
+      collapsed: false,
+      text: '使用说明2',
+      items:[
+        { link: 'test-module/new-module', text: '新建模块'},
+      ]
+    },
+  ];
+}
+
 function sidebarBack(): DefaultTheme.SidebarItem[] {
   return [
     {
@@ -228,8 +269,6 @@ function sidebarBack(): DefaultTheme.SidebarItem[] {
       { link: 'maintenance/monitor', text: '服务监控'},
     ],
   },
-
-
   ];
 }
 
@@ -327,6 +366,14 @@ function nav(): DefaultTheme.NavItem[] {
       link: '/back/introduction/api',
       text: '后端',
     },
+    {
+      link: '/bpp-guide/module1/document.md',
+      text: '业务系统文档'
+    },
+    {
+      link: '/introduction/guide/new-module',
+      text: '文档使用说明'
+    }
 //     {
 //       text: '演示',
 //       items: [

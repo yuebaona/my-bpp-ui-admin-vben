@@ -48,6 +48,12 @@ const [DetailModal, detailModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
+const [LogQueryModal, logQueryModalApi] = useVbenModal({
+  connectedComponent: LogQuery,
+  destroyOnClose: true,
+  footer: false,
+});
+
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: acceptancePlanOvrOprFormSchema(),
@@ -320,6 +326,11 @@ const handleSubPlanDelete = async (row: EmptyContainerControlApi.subPlanVO) => {
   handleRefresh();
 };
 
+/** 日志查询 */
+function handleLogQuery() {
+  logQueryModalApi.open();
+}
+
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
@@ -334,6 +345,7 @@ const adcancedQueryModalOpen = () => {
     </AdvancedQueryModal>
     <DetailModal />
     <DetailModal2 />
+    <LogQueryModal />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <Grid2 table-title="主计划">
@@ -356,12 +368,12 @@ const adcancedQueryModalOpen = () => {
                 icon: ACTION_ICON.CLOSE,
                 onClick: handleForceComplete,
               },
-              // {
-              //   label: '日志查询',
-              //   type: 'primary',
-              //   icon: ACTION_ICON.VIEW,
-              //   onClick: handleLogQuery,
-              // }
+              {
+                label: '日志查询',
+                type: 'primary',
+                icon: ACTION_ICON.VIEW,
+                onClick: handleLogQuery,
+              }
             ]"
           />
         </template>
@@ -394,6 +406,7 @@ const adcancedQueryModalOpen = () => {
         </template>
       </Grid2>
     </div>
+    <!-- 子计划列表 -->
     <div class="h-2/5 w-full">
       <ToolChangeGrid table-title="子计划">
         <template #toolbar-tools>
