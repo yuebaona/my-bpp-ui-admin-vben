@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { UploadProps } from 'ant-design-vue';
+// import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
@@ -19,11 +19,11 @@ import {
 
 import { $t } from '#/locales';
 
-import { subPlanFormSchema, containerAreaRangeColumns } from '../data';
-import ContainerAreaModal from './containerarea.vue';
+import { subPlanFormSchema, containerAreaRangeColumns, STATIC_SUB_PLAN_DETAIL_DATA } from '../data';
+import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
-const fileList = ref<UploadProps['fileList']>([]);
+// const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
 
@@ -64,37 +64,24 @@ const containerAreaData = reactive<any[]>([
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
-  acceptancePlanNo: '',
-  acceptancePlanWebNo: '',
-  applicantCode: '',
-  applicantCompanyName: '',
-  applicantPlanCount: 0,
-  applicantPlanEnd: '',
-  applicantPlanStart: '',
-  applicantPlanType: '',
-  applicantType: '',
-  attachmentFile: '',
-  cargoAgentCode: '',
-  cargoOwnerCode: '',
-  category: '',
-  conclusionTime: '',
-  dataSource: '',
-  handlerConfirmTime: '',
-  handlerConfirmation: '',
-  handlerRemark: '',
-  handlingPerson: '',
-  invoiceTitle: '',
-  isSystemRate: false,
-  payerCodeGate: '',
-  payerCodeSea: '',
-  paymentTypeGate: '',
-  paymentTypeSea: '',
-  planStatus: '',
-  plannedOperationTime: '',
-  submissionTime: '',
-  vesselCode: '',
-  vesselName: '',
-  vesselVoyage: '',
+  subPlanNo: '',
+  status: '',
+  placeContainer: '',
+  pickupPlanNo: '',
+  unloadingSchedule: '',
+  tradeType: '',
+  containerHolder: '',
+  iso: '',
+  containerAreaRange: '',
+  planQuantity: '',
+  mainGateAvailableSlot: '',
+  usedSlots: '',
+  availableSlots: '',
+  slotsInOperation: '',
+  creator: '',
+  createTime: '',
+  updater: '',
+  updateTime: '',
 });
 
 const acceptancePlanOverOperationRespVO =
@@ -255,73 +242,60 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        acceptancePlanNo: '',
-        acceptancePlanWebNo: '',
-        applicantCode: '',
-        applicantCompanyName: '',
-        applicantPlanCount: 0,
-        applicantPlanEnd: '',
-        applicantPlanStart: '',
-        applicantPlanType: '',
-        applicantType: '',
-        attachmentFile: '',
-        cargoAgentCode: '',
-        cargoOwnerCode: '',
-        category: '',
-        conclusionTime: '',
-        dataSource: '',
-        handlerConfirmTime: '',
-        handlerConfirmation: '',
-        handlerRemark: '',
-        handlingPerson: '',
-        invoiceTitle: '',
-        isSystemRate: false,
-        payerCodeGate: '',
-        payerCodeSea: '',
-        paymentTypeGate: '',
-        paymentTypeSea: '',
-        planStatus: '',
-        plannedOperationTime: '',
-        submissionTime: '',
-        vesselCode: '',
-        vesselName: '',
-        vesselVoyage: '',
+        subPlanNo: '',
+        status: '',
+        placeContainer: '',
+        pickupPlanNo: '',
+        unloadingSchedule: '',
+        tradeType: '',
+        containerHolder: '',
+        iso: '',
+        containerAreaRange: '',
+        planQuantity: '',
+        mainGateAvailableSlot: '',
+        usedSlots: '',
+        availableSlots: '',
+        slotsInOperation: '',
+        creator: '',
+        createTime: '',
+        updater: '',
+        updateTime: '',
       });
       containerAreaData.splice(0);
       return;
     }
 
-    const data =
-      await modalApi.getData<EmptyContainerControlApi.subPlanVO>();
+    const data = await modalApi.getData<any>();
 
     if (data) {
-      Object.assign(formData, data.acceptancePlanRespVO);
+      // 清空现有数据
+      containerAreaData.splice(0);
+
+      Object.assign(formData, data.acceptancePlanRespVO || {});
       Object.assign(
         acceptancePlanOverOperationRespVO,
-        data.acceptancePlanOverOperationRespVO,
+        data.acceptancePlanOverOperationRespVO || {},
       );
       Object.assign(
         acceptancePlanBillMessageVO,
-        data.acceptancePlanBillMessageRespVO,
+        data.acceptancePlanBillMessageRespVO || {},
       );
+
       if (data?.acceptancePlanRespVO?.id) {
         modalApi.lock();
         try {
           await formApi.setValues(data.acceptancePlanRespVO);
-          await formApi.setFieldValue(
-            'billNo',
-            data?.acceptancePlanBillMessageRespVO?.billNo,
-          );
-          await formApi.setFieldValue(
-            'cargoName',
-            data?.acceptancePlanBillMessageRespVO?.cargoName,
-          );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
 
-          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+          // 设置箱区范围数据
+          if (data.acceptancePlanOverOperationContainerRespVOS) {
             const $grid = gridApi.grid;
             if ($grid) {
-              await $grid.insertAt(item, -1);
+              for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+                await $grid.insertAt({
+                  ...item,
+                  id: `row_${item.id}` // 确保ID格式正确
+                }, -1);
+              }
             }
           }
         } finally {
@@ -333,9 +307,7 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 const modalTitle = computed(() => {
-  return formData.id
-    ? $t('ui.actionTitle.edit', ['子计划'])
-    : $t('ui.actionTitle.create', ['子计划']);
+  return formData.id ? '修改子计划' : '新增子计划';
 });
 
 </script>
@@ -400,7 +372,7 @@ const modalTitle = computed(() => {
       </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerAreaModal
+    <ContainerArea
       v-model:visible="containerAreaModalVisible"
       @confirm="handleContainerAreaConfirm"
     />

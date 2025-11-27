@@ -19,11 +19,13 @@ import { AdvancedQuery } from '#/components/advanced-query';
 
 import {
   subPlanColumns,
-  acceptancePlanOvrOprFormSchema
+  acceptancePlanOvrOprFormSchema,
+  STATIC_SUB_PLAN_LIST_DATA,
+  STATIC_SUB_PLAN_DETAIL_DATA
 } from './data';
-import Detail from './modules/detail.vue';
-import Form from './modules/form.vue';
-import LogQuery from './modules/log-query.vue';
+import Detail from '#/views/bpp/emptycontainercontrol/subPlanModules/detail.vue';
+import Form from '#/views/bpp/emptycontainercontrol/subPlanModules/form.vue';
+import LogQuery from '#/views/bpp/emptycontainercontrol/subPlanModules/logQuery.vue';
 
 const checkedIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
@@ -80,17 +82,17 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editRules: {
       applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
     },
-    proxyConfig: {
-      ajax: {
-        query: async ({ page }, formValues) => {
-          return await getSubPlanPage({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          });
-        },
-      },
-    },
+    // proxyConfig: {
+    //   ajax: {
+    //     query: async ({ page }, formValues) => {
+    //       return await getSubPlanPage({
+    //         pageNo: page.currentPage,
+    //         pageSize: page.pageSize,
+    //         ...formValues,
+    //       });
+    //     },
+    //   },
+    // },
   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
@@ -124,11 +126,15 @@ const [ToolChangeGrid] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getSubPlanPage({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          });
+          // return await getSubPlanPage({
+          //   pageNo: page.currentPage,
+          //   pageSize: page.pageSize,
+          //   ...formValues,
+          // });
+          return {
+            list: STATIC_SUB_PLAN_LIST_DATA,
+            total: STATIC_SUB_PLAN_LIST_DATA.length
+          };
         },
       },
     },
@@ -171,8 +177,48 @@ const handleDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
 
 /** 编辑申请 */
 const handleEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
-  const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  // 使用固定数据填充弹窗
+  const editData = {
+    acceptancePlanRespVO: {
+      ...STATIC_SUB_PLAN_DETAIL_DATA
+    },
+    acceptancePlanOverOperationRespVO: {
+      id: 1,
+      isAllowedStacking: true,
+      plannedMachineryType: 'RTG',
+      acceptancePlanNo: row.subPlanNo,
+      processInstanceId: 'process_001'
+    },
+    acceptancePlanBillMessageRespVO: {
+      id: 1,
+      acceptancePlanNo: row.subPlanNo,
+      billNo: 'BILL_' + row.subPlanNo,
+      cargoType: '普通货物',
+      cargoName: '电子产品',
+      cargoCount: 100,
+      billType: '海运提单'
+    },
+    acceptancePlanOverOperationContainerRespVOS: [
+      {
+        id: 1,
+        yardPosition: 'A01-01-01',
+        yardColumns: ['A', 'B'],
+        totalCount: '50',
+        minStorageDays: '3',
+        maxStorageDays: '10'
+      },
+      {
+        id: 2,
+        yardPosition: 'B02-01-01',
+        yardColumns: ['C', 'D'],
+        totalCount: '30',
+        minStorageDays: '2',
+        maxStorageDays: '8'
+      }
+    ]
+  };
+
+  formModalApi.setData(editData).open();
 };
 
 /** 删除申请 */

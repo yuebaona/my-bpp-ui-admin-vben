@@ -20,7 +20,7 @@ import {
 import { $t } from '#/locales';
 
 import { subPlanFormSchema, containerAreaRangeColumns } from '../data';
-import ContainerAreaModal from './containerarea.vue';
+import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
 const fileList = ref<UploadProps['fileList']>([]);
@@ -65,8 +65,8 @@ const containerAreaData = reactive<any[]>([
 const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   id: '',
   acceptancePlanNo: '',
-  acceptancePlanWebNo: '',
-  applicantCode: '',
+  status: '',
+  placeContainer: '',
   applicantCompanyName: '',
   applicantPlanCount: 0,
   applicantPlanEnd: '',
@@ -256,8 +256,8 @@ const [Modal, modalApi] = useVbenModal({
       Object.assign(formData, {
         id: '',
         acceptancePlanNo: '',
-        acceptancePlanWebNo: '',
-        applicantCode: '',
+        status: '',
+        placeContainer: '',
         applicantCompanyName: '',
         applicantPlanCount: 0,
         applicantPlanEnd: '',
@@ -400,7 +400,7 @@ const modalTitle = computed(() => {
       </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerAreaModal
+    <ContainerArea
       v-model:visible="containerAreaModalVisible"
       @confirm="handleContainerAreaConfirm"
     />

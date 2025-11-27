@@ -54,7 +54,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
 export function subPlanFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'acceptancePlanWebNo',
+      fieldName: 'subPlanNo',
       label: '子计划号',
       component: 'Input',
       componentProps: {
@@ -64,7 +64,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'applicantCompanyName',
+      fieldName: 'placeContainer',
       label: '是否放箱',
       component: 'RadioGroup',
       componentProps: {
@@ -76,7 +76,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'handlingPerson',
+      fieldName: 'pickupPlanNo',
       label: '提箱受理计划号',
       component: 'Input',
       componentProps: {
@@ -85,7 +85,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'handlingPhoneNumber',
+      fieldName: 'unloadingSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -94,7 +94,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'handlePerson',
+      fieldName: 'containerHolder',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -104,7 +104,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'paymentTypeSea',
+      fieldName: 'tradeType',
       label: '贸易类型',
       component: 'RadioGroup',
       componentProps: {
@@ -223,104 +223,99 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
   ];
 }
 
-/** 超限作业申请列表的字段 */
+/** 子计划列表的字段 */
 export function subPlanColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40 },
     {
-      field: 'acceptancePlanNo',
+      field: 'subPlanNo',
       title: '子计划号',
       minWidth: 120,
     },
     {
-      field: 'acceptancePlanWebNo',
+      field: 'status',
       title: '状态',
       minWidth: 150,
     },
     {
-      field: 'applicantCompanyName',
+      field: 'placeContainer',
       title: '是否放箱(Y/N)',
       minWidth: 150,
     },
     {
-      field: 'applicantCode',
-      title: '申请人',
-      minWidth: 120,
-    },
-    {
-      field: 'vesselName',
+      field: 'pickupPlanNo',
       title: '提箱受理计划号',
       minWidth: 120,
     },
     {
-      field: 'vesselVoyage',
+      field: 'unloadingSchedule',
       title: '卸船船期',
       minWidth: 100,
     },
     {
-      field: 'category',
+      field: 'tradeType',
       title: '贸易类型',
       minWidth: 100,
     },
     {
-      field: 'vesselCode',
+      field: 'containerHolder',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'billNo',
+      field: 'iso',
       title: 'ISO',
       minWidth: 120,
     },
     {
-      field: 'cargoName',
+      field: 'containerAreaRange',
       title: '箱区范围',
       minWidth: 120,
     },
     {
-      field: 'payerCodeSea',
+      field: 'planQuantity',
       title: '计划箱量',
       minWidth: 120,
     },
     {
-      field: 'paymentTypeSea',
+      field: 'mainGateAvailableSlot',
       title: '主闸可放箱量',
       minWidth: 120,
     },
     {
-      field: 'payerCodeGate',
+      field: 'usedSlots',
       title: '已放箱量',
       minWidth: 120,
     },
     {
-      field: 'paymentTypeGate',
+      field: 'availableSlots',
       title: '未放箱量',
       minWidth: 120,
     },
     {
-      field: 'handlingPerson',
+      field: 'slotsInOperation',
       title: '作业中占用箱量',
-      minWidth: 100,
+      minWidth: 120,
     },
     {
-      field: 'isSystemRate',
+      field: 'creator',
       title: '创建人',
       minWidth: 100,
     },
     {
-      field: 'planStatus',
+      field: 'createTime',
       title: '创建时间',
-      minWidth: 100,
+      minWidth: 150,
     },
     {
-      field: 'auditNode',
+      field: 'updater',
       title: '修改人',
       minWidth: 100,
     },
     {
-      field: 'auditNodeStatus',
+      field: 'updateTime',
       title: '修改时间',
-      minWidth: 100,
+      minWidth: 150,
     },
     {
       title: '操作',
@@ -466,3 +461,62 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+
+
+export const STATIC_SUB_PLAN_LIST_DATA = [
+  {
+    id: 1,
+    subPlanNo: 'SP20230001',
+    status: '已提交',
+    placeContainer: 'Y',
+    pickupPlanNo: 'TXSLJH2023001',
+    unloadingSchedule: '2023-12-01',
+    tradeType: '内贸',
+    containerHolder: '持箱人A',
+    iso: 'ISO001',
+    containerAreaRange: 'A01-B02',
+    planQuantity: '100',
+    mainGateAvailableSlot: '80',
+    usedSlots: '60',
+    availableSlots: '40',
+    slotsInOperation: '20',
+    creator: '管理员',
+    createTime: '2023-11-01 10:00:00',
+    updater: '修改人A',
+    updateTime: '2023-11-01 15:00:00'
+  },
+  {
+    id: 2,
+    subPlanNo: 'SP20230002',
+    status: '审核中',
+    placeContainer: 'N',
+    pickupPlanNo: 'TXSLJH2023002',
+    unloadingSchedule: '2023-12-02',
+    tradeType: '外贸',
+    containerHolder: '持箱人B',
+    iso: 'ISO002',
+    containerAreaRange: 'C01-D02',
+    planQuantity: '200',
+    mainGateAvailableSlot: '150',
+    usedSlots: '100',
+    availableSlots: '50',
+    slotsInOperation: '30',
+    creator: '操作员',
+    createTime: '2023-11-02 10:00:00',
+    updater: '修改人B',
+    updateTime: '2023-11-02 15:00:00'
+  }
+];
+
+export const STATIC_SUB_PLAN_DETAIL_DATA = {
+  id: 61,
+  subPlanNo: 'SP20230001',
+  placeContainer: 'Y',
+  pickupPlanNo: '测试经办人',
+  unloadingSchedule: '13800138000',
+  containerHolder: '在线支付',
+  tradeType: 'neimao',
+  iso: 'ISO003',
+  planQuantity: '200',
+};
+
