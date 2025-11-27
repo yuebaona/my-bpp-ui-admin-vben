@@ -138,7 +138,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
 }
 
 /** 空箱空箱列表的搜索栏 */
-export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
+export function PlanSearchFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'acceptancePlanNo',
