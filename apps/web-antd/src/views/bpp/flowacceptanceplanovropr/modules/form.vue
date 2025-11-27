@@ -3,13 +3,14 @@ import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { SystemUserProfileApi } from '#/api/system/user/profile';
 
 import { computed, nextTick, reactive, ref, toRaw } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
-import { Button, message,Select } from 'ant-design-vue';
+import { Button, message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -17,15 +18,22 @@ import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
 } from '#/api/bpp/flowacceptanceplanovropr';
+import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';
 import { $t } from '#/locales';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 
 import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
-import { bppBaseDictStore } from '#/store/bpp/base/dict';
+
+const emit = defineEmits(['success']);
 
 const bppBaseDict = bppBaseDictStore();
 
-const emit = defineEmits(['success']);
+/** 加载个人信息 */
+const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
+async function loadProfile() {
+  profile.value = await getUserProfile();
+}
 const fileList = ref<UploadProps['fileList']>([]);
 // 箱信息数据
 const containerData = reactive<
@@ -357,7 +365,9 @@ const [Modal, modalApi] = useVbenModal({
             'cargoName',
             data?.acceptancePlanBillMessageRespVO?.cargoName,
           );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO?.attachmentFile);
+          fileList.value = JSON.parse(
+            data.acceptancePlanRespVO?.attachmentFile,
+          );
           for (const item of data?.acceptancePlanOverOperationContainerRespVOS) {
             const $grid = gridApi.grid;
             if ($grid) {
@@ -371,6 +381,13 @@ const [Modal, modalApi] = useVbenModal({
         } finally {
           modalApi.unlock();
         }
+      } else {
+        await loadProfile();
+        await formApi.setFieldValue('handlingPerson', profile.value.nickname);
+        await formApi.setFieldValue(
+          'handlingPhoneNumber',
+          profile.value.mobile,
+        );
       }
     }
   },
@@ -437,13 +454,13 @@ const filterOption = (input, option) => {
                 </Button>
                 <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
               </template>
-<!--              <template #containerSizeEdit="{ row, index }">-->
-<!--                <Select :options="bppBaseDict.getBppBaseDictOptions(-->
-<!--                    'initiation_type',-->
-<!--                  )" v-model:value="row.containerSize"style="width: 100%"-->
-<!--                        :getPopupContainer="getPopupContainer" :showSearch="true"-->
-<!--                        :filterOption="filterOption"/>-->
-<!--              </template>-->
+              <!--              <template #containerSizeEdit="{ row, index }">-->
+              <!--                <Select :options="bppBaseDict.getBppBaseDictOptions(-->
+              <!--                    'initiation_type',-->
+              <!--                  )" v-model:value="row.containerSize"style="width: 100%"-->
+              <!--                        :getPopupContainer="getPopupContainer" :showSearch="true"-->
+              <!--                        :filterOption="filterOption"/>-->
+              <!--              </template>-->
             </Grid>
           </div>
         </div>
