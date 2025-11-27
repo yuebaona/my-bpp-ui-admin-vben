@@ -1,11 +1,12 @@
 import type { VbenFormSchema } from '#/adapter/form'
 import type { VxeTableGridOptions } from '#/adapter/vxe-table'
-// import type { DescriptionItemSchema } from '#/components/description'
+import type { DescriptionItemSchema } from '#/components/description'
 
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
 
 
+/** 箱区范围字段 */
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -47,6 +48,92 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       slots: { default: 'actions' },
       fixed: 'right',
+    },
+  ];
+}
+
+export function mainPlanFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'acceptancePlanWebNo',
+      label: '主计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '系统自动生成',
+        allowClear: true,
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'applicantCompanyName',
+      label: '是否放箱',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是（Y）', value: 'Y' },
+          { label: '否（N）', value: 'N' },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'handlingPerson',
+      label: '提箱受理计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入提箱受理计划号',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'handlePerson',
+      label: '持箱人',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入持箱人，可多条',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'paymentTypeSea',
+      label: '贸易类型',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '内贸', value: 'neimao' },
+          { label: '外贸', value: 'waimao' },
+        ],
+      },
+    },
+    {
+      fieldName: 'iso',
+      label: 'ISO',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入ISO，可多条',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'containerAreaRange',
+      label: '箱区范围',
+      component: 'Input',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
+      },
+      formItemClass: 'col-span-2',
+    },
+    {
+      fieldName: 'planQuantity',
+      label: '计划箱量',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入计划箱量',
+        allowClear: true,
+      },
     },
   ];
 }
@@ -145,6 +232,8 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     },
   ];
 }
+
+
 /** 空箱空箱列表的搜索栏 */
 export function PlanSearchFormSchema(): VbenFormSchema[] {
   return [
@@ -178,10 +267,14 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'billNo',
       label: '贸易类型',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '请输入贸易类型',
+        placeholder: '请选择贸易类型',
         allowClear: true,
+        options: [
+          { label: '内贸', value: 'neimao' },
+          { label: '外贸', value: 'waimao' },
+        ],
       },
     },
     {
@@ -205,10 +298,15 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'createTime',
       label: '创建时间',
-      component: 'TimeRangePicker',
+      component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
+        showTime: {
+          format: 'HH:mm',
+        },
+        format: 'YYYY-MM-DD HH:mm',
+        placeholder: ['开始时间', '结束时间'],
       },
     },
     {
@@ -223,9 +321,124 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
   ];
 }
 
-/** 子计划列表的字段 */
+/** 主计划字段 */
+export function mainPlanColumns(): VxeTableGridOptions['columns'] {
+  return [
+    { type: 'seq', width: 50, align: 'center' },
+    { type: 'checkbox', width: 40 },
+    {
+      field: 'acceptancePlanNo',
+      title: '主计划号',
+      minWidth: 120,
+    },
+    {
+      field: 'acceptancePlanWebNo',
+      title: '状态',
+      minWidth: 100,
+    },
+    {
+      field: 'applicantCompanyName',
+      title: '是否放箱(Y/N)',
+      minWidth: 150,
+    },
+    {
+      field: 'applicantCode',
+      title: '提箱受理计划号',
+      minWidth: 120,
+    },
+    {
+      field: 'vesselName',
+      title: '持箱人',
+      minWidth: 120,
+    },
+    {
+      field: 'category',
+      title: '贸易类型',
+      minWidth: 100,
+    },
+    {
+      field: 'vesselCode',
+      title: 'ISO',
+      minWidth: 120,
+    },
+    {
+      field: 'billNo',
+      title: '箱区范围',
+      minWidth: 120,
+    },
+    {
+      field: 'cargoName',
+      title: '计划箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'payerCodeSea',
+      title: '主闸可放箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'paymentTypeSea',
+      title: '已放箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'paymentTypeGate',
+      title: '未放箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'handlingPerson',
+      title: '作业中占用箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'isSystemRate',
+      title: '指定提箱占用箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'planStatus',
+      title: '互拖闸占用箱量',
+      minWidth: 120,
+    },
+    {
+      field: 'auditNode',
+      title: '扣留占用箱量',
+      minWidth: 100,
+    },
+    {
+      field: 'auditNode',
+      title: '创建人',
+      minWidth: 100,
+    },
+    {
+      field: 'auditNodeStatus',
+      title: '创建时间',
+      minWidth: 110,
+    },
+     {
+      field: 'auditNode',
+      title: '修改人',
+      minWidth: 100,
+    },
+    {
+      field: 'auditNodeStatus',
+      title: '修改时间',
+      minWidth: 100,
+    },
+    {
+      title: '操作',
+      width: 200,
+      fixed: 'right',
+      slots: { default: 'actions' },
+    },
+  ];
+}
+
+/** 子计划字段 */
 export function subPlanColumns(): VxeTableGridOptions['columns'] {
   return [
+    { type: 'seq', width: 50, align: 'center' , fixed: 'left'},
     { type: 'checkbox', width: 40 , fixed: 'left'},
     {
       field: 'subPlanNo',
@@ -326,7 +539,27 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-// 子计划详情字段
+
+/** 主计划详情字段 */
+export function mainPlanDetailSchema(): DescriptionItemSchema[] {
+  return [
+    // 基础信息
+    { field: 'acceptancePlanNo', label: '主计划号' },
+    { field: 'applicantCompanyName', label: '状态' },
+    { field: 'handlingPerson', label: '经办人' },
+    { field: 'handlingPhoneNumber', label: '经办人联系电话' },
+    { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
+    { field: 'payerCodeSea', label: '缴费方（海侧）' },
+    { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
+    { field: 'payerCodeGate', label: '缴费方（陆侧）' },
+    { field: 'category', label: '进出口类别' },
+    { field: 'vesselName', label: '作业船名（中文名称）' },
+    { field: 'vesselVoyage', label: '作业航次' },
+    { field: 'plannedOperationTime', label: '预计作业时间' },
+  ]
+}
+
+/** 子计划详情字段 */
 // export function subPlanDetailSchema(): DescriptionItemSchema[] {
 //   return [
 //     // 基础信息
