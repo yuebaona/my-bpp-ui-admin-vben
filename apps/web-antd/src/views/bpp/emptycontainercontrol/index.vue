@@ -24,7 +24,6 @@ import {
   mainPlanColumns,
   PlanSearchFormSchema,
   subPlanColumns,
-  PlanSearchFormSchema,
   STATIC_SUB_PLAN_LIST_DATA,
   STATIC_SUB_PLAN_DETAIL_DATA
 } from './data';
@@ -211,7 +210,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getSubPlanPage({
+          return await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -219,7 +218,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
+  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
