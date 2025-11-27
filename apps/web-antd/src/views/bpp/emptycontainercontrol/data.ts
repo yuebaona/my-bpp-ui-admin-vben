@@ -146,7 +146,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
   ];
 }
 /** 空箱空箱列表的搜索栏 */
-export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
+export function PlanSearchFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'acceptancePlanNo',
@@ -226,11 +226,12 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
 /** 子计划列表的字段 */
 export function subPlanColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'checkbox', width: 40 },
+    { type: 'checkbox', width: 40 , fixed: 'left'},
     {
       field: 'subPlanNo',
       title: '子计划号',
       minWidth: 120,
+      fixed: 'left',
     },
     {
       field: 'status',
@@ -519,4 +520,36 @@ export const STATIC_SUB_PLAN_DETAIL_DATA = {
   iso: 'ISO003',
   planQuantity: '200',
 };
+
+export const STATIC_MASTER_PLAN_QUERY_DATA = [
+  {
+    id: 1,
+    mainPlanNo: 'MP20230001',
+    isRelease: 'Y',
+    acceptancePlanNo: '137635841765',
+    containerHolder: '李三',
+    tradeType: 'neimao',
+    iso: 'ISO001',
+    containerAreaRange: 'A01-B02',
+    mainGateReleaseQty: '100',
+    modifier: '管理员',
+    modifyTime: '2023-11-01 10:00:00',
+    modifyType: '修改类型A',
+  },
+  {
+    id: 2,
+    mainPlanNo: 'MP20230002',
+    isRelease: 'N',
+    acceptancePlanNo: '71326815685',
+    containerHolder: '张三',
+    tradeType: 'waimao',
+    iso: 'ISO002',
+    containerAreaRange: 'C01-D02',
+    mainGateReleaseQty: '100',
+    modifier: '操作员',
+    modifyTime: '2023-11-02 10:00:00',
+    modifyType: '修改类型B'
+  },
+
+]
 

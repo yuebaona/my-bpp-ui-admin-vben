@@ -13,13 +13,13 @@ import { Button, message, Select } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowoverlimitwork';
+  createSubPlan,
+  updateSubPlan,
+} from '#/api/bpp/emptycontainercontrol';
 
 import { $t } from '#/locales';
 
-import { subPlanFormSchema, containerAreaRangeColumns, STATIC_SUB_PLAN_DETAIL_DATA } from '../data';
+import { subPlanFormSchema, containerAreaRangeColumns} from '../data';
 import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
@@ -84,26 +84,26 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   updateTime: '',
 });
 
-const acceptancePlanOverOperationRespVO =
-  reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
-    id: 0,
-    isAllowedStacking: false,
-    plannedMachineryType: '',
-    plannedSpreaderType: '',
-    acceptancePlanNo: '',
-    processInstanceId: '',
-  });
-
-const acceptancePlanBillMessageVO =
-  reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
-    id: 0,
-    acceptancePlanNo: '',
-    billNo: '',
-    cargoType: '',
-    cargoName: '',
-    cargoCount: 0,
-    billType: '',
-  });
+// const acceptancePlanOverOperationRespVO =
+//   reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
+//     id: 0,
+//     isAllowedStacking: false,
+//     plannedMachineryType: '',
+//     plannedSpreaderType: '',
+//     acceptancePlanNo: '',
+//     processInstanceId: '',
+//   });
+//
+// const acceptancePlanBillMessageVO =
+//   reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
+//     id: 0,
+//     acceptancePlanNo: '',
+//     billNo: '',
+//     cargoType: '',
+//     cargoName: '',
+//     cargoCount: 0,
+//     billType: '',
+//   });
 
 const selectContainerArea = () => {
   containerAreaModalVisible.value = true;
@@ -211,28 +211,28 @@ const [Modal, modalApi] = useVbenModal({
       acceptancePlanSaveReqVO: {
         ...formData,
       } as EmptyContainerControlApi.subPlanVO,
-      acceptancePlanOverOperationSaveReqVO: {
-        ...acceptancePlanOverOperationRespVO,
-      } as EmptyContainerControlApi.AcceptancePlanOverOperationVO,
-      acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
-      acceptancePlanBillMessageSaveReqVO: {
-        ...acceptancePlanBillMessageVO,
-      } as EmptyContainerControlApi.AcceptancePlanBillMessageVO,
+      // acceptancePlanOverOperationSaveReqVO: {
+      //   ...acceptancePlanOverOperationRespVO,
+      // } as EmptyContainerControlApi.AcceptancePlanOverOperationVO,
+      // acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
+      // acceptancePlanBillMessageSaveReqVO: {
+      //   ...acceptancePlanBillMessageVO,
+      // } as EmptyContainerControlApi.AcceptancePlanBillMessageVO,
     };
-    data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
-    data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
-    data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
-
-    data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
-      if (item.id && String(item.id).startsWith('row_')) {
-        item.id = item.id.replace('row_', '');
-      }
-    });
-    data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
+    // data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
+    // data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
+    // data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
+    //
+    // data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
+    //   if (item.id && String(item.id).startsWith('row_')) {
+    //     item.id = item.id.replace('row_', '');
+    //   }
+    // });
+    // data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
 
     await (formData?.id
-      ? updateAcceptancePlanOverOperation(data)
-      : createAcceptancePlanOverOperation(data));
+      ? updateSubPlan(data)
+      : createSubPlan(data));
 
     await modalApi.close();
     emit('success');
@@ -272,14 +272,14 @@ const [Modal, modalApi] = useVbenModal({
       containerAreaData.splice(0);
 
       Object.assign(formData, data.acceptancePlanRespVO || {});
-      Object.assign(
-        acceptancePlanOverOperationRespVO,
-        data.acceptancePlanOverOperationRespVO || {},
-      );
-      Object.assign(
-        acceptancePlanBillMessageVO,
-        data.acceptancePlanBillMessageRespVO || {},
-      );
+      // Object.assign(
+      //   acceptancePlanOverOperationRespVO,
+      //   data.acceptancePlanOverOperationRespVO || {},
+      // );
+      // Object.assign(
+      //   acceptancePlanBillMessageVO,
+      //   data.acceptancePlanBillMessageRespVO || {},
+      // );
 
       if (data?.acceptancePlanRespVO?.id) {
         modalApi.lock();
@@ -365,11 +365,11 @@ const modalTitle = computed(() => {
           </div>
         </div>
       </template>
-      <template #handlingPersonLast>
-        <span class="text-gray-600" v-if="formData && formData.handlingPerson">
-          {{ formData.handlingPerson }}
-        </span>
-      </template>
+<!--      <template #handlingPersonLast>-->
+<!--        <span class="text-gray-600" v-if="formData && formData.handlingPerson">-->
+<!--          {{ formData.handlingPerson }}-->
+<!--        </span>-->
+<!--      </template>-->
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
     <ContainerArea

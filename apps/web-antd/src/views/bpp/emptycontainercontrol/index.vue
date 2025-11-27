@@ -12,14 +12,14 @@ import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   getSubPlan,
   deleteSubPlan,
-  getSubPlanPage,
+  // getSubPlanPage, //因使用固定数据暂时注销
 } from '#/api/bpp/emptycontainercontrol';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 
 import {
   subPlanColumns,
-  acceptancePlanOvrOprFormSchema,
+  PlanSearchFormSchema,
   STATIC_SUB_PLAN_LIST_DATA,
   STATIC_SUB_PLAN_DETAIL_DATA
 } from './data';
@@ -53,7 +53,7 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    schema: acceptancePlanOvrOprFormSchema(),
+    schema: PlanSearchFormSchema(),
     submitButtonOptions: {
       content: '查询',
     },
@@ -182,22 +182,22 @@ const handleEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
     acceptancePlanRespVO: {
       ...STATIC_SUB_PLAN_DETAIL_DATA
     },
-    acceptancePlanOverOperationRespVO: {
-      id: 1,
-      isAllowedStacking: true,
-      plannedMachineryType: 'RTG',
-      acceptancePlanNo: row.subPlanNo,
-      processInstanceId: 'process_001'
-    },
-    acceptancePlanBillMessageRespVO: {
-      id: 1,
-      acceptancePlanNo: row.subPlanNo,
-      billNo: 'BILL_' + row.subPlanNo,
-      cargoType: '普通货物',
-      cargoName: '电子产品',
-      cargoCount: 100,
-      billType: '海运提单'
-    },
+    // acceptancePlanOverOperationRespVO: {
+    //   id: 1,
+    //   isAllowedStacking: true,
+    //   plannedMachineryType: 'RTG',
+    //   acceptancePlanNo: row.subPlanNo,
+    //   processInstanceId: 'process_001'
+    // },
+    // acceptancePlanBillMessageRespVO: {
+    //   id: 1,
+    //   acceptancePlanNo: row.subPlanNo,
+    //   billNo: 'BILL_' + row.subPlanNo,
+    //   cargoType: '普通货物',
+    //   cargoName: '电子产品',
+    //   cargoCount: 100,
+    //   billType: '海运提单'
+    // },
     acceptancePlanOverOperationContainerRespVOS: [
       {
         id: 1,

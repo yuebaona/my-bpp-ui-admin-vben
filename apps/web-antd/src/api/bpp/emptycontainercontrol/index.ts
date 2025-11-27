@@ -26,13 +26,13 @@ export namespace EmptyContainerControlApi {
     updateTime: string; //修改时间
   }
   // 子计划信息
-  export interface AcceptancePlanOverOperationVO {
-    id: number;
-    isAllowedStacking: boolean;
-    plannedMachineryType: string;
-    acceptancePlanNo: string;
-    processInstanceId: string;
-  }
+  // export interface AcceptancePlanOverOperationVO {
+  //   id: number;
+  //   isAllowedStacking: boolean;
+  //   plannedMachineryType: string;
+  //   acceptancePlanNo: string;
+  //   processInstanceId: string;
+  // }
   // // 子计划箱信息
   // export interface AcceptancePlanOverOperationContainerVO {
   //   id: number;
@@ -55,21 +55,21 @@ export namespace EmptyContainerControlApi {
   //   plannedSpreaderType: string;
   // }
   // 提单信息表
-  export interface AcceptancePlanBillMessageVO {
-    id: number;
-    acceptancePlanNo: string;
-    billNo: string;
-    cargoType: string;
-    cargoName: string;
-    cargoCount: number;
-    billType: string;
-  }
+  // export interface AcceptancePlanBillMessageVO {
+  //   id: number;
+  //   acceptancePlanNo: string;
+  //   billNo: string;
+  //   cargoType: string;
+  //   cargoName: string;
+  //   cargoCount: number;
+  //   billType: string;
+  // }
   // 总数据
   export interface SubPlanSaveReqVO {
     acceptancePlanSaveReqVO: subPlanVO;
-    acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
+    // acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
     // acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
-    acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
+    // acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
 
@@ -102,7 +102,7 @@ export const getSubPlan = (id: number) => {
 // 子计划分页查询
 export const getSubPlanPage = (params: PageParam) => {
   return requestClient.get<
-    PageResult<EmptyContainerControlApi.AcceptancePlanOverOperationVO>
+    PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
   >('/bpp/flow/sub-plan/page', { params });
 };
 
@@ -110,4 +110,9 @@ export const deleteSubPlan = (id: number) => {
   return requestClient.get(
     `/bpp/flow/sub-plan/get?id=${id}`,
   );
+};
+
+export const getLogQueryData = (params: PageParam) => {
+  return requestClient.get<PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
+  >( '/bpp/flow/sub-plan/log-query', { params });
 };

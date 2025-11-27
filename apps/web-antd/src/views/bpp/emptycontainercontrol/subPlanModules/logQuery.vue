@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { reactive } from 'vue';
+import {onMounted, reactive} from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -9,6 +9,12 @@ import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { logQueryColumns, logQueryFormSchema } from '../data';
+
+// import {
+//   getLogQueryData, // 后续启用真实接口时取消注释
+// } from '#/api/bpp/emptycontainercontrol';
+
+import { STATIC_MASTER_PLAN_QUERY_DATA } from '../data';
 
 const formValues = reactive({});
 
@@ -27,11 +33,12 @@ const [Form, formApi] = useVbenForm({
     Object.assign(formValues, values);
   },
   handleSubmit: async () => {
-    await gridApi.reload();
+    await handleQuery();
   },
   handleReset: async () => {
     formApi.resetForm();
-    await gridApi.reload();
+    // 重置时清空表格数据
+    gridApi.reload({ list: [], total: 0 });
   },
 });
 
@@ -59,31 +66,42 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }) => {
-          // 模拟数据
-          const list = Array.from({ length: 10 }).map((_, index) => ({
-            id: index,
-            mainPlanNo: `MP${Date.now()}${index}`,
-            isRelease: index % 2 === 0 ? 'Y' : 'N',
-            acceptancePlanNo: `AP${Date.now()}${index}`,
-            containerHolder: `Holder ${index}`,
-            tradeType: index % 2 === 0 ? '内贸' : '外贸',
-            iso: '22G1',
-            containerAreaRange: 'A01-A05',
-            mainGateReleaseQty: 100 + index,
-            modifier: 'admin',
-            modifyTime: '2023-10-27 10:00:00',
-            modifyType: index === 0 ? '创建' : index === 1 ? '修改' : '删除',
-          }));
-
+          // 这里会通过 handleQuery 方法设置数据
+          // 初始状态返回空数据
           return {
-            items: list,
-            total: 100,
+            list: [],
+            total: 0,
           };
         },
       },
     },
   } as VxeTableGridOptions<any>,
 });
+
+/** 查询处理函数 */
+const handleQuery = async () => {
+  try {
+    // TODO: 后续启用真实接口时取消注释以下代码，并注释掉模拟数据部分
+    // const params = {
+    //   pageNo: 1,
+    //   pageSize: 10,
+    //   ...formValues
+    // };
+    // const res = await getLogQueryData(params);
+    // gridApi.reload(res);
+
+    // 暂时使用固定数据模拟接口返回
+    const mockResponse = {
+      list: STATIC_MASTER_PLAN_QUERY_DATA,
+      total: STATIC_MASTER_PLAN_QUERY_DATA.length
+    };
+
+    gridApi.reload(mockResponse);
+
+  } catch (error) {
+    console.error('查询失败:', error);
+  }
+};
 
 const [Modal, modalApi] = useVbenModal({
   title: '日志查询',
@@ -93,6 +111,17 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.close();
   },
 });
+
+// 弹窗打开时自动查询数据（可选）
+// modalApi.onOpen(() => {
+//   handleQuery();
+// });
+
+// 组件挂载时自动加载数据
+onMounted(() => {
+  handleQuery();
+});
+
 </script>
 
 <template>
