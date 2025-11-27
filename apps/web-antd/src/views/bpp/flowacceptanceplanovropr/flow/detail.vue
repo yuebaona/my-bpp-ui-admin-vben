@@ -131,7 +131,7 @@ onMounted(() => {
   </ContentWrap>
   <!--任务办理窗口-->
   <Modal
-    :open='openTask'
+    :open="openTask"
     :width="1200"
     title="提交审核"
     :closable="false"

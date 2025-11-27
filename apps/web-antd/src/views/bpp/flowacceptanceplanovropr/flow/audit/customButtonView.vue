@@ -109,7 +109,7 @@ async function passTask() {
       variables, // 审批通过, 把修改的字段值赋于流程实例变量
       nextAssignees: {}, // 下个自选节点选择的审批人信息
     } as any;
-    //任务审批
+    // 任务审批
     await approveTask(data);
     message.success('审批通过成功');
     setTimeout(() => {
