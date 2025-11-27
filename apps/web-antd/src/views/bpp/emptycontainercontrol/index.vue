@@ -29,6 +29,7 @@ import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
 import Detail2 from './modules/detail2.vue';
 import Form2 from './modules/form2.vue';
+import LogQuery from './modules/log-query.vue';
 
 const checkedIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
