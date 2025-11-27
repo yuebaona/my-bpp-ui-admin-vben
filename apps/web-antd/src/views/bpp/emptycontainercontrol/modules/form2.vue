@@ -2,7 +2,7 @@
 import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainer';
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
 import { computed, reactive, ref, toRaw } from 'vue';
 
@@ -16,10 +16,9 @@ import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
 } from '#/api/bpp/flowoverlimitwork';
-
 import { $t } from '#/locales';
 
-import {mainPlanFormSchema, containerAreaRangeColumns } from '../data';
+import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
 import ContainerAreaModal from './containerarea.vue';
 
 const emit = defineEmits(['success']);
@@ -62,7 +61,7 @@ const containerAreaData = reactive<any[]>([
   },
 ]);
 
-//主计划表单数据
+// 主计划表单数据
 const formData2 = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
   acceptancePlanNo: '',
@@ -103,7 +102,7 @@ const acceptancePlanOverOperationRespVO =
     id: 0,
     isAllowedStacking: false,
     plannedMachineryType: '',
-    plannedSpreaderType: '',
+    // plannedSpreaderType: '',
     acceptancePlanNo: '',
     processInstanceId: '',
   });
@@ -141,9 +140,6 @@ const handleContainerAreaConfirm2 = (positions: string[]) => {
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
-
-    console.log('newRows',newRows)
-
   }
 };
 
@@ -153,7 +149,7 @@ const deleteRow2 = async (row: any) => {
   await $grid.remove(row);
 };
 
-//主计划
+// 主计划
 const [Form2, formApi2] = useVbenForm({
   commonConfig: {
     componentProps: {
@@ -167,7 +163,7 @@ const [Form2, formApi2] = useVbenForm({
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values) => {
-    Object.assign(formData, values);
+    Object.assign(formData2, values);
   },
 });
 
@@ -217,7 +213,7 @@ const [Modal2, modalApi2] = useVbenModal({
     }
 
     const { valid } = await formApi2.validate();
-    const gridValid: boolean = await gridApi2.grid2.validate(true);
+    const gridValid: boolean = await gridApi2.grid.validate(true);
 
     if (!valid || gridValid) {
       return;
@@ -251,7 +247,7 @@ const [Modal2, modalApi2] = useVbenModal({
       ? updateAcceptancePlanOverOperation(data)
       : createAcceptancePlanOverOperation(data));
 
-    await modalApi.close();
+    await modalApi2.close();
     emit('success');
     message.success($t('ui.actionMessage.operationSuccess'));
   },
@@ -323,7 +319,7 @@ const [Modal2, modalApi2] = useVbenModal({
           fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
 
           for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
-            const $grid2 = gridApi2.grid2;
+            const $grid2 = gridApi2.grid;
             if ($grid2) {
               await $grid2.insertAt(item, -1);
             }
@@ -397,8 +393,11 @@ const modalTitle2 = computed(() => {
         </div>
       </template>
       <template #handlingPersonLast>
-        <span class="text-gray-600" v-if="formData && formData.handlingPerson">
-          {{ formData.handlingPerson }}
+        <span
+          class="text-gray-600"
+          v-if="formData2 && formData2.handlingPerson"
+        >
+          {{ formData2.handlingPerson }}
         </span>
       </template>
     </Form2>

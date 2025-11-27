@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+
 import { reactive, ref } from 'vue';
+
 import { useVbenModal } from '@vben/common-ui';
+
 import dayjs from 'dayjs';
+
 import { useDescription } from '#/components/description';
-import {
-  mainPlanDetailSchema,
-} from '../data.ts';
+
+import { mainPlanDetailSchema } from '../data';
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
 const formData = ref<FlowOverLimitWorkApi.AcceptancePlanVO>();
-const fileList = ref<fileVo>([]);
+// const fileList = ref<fileVo>([]);
 const acceptancePlanBillMessageVO =
   reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
     id: 0,
@@ -63,15 +66,15 @@ const [Modal, modalApi] = useVbenModal({
         formData.value.plannedOperationTime,
       ).format('YYYY-MM-DD HH:mm:ss');
       const arr = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
-      arr.forEach((item: fileVo) => {
-        const lastSlashIndex = item.lastIndexOf('/');
-        const fileName =
-          lastSlashIndex === -1 ? item : item.slice(lastSlashIndex + 1);
-        fileList.value.push({
-          fileName: fileName.split('.')[0],
-          filePath: item,
-        });
-      });
+      // arr.forEach((item: fileVo) => {
+      //   const lastSlashIndex = item.lastIndexOf('/');
+      //   const fileName =
+      //     lastSlashIndex === -1 ? item : item.slice(lastSlashIndex + 1);
+      //   fileList.value.push({
+      //     fileName: fileName.split('.')[0],
+      //     filePath: item,
+      //   });
+      // });
       // 箱信息
       for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
         containerData.push(item);

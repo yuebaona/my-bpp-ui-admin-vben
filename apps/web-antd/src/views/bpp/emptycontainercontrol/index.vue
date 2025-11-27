@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainer';
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
 import { ref } from 'vue';
 
@@ -12,9 +12,9 @@ import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   getMainPlan,
   deleteMainPlan,
+  deleteSubPlan,
   getMainPlanPage,
   getSubPlan,
-  deleteSubPlan,
   getSubPlanPage,
 } from '#/api/bpp/emptycontainer';
 import { advancedButton } from '#/components/advanced-button';
@@ -22,8 +22,9 @@ import { AdvancedQuery } from '#/components/advanced-query';
 
 import {
   mainPlanColumns,
+  PlanSearchFormSchema,
   subPlanColumns,
-  acceptancePlanOvrOprFormSchema
+
 } from './data';
 import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
@@ -57,7 +58,7 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    schema: acceptancePlanOvrOprFormSchema(),
+    schema: PlanSearchFormSchema(),
     submitButtonOptions: {
       content: '查询',
     },
@@ -166,7 +167,7 @@ const [DetailModal2, detailModalApi2] = useVbenModal({
 
 const [Grid2, gridApi2] = useVbenVxeGrid({
   formOptions: {
-    schema: acceptancePlanOvrOprFormSchema(),
+    schema: PlanSearchFormSchema(),
     submitButtonOptions: {
       content: '查询',
     },
