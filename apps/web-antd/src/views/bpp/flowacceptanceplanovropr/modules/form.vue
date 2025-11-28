@@ -1,33 +1,35 @@
 <script lang="ts" setup>
-import type { UploadProps } from 'ant-design-vue';
+import type { UploadProps } from "ant-design-vue";
+import { Button, message, Select } from "ant-design-vue";
 
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
-import type { SystemUserProfileApi } from '#/api/system/user/profile';
-
-import { computed, nextTick, reactive, ref, toRaw } from 'vue';
-
-import { useVbenModal } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
-
-import { Button, message } from 'ant-design-vue';
-
-import { useVbenForm } from '#/adapter/form';
-import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from "#/adapter/vxe-table";
+import { TableAction, useVbenVxeGrid } from "#/adapter/vxe-table";
+import type { FlowOverLimitWorkApi } from "#/api/bpp/flowacceptanceplanovropr";
 import {
   createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowacceptanceplanovropr';
-import { getUserProfile } from '#/api/system/user/profile';
-import { FileUpload } from '#/components/upload';
-import { $t } from '#/locales';
-import { bppBaseDictStore } from '#/store/bpp/base/dict';
+  getVVd,
+  updateAcceptancePlanOverOperation
+} from "#/api/bpp/flowacceptanceplanovropr";
+import type { SystemUserProfileApi } from "#/api/system/user/profile";
+import { getUserProfile } from "#/api/system/user/profile";
 
-import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
+import { computed, nextTick, reactive, ref, toRaw, watch } from "vue";
+
+import { useVbenModal } from "@vben/common-ui";
+import { IconifyIcon } from "@vben/icons";
+
+import { useVbenForm } from "#/adapter/form";
+import { FileUpload } from "#/components/upload";
+import { $t } from "#/locales";
+import { bppBaseDictStore } from "#/store/bpp/base/dict";
+
+import { acceptancePlanFormSchema, containerInfoColumns } from "../data.ts";
 
 const emit = defineEmits(['success']);
 
 const bppBaseDict = bppBaseDictStore();
+
+const vesselCode = ref<string>();
 
 /** 加载个人信息 */
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
@@ -289,7 +291,7 @@ const [Modal, modalApi] = useVbenModal({
         item.id = item.id.replace('row_', '');
       }
     });
-    data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
+    data.acceptancePlanSaveReqVO.vesselCode = vesselCode.value;
     // 调用API保存数据
     await (formData?.id
       ? updateAcceptancePlanOverOperation(data)
@@ -411,6 +413,64 @@ const getPopupContainer = (triggerNode) => {
 const filterOption = (input, option) => {
   return option.label.toLowerCase().includes(input.toLowerCase());
 };
+
+const vesselNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const vesselVoyageState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const handleVesselSearch = async (value: any) => {
+  if(!value) return;
+  vesselNameState.data = [];
+  vesselNameState.fetching = true;
+  const res = await getVVd({
+    condition: value,
+  });
+  if(res){
+    vesselNameState.data = res.map((item: any) => ({
+      label: item.vieVslCName,
+      value: item.vieVslCName,
+      data: item
+    }));
+    vesselNameState.fetching = false;
+  }
+};
+const vesselNameChange = async (value: any, option: any) => {
+  //赋值到表单
+  await formApi.setFieldValue('vesselName', value.label);
+  vesselCode.value = option.data.vieVslCd;
+  vesselVoyageState.data = [];
+  vesselVoyageState.fetching = true;
+  //查航次列表
+  const res = await getVVd({
+    condition: value.label,
+    queryType: 'VOYAGE',
+  });
+  if(res){
+    vesselVoyageState.data = res.map((item: any) => ({
+      label: item.vieVoy,
+      value: item.vieVoy,
+    }));
+    vesselVoyageState.fetching = false;
+  }
+};
+//赋值到表单
+const vesselVoyageChange = async(value: any)=> {
+  await formApi.setFieldValue('vesselVoyage', value.label);
+};
+watch(vesselNameState.value, () => {
+  vesselNameState.data = [];
+  vesselNameState.fetching = false;
+});
+watch(vesselVoyageState.value, () => {
+  vesselVoyageState.data = [];
+  vesselVoyageState.fetching = false;
+});
 </script>
 
 <template>
@@ -465,6 +525,38 @@ const filterOption = (input, option) => {
           </div>
         </div>
       </template>
+      <template #vesselName>
+        <Select
+          v-model:value="vesselNameState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入作业船名"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="vesselNameState.fetching ? undefined : null"
+          :options="vesselNameState.data"
+          @search="handleVesselSearch"
+          allowClear
+          @change="vesselNameChange"
+        >
+        </Select>
+      </template>
+      <template #vesselVoyage>
+        <Select
+          v-model:value="vesselVoyageState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入作业船名"
+          style="width: 100%"
+          :filter-option="true"
+          :not-found-content="vesselVoyageState.fetching ? undefined : null"
+          :options="vesselVoyageState.data"
+          allowClear
+          @change="vesselVoyageChange"
+        >
+        </Select>
+      </template>
+
       <template #attachmentFile>
         <div class="flex flex-col">
           <FileUpload
