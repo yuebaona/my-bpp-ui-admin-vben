@@ -10,9 +10,9 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getMainPlan,
   deleteMainPlan,
   deleteSubPlan,
+  getMainPlan,
   getMainPlanPage,
   getSubPlan,
   // getSubPlanPage, //因使用固定数据暂时注销
@@ -23,18 +23,20 @@ import { AdvancedQuery } from '#/components/advanced-query';
 import {
   mainPlanColumns,
   PlanSearchFormSchema,
-  subPlanColumns,
+  STATIC_SUB_PLAN_DETAIL_DATA,
   STATIC_SUB_PLAN_LIST_DATA,
-  STATIC_SUB_PLAN_DETAIL_DATA
+  subPlanColumns,
 } from './data';
+import Detail2 from './modules/detail2.vue';
 import Detail from './modules/detail.vue';
+import Form2 from './modules/form2.vue';
 import Form from './modules/form.vue';
 import LogQuery from './modules/logQuery.vue';
-import Detail2 from './modules/detail2.vue';
-import Form2 from './modules/form2.vue';
 
 const checkedIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
+const checkedIds2 = ref<number[]>([]);
+const mainPlanNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -145,7 +147,7 @@ const [SubGrid] = useVbenVxeGrid({
         query: async () => {
           return {
             list: STATIC_SUB_PLAN_LIST_DATA,
-            total: STATIC_SUB_PLAN_LIST_DATA.length
+            total: STATIC_SUB_PLAN_LIST_DATA.length,
           };
         },
       },
@@ -158,8 +160,8 @@ const [SubGrid] = useVbenVxeGrid({
 });
 
 function handleRowCheckboxChange({
-                                   records,
-                                 }: {
+  records,
+}: {
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
@@ -175,6 +177,103 @@ const [DetailModal2, detailModalApi2] = useVbenModal({
   connectedComponent: Detail2,
   destroyOnClose: true,
 });
+
+/**
+ * 转换表单值为接口请求参数格式
+ */
+const transformFormToRequest = (
+  formValues: Record<string, any>,
+): Record<string, any> => {
+  const params = JSON.parse(JSON.stringify(formValues || {}));
+  delete params.pageNo;
+  delete params.pageSize;
+
+  if (params.bayRangeList) {
+    const [yardBay, yardRaw] = params.bayRangeList
+      .split('-')
+      .map((item: string) => item.trim());
+    params.bayRangeList = [
+      {
+        yardBay: yardBay || '',
+        yardRaw: yardRaw || '',
+      },
+    ];
+  } else {
+    delete params.bayRangeList;
+  }
+
+  if (params.ownerList) {
+    params.ownerList = params.ownerList
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean); // 过滤空字符串
+  } else {
+    delete params.ownerList;
+  }
+
+  if (params.isoNoList) {
+    params.isoNoList = params.isoNoList
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  } else {
+    delete params.isoNoList;
+  }
+
+  if (params.createTime) {
+    if (params.createTime.length === 0) {
+      delete params.createTime;
+    }
+  } else {
+    delete params.createTime;
+  }
+
+  // 主计划号 planNo：空值删除
+  if (
+    params.planNo === '' ||
+    params.planNo === undefined ||
+    params.planNo === null
+  ) {
+    delete params.planNo;
+  }
+
+  // 进口航次 importVoyageNo：空值删除
+  if (
+    params.importVoyageNo === '' ||
+    params.importVoyageNo === undefined ||
+    params.importVoyageNo === null
+  ) {
+    delete params.importVoyageNo;
+  }
+
+  // 贸易类型 tradeType：空值删除
+  if (
+    params.tradeType === '' ||
+    params.tradeType === undefined ||
+    params.tradeType === null
+  ) {
+    delete params.tradeType;
+  }
+
+  // 受理提箱计划号 pickupPlanNo：空值删除
+  if (
+    params.pickupPlanNo === '' ||
+    params.pickupPlanNo === undefined ||
+    params.pickupPlanNo === null
+  ) {
+    delete params.pickupPlanNo;
+  }
+
+  params.planType = 'MAIN';
+  Object.keys(params).forEach((key) => {
+    const value = params[key];
+    if (value === '' || value === undefined || value === null) {
+      delete params[key];
+    }
+  });
+  const finalParams = JSON.parse(JSON.stringify(params));
+  return finalParams;
+};
 
 const [Grid2, gridApi2] = useVbenVxeGrid({
   formOptions: {
@@ -210,10 +309,11 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          const transformedParams = transformFormToRequest(formValues);
           return await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...transformedParams,
           });
         },
       },
@@ -267,8 +367,8 @@ const [ToolChangeGrid2] = useVbenVxeGrid({
 });
 
 function handleRowCheckboxChange2({
-                                   records,
-                                 }: {
+  records,
+}: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
@@ -305,7 +405,9 @@ function handleForceComplete() {
 }
 
 /** 查看主计划详情 */
-const handleMainPlanDetail = async (row: EmptyContainerControlApi.mainPlanVO) => {
+const handleMainPlanDetail = async (
+  row: EmptyContainerControlApi.mainPlanVO,
+) => {
   const res = await getMainPlan(row.id);
   detailModalApi2.setData(res).open();
 };
@@ -318,6 +420,7 @@ const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
+  console.log('row.id', row.id);
   const res = await getMainPlan(row.id);
   formModalApi2.setData(res).open();
 };
@@ -327,7 +430,7 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   // 使用固定数据填充弹窗
   const editData = {
     acceptancePlanRespVO: {
-      ...STATIC_SUB_PLAN_DETAIL_DATA
+      ...STATIC_SUB_PLAN_DETAIL_DATA,
     },
     yardPositionResp: [
       {
@@ -336,7 +439,7 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
         yardColumns: ['A', 'B'],
         totalCount: '50',
         minStorageDays: '3',
-        maxStorageDays: '10'
+        maxStorageDays: '10',
       },
       {
         id: 2,
@@ -344,16 +447,18 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
         yardColumns: ['C', 'D'],
         totalCount: '30',
         minStorageDays: '2',
-        maxStorageDays: '8'
-      }
-    ]
+        maxStorageDays: '8',
+      },
+    ],
   };
 
   formModalApi.setData(editData).open();
 };
 
 /** 删除主计划 */
-const handleMainPlanDelete = async (row: EmptyContainerControlApi.mainPlanVO) => {
+const handleMainPlanDelete = async (
+  row: EmptyContainerControlApi.mainPlanVO,
+) => {
   await deleteMainPlan(row.id);
   message.success('删除成功');
   handleRefresh();
@@ -413,7 +518,7 @@ const adcancedQueryModalOpen = () => {
                 type: 'primary',
                 icon: ACTION_ICON.VIEW,
                 onClick: handleLogQuery,
-              }
+              },
             ]"
           />
         </template>

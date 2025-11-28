@@ -12,10 +12,8 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowoverlimitwork';
+import { createMainplan } from '#/api/bpp/emptycontainercontrol';
+import { updateAcceptancePlanOverOperation } from '#/api/bpp/flowoverlimitwork';
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
@@ -64,37 +62,19 @@ const containerAreaData = reactive<any[]>([
 // 主计划表单数据
 const formData2 = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
-  acceptancePlanNo: '',
-  acceptancePlanWebNo: '',
-  applicantCode: '',
-  applicantCompanyName: '',
-  applicantPlanCount: 0,
-  applicantPlanEnd: '',
-  applicantPlanStart: '',
-  applicantPlanType: '',
-  applicantType: '',
-  attachmentFile: '',
-  cargoAgentCode: '',
-  cargoOwnerCode: '',
-  category: '',
-  conclusionTime: '',
-  dataSource: '',
-  handlerConfirmTime: '',
-  handlerConfirmation: '',
-  handlerRemark: '',
-  handlingPerson: '',
-  invoiceTitle: '',
-  isSystemRate: false,
-  payerCodeGate: '',
-  payerCodeSea: '',
-  paymentTypeGate: '',
-  paymentTypeSea: '',
-  planStatus: '',
-  plannedOperationTime: '',
-  submissionTime: '',
-  vesselCode: '',
-  vesselName: '',
-  vesselVoyage: '',
+  ownerList: ['aaa'],
+  isoNoList: ['111'],
+  isRelease: true,
+  pickupPlanNo: '',
+  tradeType: '',
+  planQuantity: '',
+  completedReleaseQuantity: '',
+  bayRangeList: {
+    emptyContainerControlId: '',
+    id: '',
+    yardBay: 'A02-01',
+    yardRaw: 'D',
+  },
 });
 
 const acceptancePlanOverOperationRespVO =
@@ -207,10 +187,10 @@ const [Modal2, modalApi2] = useVbenModal({
     const containerAreaArray = [...gridApi2.grid.getInsertRecords()].map(
       (record) => toRaw(record),
     );
-    if (containerAreaArray.length === 0) {
-      message.warning('请至少添加一条箱区范围数据');
-      return;
-    }
+    // if (containerAreaArray.length === 0) {
+    //   message.warning('请至少添加一条箱区范围数据');
+    //   return;
+    // }
 
     const { valid } = await formApi2.validate();
     const gridValid: boolean = await gridApi2.grid.validate(true);
@@ -220,32 +200,71 @@ const [Modal2, modalApi2] = useVbenModal({
     }
 
     Object.assign(formData2, await formApi2.getValues());
-    const data: EmptyContainerControlApi.MainPlanSaveReqVO = {
-      acceptancePlanSaveReqVO: {
+    const data: { mainPlanSaveReqVO: EmptyContainerControlApi.mainPlanVO } = {
+      mainPlanSaveReqVO: {
         ...formData2,
-      } as EmptyContainerControlApi.subPlanVO,
-      acceptancePlanOverOperationSaveReqVO: {
-        ...acceptancePlanOverOperationRespVO,
-      } as EmptyContainerControlApi.AcceptancePlanOverOperationVO,
-      acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
-      acceptancePlanBillMessageSaveReqVO: {
-        ...acceptancePlanBillMessageVO,
-      } as EmptyContainerControlApi.AcceptancePlanBillMessageVO,
+      } as EmptyContainerControlApi.mainPlanVO,
     };
-    data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
-    data.acceptancePlanBillMessageSaveReqVO.billNo = formData2.billNo;
-    data.acceptancePlanBillMessageSaveReqVO.cargoName = formData2.cargoName;
+    console.log('data', data);
 
-    data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
-      if (item.id && String(item.id).startsWith('row_')) {
-        item.id = item.id.replace('row_', '');
-      }
-    });
-    data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
+    // await (formData2?.id
+    //   ? updateAcceptancePlanOverOperation(data)
+    //   : createMainplan(data));
+    //
+    // await (formData2?.id
+    //   ? updateAcceptancePlanOverOperation(data)
+    //   : createMainplan(formData2));
 
     await (formData2?.id
       ? updateAcceptancePlanOverOperation(data)
-      : createAcceptancePlanOverOperation(data));
+      : createMainplan({
+          id: '',
+          ownerList: ['bbb'],
+          isoNoList: ['222'],
+          isRelease: true,
+          pickupPlanNo: '',
+          tradeType: 'FOREIGN',
+          planQuantity: '',
+          completedReleaseQuantity: '',
+          bayRangeList: [
+            {
+              id: '',
+              emptyContainerControlId: '',
+              yardBay: 'A02-01',
+              yardRaw: 'D',
+            },
+          ],
+          category: '',
+          vesselCode: '',
+          vesselName: '',
+          vesselVoyage: '',
+          plannedOperationTime: '',
+        }));
+
+    // await (formData2?.id
+    //   ? updateAcceptancePlanOverOperation(data)
+    //   : createMainplan({
+    //     "id": 0,
+    //     "ownerList": [
+    //       "bbbb"
+    //     ],
+    //     "isoNoList": [
+    //       "11"
+    //     ],
+    //     "isRelease": true,
+    //     "pickupPlanNo": "111",
+    //     "tradeType": "FOREIGN",
+    //     "planQuantity": "11",
+    //     "completedReleaseQuantity": "11",
+    //     "bayRangeList": [
+    //       {
+    //         "id": "16606",
+    //         "emptyContainerControlId": "22289",
+    //         "yardBay": "111",
+    //         "yardRaw": "11"
+    //       }
+    //     ]
+    //   }));
 
     await modalApi2.close();
     emit('success');
@@ -258,7 +277,7 @@ const [Modal2, modalApi2] = useVbenModal({
         acceptancePlanNo: '',
         acceptancePlanWebNo: '',
         applicantCode: '',
-        applicantCompanyName: '',
+        // applicantCompanyName: '',
         applicantPlanCount: 0,
         applicantPlanEnd: '',
         applicantPlanStart: '',
@@ -291,8 +310,10 @@ const [Modal2, modalApi2] = useVbenModal({
       return;
     }
 
-    const data =
-      await modalApi2.getData<EmptyContainerControlApi.mainPlanVO>();
+    const data = await modalApi2.getData<EmptyContainerControlApi.mainPlanVO>();
+
+    console.log('data', data);
+    console.log('formData2', formData2);
 
     if (data) {
       Object.assign(formData2, data.acceptancePlanRespVO);
@@ -305,7 +326,7 @@ const [Modal2, modalApi2] = useVbenModal({
         data.acceptancePlanBillMessageRespVO,
       );
       if (data?.acceptancePlanRespVO?.id) {
-        modalApi.lock();
+        modalApi2.lock();
         try {
           await formApi2.setValues(data.acceptancePlanRespVO);
           await formApi2.setFieldValue(
@@ -392,14 +413,14 @@ const modalTitle2 = computed(() => {
           </div>
         </div>
       </template>
-      <template #handlingPersonLast>
-        <span
-          class="text-gray-600"
-          v-if="formData2 && formData2.handlingPerson"
-        >
-          {{ formData2.handlingPerson }}
-        </span>
-      </template>
+      <!--      <template #handlingPersonLast>-->
+      <!--        <span-->
+      <!--          class="text-gray-600"-->
+      <!--          v-if="formData2 && formData2.handlingPerson"-->
+      <!--        >-->
+      <!--          {{ formData2.handlingPerson }}-->
+      <!--        </span>-->
+      <!--      </template>-->
     </Form2>
     <!-- 添加箱区选择弹窗组件 -->
     <ContainerAreaModal
