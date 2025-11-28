@@ -12,14 +12,10 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  createSubPlan,
-  updateSubPlan,
-} from '#/api/bpp/emptycontainercontrol';
-
+import { createSubPlan, updateSubPlan } from '#/api/bpp/emptycontainercontrol';
 import { $t } from '#/locales';
 
-import { subPlanFormSchema, containerAreaRangeColumns} from '../data';
+import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
 import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
@@ -63,21 +59,21 @@ const containerAreaData = reactive<any[]>([
 ]);
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
-  id:  '',
-  subPlanNo: '',
-  status: '',
-  placeContainer: '',
+  id: '',
+  planNo: '',
+  planStatus: '',
+  isRelease: null,
   pickupPlanNo: '',
-  unloadingSchedule: '',
+  dischargeVesselSchedule: '',
   tradeType: '',
-  containerHolder: '',
+  owners: '',
   iso: '',
-  containerAreaRange: '',
+  bayRanges: '',
   planQuantity: '',
-  mainGateAvailableSlot: '',
-  usedSlots: '',
-  availableSlots: '',
-  slotsInOperation: '',
+  mainGateReleaseQuantity: '',
+  completedReleaseQuantity: '',
+  uncompletedReleaseQuantity: '',
+  activeOccupiedQuantity: '',
   creator: '',
   createTime: '',
   updater: '',
@@ -212,9 +208,7 @@ const [Modal, modalApi] = useVbenModal({
         ...formData,
       } as EmptyContainerControlApi.subPlanVO,
     };
-    await (formData?.id
-      ? updateSubPlan(data)
-      : createSubPlan(data));
+    await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
 
     await modalApi.close();
     emit('success');
@@ -224,20 +218,20 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        subPlanNo: '',
-        status: '',
-        placeContainer: '',
+        planNo: '',
+        planStatus: '',
+        isRelease: '',
         pickupPlanNo: '',
-        unloadingSchedule: '',
+        dischargeVesselSchedule: '',
         tradeType: '',
-        containerHolder: '',
+        owners: '',
         iso: '',
-        containerAreaRange: '',
+        bayRanges: '',
         planQuantity: '',
-        mainGateAvailableSlot: '',
-        usedSlots: '',
-        availableSlots: '',
-        slotsInOperation: '',
+        mainGateReleaseQuantity: '',
+        completedReleaseQuantity: '',
+        uncompletedReleaseQuantity: '',
+        activeOccupiedQuantity: '',
         creator: '',
         createTime: '',
         updater: '',
@@ -273,10 +267,13 @@ const [Modal, modalApi] = useVbenModal({
             const $grid = gridApi.grid;
             if ($grid) {
               for (const item of data.yardPositionResp) {
-                await $grid.insertAt({
-                  ...item,
-                  id: `row_${item.id}` // 确保ID格式正确
-                }, -1);
+                await $grid.insertAt(
+                  {
+                    ...item,
+                    id: `row_${item.id}`, // 确保ID格式正确
+                  },
+                  -1,
+                );
               }
             }
           }
@@ -293,7 +290,6 @@ const modalTitle = computed(() => {
     ? $t('ui.actionTitle.edit', ['子计划'])
     : $t('ui.actionTitle.create', ['子计划']);
 });
-
 </script>
 
 <template>

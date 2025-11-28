@@ -25,7 +25,7 @@ export namespace EmptyContainerControlApi {
     handlerConfirmation: string;
     handlerConfirmTime: string;
     isSystemRate: boolean;
-    planStatus: string;
+    planplanStatus: string;
     conclusionTime: string;
     dataSource: string;
     applicantPlanType: string;
@@ -40,25 +40,27 @@ export namespace EmptyContainerControlApi {
   }
   // 子计划VO
   export interface subPlanVO {
-    id: number;
-    subPlanNo: string; //子计划号
-    status: string; //状态
-    placeContainer: string; //是否放箱
-    pickupPlanNo: string; //提箱受理计划号
-    unloadingSchedule: string; //卸船船期
-    tradeType: string; //贸易类型
-    containerHolder: string; //持箱人
-    iso: string; //ISO
-    containerAreaRange: string; //箱区范围
-    planQuantity: string; //计划箱量
-    mainGateAvailableSlot: string; //主闸可防箱量
-    usedSlots: string; // 已用箱量
-    availableSlots: string; // 未放箱量
-    slotsInOperation: string; // 作业中占用的箱量
-    creator: string; // 创建人
-    createTime: string; // 创建时间
-    updater: string; // 创建人
-    updateTime: string; //修改时间
+    id: null | number;
+    planNo: null | string; // 子计划号
+    planStatus: null | string; // 状态
+    isRelease: boolean | null; // 是否放箱
+    pickupPlanNo: null | string; // 提箱受理计划号
+    dischargeVesselSchedule: null | string; // 卸船船期
+    tradeType: null | string; // 贸易类型
+    owners: null | string; // 持箱人
+    iso: null | string; // ISO
+    bayRanges: null | string; // 箱区范围
+    planQuantity: null | string; // 计划箱量
+    mainGateReleaseQuantity: null | string; // 主闸可防箱量
+    completedReleaseQuantity: null | string; // 已用箱量
+    uncompletedReleaseQuantity: null | string; // 未放箱量
+    activeOccupiedQuantity: null | string; // 作业中占用的箱量
+    planType: null | string; // 计划类型
+    mainId: null | number; // 主计划ID
+    creator: null | string; // 创建人
+    createTime: null | string; // 创建时间
+    updater: null | string; // 创建人
+    updateTime: null | string; // 修改时间
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -78,7 +80,7 @@ export namespace EmptyContainerControlApi {
     containerTotalWeight: number;
     containerCargoSize: string;
     containerOverlimitDetails: string;
-    containerPhysicalStatus: string;
+    containerPhysicalplanStatus: string;
     containerOperationNode: string;
     acceptancePlanNo: string;
     overOperationContainerNo: string;
@@ -124,7 +126,7 @@ export namespace EmptyContainerControlApi {
   //   containerTotalWeight: number;
   //   containerCargoSize: string;
   //   containerOverlimitDetails: string;
-  //   containerPhysicalStatus: string;
+  //   containerPhysicalplanStatus: string;
   //   containerOperationNode: string;
   //   acceptancePlanNo: string;
   //   overOperationContainerNo: string;
@@ -185,7 +187,7 @@ export const getMainPlanPage = (params: PageParam) => {
   >('/bpp/flow/acceptance-plan-over-operation/page', { params });
 };
 
-//删除主计划
+// 删除主计划
 export const deleteMainPlan = (id: number) => {
   return requestClient.get(
     `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
@@ -196,27 +198,19 @@ export const deleteMainPlan = (id: number) => {
 export const createSubPlan = (
   data: EmptyContainerControlApi.SubPlanSaveReqVO,
 ) => {
-  return requestClient.post(
-    '/bpp/flow/sub-plan/create',
-    data,
-  );
+  return requestClient.post('/bpp/flow/sub-plan/create', data);
 };
 
 // 修改子计划信息
 export const updateSubPlan = (
   data: EmptyContainerControlApi.SubPlanSaveReqVO,
 ) => {
-  return requestClient.put(
-    '/bpp/flow/sub-plan/update',
-    data,
-  );
+  return requestClient.put('/bpp/flow/sub-plan/update', data);
 };
 
 // 查询子计划信息详情
 export const getSubPlan = (id: number) => {
-  return requestClient.get(
-    `/bpp/flow/sub-plan/get?id=${id}`,
-  );
+  return requestClient.get(`/bpp/flow/sub-plan/get?id=${id}`);
 };
 // 子计划分页查询
 export const getSubPlanPage = (params: PageParam) => {
@@ -226,12 +220,11 @@ export const getSubPlanPage = (params: PageParam) => {
 };
 
 export const deleteSubPlan = (id: number) => {
-  return requestClient.get(
-    `/bpp/flow/sub-plan/get?id=${id}`,
-  );
+  return requestClient.get(`/bpp/flow/sub-plan/get?id=${id}`);
 };
 
 export const getLogQueryData = (params: PageParam) => {
-  return requestClient.get<PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
-  >( '/bpp/flow/sub-plan/log-query', { params });
+  return requestClient.get<
+    PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
+  >('/bpp/flow/sub-plan/log-query', { params });
 };

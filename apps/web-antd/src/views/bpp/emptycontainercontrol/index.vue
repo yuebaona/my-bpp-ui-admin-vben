@@ -10,9 +10,9 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getMainPlan,
   deleteMainPlan,
   deleteSubPlan,
+  getMainPlan,
   getMainPlanPage,
   getSubPlan,
   // getSubPlanPage, //因使用固定数据暂时注销
@@ -23,18 +23,18 @@ import { AdvancedQuery } from '#/components/advanced-query';
 import {
   mainPlanColumns,
   PlanSearchFormSchema,
-  subPlanColumns,
+  STATIC_SUB_PLAN_DETAIL_DATA,
   STATIC_SUB_PLAN_LIST_DATA,
-  STATIC_SUB_PLAN_DETAIL_DATA
+  subPlanColumns,
 } from './data';
+import Detail2 from './modules/detail2.vue';
 import Detail from './modules/detail.vue';
+import Form2 from './modules/form2.vue';
 import Form from './modules/form.vue';
 import LogQuery from './modules/logQuery.vue';
-import Detail2 from './modules/detail2.vue';
-import Form2 from './modules/form2.vue';
 
 const checkedIds = ref<number[]>([]);
-const subPlanNo = ref<string[]>([]);
+const planNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -46,7 +46,7 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-const [DetailModal, detailModalApi] = useVbenModal({
+const [DetailModal] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
@@ -57,54 +57,54 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
   footer: false,
 });
 
-const [Grid, gridApi] = useVbenVxeGrid({
-  formOptions: {
-    schema: PlanSearchFormSchema(),
-    submitButtonOptions: {
-      content: '查询',
-    },
-    wrapperClass: 'grid-cols-4 md:grid-cols-4',
-  },
-  gridOptions: {
-    columns: subPlanColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      search: true,
-      custom: true,
-      export: true,
-      // import: true,
-      refresh: true,
-      zoom: true,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    editRules: {
-      applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
-    },
-    // proxyConfig: {
-    //   ajax: {
-    //     query: async ({ page }, formValues) => {
-    //       return await getSubPlanPage({
-    //         pageNo: page.currentPage,
-    //         pageSize: page.pageSize,
-    //         ...formValues,
-    //       });
-    //     },
-    //   },
-    // },
-  } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
-  gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-  },
-});
+// const [Grid, gridApi] = useVbenVxeGrid({
+//   formOptions: {
+//     schema: PlanSearchFormSchema(),
+//     submitButtonOptions: {
+//       content: '查询',
+//     },
+//     wrapperClass: 'grid-cols-4 md:grid-cols-4',
+//   },
+//   gridOptions: {
+//     columns: subPlanColumns(),
+//     height: 'auto',
+//     keepSource: false,
+//     rowConfig: {
+//       keyField: 'id',
+//       isHover: true,
+//     },
+//     toolbarConfig: {
+//       search: true,
+//       custom: true,
+//       export: true,
+//       // import: true,
+//       refresh: true,
+//       zoom: true,
+//     },
+//     pagerConfig: {
+//       pageSize: 10,
+//       enabled: true,
+//     },
+//     editRules: {
+//       applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
+//     },
+//     // proxyConfig: {
+//     //   ajax: {
+//     //     query: async ({ page }, formValues) => {
+//     //       return await getSubPlanPage({
+//     //         pageNo: page.currentPage,
+//     //         pageSize: page.pageSize,
+//     //         ...formValues,
+//     //       });
+//     //     },
+//     //   },
+//     // },
+//   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
+//   gridEvents: {
+//     checkboxAll: handleRowCheckboxChange,
+//     checkboxChange: handleRowCheckboxChange,
+//   },
+// });
 
 const [SubGrid] = useVbenVxeGrid({
   gridOptions: {
@@ -145,7 +145,7 @@ const [SubGrid] = useVbenVxeGrid({
         query: async () => {
           return {
             list: STATIC_SUB_PLAN_LIST_DATA,
-            total: STATIC_SUB_PLAN_LIST_DATA.length
+            total: STATIC_SUB_PLAN_LIST_DATA.length,
           };
         },
       },
@@ -158,12 +158,12 @@ const [SubGrid] = useVbenVxeGrid({
 });
 
 function handleRowCheckboxChange({
-                                   records,
-                                 }: {
+  records,
+}: {
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
-  subPlanNo.value = records.map((item) => item.subPlanNo);
+  planNo.value = records.map((item) => item.planNo);
 }
 
 const [FormModal2, formModalApi2] = useVbenModal({
@@ -225,50 +225,9 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-const [ToolChangeGrid2] = useVbenVxeGrid({
-  gridOptions: {
-    columns: mainPlanColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-      zoom: false,
-      custom: false,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    editRules: {
-      applicantCompanyName: [{ required: true }],
-      acceptancePlanNo: [{ required: true }],
-    },
-    proxyConfig: {
-      ajax: {
-        query: async ({ page }, formValues) => {
-          return await getMainPlanPage({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          });
-        },
-      },
-    },
-  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
-  gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-  },
-});
-
 function handleRowCheckboxChange2({
-                                   records,
-                                 }: {
+  records,
+}: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
@@ -278,7 +237,7 @@ function handleRowCheckboxChange2({
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi.query();
+  gridApi2.query();
 }
 
 /** 创建主计划新申请 */
@@ -291,9 +250,9 @@ function handleCreateSubPlan() {
 }
 
 /** 导出数据 */
-function handleExport() {
-  message.info('导出功能');
-}
+// function handleExport() {
+//   message.info('导出功能');
+// }
 
 function handleSubExport() {
   message.info('导出功能');
@@ -305,7 +264,9 @@ function handleForceComplete() {
 }
 
 /** 查看主计划详情 */
-const handleMainPlanDetail = async (row: EmptyContainerControlApi.mainPlanVO) => {
+const handleMainPlanDetail = async (
+  row: EmptyContainerControlApi.mainPlanVO,
+) => {
   const res = await getMainPlan(row.id);
   detailModalApi2.setData(res).open();
 };
@@ -327,7 +288,7 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   // 使用固定数据填充弹窗
   const editData = {
     acceptancePlanRespVO: {
-      ...STATIC_SUB_PLAN_DETAIL_DATA
+      ...STATIC_SUB_PLAN_DETAIL_DATA,
     },
     yardPositionResp: [
       {
@@ -336,7 +297,7 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
         yardColumns: ['A', 'B'],
         totalCount: '50',
         minStorageDays: '3',
-        maxStorageDays: '10'
+        maxStorageDays: '10',
       },
       {
         id: 2,
@@ -344,16 +305,18 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
         yardColumns: ['C', 'D'],
         totalCount: '30',
         minStorageDays: '2',
-        maxStorageDays: '8'
-      }
-    ]
+        maxStorageDays: '8',
+      },
+    ],
   };
 
   formModalApi.setData(editData).open();
 };
 
 /** 删除主计划 */
-const handleMainPlanDelete = async (row: EmptyContainerControlApi.mainPlanVO) => {
+const handleMainPlanDelete = async (
+  row: EmptyContainerControlApi.mainPlanVO,
+) => {
   await deleteMainPlan(row.id);
   message.success('删除成功');
   handleRefresh();
@@ -413,7 +376,7 @@ const adcancedQueryModalOpen = () => {
                 type: 'primary',
                 icon: ACTION_ICON.VIEW,
                 onClick: handleLogQuery,
-              }
+              },
             ]"
           />
         </template>

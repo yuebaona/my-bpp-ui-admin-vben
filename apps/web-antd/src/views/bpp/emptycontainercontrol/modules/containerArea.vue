@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
-import { Button, Tag, Tree, Input, Modal } from 'ant-design-vue';
 import type { TreeProps } from 'ant-design-vue';
+
+import { computed, ref } from 'vue';
+
+import { Button, Input, Modal, Tag, Tree } from 'ant-design-vue';
 
 interface Props {
   visible: boolean;
@@ -15,7 +17,12 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const selectedYardPositions = ref<string[]>(['A01-01', 'A02-01', 'B01-01', 'B02-01']);
+const selectedYardPositions = ref<string[]>([
+  'A01-01',
+  'A02-01',
+  'B01-01',
+  'B02-01',
+]);
 const searchValue = ref('');
 
 const yardPositionTreeData = ref<TreeProps['treeData']>([
@@ -73,7 +80,7 @@ const onTreeCheck = (checkedKeys: any) => {
 
 const removeSelectedPosition = (position: string) => {
   selectedYardPositions.value = selectedYardPositions.value.filter(
-    (item) => item !== position
+    (item) => item !== position,
   );
 };
 
@@ -104,18 +111,14 @@ const modalVisible = computed({
     :mask-closable="false"
     :footer="null"
   >
-    <div class="flex gap-4" style="min-height: 400px;">
+    <div class="flex gap-4" style="min-height: 400px">
       <!-- 左侧：堆场贝位树 -->
       <div class="flex-1 border-r pr-4">
         <div class="mb-2 font-medium">堆场贝位</div>
-        <Input
-          v-model:value="searchValue"
-          placeholder="搜索"
-          class="mb-2"
-        />
-        <div style="max-height: 350px; overflow-y: auto;">
+        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />
+        <div style="max-height: 350px; overflow-y: auto">
           <Tree
-            v-model:checkedKeys="selectedYardPositions"
+            v-model:checked-keys="selectedYardPositions"
             checkable
             :tree-data="yardPositionTreeData"
             :default-expand-all="true"
@@ -132,7 +135,10 @@ const modalVisible = computed({
             清空
           </Button>
         </div>
-        <div class="flex flex-wrap gap-2" style="max-height: 350px; overflow-y: auto;">
+        <div
+          class="flex flex-wrap gap-2"
+          style="max-height: 350px; overflow-y: auto"
+        >
           <Tag
             v-for="position in selectedYardPositions"
             :key="position"

@@ -1,10 +1,9 @@
-import type { VbenFormSchema } from '#/adapter/form'
-import type { VxeTableGridOptions } from '#/adapter/vxe-table'
-import type { DescriptionItemSchema } from '#/components/description'
+import type { VbenFormSchema } from '#/adapter/form';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { DescriptionItemSchema } from '#/components/description';
 
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
-
 
 /** 箱区范围字段 */
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
@@ -107,7 +106,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'iso',
+      fieldName: 'isoNos',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -116,7 +115,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'containerAreaRange',
+      fieldName: 'bayRanges',
       label: '箱区范围',
       component: 'Input',
       renderComponentContent: () => {
@@ -141,7 +140,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
 export function subPlanFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'subPlanNo',
+      fieldName: 'planNo',
       label: '子计划号',
       component: 'Input',
       componentProps: {
@@ -151,13 +150,13 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'placeContainer',
+      fieldName: 'isRelease',
       label: '是否放箱',
       component: 'RadioGroup',
       componentProps: {
         options: [
-          { label: '是（Y）', value: 'Y' },
-          { label: '否（N）', value: 'N' },
+          { label: '是（Y）', value: true },
+          { label: '否（N）', value: false },
         ],
       },
       rules: 'required',
@@ -172,7 +171,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'unloadingSchedule',
+      fieldName: 'dischargeVesselSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -181,7 +180,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerHolder',
+      fieldName: 'owners',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -196,13 +195,13 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       componentProps: {
         options: [
-          { label: '内贸', value: 'neimao' },
-          { label: '外贸', value: 'waimao' },
+          { label: '内贸', value: 'DOMESTIC' },
+          { label: '外贸', value: 'FOREIGN' },
         ],
       },
     },
     {
-      fieldName: 'iso',
+      fieldName: 'isoNos',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -211,7 +210,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'containerAreaRange',
+      fieldName: 'bayRanges',
       label: '箱区范围',
       component: 'Input',
       renderComponentContent: () => {
@@ -232,7 +231,6 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-
 
 /** 空箱空箱列表的搜索栏 */
 export function PlanSearchFormSchema(): VbenFormSchema[] {
@@ -397,7 +395,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'planStatus',
+      field: 'planplanStatus',
       title: '互拖闸占用箱量',
       minWidth: 120,
     },
@@ -412,17 +410,17 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'auditNodeStatus',
+      field: 'auditNodeplanStatus',
       title: '创建时间',
       minWidth: 110,
     },
-     {
+    {
       field: 'auditNode',
       title: '修改人',
       minWidth: 100,
     },
     {
-      field: 'auditNodeStatus',
+      field: 'auditNodeplanStatus',
       title: '修改时间',
       minWidth: 100,
     },
@@ -438,21 +436,21 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
 /** 子计划字段 */
 export function subPlanColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'seq', width: 50, align: 'center' , fixed: 'left'},
-    { type: 'checkbox', width: 40 , fixed: 'left'},
+    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
+    { type: 'checkbox', width: 40, fixed: 'left' },
     {
-      field: 'subPlanNo',
+      field: 'planNo',
       title: '子计划号',
       minWidth: 120,
       fixed: 'left',
     },
     {
-      field: 'status',
+      field: 'planStatus',
       title: '状态',
       minWidth: 150,
     },
     {
-      field: 'placeContainer',
+      field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
     },
@@ -462,7 +460,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'unloadingSchedule',
+      field: 'dischargeVesselSchedule',
       title: '卸船船期',
       minWidth: 100,
     },
@@ -472,17 +470,17 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'containerHolder',
+      field: 'owners',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'iso',
+      field: 'isoNos',
       title: 'ISO',
       minWidth: 120,
     },
     {
-      field: 'containerAreaRange',
+      field: 'bayRanges',
       title: '箱区范围',
       minWidth: 120,
     },
@@ -492,22 +490,22 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'mainGateAvailableSlot',
+      field: 'mainGateReleaseQuantity',
       title: '主闸可放箱量',
       minWidth: 120,
     },
     {
-      field: 'usedSlots',
+      field: 'completedReleaseQuantity',
       title: '已放箱量',
       minWidth: 120,
     },
     {
-      field: 'availableSlots',
+      field: 'uncompletedReleaseQuantity',
       title: '未放箱量',
       minWidth: 120,
     },
     {
-      field: 'slotsInOperation',
+      field: 'activeOccupiedQuantity',
       title: '作业中占用箱量',
       minWidth: 120,
     },
@@ -556,7 +554,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
     { field: 'vesselName', label: '作业船名（中文名称）' },
     { field: 'vesselVoyage', label: '作业航次' },
     { field: 'plannedOperationTime', label: '预计作业时间' },
-  ]
+  ];
 }
 
 /** 子计划详情字段 */
@@ -591,7 +589,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerHolder',
+      fieldName: 'owners',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -600,7 +598,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'iso',
+      fieldName: 'isoNos',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -654,7 +652,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 150,
     },
     {
-      field: 'containerHolder',
+      field: 'owners',
       title: '持箱人',
       minWidth: 120,
     },
@@ -664,12 +662,12 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'iso',
+      field: 'isoNos',
       title: 'ISO',
       minWidth: 100,
     },
     {
-      field: 'containerAreaRange',
+      field: 'bayRanges',
       title: '箱区范围',
       minWidth: 120,
     },
@@ -696,61 +694,60 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 
-
 export const STATIC_SUB_PLAN_LIST_DATA = [
   {
     id: 1,
-    subPlanNo: 'SP20230001',
-    status: '已提交',
-    placeContainer: 'Y',
+    planNo: 'SP20230001',
+    planStatus: '已提交',
+    isRelease: true,
     pickupPlanNo: 'TXSLJH2023001',
-    unloadingSchedule: '2023-12-01',
-    tradeType: '内贸',
-    containerHolder: '持箱人A',
-    iso: 'ISO001',
-    containerAreaRange: 'A01-B02',
+    dischargeVesselSchedule: '2023-12-01',
+    tradeType: 'FOREIGN',
+    owners: '持箱人A',
+    isoNos: 'ISO001',
+    bayRanges: 'A01-B02',
     planQuantity: '100',
-    mainGateAvailableSlot: '80',
-    usedSlots: '60',
-    availableSlots: '40',
-    slotsInOperation: '20',
+    mainGateReleaseQuantity: '80',
+    completedReleaseQuantity: '60',
+    uncompletedReleaseQuantity: '40',
+    activeOccupiedQuantity: '20',
     creator: '管理员',
     createTime: '2023-11-01 10:00:00',
     updater: '修改人A',
-    updateTime: '2023-11-01 15:00:00'
+    updateTime: '2023-11-01 15:00:00',
   },
   {
     id: 2,
-    subPlanNo: 'SP20230002',
-    status: '审核中',
-    placeContainer: 'N',
+    planNo: 'SP20230002',
+    planStatus: '审核中',
+    isRelease: false,
     pickupPlanNo: 'TXSLJH2023002',
-    unloadingSchedule: '2023-12-02',
-    tradeType: '外贸',
-    containerHolder: '持箱人B',
-    iso: 'ISO002',
-    containerAreaRange: 'C01-D02',
+    dischargeVesselSchedule: '2023-12-02',
+    tradeType: 'DOMESTIC',
+    owners: '持箱人B',
+    isoNos: 'ISO002',
+    bayRanges: 'C01-D02',
     planQuantity: '200',
-    mainGateAvailableSlot: '150',
-    usedSlots: '100',
-    availableSlots: '50',
-    slotsInOperation: '30',
+    mainGateReleaseQuantity: '150',
+    completedReleaseQuantity: '100',
+    uncompletedReleaseQuantity: '50',
+    activeOccupiedQuantity: '30',
     creator: '操作员',
     createTime: '2023-11-02 10:00:00',
     updater: '修改人B',
-    updateTime: '2023-11-02 15:00:00'
-  }
+    updateTime: '2023-11-02 15:00:00',
+  },
 ];
 
 export const STATIC_SUB_PLAN_DETAIL_DATA = {
   id: 61,
-  subPlanNo: 'SP20230001',
-  placeContainer: 'Y',
+  planNo: 'SP20230001',
+  isRelease: true,
   pickupPlanNo: '测试经办人',
-  unloadingSchedule: '13800138000',
-  containerHolder: '在线支付',
-  tradeType: 'neimao',
-  iso: 'ISO003',
+  dischargeVesselSchedule: '13800138000',
+  owners: '在线支付',
+  tradeType: 'DOMESTIC',
+  isoNos: 'ISO003',
   planQuantity: '200',
 };
 
@@ -758,12 +755,12 @@ export const STATIC_MASTER_PLAN_QUERY_DATA = [
   {
     id: 1,
     mainPlanNo: 'MP20230001',
-    isRelease: 'Y',
+    isRelease: true,
     acceptancePlanNo: '137635841765',
-    containerHolder: '李三',
-    tradeType: 'neimao',
-    iso: 'ISO001',
-    containerAreaRange: 'A01-B02',
+    owners: '李三',
+    tradeType: 'FOREIGN',
+    isoNos: 'ISO001',
+    bayRanges: 'A01-B02',
     mainGateReleaseQty: '100',
     modifier: '管理员',
     modifyTime: '2023-11-01 10:00:00',
@@ -772,17 +769,15 @@ export const STATIC_MASTER_PLAN_QUERY_DATA = [
   {
     id: 2,
     mainPlanNo: 'MP20230002',
-    isRelease: 'N',
+    isRelease: false,
     acceptancePlanNo: '71326815685',
-    containerHolder: '张三',
-    tradeType: 'waimao',
-    iso: 'ISO002',
-    containerAreaRange: 'C01-D02',
+    owners: '张三',
+    tradeType: 'FOREIGN',
+    isoNos: 'ISO002',
+    bayRanges: 'C01-D02',
     mainGateReleaseQty: '100',
     modifier: '操作员',
     modifyTime: '2023-11-02 10:00:00',
-    modifyType: '修改类型B'
+    modifyType: '修改类型B',
   },
-
-]
-
+];

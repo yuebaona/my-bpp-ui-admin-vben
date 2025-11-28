@@ -8,9 +8,12 @@ import { useVbenModal } from '@vben/common-ui';
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
-import { logQueryColumns, logQueryFormSchema } from '../data';
+import {
+  logQueryColumns,
+  logQueryFormSchema,
+  STATIC_MASTER_PLAN_QUERY_DATA,
+} from '../data';
 // import { getLogQueryData } from '#/api/bpp/emptycontainercontrol';
-import { STATIC_MASTER_PLAN_QUERY_DATA } from '../data';
 
 const formValues = reactive({});
 
@@ -77,8 +80,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
         query: async () => {
           return {
             list: STATIC_MASTER_PLAN_QUERY_DATA,
-            total: STATIC_MASTER_PLAN_QUERY_DATA.length
-          }
+            total: STATIC_MASTER_PLAN_QUERY_DATA.length,
+          };
         },
       },
     },
@@ -103,7 +106,6 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.close();
   },
 });
-
 </script>
 
 <template>
