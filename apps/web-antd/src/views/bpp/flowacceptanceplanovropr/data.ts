@@ -520,17 +520,13 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'vesselName',
       label: '作业船名（中文名称）',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名（中文名称）',
-        allowClear: true,
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
       fieldName: 'vesselVoyage',
       label: '作业航次',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入作业航次',
         allowClear: true,
@@ -717,7 +713,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
 /** 超限作业申请列表的字段 */
 export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'checkbox', width: 40 ,fixed: 'left',},
+    { type: 'checkbox', width: 40, fixed: 'left' },
     {
       field: 'acceptancePlanNo',
       title: '申请编号',
@@ -830,8 +826,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
-        const option = options.find(opt => opt.value === value.cellValue);
+        const options =
+          bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
         return option ? option.label : value.cellValue;
       },
     },
@@ -915,8 +912,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find(opt => opt.value === value.cellValue);
+        const options =
+          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
         return option ? option.label : value.cellValue;
       },
     },
@@ -952,8 +950,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find(opt => opt.value === value.cellValue);
+        const options =
+          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
         return option ? option.label : value.cellValue;
       },
     },
@@ -1286,7 +1285,6 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
 }
 // 变更吊具记录的字段配置
 export function machineSpreaderChangeRecordGridColumns(
-  dictStore?: any,
 ): VxeTableGridOptions['columns'] {
   return [
     {
@@ -1298,10 +1296,6 @@ export function machineSpreaderChangeRecordGridColumns(
       field: 'machineSpreaderChangeType',
       title: '现场作业类别',
       minWidth: 200,
-      formatter: ({ cellValue }) => {
-        const dict = dictStore?.getDictData?.('operation_type', cellValue);
-        return dict?.label || cellValue;
-      },
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1366,10 +1360,6 @@ export function machineSpreaderChangeRecordGridColumns(
       field: 'operationSource',
       title: '驱动源',
       minWidth: 200,
-      formatter: ({ cellValue }) => {
-        const dict = dictStore?.getDictData?.('operation_source', cellValue);
-        return dict?.label || cellValue;
-      },
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1386,10 +1376,6 @@ export function machineSpreaderChangeRecordGridColumns(
       field: 'changeReason',
       title: '变更原因',
       minWidth: 200,
-      formatter: ({ cellValue }) => {
-        const dict = dictStore?.getDictData?.('change_reason', cellValue);
-        return dict?.label || cellValue;
-      },
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
