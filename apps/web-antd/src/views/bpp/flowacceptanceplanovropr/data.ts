@@ -1,11 +1,10 @@
-import type { VbenFormSchema } from '#/adapter/form';
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { DescriptionItemSchema } from '#/components/description';
-
-import { z } from '#/adapter/form';
-import { getDictDataPage } from '#/api/bpp/base/dict/data';
-import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import { getRangePickerDefaultProps } from '#/utils';
+import type { VbenFormSchema } from "#/adapter/form";
+import { z } from "#/adapter/form";
+import type { VxeTableGridOptions } from "#/adapter/vxe-table";
+import type { DescriptionItemSchema } from "#/components/description";
+import { getDictDataPage } from "#/api/bpp/base/dict/data";
+import { bppBaseDictStore } from "#/store/bpp/base/dict";
+import { getRangePickerDefaultProps } from "#/utils";
 
 const bppBaseDict = bppBaseDictStore();
 
@@ -564,8 +563,16 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提单号',
         allowClear: true,
+        onBlur: (e: Event) => {
+          const target = e.target as HTMLInputElement;
+          target.value = target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+          // 手动触发 input 事件确保表单更新
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+        }
       },
-      rules: 'required',
+      rules: z
+        .string()
+        .regex(/^[A-Z0-9]+$/, '请输入正确的提单号'),
     },
     {
       fieldName: 'cargoName',
@@ -670,6 +677,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         placeholder: '请输入提单号',
         allowClear: true,
       },
+
     },
     {
       fieldName: 'applicantCompanyName',
