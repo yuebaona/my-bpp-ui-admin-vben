@@ -209,6 +209,6 @@ export const getVVd = ({
   queryType?: string;
 }) => {
   return requestClient.get(
-    `/bpp/flow/acceptance-plan-over-operation/get-vvd?queryType=${queryType}&condition=${condition}`,
+    `/bpp/flow/common/get-vvd?queryType=${queryType}&condition=${condition}`,
   );
 };
