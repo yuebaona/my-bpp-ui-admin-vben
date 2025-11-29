@@ -30,6 +30,16 @@ const emit = defineEmits(['success']);
 const bppBaseDict = bppBaseDictStore();
 
 const vesselCode = ref<string>();
+const vesselNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const vesselVoyageState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
 
 /** 加载个人信息 */
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
@@ -380,6 +390,30 @@ const [Modal, modalApi] = useVbenModal({
           for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
             containerDataList.push(item);
           }
+          if (data.acceptancePlanRespVO.vesselName) {
+            vesselNameState.value = {
+              label: data.acceptancePlanRespVO.vesselName,
+              value: data.acceptancePlanRespVO.vesselName
+            };
+
+            // 同时查询对应的航次列表
+            const voyageRes = await getVVd({
+              condition: data.acceptancePlanRespVO.vesselName,
+              queryType: 'VOYAGE',
+            });
+            if (voyageRes) {
+              vesselVoyageState.data = voyageRes.map((item: any) => ({
+                label: item.vieVoy,
+                value: item.vieVoy,
+              }));
+            }
+          }
+          if (data.acceptancePlanRespVO.vesselVoyage) {
+            vesselVoyageState.value = {
+              label: data.acceptancePlanRespVO.vesselVoyage,
+              value: data.acceptancePlanRespVO.vesselVoyage
+            };
+          }
         } finally {
           modalApi.unlock();
         }
@@ -413,17 +447,6 @@ const getPopupContainer = (triggerNode) => {
 const filterOption = (input, option) => {
   return option.label.toLowerCase().includes(input.toLowerCase());
 };
-
-const vesselNameState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-});
-const vesselVoyageState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-});
 const handleVesselSearch = async (value: any) => {
   if(!value) return;
   vesselNameState.data = [];
@@ -440,27 +463,49 @@ const handleVesselSearch = async (value: any) => {
     vesselNameState.fetching = false;
   }
 };
-const vesselNameChange = async (value: any, option: any) => {
-  //赋值到表单
+const vesselNameSelect = async (value: any, option: any) => {
+  // 赋值到表单
   await formApi.setFieldValue('vesselName', value.label);
-  vesselCode.value = option.data.vieVslCd;
-  vesselVoyageState.data = [];
+  vesselCode.value = option?.data?.vieVslCd;
+
   vesselVoyageState.fetching = true;
-  //查航次列表
+
+  // 查航次列表
   const res = await getVVd({
     condition: value.label,
     queryType: 'VOYAGE',
   });
+
   if(res){
     vesselVoyageState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
     }));
     vesselVoyageState.fetching = false;
+
+    // 重要：在数据加载完成后再清空当前选择的航次值
+    vesselVoyageState.value = [];
+    await formApi.setFieldValue('vesselVoyage', '');
   }
 };
+
+const vesselNameChange = async () => {
+  await formApi.setFieldValue('vesselName', '');
+  await formApi.setFieldValue('vesselVoyage', '');
+
+  // 清空航次数据
+  vesselVoyageState.value = [];
+  vesselVoyageState.data = [];
+};
+const vesselVoyageFocus = async () => {
+  // 延迟搜索 解决第一次查空的问题
+  setTimeout(() => {
+    vesselVoyageState.value = [];
+  }, 100);
+}
 //赋值到表单
-const vesselVoyageChange = async(value: any)=> {
+const vesselVoyageSelect = async(value: any)=> {
+  console.log('vesselVoyageSelect', value);
   await formApi.setFieldValue('vesselVoyage', value.label);
 };
 watch(vesselNameState.value, () => {
@@ -471,6 +516,7 @@ watch(vesselVoyageState.value, () => {
   vesselVoyageState.data = [];
   vesselVoyageState.fetching = false;
 });
+const enableFilter = ref(false);
 </script>
 
 <template>
@@ -537,6 +583,7 @@ watch(vesselVoyageState.value, () => {
           :options="vesselNameState.data"
           @search="handleVesselSearch"
           allowClear
+          @select="vesselNameSelect"
           @change="vesselNameChange"
         >
         </Select>
@@ -546,13 +593,14 @@ watch(vesselVoyageState.value, () => {
           v-model:value="vesselVoyageState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
-          placeholder="请输入作业船名"
+          placeholder="请输入船名航次"
           style="width: 100%"
-          :filter-option="true"
+          :filter-option="enableFilter"
           :not-found-content="vesselVoyageState.fetching ? undefined : null"
           :options="vesselVoyageState.data"
           allowClear
-          @change="vesselVoyageChange"
+          @select="vesselVoyageSelect"
+          @focus="vesselVoyageFocus"
         >
         </Select>
       </template>
