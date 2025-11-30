@@ -374,6 +374,16 @@ const getDictDataList = async () => {
       })
     ).list,
   );
+  bppBaseDict.setBppBaseDictCacheByData(
+    (
+      await getDictDataPage({
+        dictType: 'acceptance_plan_status',
+        pageNo: 1,
+        pageSize: 100,
+      })
+    ).list,
+  );
+
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {

@@ -568,7 +568,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
           target.value = target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
           // 手动触发 input 事件确保表单更新
           target.dispatchEvent(new Event('input', { bubbles: true }));
-        }
+        },
       },
       rules: z
         .string()
@@ -1010,6 +1010,12 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('acceptance_plan_status') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
     {
