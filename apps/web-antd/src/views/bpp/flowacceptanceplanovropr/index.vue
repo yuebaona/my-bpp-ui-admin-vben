@@ -196,6 +196,10 @@ const handleOnSiteOperation = async () => {
           message.error('存在不同的现在作业节点，请检查');
         }
       }
+      if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+        message.error('请选择现场作业节点不是初始化或完成的状态');
+        return;
+      }
       data.value = {
         overOperationContainerIds: containerIds,
         initiationType: initiationTypeValue.value,
