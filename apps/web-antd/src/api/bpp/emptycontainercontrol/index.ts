@@ -6,37 +6,21 @@ export namespace EmptyContainerControlApi {
   // 主计划信息VO
   export interface mainPlanVO {
     id: number;
-    mainPlanNo: string; //
-    acceptancePlanWebNo: string;
-    applicantCode: string;
-    applicantCompanyName: string;
-    payerCodeGate: string;
-    paymentTypeGate: string;
-    payerCodeSea: string;
-    paymentTypeSea: string;
-    category: string;
-    vesselCode: string;
-    vesselName: string;
-    vesselVoyage: string;
-    plannedOperationTime: string;
-    attachmentFile: string;
-    handlingPerson: string;
-    handlerRemark: string;
-    handlerConfirmation: string;
-    handlerConfirmTime: string;
-    isSystemRate: boolean;
-    planplanStatus: string;
-    conclusionTime: string;
-    dataSource: string;
-    applicantPlanType: string;
-    applicantType: string;
-    applicantPlanCount: number;
-    applicantPlanStart: string;
-    applicantPlanEnd: string;
-    cargoOwnerCode: string;
-    cargoAgentCode: string;
-    invoiceTitle: string;
-    handlingPhoneNumber: string;
+    ownerList: Array<string>;
+    isoNoList: Array<string>;
+    isRelease: boolean;
+    pickupPlanNo: string;
+    tradeType: string;
+    planQuantity: string;
+    completedReleaseQuantity: string;
+    bayRangeList: {
+      emptyContainerControlId: number | string;
+      id: number | string;
+      yardBay: string;
+      yardRaw: string;
+    };
+    planType: string;
+    mainId: string;
   }
   // 子计划VO
   export interface subPlanVO {
@@ -80,7 +64,7 @@ export namespace EmptyContainerControlApi {
     containerTotalWeight: number;
     containerCargoSize: string;
     containerOverlimitDetails: string;
-    containerPhysicalplanStatus: string;
+    containerPhysicalStatus: string;
     containerOperationNode: string;
     acceptancePlanNo: string;
     overOperationContainerNo: string;
@@ -102,8 +86,9 @@ export namespace EmptyContainerControlApi {
     billType: string;
   }
   // 总数据
-  export interface OverLimitWorkSaveReqVO {
-    acceptancePlanSaveReqVO: subPlanVO;
+  export interface EmptyContainerControlSaveReqVO {
+    mainPlanSaveReqVO: mainPlanVO;
+    subPlanSaveReqVO: subPlanVO;
     acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
     acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
@@ -126,7 +111,7 @@ export namespace EmptyContainerControlApi {
   //   containerTotalWeight: number;
   //   containerCargoSize: string;
   //   containerOverlimitDetails: string;
-  //   containerPhysicalplanStatus: string;
+  //   containerPhysicalStatus: string;
   //   containerOperationNode: string;
   //   acceptancePlanNo: string;
   //   overOperationContainerNo: string;
@@ -158,16 +143,16 @@ export namespace EmptyContainerControlApi {
 
 // 创建主计划信息
 export const createMainplan = (
-  data: EmptyContainerControlApi.OverLimitWorkSaveReqVO,
+  data: EmptyContainerControlApi.mainPlanSaveReqVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/create',
+    '/bpp/flow/empty/container-control-main/create',
     data,
   );
 };
 // 修改主计划信息
 export const updateMainPlan = (
-  data: EmptyContainerControlApi.OverLimitWorkSaveReqVO,
+  data: EmptyContainerControlApi.mainPlanSaveReqVO,
 ) => {
   return requestClient.put(
     '/bpp/flow/acceptance-plan-over-operation/update',
@@ -177,20 +162,22 @@ export const updateMainPlan = (
 // 查询主计划信息详情
 export const getMainPlan = (id: number) => {
   return requestClient.get(
-    `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
+    `/bpp/flow/empty/container-control-main/get?id=${id}`,
   );
 };
+
 // 主计划信息分页查询
-export const getMainPlanPage = (params: PageParam) => {
-  return requestClient.get<
-    PageResult<EmptyContainerControlApi.AcceptancePlanOverOperationVO>
-  >('/bpp/flow/acceptance-plan-over-operation/page', { params });
+export const getMainPlanPage = (data: EmptyContainerControlApi.mainPlanVO) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/page',
+    data,
+  );
 };
 
 // 删除主计划
 export const deleteMainPlan = (id: number) => {
-  return requestClient.get(
-    `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
+  return requestClient.delete(
+    `/bpp/flow/empty/container-control-main/delete?id=${id}`,
   );
 };
 

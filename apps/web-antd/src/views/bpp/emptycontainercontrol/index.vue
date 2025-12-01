@@ -35,6 +35,8 @@ import LogQuery from './modules/logQuery.vue';
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
+const checkedIds2 = ref<number[]>([]);
+const mainPlanNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -176,6 +178,103 @@ const [DetailModal2, detailModalApi2] = useVbenModal({
   destroyOnClose: true,
 });
 
+/**
+ * 转换表单值为接口请求参数格式
+ */
+const transformFormToRequest = (
+  formValues: Record<string, any>,
+): Record<string, any> => {
+  const params = JSON.parse(JSON.stringify(formValues || {}));
+  delete params.pageNo;
+  delete params.pageSize;
+
+  if (params.bayRangeList) {
+    const [yardBay, yardRaw] = params.bayRangeList
+      .split('-')
+      .map((item: string) => item.trim());
+    params.bayRangeList = [
+      {
+        yardBay: yardBay || '',
+        yardRaw: yardRaw || '',
+      },
+    ];
+  } else {
+    delete params.bayRangeList;
+  }
+
+  if (params.ownerList) {
+    params.ownerList = params.ownerList
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean); // 过滤空字符串
+  } else {
+    delete params.ownerList;
+  }
+
+  if (params.isoNoList) {
+    params.isoNoList = params.isoNoList
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  } else {
+    delete params.isoNoList;
+  }
+
+  if (params.createTime) {
+    if (params.createTime.length === 0) {
+      delete params.createTime;
+    }
+  } else {
+    delete params.createTime;
+  }
+
+  // 主计划号 planNo：空值删除
+  if (
+    params.planNo === '' ||
+    params.planNo === undefined ||
+    params.planNo === null
+  ) {
+    delete params.planNo;
+  }
+
+  // 进口航次 importVoyageNo：空值删除
+  if (
+    params.importVoyageNo === '' ||
+    params.importVoyageNo === undefined ||
+    params.importVoyageNo === null
+  ) {
+    delete params.importVoyageNo;
+  }
+
+  // 贸易类型 tradeType：空值删除
+  if (
+    params.tradeType === '' ||
+    params.tradeType === undefined ||
+    params.tradeType === null
+  ) {
+    delete params.tradeType;
+  }
+
+  // 受理提箱计划号 pickupPlanNo：空值删除
+  if (
+    params.pickupPlanNo === '' ||
+    params.pickupPlanNo === undefined ||
+    params.pickupPlanNo === null
+  ) {
+    delete params.pickupPlanNo;
+  }
+
+  params.planType = 'MAIN';
+  Object.keys(params).forEach((key) => {
+    const value = params[key];
+    if (value === '' || value === undefined || value === null) {
+      delete params[key];
+    }
+  });
+  const finalParams = JSON.parse(JSON.stringify(params));
+  return finalParams;
+};
+
 const [Grid2, gridApi2] = useVbenVxeGrid({
   formOptions: {
     schema: PlanSearchFormSchema(),
@@ -210,6 +309,48 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          const transformedParams = transformFormToRequest(formValues);
+          return await getMainPlanPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...transformedParams,
+          });
+        },
+      },
+    },
+  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
+  gridEvents: {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+  },
+});
+
+const [ToolChangeGrid2] = useVbenVxeGrid({
+  gridOptions: {
+    columns: mainPlanColumns(),
+    height: 'auto',
+    keepSource: false,
+    rowConfig: {
+      keyField: 'id',
+      isHover: true,
+    },
+    toolbarConfig: {
+      refresh: false,
+      search: false,
+      zoom: false,
+      custom: false,
+    },
+    pagerConfig: {
+      pageSize: 10,
+      enabled: true,
+    },
+    editRules: {
+      applicantCompanyName: [{ required: true }],
+      acceptancePlanNo: [{ required: true }],
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues) => {
           return await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -237,7 +378,7 @@ function handleRowCheckboxChange2({
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi2.query();
+  gridApi.query();
 }
 
 /** 创建主计划新申请 */
@@ -279,6 +420,7 @@ const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
+  console.log('row.id', row.id);
   const res = await getMainPlan(row.id);
   formModalApi2.setData(res).open();
 };
