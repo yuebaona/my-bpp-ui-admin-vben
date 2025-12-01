@@ -8,6 +8,7 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
+import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -23,7 +24,6 @@ import {
 } from '#/api/bpp/flowacceptanceplanovropr';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import {
   acceptancePlanOvrOprColumns,
@@ -79,22 +79,30 @@ function handleCreate() {
 
 /** 办理任务 */
 function handleAudit(row: BpmTaskApi.Task) {
+  // router.push({
+  //   name: 'BpmProcessInstanceDetail',
+  //   query: {
+  //     id: row.processInstance!.id,
+  //   },
+  // });
   router.push({
-    name: 'BpmProcessInstanceDetail',
+    path: '/bpm/process-instance/detail',
     query: {
       id: row.processInstance!.id,
-      taskId: row.taskId,
     },
   });
 }
 
 /** 流程审核 */
 function handleViewDetail(row: OverLimitPlan) {
+  if (!row.processInstanceId) {
+    message.error($t('ui.actionMessage.noProcessInstance'));
+    return;
+  }
   handleAudit({
-    processInstance: {
+    processInstance:{
       id: row.processInstanceId,
     },
-    taskId: null,
   });
 }
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {computed, onMounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
-import {Card} from 'ant-design-vue';
-import dayjs, { type Dayjs } from 'dayjs';
+import {Card,Tag,Flex} from 'ant-design-vue';
+import dayjs from 'dayjs';
 import {getTaskListByProcessInstanceId} from '#/api/bpm/task';
+import { getAcceptancePlanOverOperation } from '#/api/bpp/flowoverlimitwork';
 
 defineOptions({name: 'TaskComment'});
 /**
@@ -11,8 +12,7 @@ defineOptions({name: 'TaskComment'});
  */
 const props = defineProps({
   businessKey: {
-    type: Number,
-    default: 1,
+    type: String,
   },
   //是否显示申请人意见
   isShowApply: {
@@ -24,9 +24,11 @@ const props = defineProps({
   //当前任务对象
   todoTask: Object,
   processInstance: Object, // 流程实例信息
-  processInstanceId: String // 流程实例ID
+  processInstanceId: String, // 流程实例ID
+  acceptancePlanOverOperationData: Object, // 单据对象
+  acceptancePlanData: Object, // 单据对象
+  containerDataArray: Object // 单据对象
 });
-const datailLoading = ref(false);
 //审批意见数据
 const taskCommentData = ref(null);
 const taskCommentDataList = ref([]);
@@ -39,59 +41,88 @@ async function getDetailData() {
   taskCommentDataList.value = taskCommentDataArray;
   taskCommentData.value = taskCommentDataArray[0];
 }
-
+//获取计划机械类型
+function getPlannedMachineryType(plannedMachineryType:string){
+  if(plannedMachineryType=='RMG_QC'){
+    return '场桥+岸桥';
+  }else if(plannedMachineryType=='QC'){
+    return '场桥';
+  }else{
+    return plannedMachineryType;
+  }
+}
+function getIsAllowedStacking(isAllowedStacking:boolean){
+  if(isAllowedStacking){
+    return '是';
+  }else {
+    return '否';
+  }
+}
 onMounted(async () => {
   await getDetailData();
 });
 </script>
 <!--审批意见组件-->
 <template>
-  <Card title="经办人确认信息" if="isShowApply">
-    <div class="approval-table">
+  <div style="font-size: 16px;font-weight: 600;padding-top: 15px;padding-bottom: 15px">审批记录</div>
+  <Card v-if="isShowApply">
+    <table class="handler-info-table">
+      <tbody>
       <!-- 经办人备注行 -->
-      <div class="table-row">
-        <div class="table-cell cell-section">经办人备注</div>
-        <div class="table-cell" style="width:100%">
-
-        </div>
-      </div>
-      <!-- 经办人确认行 -->
-      <div class="table-row">
-        <div class="table-cell cell-section">经办人确认</div>
-        <div class="table-cell" style="width:100%">
-          <p style="width:100%">{{taskCommentData?.reason}}</p>
-          <p style="float: right">经办人：{{taskCommentData?.assigneeUser.nickname}}　时间：{{dayjs(taskCommentData?.createTime).format('YYYY-MM-DD HH:mm:ss')}}</p>
-        </div>
-      </div>
-    </div>
-    <div class="audit-table" v-for="taskCommentData in taskCommentDataList">
-      <!-- 第1行：审核结果 -->
-      <div class="table-row">
-        <div class="table-cell cell-section">{{taskCommentData?.name}}</div>
-        <div class="table-cell cell-label">审核结果</div>
-        <div class="table-cell cell-content"><span class="agree-tag">{{taskCommentData?.status==1 ? '同意' : '审核中'}}</span></div>
-      </div>
-      <!-- 第2行：审核意见 -->
-      <div class="table-row">
-        <div class="table-cell cell-label">审核意见</div>
-        <div class="table-cell cell-content">{{taskCommentData?.reason}}</div>
-      </div>
-      <!-- 第3行：审核人/时间 -->
-      <div class="table-row">
-        <div class="table-cell cell-label">审核人：</div>
-        <div class="table-cell cell-content">{{taskCommentData?.assigneeUser.nickname}}</div>
-        <div class="table-cell cell-label">时间：</div>
-        <div class="table-cell cell-content">{{dayjs(taskCommentData?.createTime).format('YYYY-MM-DD HH:mm:ss')}}</div>
-      </div>
-    </div>
+      <tr>
+        <td class="handler-label-cell">经办人备注</td>
+        <td class="handler-content-cell">{{acceptancePlanData?.handlerRemark}}</td>
+      </tr>
+      <!-- 经办人确认行：内容+右侧信息 -->
+      <tr>
+        <td class="handler-label-cell">经办人确认</td>
+        <td class="handler-content-cell">
+          <p style="width:100%">{{acceptancePlanData?.handlerConfirmation}}</p>
+          <p class="handler-right-info" style="padding-left: 20px;padding-top:20px">
+            经办人：{{acceptancePlanData?.handlingPerson}}　
+            时间：{{dayjs(acceptancePlanData?.createTime).format('YYYY-MM-DD HH:mm:ss')}}
+          </p>
+        </td>
+      </tr>
+      </tbody>
+    </table>
   </Card>
-  <table class="audit-table" v-for="taskCommentData in taskCommentDataList">
-    <tbody>
+  <Card v-if="!isShowApply">
+    <table class="handler-info-table">
+      <tbody>
+      <!-- 经办人备注行 -->
+      <tr>
+        <td class="handler-label-cell">经办人备注</td>
+        <td class="handler-content-cell">{{ acceptancePlanOverOperationData?.handlerRemark }}</td>
+      </tr>
+      <!-- 经办人确认行：内容+右侧信息 -->
+      <tr>
+        <td class="handler-label-cell">经办人确认</td>
+        <td class="handler-content-cell">
+          <p style="width:100%">{{ acceptancePlanOverOperationData?.handlerConfirmation }}</p>
+          <p class="handler-right-info" style="padding-left: 20px;padding-top:20px">
+            经办人：{{ acceptancePlanOverOperationData?.handlingPerson }}　
+            时间：{{
+              dayjs(acceptancePlanOverOperationData?.createTime).format('YYYY-MM-DD HH:mm:ss')
+            }}
+          </p>
+        </td>
+        </tr>
+      </tbody>
+    </table>
+    <table class="audit-table" v-for="taskCommentData in taskCommentDataList">
+      <tbody>
         <tr>
           <!-- 合并3行的环节列 -->
           <td class="section-cell" rowspan="3">{{taskCommentData?.name}}</td>
           <td class="label-cell">审核结果</td>
-          <td><span class="agree-tag">{{askCommentData?.status}}xx{{taskCommentData?.status==1 ? '同意' : '审核中'}}</span></td>
+          <td>
+            <Tag color="processing" v-if="taskCommentData?.status==4">已取消</Tag>
+            <Tag color="processing" v-if="taskCommentData?.status==3">审批不通过</Tag>
+            <Tag color="success" v-if="taskCommentData?.status==2">同意</Tag>
+            <Tag color="default" v-else-if="taskCommentData?.status==1">待审批</Tag>
+            <Tag color="processing" v-else>审批中</Tag>
+          </td>
         </tr>
         <tr>
           <td class="label-cell">审核意见</td>
@@ -100,10 +131,76 @@ onMounted(async () => {
         <tr>
           <td class="label-cell" colspan="2"><span style="padding-right: 40px">审核人：{{taskCommentData?.assigneeUser.nickname}}</span><span>时间：{{dayjs(taskCommentData?.createTime).format('YYYY-MM-DD HH:mm:ss')}}</span></td>
         </tr>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+    <table class="handler-info-table">
+      <tbody>
+      <!-- 经办人备注行 -->
+      <tr>
+        <td class="handler-label-cell">箱子是否需要落堆</td>
+        <td class="handler-content-cell" colspan="2">{{ getIsAllowedStacking(acceptancePlanOverOperationData?.isAllowedStacking) }}</td>
+      </tr>
+      <!-- 经办人确认行：内容+右侧信息 -->
+      <tr>
+        <td class="handler-label-cell" rowspan="2">变更道具相关</td>
+        <td class="label-cell">
+          机械类型
+        </td>
+        <td class="handler-content-cell">
+          <p style="width:100%">{{ getPlannedMachineryType(acceptancePlanOverOperationData?.plannedMachineryType) }}</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="label-cell">
+          作业吊具
+        </td>
+        <td>
+          <a-flex wrap="wrap" gap="small" align="start" vertical>
+              <Card v-for="item in containerDataArray" :key="item.containerNo" style="width: 200px">
+                <p>箱号：{{item.containerNo}}</p>
+                <p>吊具类型：{{item.plannedSpreaderType}}</p>
+              </Card>
+          </a-flex>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </Card>
 </template>
 <style scoped>
+/* 表格基础样式 */
+.handler-info-table {
+  width: 100%;
+  max-width: 1200px;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #333;
+  font-family: "Microsoft YaHei", sans-serif;
+}
+/* 单元格样式：边框、内边距、垂直居中 */
+.handler-info-table td {
+  border: 1px solid #e6e6e6;
+  padding: 12px;
+  vertical-align: middle;
+}
+/* 左侧标签列：固定宽度、浅背景、右对齐 */
+.handler-label-cell {
+  width: 150px;
+  background-color: #f5f7fa;
+  text-align: right;
+  font-weight: 500;
+}
+/* 右侧内容列：自适应宽度、左对齐 */
+.handler-content-cell {
+  text-align: left;
+}
+/* 内容列右侧信息（经办人/时间）：右对齐 */
+.handler-right-info {
+  text-align: right;
+  color: #666;
+}
+
+/* 表格基础样式 */
 .audit-table {
   width: 100%;
   max-width: 1200px;
@@ -117,16 +214,15 @@ onMounted(async () => {
 .audit-table td {
   border: 1px solid #e6e6e6;
   padding: 12px;
-  text-align: left;
   vertical-align: middle; /* 强制垂直居中 */
 }
 
 /* 左侧环节列：浅背景、居中、固定宽度 */
 .section-cell {
-  width: 120px;
+  width: 150px;
   background-color: #f5f7fa;
+  text-align: right;
   font-weight: 500;
-  text-align: right
 }
 
 /* 项目列：右对齐、浅灰色 */
