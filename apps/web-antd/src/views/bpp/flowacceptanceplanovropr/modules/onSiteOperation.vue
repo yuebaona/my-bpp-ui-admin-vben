@@ -1,19 +1,30 @@
 <script lang="ts" setup>
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { FlowOverLimitWorkApi } from "#/api/bpp/flowacceptanceplanovropr";
 
-import { ref } from 'vue';
+import { reactive, ref, watch } from "vue";
 
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
+import { message, Select } from "ant-design-vue";
 
 import { useVbenForm } from '#/adapter/form';
-import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord } from '#/api/bpp/flowacceptanceplanovropr';
+import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord ,getVVd} from '#/api/bpp/flowacceptanceplanovropr';
 import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flowacceptanceplanovropr/data';
 
 const emit = defineEmits(['success']);
 const disabledFields = ref<string[]>([]);
+const vesselCode = ref<string>();
+const vesselNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const vesselVoyageState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
 async function setFieldAndDisable(fieldName: string, value: any) {
   if (value) {
     await formApi.setFieldValue(fieldName, value);
@@ -125,9 +136,108 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 const modalTitle = ref<string>('现场操作确认');
+const handleVesselSearch = async (value: any) => {
+  if(!value) return;
+  vesselNameState.data = [];
+  vesselNameState.fetching = true;
+  const res = await getVVd({
+    condition: value,
+  });
+  if(res){
+    vesselNameState.data = res.map((item: any) => ({
+      label: item.vieVslCName,
+      value: item.vieVslCName,
+      data: item
+    }));
+    vesselNameState.fetching = false;
+  }
+};
+const vesselNameSelect = async (value: any, option: any) => {
+  // 赋值到表单
+  await formApi.setFieldValue('vesselName', value.label);
+  vesselCode.value = option?.data?.vieVslCd;
+
+  vesselVoyageState.fetching = true;
+
+  // 查航次列表
+  const res = await getVVd({
+    condition: value.label,
+    queryType: 'VOYAGE',
+  });
+
+  if(res){
+    vesselVoyageState.data = res.map((item: any) => ({
+      label: item.vieVoy,
+      value: item.vieVoy,
+    }));
+    vesselVoyageState.fetching = false;
+
+    // 重要：在数据加载完成后再清空当前选择的航次值
+    vesselVoyageState.value = [];
+    await formApi.setFieldValue('vesselVoyage', '');
+  }
+};
+
+const vesselNameChange = async () => {
+  await formApi.setFieldValue('vesselName', '');
+  await formApi.setFieldValue('vesselVoyage', '');
+
+  // 清空航次数据
+  vesselVoyageState.value = [];
+  vesselVoyageState.data = [];
+  selectKey.value++;
+};
+//赋值到表单
+const vesselVoyageSelect = async(value: any)=> {
+  console.log('vesselVoyageSelect', value);
+  await formApi.setFieldValue('vesselVoyage', value.label);
+};
+watch(vesselNameState.value, () => {
+  vesselNameState.data = [];
+  vesselNameState.fetching = false;
+});
+watch(vesselVoyageState.value, () => {
+  vesselVoyageState.data = [];
+  vesselVoyageState.fetching = false;
+});
+const selectKey = ref(0);
 </script>
 <template>
   <Modal :title="modalTitle">
-    <Form />
+    <Form>
+      <template #vesselName>
+        <Select
+          v-model:value="vesselNameState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入作业船名"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="vesselNameState.fetching ? undefined : null"
+          :options="vesselNameState.data"
+          @search="handleVesselSearch"
+          allowClear
+          @select="vesselNameSelect"
+          @change="vesselNameChange"
+        >
+        </Select>
+      </template>
+      <template #vesselVoyage>
+        <Select
+          v-model:value="vesselVoyageState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入船名航次"
+          style="width: 100%"
+          :filter-option="true"
+          :not-found-content="vesselVoyageState.fetching ? undefined : null"
+          :options="vesselVoyageState.data"
+          allowClear
+          @select="vesselVoyageSelect"
+          :key="selectKey"
+        >
+        </Select>
+      </template>
+    </Form>
   </Modal>
 </template>

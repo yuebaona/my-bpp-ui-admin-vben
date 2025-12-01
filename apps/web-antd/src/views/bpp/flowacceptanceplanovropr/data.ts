@@ -127,21 +127,13 @@ export function onSiteOperationConfirmFormSchema(
     {
       fieldName: 'vesselName',
       label: '作业船名',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名',
-        allowClear: true,
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
       fieldName: 'vesselVoyage',
       label: '作业航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业航次',
-        allowClear: true,
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
