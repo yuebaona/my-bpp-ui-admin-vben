@@ -395,9 +395,10 @@ const [Modal, modalApi] = useVbenModal({
         form: data.acceptancePlanRespVO,
         containers: data.acceptancePlanOverOperationContainerRespVOS,
       };
-      originalData.value.form.billNo = data?.acceptancePlanBillMessageRespVO?.billNo;
-      originalData.value.form.cargoName =
-        data?.acceptancePlanBillMessageRespVO?.cargoName;
+      if (originalData.value?.form) {
+        originalData.value.form.billNo = data?.acceptancePlanBillMessageRespVO?.billNo;
+        originalData.value.form.cargoName = data?.acceptancePlanBillMessageRespVO?.cargoName;
+      }
       originalData.value.containers = data.acceptancePlanOverOperationContainerRespVOS;
 
       Object.assign(formData, data.acceptancePlanRespVO);
