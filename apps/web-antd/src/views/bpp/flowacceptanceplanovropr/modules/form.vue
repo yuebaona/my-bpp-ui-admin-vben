@@ -43,12 +43,12 @@ const vesselVoyageState = reactive({
   value: [],
   fetching: false,
 });
-const payerCodeSeaState = reactive({
+const payerNameSeaState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
-const payerCodeGateState = reactive({
+const payerNameGateState = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -78,6 +78,8 @@ const originalData = ref<{
     attachmentFile: '',
     handlerRemark: '',
     handlerConfirmation: '',
+    payerNameSea:'',
+    payerNameGate:''
   },
   containers: [],
 });
@@ -145,6 +147,8 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   vesselCode: '',
   vesselName: '',
   vesselVoyage: '',
+  payerNameSea:'',
+  payerNameGate:''
 });
 const acceptancePlanOverOperationRespVO =
   reactive<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
@@ -475,15 +479,15 @@ const [Modal, modalApi] = useVbenModal({
             vesselCode.value = data.acceptancePlanRespVO.vesselCode;
           }
           if(data?.acceptancePlanRespVO?.payerCodeSea){
-            payerCodeGateState.value = {
-              label: data.acceptancePlanRespVO.payerCodeSea,
-              value: data.acceptancePlanRespVO.payerCodeSea
+            payerNameSeaState.value = {
+              label: data.acceptancePlanRespVO.payerNameSea,
+              value: data.acceptancePlanRespVO.payerNameSea
             }
           }
           if(data?.acceptancePlanRespVO?.payerCodeGate){
-            payerCodeSeaState.value = {
-              label: data.acceptancePlanRespVO.payerCodeGate,
-              value: data.acceptancePlanRespVO.payerCodeGate
+            payerNameGateState.value = {
+              label: data.acceptancePlanRespVO.payerNameGate,
+              value: data.acceptancePlanRespVO.payerNameGate
             }
           }
         } finally {
@@ -576,47 +580,50 @@ const vesselVoyageSelect = async(value: any)=> {
   console.log('vesselVoyageSelect', value);
   await formApi.setFieldValue('vesselVoyage', value.label);
 };
-const payerCodeSeaSearch = async (value: any) => {
+const payerNameSeaSearch = async (value: any) => {
   if(!value) return;
-  payerCodeSeaState.data = [];
-  payerCodeSeaState.fetching = true;
+  payerNameSeaState.data = [];
+  payerNameSeaState.fetching = true;
   const res = await getCustomerList({
     page: 1,
     pageSize: 100,
     customerName: value,
   });
   if(res){
-    payerCodeSeaState.data = res.map((item: any) => ({
+    payerNameSeaState.data = res.map((item: any) => ({
       label: item.customerName,
-      value: item.customerCode,
+      value: item.customerName,
       data: item
     }));
-    payerCodeSeaState.fetching = false;
+    payerNameSeaState.fetching = false;
   }
 };
-const payerCodeSeaSelect = async (value: any, option: any) => {
+const payerNameSeaSelect = async (value: any, option: any) => {
   await formApi.setFieldValue('payerCodeSea', option.data.customerCode);
+  await formApi.setFieldValue('payerNameSea', value.label);
+
 };
-const payerCodeGateSearch = async (value: any) => {
+const payerNameGateSearch = async (value: any) => {
   if(!value) return;
-  payerCodeGateState.data = [];
-  payerCodeGateState.fetching = true;
+  payerNameGateState.data = [];
+  payerNameGateState.fetching = true;
   const res = await getCustomerList({
     page: 1,
     pageSize: 100,
     customerName: value,
   });
   if(res){
-    payerCodeGateState.data = res.map((item: any) => ({
+    payerNameGateState.data = res.map((item: any) => ({
       label: item.customerName,
-      value: item.customerCode,
+      value: item.customerName,
       data: item
     }))
   }
-  payerCodeGateState.fetching = false;
+  payerNameGateState.fetching = false;
 }
-const payerCodeGateSelect = async (value: any, option: any) => {
+const payerNameGateSelect = async (value: any, option: any) => {
   await formApi.setFieldValue('payerCodeGate', option.data.customerCode);
+  await formApi.setFieldValue('payerNameGate', value.label);
 };
   watch(vesselNameState.value, () => {
   vesselNameState.data = [];
@@ -626,13 +633,13 @@ watch(vesselVoyageState.value, () => {
   vesselVoyageState.data = [];
   vesselVoyageState.fetching = false;
 });
-watch(payerCodeSeaState.value, () => {
-  payerCodeSeaState.data = [];
-  payerCodeSeaState.fetching = false;
+watch(payerNameSeaState.value, () => {
+  payerNameSeaState.data = [];
+  payerNameSeaState.fetching = false;
 });
-watch(payerCodeGateState.value, () => {
-  payerCodeGateState.data = [];
-  payerCodeGateState.fetching = false;
+watch(payerNameGateState.value, () => {
+  payerNameGateState.data = [];
+  payerNameGateState.fetching = false;
 });
 // 深度监听主表单数据
 watch(
@@ -719,35 +726,35 @@ const selectKey = ref(0);
           </div>
         </div>
       </template>
-      <template #payerCodeSea>
+      <template #payerNameSea>
         <Select
-          v-model:value="payerCodeSeaState.value"
+          v-model:value="payerNameSeaState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
           placeholder="请输入缴费方（海侧）"
           style="width: 100%"
           :filter-option="false"
-          :not-found-content="payerCodeSeaState.fetching ? undefined : null"
-          :options="payerCodeSeaState.data"
-          @search="payerCodeSeaSearch"
+          :not-found-content="payerNameSeaState.fetching ? undefined : null"
+          :options="payerNameSeaState.data"
+          @search="payerNameSeaSearch"
           allowClear
-          @select="payerCodeSeaSelect"
+          @select="payerNameSeaSelect"
         >
         </Select>
       </template>
-      <template #payerCodeGate>
+      <template #payerNameGate>
         <Select
-          v-model:value="payerCodeGateState.value"
+          v-model:value="payerNameGateState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
           placeholder="请输入缴费方（陆侧）"
           style="width: 100%"
           :filter-option="false"
-          :not-found-content="payerCodeGateState.fetching ? undefined : null"
-          :options="payerCodeGateState.data"
-          @search="payerCodeGateSearch"
+          :not-found-content="payerNameGateState.fetching ? undefined : null"
+          :options="payerNameGateState.data"
+          @search="payerNameGateSearch"
           allowClear
-          @select="payerCodeGateSelect"
+          @select="payerNameGateSelect"
         >
         </Select>
       </template>

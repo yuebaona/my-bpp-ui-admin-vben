@@ -473,7 +473,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'payerCodeSea',
+      fieldName: 'payerNameSea',
       label: '缴费方（海侧）',
       component: 'Select',
       rules: 'required',
@@ -488,7 +488,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'payerCodeGate',
+      fieldName: 'payerNameGate',
       label: '缴费方（陆侧）',
       component: 'Select',
       rules: 'required',

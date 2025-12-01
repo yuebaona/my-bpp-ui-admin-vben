@@ -24,6 +24,8 @@ export namespace FlowOverLimitWorkApi {
     attachmentFile: string;
     handlerRemark: string;
     handlerConfirmation: string;
+    payerNameSea: string,
+    payerNameGate: string
   }
   // 受理计划VO
   export interface AcceptancePlanVO {
@@ -59,6 +61,8 @@ export namespace FlowOverLimitWorkApi {
     cargoAgentCode: string;
     invoiceTitle: string;
     handlingPhoneNumber: string;
+    payerNameGate:string;
+    payerNameSea:string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
