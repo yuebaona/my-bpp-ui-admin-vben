@@ -360,7 +360,6 @@ const machineSpreaderChangeRecordHandleRowCheck = ({
 }: {
   records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
 }) => {
-  console.log('选中记录', records);
   machineSpreaderChangeRecordCheckedIds.value = records.map((item) => item.id);
 };
 /** 获取字典数据 */
@@ -409,7 +408,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     toolbarConfig: {
       search: true,
       custom: true,
-      export: true,
       // import: true,
       refresh: true,
       zoom: true,
@@ -714,26 +712,26 @@ const handleSaveTemplate = (templateName: string) => {
                 auth: ['system:user:create'],
                 onClick: handleCreate,
               },
-              {
-                label: '撤销',
-                type: 'default',
-                icon: ACTION_ICON.UNDO,
-                onClick: handleHighPriceQuery,
-              },
-
-              {
-                label: '撤销审核',
-                type: 'default',
-                icon: ACTION_ICON.UNDO,
-                disabled: true,
-                onClick: handleHighPriceQuery,
-              },
-              {
-                label: '日志查询',
-                type: 'primary',
-                icon: ACTION_ICON.LOG,
-                onClick: handleHighPriceQuery,
-              },
+              // {
+              //   label: '撤销',
+              //   type: 'default',
+              //   icon: ACTION_ICON.UNDO,
+              //   onClick: handleHighPriceQuery,
+              // },
+              //
+              // {
+              //   label: '撤销审核',
+              //   type: 'default',
+              //   icon: ACTION_ICON.UNDO,
+              //   disabled: true,
+              //   onClick: handleHighPriceQuery,
+              // },
+              // {
+              //   label: '日志查询',
+              //   type: 'primary',
+              //   icon: ACTION_ICON.LOG,
+              //   onClick: handleHighPriceQuery,
+              // },
             ]"
           />
         </template>
@@ -817,12 +815,12 @@ const handleSaveTemplate = (templateName: string) => {
           <template #toolbar-tools>
             <TableAction
               :actions="[
-                {
-                  label: '日志查询',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
+                // {
+                //   label: '日志查询',
+                //   type: 'primary',
+                //   auth: ['system:user:create'],
+                //   onClick: handleCreate,
+                // },
                 {
                   label: '无变更作业',
                   type: 'primary',
