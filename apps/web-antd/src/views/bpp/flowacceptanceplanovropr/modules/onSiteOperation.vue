@@ -90,7 +90,7 @@ const [Modal, modalApi] = useVbenModal({
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
     formData.value.acceptancePlanNo = acceptancePlanNo;
-    formData.value.vesselCode = 'TEST';
+    formData.value.vesselCode = vesselCode.value;
     formData.value.operationFile = JSON.stringify(data.operationFile);
     await (formData.value?.id
       ? updateMachineSpreaderRecord(formData.value)
@@ -181,6 +181,7 @@ const vesselNameSelect = async (value: any, option: any) => {
 const vesselNameChange = async () => {
   await formApi.setFieldValue('vesselName', '');
   await formApi.setFieldValue('vesselVoyage', '');
+  vesselCode.value = '';
 
   // 清空航次数据
   vesselVoyageState.value = [];
