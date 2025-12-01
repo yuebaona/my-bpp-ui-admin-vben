@@ -1,28 +1,82 @@
 <script lang="ts" setup>
-import type { UploadProps } from 'ant-design-vue';
+import type { UploadProps } from "ant-design-vue";
+import { Button, message, Select } from "ant-design-vue";
 
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
-
-import { computed, nextTick, reactive, ref, toRaw } from 'vue';
-
-import { useVbenModal } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
-
-import { Button, message } from 'ant-design-vue';
-
-import { useVbenForm } from '#/adapter/form';
-import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import type { VxeTableGridOptions } from "#/adapter/vxe-table";
+import { TableAction, useVbenVxeGrid } from "#/adapter/vxe-table";
+import type {
+  FlowOverLimitWorkApi
+} from "#/api/bpp/flowacceptanceplanovropr";
 import {
   createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowacceptanceplanovropr';
-import { FileUpload } from '#/components/upload';
-import { $t } from '#/locales';
+  getVVd,
+  updateAcceptancePlanOverOperation
+} from "#/api/bpp/flowacceptanceplanovropr";
+import type { SystemUserProfileApi } from "#/api/system/user/profile";
+import { getUserProfile } from "#/api/system/user/profile";
 
-import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
+import { computed, nextTick, reactive, ref, toRaw, watch } from "vue";
+
+import { useVbenModal } from "@vben/common-ui";
+import { IconifyIcon } from "@vben/icons";
+
+import { useVbenForm } from "#/adapter/form";
+import { FileUpload } from '#/components/upload';
+import { $t } from "#/locales";
+import { bppBaseDictStore } from "#/store/bpp/base/dict";
+
+import { acceptancePlanFormSchema, containerInfoColumns } from "../data.ts";
 
 const emit = defineEmits(['success']);
+
+const bppBaseDict = bppBaseDictStore();
+
+const vesselCode = ref<string>();
+const vesselNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const vesselVoyageState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const originalData = ref<{
+  form: FlowOverLimitWorkApi.AcceptancePlanFormVO | null;
+  containers: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+}>({
+  // 实现FlowOverLimitWorkApi.AcceptancePlanFormVO
+  form:{
+    id: '',
+    acceptancePlanNo: '',
+    acceptancePlanWebNo: '',
+    applicantCompanyName: '',
+    handlingPerson: '',
+    handlingPhoneNumber: '',
+    paymentTypeSea: '',
+    payerCodeSea: '',
+    paymentTypeGate: '',
+    payerCodeGate: '',
+    category: '',
+    vesselName: '',
+    vesselVoyage: '',
+    plannedOperationTime: '',
+    billNo: '',
+    cargoName: '',
+    attachmentFile: '',
+    handlerRemark: '',
+    handlerConfirmation: '',
+  },
+  containers: [],
+});
+const fieldsChang = ref([]);
+
+/** 加载个人信息 */
+const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
+async function loadProfile() {
+  profile.value = await getUserProfile();
+}
 const fileList = ref<UploadProps['fileList']>([]);
 // 箱信息数据
 const containerData = reactive<
@@ -159,9 +213,9 @@ const [Form, formApi] = useVbenForm({
   schema: acceptancePlanFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
-  handleValuesChange: async (values) => {
-    // 直接使用Object.assign合并值，避免创建新的响应式对象
+  handleValuesChange: async (values: any, fieldsChanged: any) => {
     Object.assign(formData, values);
+    fieldsChang.value = fieldsChanged;
   },
 });
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -278,7 +332,12 @@ const [Modal, modalApi] = useVbenModal({
         item.id = item.id.replace('row_', '');
       }
     });
-    data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
+    data.acceptancePlanSaveReqVO.vesselCode = vesselCode.value;
+    if(fieldsChanges.value.length > 0){
+      data.acceptancePlanOverOperationSaveReqVO.isUpdate = true;
+    }else{
+      data.acceptancePlanOverOperationSaveReqVO.isUpdate = false;
+    }
     // 调用API保存数据
     await (formData?.id
       ? updateAcceptancePlanOverOperation(data)
@@ -332,6 +391,16 @@ const [Modal, modalApi] = useVbenModal({
       await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
 
     if (data) {
+      originalData.value = {
+        form: data.acceptancePlanRespVO,
+        containers: data.acceptancePlanOverOperationContainerRespVOS,
+      };
+      if (originalData.value?.form) {
+        originalData.value.form.billNo = data?.acceptancePlanBillMessageRespVO?.billNo;
+        originalData.value.form.cargoName = data?.acceptancePlanBillMessageRespVO?.cargoName;
+      }
+      originalData.value.containers = data.acceptancePlanOverOperationContainerRespVOS;
+
       Object.assign(formData, data.acceptancePlanRespVO);
       Object.assign(
         acceptancePlanOverOperationRespVO,
@@ -354,7 +423,9 @@ const [Modal, modalApi] = useVbenModal({
             'cargoName',
             data?.acceptancePlanBillMessageRespVO?.cargoName,
           );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO?.attachmentFile);
+          fileList.value = JSON.parse(
+            data.acceptancePlanRespVO?.attachmentFile,
+          );
           for (const item of data?.acceptancePlanOverOperationContainerRespVOS) {
             const $grid = gridApi.grid;
             if ($grid) {
@@ -365,9 +436,44 @@ const [Modal, modalApi] = useVbenModal({
           for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
             containerDataList.push(item);
           }
+          if (data.acceptancePlanRespVO.vesselName) {
+            vesselNameState.value = {
+              label: data.acceptancePlanRespVO.vesselName,
+              value: data.acceptancePlanRespVO.vesselName
+            };
+
+            // 同时查询对应的航次列表
+            const voyageRes = await getVVd({
+              condition: data.acceptancePlanRespVO.vesselName,
+              queryType: 'VOYAGE',
+            });
+            if (voyageRes) {
+              vesselVoyageState.data = voyageRes.map((item: any) => ({
+                label: item.vieVoy,
+                value: item.vieVoy,
+              }));
+            }
+          }
+          if (data.acceptancePlanRespVO.vesselVoyage) {
+            vesselVoyageState.value = {
+              label: data.acceptancePlanRespVO.vesselVoyage,
+              value: data.acceptancePlanRespVO.vesselVoyage
+            };
+          }
+          if (data.acceptancePlanRespVO.vesselCode) {
+            vesselCode.value = data.acceptancePlanRespVO.vesselCode;
+          }
         } finally {
           modalApi.unlock();
         }
+      } else {
+        await loadProfile();
+        console.log('profile', profile.value);
+        await formApi.setFieldValue('handlingPerson', profile.value.nickname);
+        await formApi.setFieldValue(
+          'handlingPhoneNumber',
+          profile.value.mobile,
+        );
       }
     }
   },
@@ -385,6 +491,107 @@ const handleUpload = async (data: any) => {
   await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
   await formApi.validateField('attachmentFile');
 };
+const getPopupContainer = (triggerNode) => {
+  return triggerNode.parentNode;
+};
+const filterOption = (input, option) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+};
+const handleVesselSearch = async (value: any) => {
+  if(!value) return;
+  vesselNameState.data = [];
+  vesselNameState.fetching = true;
+  const res = await getVVd({
+    condition: value,
+  });
+  if(res){
+    vesselNameState.data = res.map((item: any) => ({
+      label: item.vieVslCName,
+      value: item.vieVslCName,
+      data: item
+    }));
+    vesselNameState.fetching = false;
+  }
+};
+const vesselNameSelect = async (value: any, option: any) => {
+  // 赋值到表单
+  await formApi.setFieldValue('vesselName', value.label);
+  vesselCode.value = option?.data?.vieVslCd;
+
+  vesselVoyageState.fetching = true;
+
+  // 查航次列表
+  const res = await getVVd({
+    condition: value.label,
+    queryType: 'VOYAGE',
+  });
+
+  if(res){
+    vesselVoyageState.data = res.map((item: any) => ({
+      label: item.vieVoy,
+      value: item.vieVoy,
+    }));
+    vesselVoyageState.fetching = false;
+
+    // 重要：在数据加载完成后再清空当前选择的航次值
+    vesselVoyageState.value = [];
+    await formApi.setFieldValue('vesselVoyage', '');
+  }
+};
+
+const vesselNameChange = async () => {
+  await formApi.setFieldValue('vesselName', '');
+  await formApi.setFieldValue('vesselVoyage', '');
+
+  // 清空航次数据
+  vesselVoyageState.value = [];
+  vesselVoyageState.data = [];
+  selectKey.value++;
+};
+//赋值到表单
+const vesselVoyageSelect = async(value: any)=> {
+  console.log('vesselVoyageSelect', value);
+  await formApi.setFieldValue('vesselVoyage', value.label);
+};
+watch(vesselNameState.value, () => {
+  vesselNameState.data = [];
+  vesselNameState.fetching = false;
+});
+watch(vesselVoyageState.value, () => {
+  vesselVoyageState.data = [];
+  vesselVoyageState.fetching = false;
+});
+// 深度监听主表单数据
+watch(
+  () => ({ ...formData }), // 创建新对象触发深度监听
+  (newVal) => {
+    if (originalData.value.form && formData.id) {
+      if (originalData.value.form[fieldsChang.value[0]] !== newVal[fieldsChang.value[0]]) {
+        if(fieldsChang.value[0]==='containerInfo'){
+          const newArr = [];
+          [...gridApi.grid.getInsertRecords()].map((record) => {
+            const rawRecord = toRaw(record) as any;
+            const { serialNumber, ...recordWithoutSerial } = rawRecord;
+            return newArr.push(recordWithoutSerial);
+          });
+          if(JSON.stringify(newArr) !== JSON.stringify(originalData.value.containers)){
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }else{
+          if(!fieldsChanges.value.includes(fieldsChang.value[0])){
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }
+      }else{
+        fieldsChanges.value = fieldsChanges.value.filter(item => item !== fieldsChang.value[0]);
+      }
+    }
+    console.log('fieldsChanges', fieldsChanges.value);
+  },
+  { deep: true, immediate: false }
+);
+const fieldsChanges = ref([]);
+const selectKey = ref(0);
 </script>
 
 <template>
@@ -428,10 +635,51 @@ const handleUpload = async (data: any) => {
                 </Button>
                 <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
               </template>
+              <!--              <template #containerSizeEdit="{ row, index }">-->
+              <!--                <Select :options="bppBaseDict.getBppBaseDictOptions(-->
+              <!--                    'initiation_type',-->
+              <!--                  )" v-model:value="row.containerSize"style="width: 100%"-->
+              <!--                        :getPopupContainer="getPopupContainer" :showSearch="true"-->
+              <!--                        :filterOption="filterOption"/>-->
+              <!--              </template>-->
             </Grid>
           </div>
         </div>
       </template>
+      <template #vesselName>
+        <Select
+          v-model:value="vesselNameState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入作业船名"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="vesselNameState.fetching ? undefined : null"
+          :options="vesselNameState.data"
+          @search="handleVesselSearch"
+          allowClear
+          @select="vesselNameSelect"
+          @change="vesselNameChange"
+        >
+        </Select>
+      </template>
+      <template #vesselVoyage>
+        <Select
+          v-model:value="vesselVoyageState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入船名航次"
+          style="width: 100%"
+          :filter-option="true"
+          :not-found-content="vesselVoyageState.fetching ? undefined : null"
+          :options="vesselVoyageState.data"
+          allowClear
+          @select="vesselVoyageSelect"
+          :key="selectKey"
+        >
+        </Select>
+      </template>
+
       <template #attachmentFile>
         <div class="flex flex-col">
           <FileUpload

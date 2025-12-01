@@ -3,6 +3,28 @@ import type { PageParam, PageResult } from '@vben/request';
 import { requestClient } from '#/api/request';
 
 export namespace FlowOverLimitWorkApi {
+  // 受理计划表单VO
+  export interface AcceptancePlanFormVO {
+    id?: string;
+    acceptancePlanNo?: string;
+    acceptancePlanWebNo?: string;
+    applicantCompanyName: string;
+    handlingPerson: string;
+    handlingPhoneNumber: string;
+    paymentTypeSea: string;
+    payerCodeSea: string;
+    paymentTypeGate: string;
+    payerCodeGate: string;
+    category: string;
+    vesselName: string;
+    vesselVoyage: string;
+    plannedOperationTime: string;
+    billNo?: string;
+    cargoName: string;
+    attachmentFile: string;
+    handlerRemark: string;
+    handlerConfirmation: string;
+  }
   // 受理计划VO
   export interface AcceptancePlanVO {
     id: number;
@@ -45,6 +67,8 @@ export namespace FlowOverLimitWorkApi {
     plannedMachineryType: string;
     acceptancePlanNo: string;
     processInstanceId: string;
+    taskId: string;
+    isUpdate: boolean;
   }
   // 超限受理计划箱信息
   export interface AcceptancePlanOverOperationContainerVO {
@@ -198,5 +222,17 @@ export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
 export const machineSpreaderRecordDeleteList = (ids: any) => {
   return requestClient.delete(
     `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
+  );
+};
+// 获取船名航次
+export const getVVd = ({
+  queryType = 'VESSEL',
+  condition,
+}: {
+  condition: string;
+  queryType?: string;
+}) => {
+  return requestClient.get(
+    `/bpp/flow/common/get-vvd?queryType=${queryType}&condition=${condition}`,
   );
 };
