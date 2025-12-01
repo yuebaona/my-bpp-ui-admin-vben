@@ -25,7 +25,7 @@ export namespace FlowOverLimitWorkApi {
     handlerRemark: string;
     handlerConfirmation: string;
   }
-    // 受理计划VO
+  // 受理计划VO
   export interface AcceptancePlanVO {
     id: number;
     acceptancePlanNo: string;
