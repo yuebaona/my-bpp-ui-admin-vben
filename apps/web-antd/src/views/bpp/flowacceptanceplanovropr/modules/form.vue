@@ -14,6 +14,7 @@ import {
 } from "#/api/bpp/flowacceptanceplanovropr";
 import type { SystemUserProfileApi } from "#/api/system/user/profile";
 import { getUserProfile } from "#/api/system/user/profile";
+import { getCustomerList } from '#/api/bpp/common';
 
 import { computed, nextTick, reactive, ref, toRaw, watch } from "vue";
 
@@ -38,6 +39,16 @@ const vesselNameState = reactive({
   fetching: false,
 });
 const vesselVoyageState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const payerCodeSeaState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const payerCodeGateState = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -463,6 +474,18 @@ const [Modal, modalApi] = useVbenModal({
           if (data.acceptancePlanRespVO.vesselCode) {
             vesselCode.value = data.acceptancePlanRespVO.vesselCode;
           }
+          if(data?.acceptancePlanRespVO?.payerCodeSea){
+            payerCodeGateState.value = {
+              label: data.acceptancePlanRespVO.payerCodeSea,
+              value: data.acceptancePlanRespVO.payerCodeSea
+            }
+          }
+          if(data?.acceptancePlanRespVO?.payerCodeGate){
+            payerCodeSeaState.value = {
+              label: data.acceptancePlanRespVO.payerCodeGate,
+              value: data.acceptancePlanRespVO.payerCodeGate
+            }
+          }
         } finally {
           modalApi.unlock();
         }
@@ -553,13 +576,63 @@ const vesselVoyageSelect = async(value: any)=> {
   console.log('vesselVoyageSelect', value);
   await formApi.setFieldValue('vesselVoyage', value.label);
 };
-watch(vesselNameState.value, () => {
+const payerCodeSeaSearch = async (value: any) => {
+  if(!value) return;
+  payerCodeSeaState.data = [];
+  payerCodeSeaState.fetching = true;
+  const res = await getCustomerList({
+    page: 1,
+    pageSize: 100,
+    customerName: value,
+  });
+  if(res){
+    payerCodeSeaState.data = res.map((item: any) => ({
+      label: item.customerName,
+      value: item.customerCode,
+      data: item
+    }));
+    payerCodeSeaState.fetching = false;
+  }
+};
+const payerCodeSeaSelect = async (value: any, option: any) => {
+  await formApi.setFieldValue('payerCodeSea', option.data.customerCode);
+};
+const payerCodeGateSearch = async (value: any) => {
+  if(!value) return;
+  payerCodeGateState.data = [];
+  payerCodeGateState.fetching = true;
+  const res = await getCustomerList({
+    page: 1,
+    pageSize: 100,
+    customerName: value,
+  });
+  if(res){
+    payerCodeGateState.data = res.map((item: any) => ({
+      label: item.customerName,
+      value: item.customerCode,
+      data: item
+    }))
+  }
+  payerCodeGateState.fetching = false;
+}
+const payerCodeGateSelect = async (value: any, option: any) => {
+  await formApi.setFieldValue('payerCodeGate', option.data.customerCode);
+};
+  watch(vesselNameState.value, () => {
   vesselNameState.data = [];
   vesselNameState.fetching = false;
 });
 watch(vesselVoyageState.value, () => {
   vesselVoyageState.data = [];
   vesselVoyageState.fetching = false;
+});
+watch(payerCodeSeaState.value, () => {
+  payerCodeSeaState.data = [];
+  payerCodeSeaState.fetching = false;
+});
+watch(payerCodeGateState.value, () => {
+  payerCodeGateState.data = [];
+  payerCodeGateState.fetching = false;
 });
 // 深度监听主表单数据
 watch(
@@ -645,6 +718,38 @@ const selectKey = ref(0);
             </Grid>
           </div>
         </div>
+      </template>
+      <template #payerCodeSea>
+        <Select
+          v-model:value="payerCodeSeaState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入缴费方（海侧）"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerCodeSeaState.fetching ? undefined : null"
+          :options="payerCodeSeaState.data"
+          @search="payerCodeSeaSearch"
+          allowClear
+          @select="payerCodeSeaSelect"
+        >
+        </Select>
+      </template>
+      <template #payerCodeGate>
+        <Select
+          v-model:value="payerCodeGateState.value"
+          mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+          label-in-value
+          placeholder="请输入缴费方（陆侧）"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerCodeGateState.fetching ? undefined : null"
+          :options="payerCodeGateState.data"
+          @search="payerCodeGateSearch"
+          allowClear
+          @select="payerCodeGateSelect"
+        >
+        </Select>
       </template>
       <template #vesselName>
         <Select

@@ -1,0 +1,35 @@
+// 公共信息模块
+import type { PageParam, PageResult } from '@vben/request';
+
+import { requestClient } from '#/api/request';
+
+export namespace CommonApi {
+  export interface CustomerVO {
+    id: number;
+    creator: string;
+    createTime: string;
+    updater: string;
+    updateTime: string;
+    deleted: boolean;
+    tenantId: number;
+    customerCode: string;
+    customerName: string;
+    customerNameEn: string;
+    customerNameAbbr: string;
+    contactPerson: string;
+    contactPhone: string;
+    billingMode: string;
+    billingMethod: string;
+    status: string;
+    noticeEmail: string;
+    noticePhone: string;
+  }
+}
+// 获取客户基础信息
+export const getCustomerList = (
+  params: PageParam,
+) => {
+  return requestClient.get<
+    PageResult<CommonApi.CustomerVO>
+  >('/bpp/flow/common/get-customer-list', { params });
+};
