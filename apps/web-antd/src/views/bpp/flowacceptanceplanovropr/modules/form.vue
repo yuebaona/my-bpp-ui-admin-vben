@@ -4,7 +4,9 @@ import { Button, message, Select } from "ant-design-vue";
 
 import type { VxeTableGridOptions } from "#/adapter/vxe-table";
 import { TableAction, useVbenVxeGrid } from "#/adapter/vxe-table";
-import type { FlowOverLimitWorkApi } from "#/api/bpp/flowacceptanceplanovropr";
+import type {
+  FlowOverLimitWorkApi
+} from "#/api/bpp/flowacceptanceplanovropr";
 import {
   createAcceptancePlanOverOperation,
   getVVd,
@@ -19,7 +21,7 @@ import { useVbenModal } from "@vben/common-ui";
 import { IconifyIcon } from "@vben/icons";
 
 import { useVbenForm } from "#/adapter/form";
-import { FileUpload } from "#/components/upload";
+import { FileUpload } from '#/components/upload';
 import { $t } from "#/locales";
 import { bppBaseDictStore } from "#/store/bpp/base/dict";
 
@@ -40,6 +42,35 @@ const vesselVoyageState = reactive({
   value: [],
   fetching: false,
 });
+const originalData = ref<{
+  form: FlowOverLimitWorkApi.AcceptancePlanFormVO | null;
+  containers: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+}>({
+  // 实现FlowOverLimitWorkApi.AcceptancePlanFormVO
+  form:{
+    id: '',
+    acceptancePlanNo: '',
+    acceptancePlanWebNo: '',
+    applicantCompanyName: '',
+    handlingPerson: '',
+    handlingPhoneNumber: '',
+    paymentTypeSea: '',
+    payerCodeSea: '',
+    paymentTypeGate: '',
+    payerCodeGate: '',
+    category: '',
+    vesselName: '',
+    vesselVoyage: '',
+    plannedOperationTime: '',
+    billNo: '',
+    cargoName: '',
+    attachmentFile: '',
+    handlerRemark: '',
+    handlerConfirmation: '',
+  },
+  containers: [],
+});
+const fieldsChang = ref([]);
 
 /** 加载个人信息 */
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
@@ -182,9 +213,9 @@ const [Form, formApi] = useVbenForm({
   schema: acceptancePlanFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
-  handleValuesChange: async (values) => {
-    // 直接使用Object.assign合并值，避免创建新的响应式对象
+  handleValuesChange: async (values: any, fieldsChanged: any) => {
     Object.assign(formData, values);
+    fieldsChang.value = fieldsChanged;
   },
 });
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -302,6 +333,11 @@ const [Modal, modalApi] = useVbenModal({
       }
     });
     data.acceptancePlanSaveReqVO.vesselCode = vesselCode.value;
+    if(fieldsChanges.value.length > 0){
+      data.acceptancePlanOverOperationSaveReqVO.isUpdate = true;
+    }else{
+      data.acceptancePlanOverOperationSaveReqVO.isUpdate = false;
+    }
     // 调用API保存数据
     await (formData?.id
       ? updateAcceptancePlanOverOperation(data)
@@ -355,6 +391,15 @@ const [Modal, modalApi] = useVbenModal({
       await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
 
     if (data) {
+      originalData.value = {
+        form: data.acceptancePlanRespVO,
+        containers: data.acceptancePlanOverOperationContainerRespVOS,
+      };
+      originalData.value.form.billNo = data?.acceptancePlanBillMessageRespVO?.billNo;
+      originalData.value.form.cargoName =
+        data?.acceptancePlanBillMessageRespVO?.cargoName;
+      originalData.value.containers = data.acceptancePlanOverOperationContainerRespVOS;
+
       Object.assign(formData, data.acceptancePlanRespVO);
       Object.assign(
         acceptancePlanOverOperationRespVO,
@@ -414,11 +459,15 @@ const [Modal, modalApi] = useVbenModal({
               value: data.acceptancePlanRespVO.vesselVoyage
             };
           }
+          if (data.acceptancePlanRespVO.vesselCode) {
+            vesselCode.value = data.acceptancePlanRespVO.vesselCode;
+          }
         } finally {
           modalApi.unlock();
         }
       } else {
         await loadProfile();
+        console.log('profile', profile.value);
         await formApi.setFieldValue('handlingPerson', profile.value.nickname);
         await formApi.setFieldValue(
           'handlingPhoneNumber',
@@ -496,13 +545,8 @@ const vesselNameChange = async () => {
   // 清空航次数据
   vesselVoyageState.value = [];
   vesselVoyageState.data = [];
+  selectKey.value++;
 };
-const vesselVoyageFocus = async () => {
-  // 延迟搜索 解决第一次查空的问题
-  setTimeout(() => {
-    vesselVoyageState.value = [];
-  }, 100);
-}
 //赋值到表单
 const vesselVoyageSelect = async(value: any)=> {
   console.log('vesselVoyageSelect', value);
@@ -516,7 +560,37 @@ watch(vesselVoyageState.value, () => {
   vesselVoyageState.data = [];
   vesselVoyageState.fetching = false;
 });
-const enableFilter = ref(false);
+// 深度监听主表单数据
+watch(
+  () => ({ ...formData }), // 创建新对象触发深度监听
+  (newVal) => {
+    if (originalData.value.form && formData.id) {
+      if (originalData.value.form[fieldsChang.value[0]] !== newVal[fieldsChang.value[0]]) {
+        if(fieldsChang.value[0]==='containerInfo'){
+          const newArr = [];
+          [...gridApi.grid.getInsertRecords()].map((record) => {
+            const rawRecord = toRaw(record) as any;
+            const { serialNumber, ...recordWithoutSerial } = rawRecord;
+            return newArr.push(recordWithoutSerial);
+          });
+          if(JSON.stringify(newArr) !== JSON.stringify(originalData.value.containers)){
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }else{
+          if(!fieldsChanges.value.includes(fieldsChang.value[0])){
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }
+      }else{
+        fieldsChanges.value = fieldsChanges.value.filter(item => item !== fieldsChang.value[0]);
+      }
+    }
+    console.log('fieldsChanges', fieldsChanges.value);
+  },
+  { deep: true, immediate: false }
+);
+const fieldsChanges = ref([]);
+const selectKey = ref(0);
 </script>
 
 <template>
@@ -595,12 +669,12 @@ const enableFilter = ref(false);
           label-in-value
           placeholder="请输入船名航次"
           style="width: 100%"
-          :filter-option="enableFilter"
+          :filter-option="true"
           :not-found-content="vesselVoyageState.fetching ? undefined : null"
           :options="vesselVoyageState.data"
           allowClear
           @select="vesselVoyageSelect"
-          @focus="vesselVoyageFocus"
+          :key="selectKey"
         >
         </Select>
       </template>
