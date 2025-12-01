@@ -38,7 +38,7 @@ export function onSiteOperationConfirmFormSchema(
   };
   return [
     {
-      fieldName: 'operationType',
+      fieldName: 'machineSpreaderChangeType',
       label: '现场作业类别',
       component: 'ApiSelect',
       componentProps: {
@@ -59,7 +59,7 @@ export function onSiteOperationConfirmFormSchema(
         resultField: 'list',
         labelField: 'label',
         valueField: 'value',
-        disabled: shouldDisable('operationType'),
+        disabled: shouldDisable('machineSpreaderChangeType'),
       },
       rules: 'required',
     },
