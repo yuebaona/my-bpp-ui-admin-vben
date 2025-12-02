@@ -403,7 +403,19 @@ function handleCreateMainPlan() {
 }
 /** 创建新申请 */
 function handleCreateSubPlan() {
-  formModalApi.setData(null).open();
+  // 检查是否只勾选了一个主计划
+  if (checkedIds.value.length === 0) {
+    message.warning('请勾选一个主计划');
+    return;
+  } else if (checkedIds.value.length > 1) {
+    message.warning('已勾选多个主计划，请只勾选一个主计划');
+    return;
+  }
+
+  formModalApi.setData({
+    mainId: checkedIds.value[0],
+    planType: 'SUB'
+  }).open();
 }
 
 /** 导出数据 */
@@ -443,30 +455,6 @@ const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
 
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
-  // 使用固定数据填充弹窗
-  // const editData = {
-  //   acceptancePlanRespVO: {
-  //     ...STATIC_SUB_PLAN_DETAIL_DATA,
-  //   },
-  //   yardPositionResp: [
-  //     {
-  //       id: 1,
-  //       yardPosition: 'A01-01-01',
-  //       yardColumns: ['A', 'B'],
-  //       totalCount: '50',
-  //       minStorageDays: '3',
-  //       maxStorageDays: '10',
-  //     },
-  //     {
-  //       id: 2,
-  //       yardPosition: 'B02-01-01',
-  //       yardColumns: ['C', 'D'],
-  //       totalCount: '30',
-  //       minStorageDays: '2',
-  //       maxStorageDays: '8',
-  //     },
-  //   ],
-  // };
   const editData = await getSubPlan(row.id);
   formModalApi.setData(editData).open();
 };

@@ -4,7 +4,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
-import { computed, reactive, ref, toRaw } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -60,24 +60,23 @@ const containerAreaData = reactive<any[]>([
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
-  planNo: '',
-  planStatus: '',
-  isRelease: null,
+  ownerList: [],
+  isoNoList: [],
+  isRelease: false,
   pickupPlanNo: '',
-  dischargeVesselSchedule: '',
   tradeType: '',
-  owners: '',
-  iso: '',
-  bayRanges: '',
   planQuantity: '',
-  mainGateReleaseQuantity: '',
   completedReleaseQuantity: '',
-  uncompletedReleaseQuantity: '',
-  activeOccupiedQuantity: '',
-  creator: '',
-  createTime: '',
-  updater: '',
-  updateTime: '',
+  // bayRangeList: {
+  //   emptyContainerControlId: 0,
+  //   id: 0,
+  //   yardBay: '',
+  //   yardRaw: '',
+  // },
+  bayRangeList: [],
+  planType: '',
+  mainId: '',
+  planNo: '',
 });
 
 // const acceptancePlanOverOperationRespVO =
@@ -167,9 +166,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       trigger: 'manual',
     },
     editRules: {
-      yardPosition: [{ required: true, message: '必须填写' }],
-      yardColumns: [{ required: true, message: '必须选择堆场列' }],
-      totalCount: [{ required: true, message: '必须填写' }],
+      // yardPosition: [{ required: true, message: '必须填写' }],
+      // yardColumns: [{ required: true, message: '必须选择堆场列' }],
+      // totalCount: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -186,14 +185,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-      (record) => toRaw(record),
-    );
+    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
+    //   (record) => toRaw(record),
+    // );
 
-    if (containerAreaArray.length === 0) {
-      message.warning('请至少添加一条箱区范围数据');
-      return;
-    }
+    // if (containerAreaArray.length === 0) {
+    //   message.warning('请至少添加一条箱区范围数据');
+    //   return;
+    // }
 
     const { valid } = await formApi.validate();
     const gridValid: boolean = await gridApi.grid.validate(true);
@@ -202,12 +201,42 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
 
-    Object.assign(formData, await formApi.getValues());
-    const data: EmptyContainerControlApi.SubPlanSaveReqVO = {
-      acceptancePlanSaveReqVO: {
+    // Object.assign(formData, await formApi.getValues());
+    const formValues = await formApi.getValues();
+    Object.assign(formData, formValues);
+    // 确保planType和mainId被正确设置
+    if (!formData.planType) {
+      formData.planType = 'SUB';
+    }
+    // 转换持箱人字符串为数组
+    const ownerList = formValues.owners
+      ? formValues.owners.split(',').map((item: string) => item.trim()).filter(Boolean)
+      : [];
+
+    // 转换ISO字符串为数组
+    const isoNoList = formValues.isoNos
+      ? formValues.isoNos.split(',').map((item: string) => item.trim()).filter(Boolean)
+      : [];
+
+    // 转换表格数据为bayRangeList格式
+    const bayRangeList = containerAreaData.map((row: any) => ({
+      emptyContainerControlId: '',
+      id: '',
+      yardBay: row.yardPosition || '',
+      yardRaw: row.yardColumns ? row.yardColumns.join(',') : ''
+    }));
+
+    // 构建符合新接口格式的数据
+    const data: EmptyContainerControlApi.subPlanVO  = {
         ...formData,
-      } as EmptyContainerControlApi.subPlanVO,
-    };
+        // 确保数组字段正确处理
+        // ownerList: formData.ownerList || [],
+        // isoNoList: formData.isoNoList || [],
+      ownerList,
+      isoNoList,
+
+    } as EmptyContainerControlApi.subPlanVO;
+
     await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
 
     await modalApi.close();
@@ -218,24 +247,22 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        planNo: '',
-        planStatus: '',
-        isRelease: '',
+        ownerList: [],
+        isoNoList: [],
+        isRelease: false,
         pickupPlanNo: '',
-        dischargeVesselSchedule: '',
         tradeType: '',
-        owners: '',
-        iso: '',
-        bayRanges: '',
         planQuantity: '',
-        mainGateReleaseQuantity: '',
         completedReleaseQuantity: '',
-        uncompletedReleaseQuantity: '',
-        activeOccupiedQuantity: '',
-        creator: '',
-        createTime: '',
-        updater: '',
-        updateTime: '',
+        // bayRangeList: {
+        //   emptyContainerControlId: 0,
+        //   yardBay: '',
+        //   yardRaw: '',
+        // },
+        bayRangeList: [],
+        planType: '',
+        mainId: '',
+        planNo: '',
       });
       containerAreaData.splice(0);
       return;
@@ -249,6 +276,13 @@ const [Modal, modalApi] = useVbenModal({
 
       const subPlanData = data.acceptancePlanRespVO || data;
       Object.assign(formData, subPlanData);
+
+      if (data.planType) {
+        formData.planType = data.planType;
+      }
+      if (data.mainId) {
+        formData.mainId = data.mainId;
+      }
 
       if (subPlanData?.id) {
         modalApi.lock();
@@ -273,6 +307,9 @@ const [Modal, modalApi] = useVbenModal({
         } finally {
           modalApi.unlock();
         }
+      } else {
+        // 新创建的子计划，确保planType为SUB
+        formData.planType = 'SUB';
       }
     }
   },
