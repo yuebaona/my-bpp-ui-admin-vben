@@ -160,7 +160,9 @@ export const updateSubPlan = (
 
 // 查询子计划信息详情
 export const getSubPlan = (id: number) => {
-  return requestClient.get(`/bpp/flow/sub-plan/get?id=${id}`);
+  return requestClient.get(
+    `/bpp/flow/empty/container-control-main/get?id=${id}`,
+  );
 };
 // 子计划分页查询
 export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {

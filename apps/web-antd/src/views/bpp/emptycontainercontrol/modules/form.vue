@@ -247,20 +247,13 @@ const [Modal, modalApi] = useVbenModal({
       // 清空现有数据
       containerAreaData.splice(0);
 
-      Object.assign(formData, data.acceptancePlanRespVO || {});
-      // Object.assign(
-      //   acceptancePlanOverOperationRespVO,
-      //   data.acceptancePlanOverOperationRespVO || {},
-      // );
-      // Object.assign(
-      //   acceptancePlanBillMessageVO,
-      //   data.acceptancePlanBillMessageRespVO || {},
-      // );
+      const subPlanData = data.acceptancePlanRespVO || data;
+      Object.assign(formData, subPlanData);
 
-      if (data?.acceptancePlanRespVO?.id) {
+      if (subPlanData?.id) {
         modalApi.lock();
         try {
-          await formApi.setValues(data.acceptancePlanRespVO);
+          await formApi.setValues(subPlanData);
 
           // 设置箱区范围数据
           if (data.yardPositionResp) {
