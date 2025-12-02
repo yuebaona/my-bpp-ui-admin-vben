@@ -11,7 +11,7 @@ import { message, Select } from "ant-design-vue";
 import { useVbenForm } from '#/adapter/form';
 import { getVVd } from '#/api/bpp/common'
 import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord} from '#/api/bpp/flowacceptanceplanovropr';
-import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flowacceptanceplanovropr/data';
+import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flow/acceptance/plan/over/operation/data';
 
 const emit = defineEmits(['success']);
 const disabledFields = ref<string[]>([]);

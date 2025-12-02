@@ -108,6 +108,7 @@ function setupAccessGuard(router: Router) {
       });
       try {
         const authPermissionInfo = await authStore.fetchUserInfo();
+        debugger
         if (authPermissionInfo) {
           userInfo = authPermissionInfo.user;
         }
