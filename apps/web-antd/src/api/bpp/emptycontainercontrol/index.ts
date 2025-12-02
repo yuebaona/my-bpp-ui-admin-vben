@@ -21,30 +21,31 @@ export namespace EmptyContainerControlApi {
     };
     planType: string;
     mainId: string;
+    planNo: string;
   }
   // 子计划VO
   export interface subPlanVO {
-    id: null | number;
-    planNo: null | string; // 子计划号
-    planStatus: null | string; // 状态
-    isRelease: boolean | null; // 是否放箱
-    pickupPlanNo: null | string; // 提箱受理计划号
-    dischargeVesselSchedule: null | string; // 卸船船期
-    tradeType: null | string; // 贸易类型
-    owners: null | string; // 持箱人
-    iso: null | string; // ISO
-    bayRanges: null | string; // 箱区范围
-    planQuantity: null | string; // 计划箱量
-    mainGateReleaseQuantity: null | string; // 主闸可防箱量
-    completedReleaseQuantity: null | string; // 已用箱量
-    uncompletedReleaseQuantity: null | string; // 未放箱量
-    activeOccupiedQuantity: null | string; // 作业中占用的箱量
-    planType: null | string; // 计划类型
-    mainId: null | number; // 主计划ID
-    creator: null | string; // 创建人
-    createTime: null | string; // 创建时间
-    updater: null | string; // 创建人
-    updateTime: null | string; // 修改时间
+    id: number;
+    planNo: string; // 子计划号
+    planStatus: string; // 状态
+    isRelease: boolean; // 是否放箱
+    pickupPlanNo: string; // 提箱受理计划号
+    dischargeVesselSchedule: string; // 卸船船期
+    tradeType: string; // 贸易类型
+    owners: Array<string>; // 持箱人
+    isoNo: Array<string>; // ISO
+    bayRanges: string; // 箱区范围
+    planQuantity: string; // 计划箱量
+    mainGateReleaseQuantity: string; // 主闸可放箱量
+    completedReleaseQuantity: string; // 已用箱量
+    uncompletedReleaseQuantity: string; // 未放箱量
+    activeOccupiedQuantity: string; // 作业中占用的箱量
+    planType: string; // 计划类型
+    mainId: number; // 主计划ID
+    creator: string; // 创建人
+    createTime: string; // 创建时间
+    updater: string; // 创建人
+    updateTime: string; // 修改时间
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -93,45 +94,7 @@ export namespace EmptyContainerControlApi {
     acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
-  // 子计划信息
-  // export interface AcceptancePlanOverOperationVO {
-  //   id: number;
-  //   isAllowedStacking: boolean;
-  //   plannedMachineryType: string;
-  //   acceptancePlanNo: string;
-  //   processInstanceId: string;
-  // }
-  // // 子计划箱信息
-  // export interface AcceptancePlanOverOperationContainerVO {
-  //   id: number;
-  //   containerNo: string;
-  //   containerSize: string;
-  //   containerType: string;
-  //   containerCargoWeight: number;
-  //   containerTotalWeight: number;
-  //   containerCargoSize: string;
-  //   containerOverlimitDetails: string;
-  //   containerPhysicalStatus: string;
-  //   containerOperationNode: string;
-  //   acceptancePlanNo: string;
-  //   overOperationContainerNo: string;
-  //   processInstanceId: string;
-  //   priceSea: number;
-  //   priceGate: number;
-  //   machineSpreaderChangeType: string;
-  //   machineSpreaderType: string;
-  //   plannedSpreaderType: string;
-  // }
-  // 提单信息表
-  // export interface AcceptancePlanBillMessageVO {
-  //   id: number;
-  //   acceptancePlanNo: string;
-  //   billNo: string;
-  //   cargoType: string;
-  //   cargoName: string;
-  //   cargoCount: number;
-  //   billType: string;
-  // }
+
   // 总数据
   export interface SubPlanSaveReqVO {
     acceptancePlanSaveReqVO: subPlanVO;
@@ -200,10 +163,16 @@ export const getSubPlan = (id: number) => {
   return requestClient.get(`/bpp/flow/sub-plan/get?id=${id}`);
 };
 // 子计划分页查询
-export const getSubPlanPage = (params: PageParam) => {
-  return requestClient.get<
-    PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
-  >('/bpp/flow/sub-plan/page', { params });
+export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {
+  // const requestData = {
+  //   ...data,
+  //   planType: 'SUB',
+  //   mainId: '1994335982955827202',
+  // };
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/page',
+    data,
+  );
 };
 
 export const deleteSubPlan = (id: number) => {

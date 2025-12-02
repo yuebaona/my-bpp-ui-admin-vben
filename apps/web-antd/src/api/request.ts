@@ -122,6 +122,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
           throw new Error(`响应数据解密失败: ${(error as Error).message}`);
         }
       }
+      console.log('后端返回原始数据:', response);
       return response;
     },
   });

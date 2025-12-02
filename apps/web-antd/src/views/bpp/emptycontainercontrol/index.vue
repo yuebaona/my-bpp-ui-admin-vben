@@ -15,7 +15,7 @@ import {
   getMainPlan,
   getMainPlanPage,
   getSubPlan,
-  // getSubPlanPage, //因使用固定数据暂时注销
+  getSubPlanPage,
 } from '#/api/bpp/emptycontainercontrol';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -24,7 +24,7 @@ import {
   mainPlanColumns,
   PlanSearchFormSchema,
   STATIC_SUB_PLAN_DETAIL_DATA,
-  STATIC_SUB_PLAN_LIST_DATA,
+  // STATIC_SUB_PLAN_LIST_DATA,
   subPlanColumns,
 } from './data';
 import Detail2 from './modules/detail2.vue';
@@ -35,8 +35,10 @@ import LogQuery from './modules/logQuery.vue';
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
-const checkedIds2 = ref<number[]>([]);
-const mainPlanNo = ref<string[]>([]);
+const selectedMainId = ref<null | string>(null);
+const hasSelectedMainPlan = ref(false);
+// const checkedIds2 = ref<number[]>([]);
+// const mainPlanNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -108,7 +110,7 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
 //   },
 // });
 
-const [SubGrid] = useVbenVxeGrid({
+const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: subPlanColumns(),
     height: 'auto',
@@ -127,28 +129,30 @@ const [SubGrid] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    editRules: {
-      applicantCompanyName: [{ required: true }],
-      acceptancePlanNo: [{ required: true }],
-    },
+    // editRules: {
+    //
+    // },
     proxyConfig: {
       ajax: {
-        // query: async ({ page }, formValues) => {
-        //   // return await getSubPlanPage({
-        //   //   pageNo: page.currentPage,
-        //   //   pageSize: page.pageSize,
-        //   //   ...formValues,
-        //   // });
-        //   return {
-        //     list: STATIC_SUB_PLAN_LIST_DATA,
-        //     total: STATIC_SUB_PLAN_LIST_DATA.length
-        //   };
-        // },
-        query: async () => {
-          return {
-            list: STATIC_SUB_PLAN_LIST_DATA,
-            total: STATIC_SUB_PLAN_LIST_DATA.length,
-          };
+        query: async ({ page }, formValues) => {
+          // 如果还没有选中主计划，则不进行查询
+          if (!hasSelectedMainPlan.value) {
+            return { total: 0, list: [] };
+          }
+
+          const transformedParams = transformFormToRequest(formValues);
+
+          // 添加主计划 ID 参数
+          if (selectedMainId.value) {
+            transformedParams.planType = 'SUB';
+            transformedParams.mainId = selectedMainId.value;
+          }
+
+          return await getSubPlanPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...transformedParams,
+          });
         },
       },
     },
@@ -159,15 +163,27 @@ const [SubGrid] = useVbenVxeGrid({
   },
 });
 
+// 修改 handleRowCheckboxChange 函数
 function handleRowCheckboxChange({
   records,
 }: {
-  records: EmptyContainerControlApi.subPlanVO[];
+  records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
   planNo.value = records.map((item) => item.planNo);
-}
 
+  if (records.length > 0) {
+    selectedMainId.value = records[0].id.toString();
+    hasSelectedMainPlan.value = true;
+    // 当主计划选择变化时，刷新子计划列表
+    subGridApi.query();
+  } else {
+    selectedMainId.value = null;
+    hasSelectedMainPlan.value = false;
+    // 清空子计划列表数据
+    subGridApi.grid.reloadData([]);
+  }
+}
 const [FormModal2, formModalApi2] = useVbenModal({
   connectedComponent: Form2,
   destroyOnClose: true,

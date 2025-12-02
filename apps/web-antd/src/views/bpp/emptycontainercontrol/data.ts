@@ -210,7 +210,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'bayRanges',
+      fieldName: 'containerAreaRange',
       label: '箱区范围',
       component: 'Input',
       renderComponentContent: () => {
@@ -317,12 +317,13 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
 /** 主计划字段 */
 export function mainPlanColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'seq', width: 50, align: 'center' },
-    { type: 'checkbox', width: 40 },
+    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
+    { type: 'checkbox', width: 40, fixed: 'left' },
     {
       field: 'planNo',
       title: '主计划号',
       minWidth: 120,
+      fixed: 'left',
     },
     {
       field: 'planStatus',
@@ -442,7 +443,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planStatus',
       title: '状态',
-      minWidth: 150,
+      minWidth: 100,
     },
     {
       field: 'isRelease',
@@ -457,7 +458,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'dischargeVesselSchedule',
       title: '卸船船期',
-      minWidth: 100,
+      minWidth: 120,
     },
     {
       field: 'tradeType',
