@@ -78,7 +78,7 @@ function handleCreate() {
 }
 
 /** 办理任务 */
-function handleAudit(row: BpmTaskApi.Task) {
+function handleAudit(row: any) {
   // router.push({
   //   name: 'BpmProcessInstanceDetail',
   //   query: {
@@ -94,13 +94,13 @@ function handleAudit(row: BpmTaskApi.Task) {
 }
 
 /** 流程审核 */
-function handleViewDetail(row: OverLimitPlan) {
+function handleViewDetail(row: any) {
   if (!row.processInstanceId) {
     message.error($t('ui.actionMessage.noProcessInstance'));
     return;
   }
   handleAudit({
-    processInstance:{
+    processInstance: {
       id: row.processInstanceId,
     },
   });

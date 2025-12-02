@@ -20,7 +20,7 @@ import {
   updateAcceptancePlanOverOperation,
   getAcceptancePlanOverOperation,
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
-import { getVVd } from '#/api/bpp/common'
+import { getVVd } from '#/api/bpp/common';
 import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';
 import { $t } from '#/locales';

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref, watch} from 'vue';
-import {useRoute} from 'vue-router';
+import { onMounted, reactive, ref, watch} from 'vue';
 
 import {router} from '#/router'
 import {Button, Card, Flex, message, Space} from "ant-design-vue";
@@ -12,11 +11,11 @@ import {approveTask, rejectTask, transferTask,} from '#/api/bpm/task';
 import {getSimpleUserList} from '#/api/system/user';
 import {useRefresh} from '@vben/hooks';
 
-// 刷新当前路由
-const { refresh } = useRefresh();
-
 
 defineOptions({name: 'BusinessButtonView'});
+
+// 刷新当前路由
+const { refresh } = useRefresh();
 const emit = defineEmits(['closeCallBack']);
 /**
  * 参数
@@ -38,19 +37,10 @@ const props = defineProps({
   processInstance: Object, // 流程实例信息
 });
 const transferVisible = ref(false);
-const operationButtonRef = ref();
 const buttonLoading = ref(false);
-const plannedSpreaderTypeArray = ref([])
-const initPlannedMachineryTypeArray = ref([]);
-const plannedMachineryTypeArray = ref([]);
-const detailData = ref(null);
 const openTask = ref(false);
 const formRef = ref(null);
 
-const { query } = useRoute();
-const queryId = computed(() => query.id as string);
-// 下一步审批节点
-const nextNodeNameArray = ref([])
 const transferFormRef = ref(null);
 const transferFormData = ref({
   assigneeUserId: undefined,
@@ -69,14 +59,6 @@ const containerFormData= ref({
     priceGate: undefined,
   }]
 });
-//取消审批
-function closeForm(){
-  router.back();
-}
-//打开审批任务窗口
-function openTaskModal(){
-  openTask.value = true;
-}
 function closeTask(){
   emit('close-form');
 }
