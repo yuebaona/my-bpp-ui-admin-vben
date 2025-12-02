@@ -23,6 +23,7 @@ const loadDictData = async (dictTypes: string[]) => {
     );
   }
 };
+loadDictData(['system_rate','acceptance_plan_status','payment_method', 'import_export_type','on_site_operation_node']);
 // 文件信息
 export interface fileVo {
   fileName: string;
@@ -404,8 +405,6 @@ export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
 }
 // 受理计划表单字段
 export function acceptancePlanFormSchema(): VbenFormSchema[] {
-  // 调用预加载
-  loadDictData(['payment_method', 'import_export_type']);
   return [
     // 基本信息
     {
@@ -977,6 +976,12 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('system_rate') || [];
+        const option = options.find((opt) => opt.value.toString() === value.cellValue.toString());
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'planStatus',
@@ -1062,7 +1067,6 @@ export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
 
 // 箱列表的字段配置
 export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
-  loadDictData(['on_site_operation_node']);
   return [
     {
       type: 'checkbox',
