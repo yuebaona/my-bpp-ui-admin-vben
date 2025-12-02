@@ -9,7 +9,8 @@ import { $t } from '@vben/locales';
 import { message, Select } from "ant-design-vue";
 
 import { useVbenForm } from '#/adapter/form';
-import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord ,getVVd} from '#/api/bpp/flowacceptanceplanovropr';
+import { getVVd } from '#/api/bpp/common'
+import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord} from '#/api/bpp/flowacceptanceplanovropr';
 import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flowacceptanceplanovropr/data';
 
 const emit = defineEmits(['success']);
@@ -90,7 +91,8 @@ const [Modal, modalApi] = useVbenModal({
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
     formData.value.acceptancePlanNo = acceptancePlanNo;
-    formData.value.vesselCode = vesselCode.value;
+    formData.value.vesselCode = vesselCode.value
+    console.log(vesselCode.value)
     formData.value.operationFile = JSON.stringify(data.operationFile);
     await (formData.value?.id
       ? updateMachineSpreaderRecord(formData.value)
@@ -111,6 +113,33 @@ const [Modal, modalApi] = useVbenModal({
     formData.value.acceptancePlanNo = data.value?.acceptancePlanNo;
     if (data?.id) {
       await formApi.setValues(data);
+      if (data?.vesselName) {
+        vesselNameState.value = {
+          label: data?.vesselName,
+          value: data?.vesselName,
+        };
+
+        // 同时查询对应的航次列表
+        const voyageRes = await getVVd({
+          condition: data?.vesselName,
+          queryType: 'VOYAGE',
+        });
+        if (voyageRes) {
+          vesselVoyageState.data = voyageRes.map((item: any) => ({
+            label: item.vieVoy,
+            value: item.vieVoy,
+          }));
+        }
+      }
+      if (data?.vesselVoyage) {
+        vesselVoyageState.value = {
+          label: data?.vesselVoyage,
+          value: data?.vesselVoyage,
+        };
+      }
+      if (data?.vesselCode) {
+        vesselCode.value = data?.vesselCode;
+      }
     }
     // 数据回显
     await setFieldAndDisable(
@@ -181,7 +210,6 @@ const vesselNameSelect = async (value: any, option: any) => {
 const vesselNameChange = async () => {
   await formApi.setFieldValue('vesselName', '');
   await formApi.setFieldValue('vesselVoyage', '');
-  vesselCode.value = '';
 
   // 清空航次数据
   vesselVoyageState.value = [];
@@ -190,7 +218,6 @@ const vesselNameChange = async () => {
 };
 //赋值到表单
 const vesselVoyageSelect = async(value: any)=> {
-  console.log('vesselVoyageSelect', value);
   await formApi.setFieldValue('vesselVoyage', value.label);
 };
 watch(vesselNameState.value, () => {
