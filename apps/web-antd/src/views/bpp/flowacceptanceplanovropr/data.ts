@@ -1062,6 +1062,7 @@ export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
 
 // 箱列表的字段配置
 export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
+  loadDictData(['on_site_operation_node']);
   return [
     {
       type: 'checkbox',
@@ -1210,6 +1211,12 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('on_site_operation_node') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
   ];
