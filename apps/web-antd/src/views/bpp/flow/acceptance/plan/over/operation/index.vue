@@ -31,9 +31,9 @@ import {
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-import Detail from './modules/detail.vue';
-import Form from './modules/form.vue';
-import OnSiteOperation from './modules/onSiteOperation.vue';
+import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
+import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
+import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
 
 interface OnSideOperation {
   overOperationContainerIds: string;

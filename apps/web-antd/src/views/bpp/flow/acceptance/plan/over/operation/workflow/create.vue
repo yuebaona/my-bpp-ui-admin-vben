@@ -17,7 +17,7 @@ import { $t } from '#/locales';
 import { router } from '#/router';
 import { useRouter } from 'vue-router';
 import ProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
-import acceptancePlanForm from '#/views/bpp/flowacceptanceplanovropr/flow/form.vue';
+import acceptancePlanForm from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/form.vue';
 import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
 import {
   createAcceptancePlanOverOperation,

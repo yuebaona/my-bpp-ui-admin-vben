@@ -4,11 +4,11 @@ import {useRoute} from 'vue-router';
 
 import {router} from '#/router'
 import {ContentWrap} from '@vben/common-ui';
-import acceptancePlanForm from '#/views/bpp/flowacceptanceplanovropr/flow/detailView.vue';
-import taskComment from '#/views/bpp/flowacceptanceplanovropr/flow/taskComment.vue';
+import acceptancePlanForm from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/detailView.vue';
+import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
 import {Button, Card, Flex, Modal, Space} from "ant-design-vue";
-import customButtonView from "#/views/bpp/flowacceptanceplanovropr/flow/audit/customButtonView.vue";
-import businessButtonView from "#/views/bpp/flowacceptanceplanovropr/flow/audit/businessButtonView.vue";
+import customButtonView from "#/views/bpp/flow/acceptance/plan/over/operation/workflow/audit/customButtonView.vue";
+import businessButtonView from "#/views/bpp/flow/acceptance/plan/over/operation/workflow/audit/businessButtonView.vue";
 import {
   type FlowOverLimitWorkApi,
   getAcceptancePlanOverOperation

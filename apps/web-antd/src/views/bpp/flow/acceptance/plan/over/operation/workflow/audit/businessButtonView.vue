@@ -8,6 +8,11 @@ import {confirm} from '@vben/common-ui';
 import {businessProgressAcceptancePlanOverOperation,} from "#/api/bpp/flowoverlimitwork";
 import {approveTask, rejectTask, transferTask,} from '#/api/bpm/task';
 import {getSimpleUserList} from '#/api/system/user';
+import { useRefresh } from '@vben/hooks';
+
+// 刷新当前路由
+const { refresh } = useRefresh();
+
 
 defineOptions({name: 'BusinessButtonView'});
 const emit = defineEmits(['closeCallBack']);
@@ -73,7 +78,10 @@ function openTaskModal(){
 function closeTask(){
   emit('close-form');
 }
-//审批通过
+function cancelTask(){
+  closeTask();
+}
+// 审批通过
 async function passTask() {
   try {
     buttonLoading.value = true;
@@ -141,11 +149,11 @@ function noPassTask() {
     }
   });
 }
-//任务转办弹窗
+// 任务转办弹窗
 async function openTransferTask(){
   transferVisible.value = true;
 }
-//转办任务
+// 转办任务
 async function doTransferTask(){
   await transferFormRef.value.validate();
   try {
@@ -164,7 +172,7 @@ async function doTransferTask(){
     }, 500);
   }catch (e) {
     message.error('转办失败' + JSON.stringify(e));
-  }finally {
+  } finally {
     buttonLoading.value = false;
   }
 }
@@ -333,12 +341,17 @@ onMounted(async () => {
     </div>
     <Flex justify="end">
       <Space>
-        <Button @click="closeTask">取消</Button>
+        <Button @click="cancelTask">取消</Button>
         <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
-        <Button type="primary" danger @click="noPassTask" :loading="buttonLoading">拒绝</Button>
+        <Button
+          type="primary"
+          danger
+          @click="noPassTask"
+          :loading="buttonLoading"
+          >拒绝</Button>
         <a-popover v-model:open="transferVisible" title="转办" trigger="click">
           <template #content>
-            <a-card  style="width: 500px;height: 246px">
+            <a-card style="width: 500px; height: 246px">
               <a-form
                 ref="transferFormRef"
                 :model="transferFormData"

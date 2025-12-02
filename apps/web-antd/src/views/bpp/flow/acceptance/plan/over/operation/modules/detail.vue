@@ -12,7 +12,7 @@ import dayjs from 'dayjs';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
-import taskComment from '#/views/bpp/flowacceptanceplanovropr/flow/taskComment.vue';
+import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
@@ -224,7 +224,6 @@ const [Modal, modalApi] = useVbenModal({
       </FileGrid>
     </div>
     <div>
-      {{containerDataArray}}
       <!--审批记录-->
       <taskComment
         :isShowApply="false"
