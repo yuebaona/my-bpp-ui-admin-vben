@@ -14,13 +14,12 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getCustomerList } from '#/api/bpp/common';
+import { getCustomerList, getVVd,getContainerIsoList } from '#/api/bpp/common';
 import {
   createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation,
   getAcceptancePlanOverOperation,
+  updateAcceptancePlanOverOperation,
 } from '#/api/bpp/flowacceptanceplanovropr';
-import { getVVd } from '#/api/bpp/common'
 import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';
 import { $t } from '#/locales';
@@ -49,6 +48,16 @@ const payerNameSeaState = reactive({
   fetching: false,
 });
 const payerNameGateState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const isoTypeState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const isoLengthState = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -426,7 +435,6 @@ const [Modal, modalApi] = useVbenModal({
         data.acceptancePlanBillMessageRespVO,
       );
       if (data?.acceptancePlanRespVO?.id) {
-
         try {
           // 设置到formApi中
           await formApi.setValues(data.acceptancePlanRespVO);
@@ -496,10 +504,7 @@ const [Modal, modalApi] = useVbenModal({
     } else {
       await loadProfile();
       await formApi.setFieldValue('handlingPerson', profile.value.nickname);
-      await formApi.setFieldValue(
-        'handlingPhoneNumber',
-        profile.value.mobile,
-      );
+      await formApi.setFieldValue('handlingPhoneNumber', profile.value.mobile);
     }
     modalApi.unlock();
   },
@@ -516,6 +521,26 @@ const handleUpload = async (data: any) => {
   // 校验form数据
   await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
   await formApi.validateField('attachmentFile');
+};
+const isoTypeSearch = async () => {
+  isoTypeState.data = [];
+  isoTypeState.fetching = true;
+  const lengthRes = await getContainerIsoList('length');
+  const typeRes = await getContainerIsoList('type');
+  if (lengthRes) {
+    isoLengthState.data = lengthRes.map((item: any) => ({
+      label: item.containerLength,
+      value: item.containerLength,
+    }));
+    isoTypeState.fetching = false;
+  }
+  if (typeRes) {
+    isoTypeState.data = typeRes.map((item: any) => ({
+      label: item.containerType,
+      value: item.containerType,
+    }));
+    isoTypeState.fetching = false;
+  }
 };
 const getPopupContainer = (triggerNode) => {
   return triggerNode.parentNode;
@@ -686,6 +711,7 @@ watch(
 );
 const fieldsChanges = ref([]);
 const selectKey = ref(0);
+isoTypeSearch();
 </script>
 
 <template>
@@ -729,13 +755,30 @@ const selectKey = ref(0);
                 </Button>
                 <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
               </template>
-              <!--              <template #containerSizeEdit="{ row, index }">-->
-              <!--                <Select :options="bppBaseDict.getBppBaseDictOptions(-->
-              <!--                    'initiation_type',-->
-              <!--                  )" v-model:value="row.containerSize"style="width: 100%"-->
-              <!--                        :getPopupContainer="getPopupContainer" :showSearch="true"-->
-              <!--                        :filterOption="filterOption"/>-->
-              <!--              </template>-->
+              <template #containerLengthEdit="{ row, index }">
+                <Select
+                  :options="isoLengthState.data"
+                  mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+                  v-model:value="row.containerSize"
+                  style="width: 100%"
+                  :get-popup-container="getPopupContainer"
+                  :show-search="true"
+                  :filter-option="true"
+                  :list-height="100"
+                />
+              </template>
+              <template #containerTypeEdit="{ row, index }">
+                <Select
+                  :options="isoTypeState.data"
+                  mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+                  v-model:value="row.containerType"
+                  style="width: 100%"
+                  :get-popup-container="getPopupContainer"
+                  :show-search="true"
+                  :filter-option="true"
+                  :list-height="100"
+                />
+              </template>
             </Grid>
           </div>
         </div>

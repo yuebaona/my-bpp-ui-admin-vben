@@ -26,22 +26,27 @@ export namespace CommonApi {
   }
 }
 // 获取客户基础信息
-export const getCustomerList = (
-  params: PageParam,
-) => {
-  return requestClient.get<
-    PageResult<CommonApi.CustomerVO>
-  >('/bpp/flow/common/get-customer-list', { params });
+export const getCustomerList = (params: PageParam) => {
+  return requestClient.get<PageResult<CommonApi.CustomerVO>>(
+    '/bpp/flow/common/get-customer-list',
+    { params },
+  );
 };
 // 获取船名航次
 export const getVVd = ({
-                         queryType = 'VESSEL',
-                         condition,
-                       }: {
+  queryType = 'VESSEL',
+  condition,
+}: {
   condition: string;
   queryType?: string;
 }) => {
   return requestClient.get(
     `/bpp/flow/common/get-vvd?queryType=${queryType}&condition=${condition}`,
+  );
+};
+// 获取集装箱ISO信息
+export const getContainerIsoList = (queryType: string) => {
+  return requestClient.get(
+    `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
   );
 };

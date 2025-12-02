@@ -275,30 +275,26 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
     {
       title: '尺寸',
       field: 'containerSize',
-      minWidth: 80,
+      minWidth: 200,
       editRender: {
         name: 'select',
-        options: [
-          { label: '20', value: '20' },
-          { label: '40', value: '40' },
-        ],
       },
-      // slots: {
-      //   // 编辑状态下的插槽
-      //   edit: 'containerSizeEdit'
-      // }
+      slots: {
+        // 编辑状态下的插槽
+        edit: 'containerLengthEdit'
+      }
     },
     {
       title: '箱型',
       field: 'containerType',
-      minWidth: 80,
+      minWidth: 200,
       editRender: {
         name: 'select',
-        options: [
-          { label: 'FR', value: 'FR1' },
-          { label: 'OT', value: 'OT1' },
-        ],
       },
+      slots: {
+        // 编辑状态下的插槽
+        edit: 'containerTypeEdit'
+      }
     },
     {
       title: '货重KG',
@@ -1008,71 +1004,6 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       field: 'auditNode',
       title: '审批节点',
       minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'auditNodeStatus',
-      title: '审批状态',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'auditComment',
-      title: '审批意见',
-      minWidth: 180,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'nextNode',
-      title: '下一节点',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'submissionTime',
-      title: '提交时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
