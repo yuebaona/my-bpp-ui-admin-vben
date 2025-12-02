@@ -210,12 +210,12 @@ const [Modal, modalApi] = useVbenModal({
     }
     // 转换持箱人字符串为数组
     const ownerList = formValues.owners
-      ? formValues.owners.split(',').map((item: string) => item.trim()).filter(Boolean)
+      ? formValues.owners.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
       : [];
 
     // 转换ISO字符串为数组
     const isoNoList = formValues.isoNos
-      ? formValues.isoNos.split(',').map((item: string) => item.trim()).filter(Boolean)
+      ? formValues.isoNos.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
       : [];
 
     // 转换表格数据为bayRangeList格式

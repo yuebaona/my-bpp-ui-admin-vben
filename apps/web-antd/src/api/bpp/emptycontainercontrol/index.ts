@@ -151,7 +151,7 @@ export const createSubPlan = (
 export const updateSubPlan = (
   data: EmptyContainerControlApi.subPlanVO,
 ) => {
-  return requestClient.put('/bpp/flow/sub-plan/update', data);
+  return requestClient.put('/bpp/flow/empty/container-control-main/update', data);
 };
 
 // 查询子计划信息详情

@@ -455,8 +455,8 @@ const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
 
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
-  const editData = await getSubPlan(row.id);
-  formModalApi.setData(editData).open();
+  const res = await getSubPlan(row.id);
+  formModalApi.setData(res).open();
 };
 
 /** 删除主计划 */
