@@ -33,3 +33,15 @@ export const getCustomerList = (
     PageResult<CommonApi.CustomerVO>
   >('/bpp/flow/common/get-customer-list', { params });
 };
+// 获取船名航次
+export const getVVd = ({
+                         queryType = 'VESSEL',
+                         condition,
+                       }: {
+  condition: string;
+  queryType?: string;
+}) => {
+  return requestClient.get(
+    `/bpp/flow/common/get-vvd?queryType=${queryType}&condition=${condition}`,
+  );
+};
