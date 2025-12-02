@@ -114,8 +114,8 @@ const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 
 /** 编辑申请 */
 const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
-  formModalApi.setData(res).open();
+  // const res = await getAcceptancePlanOverOperation(row.id);
+  formModalApi.setData(row).open();
 };
 /** 变更吊具修改 */
 const handleOnSiteEditOperation = async (
