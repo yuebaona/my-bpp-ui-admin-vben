@@ -139,18 +139,7 @@ export const startProgressAcceptancePlanOverOperation = (
     data,
   );
 };
-/**
- * 工作流审批时修改单据信息
- * @param data
- */
-export const businessProgressAcceptancePlanOverOperation = (
-  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
-) => {
-  return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/business-process',
-    data,
-  );
-};
+
 // 修改超限受理计划信息
 export const updateAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
 import { onMounted, reactive, ref, watch } from 'vue';
 
@@ -21,7 +21,7 @@ import {
   getAcceptancePlanOverOperationPage,
   getMachineSpreaderChangeRecordPage,
   machineSpreaderRecordDeleteList,
-} from '#/api/bpp/flowacceptanceplanovropr';
+} from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
