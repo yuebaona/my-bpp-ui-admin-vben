@@ -146,7 +146,30 @@ export namespace FlowOverLimitWorkApi {
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
-
+/**
+ * 工作流审批时修改单据信息
+ * @param data
+ */
+export const businessProgressAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation/business-process',
+    data,
+  );
+};
+/**
+ * 工作流审批时修改单据信息
+ * @param data
+ */
+export const startProgressAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation/other-process',
+    data,
+  );
+};
 // 创建超限受理计划信息
 export const createAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,

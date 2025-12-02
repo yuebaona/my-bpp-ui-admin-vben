@@ -6,12 +6,12 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import type {
   FlowOverLimitWorkApi
-} from '#/api/bpp/flowoverlimitwork';
+} from '#/api/bpp/flow/acceptance/plan/over/operation';
 import {
   createAcceptancePlanOverOperation,
   getVVd,
   updateAcceptancePlanOverOperation
-} from "#/api/bpp/flowacceptanceplanovropr";
+} from "#/api/bpp/flow/acceptance/plan/over/operation";
 import type { SystemUserProfileApi } from "#/api/system/user/profile";
 import { getUserProfile } from "#/api/system/user/profile";
 

@@ -2,7 +2,7 @@
 import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import type { SystemUserProfileApi } from '#/api/system/user/profile';
 
 import { computed, nextTick, reactive, ref, toRaw, watch } from 'vue';
@@ -19,7 +19,7 @@ import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
   getAcceptancePlanOverOperation,
-} from '#/api/bpp/flowacceptanceplanovropr';
+} from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { getVVd } from '#/api/bpp/common'
 import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';

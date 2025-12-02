@@ -2,7 +2,7 @@
 import type { fileVo } from '../data.ts';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
 import { computed, reactive, ref } from 'vue';
 
