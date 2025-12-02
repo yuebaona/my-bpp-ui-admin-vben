@@ -114,8 +114,8 @@ const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 
 /** 编辑申请 */
 const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
-  formModalApi.setData(res).open();
+  // const res = await getAcceptancePlanOverOperation(row.id);
+  formModalApi.setData(row).open();
 };
 /** 变更吊具修改 */
 const handleOnSiteEditOperation = async (
@@ -195,6 +195,10 @@ const handleOnSiteOperation = async () => {
         if (uniqueNodes.size > 1) {
           message.error('存在不同的现在作业节点，请检查');
         }
+      }
+      if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+        message.error('请选择现场作业节点不是初始化或完成的状态');
+        return;
       }
       data.value = {
         overOperationContainerIds: containerIds,

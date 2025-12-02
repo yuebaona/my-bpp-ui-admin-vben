@@ -24,6 +24,8 @@ export namespace FlowOverLimitWorkApi {
     attachmentFile: string;
     handlerRemark: string;
     handlerConfirmation: string;
+    payerNameSea: string,
+    payerNameGate: string
   }
   // 受理计划VO
   export interface AcceptancePlanVO {
@@ -59,6 +61,8 @@ export namespace FlowOverLimitWorkApi {
     cargoAgentCode: string;
     invoiceTitle: string;
     handlingPhoneNumber: string;
+    payerNameGate:string;
+    payerNameSea:string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -222,17 +226,5 @@ export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
 export const machineSpreaderRecordDeleteList = (ids: any) => {
   return requestClient.delete(
     `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
-  );
-};
-// 获取船名航次
-export const getVVd = ({
-  queryType = 'VESSEL',
-  condition,
-}: {
-  condition: string;
-  queryType?: string;
-}) => {
-  return requestClient.get(
-    `/bpp/flow/common/get-vvd?queryType=${queryType}&condition=${condition}`,
   );
 };

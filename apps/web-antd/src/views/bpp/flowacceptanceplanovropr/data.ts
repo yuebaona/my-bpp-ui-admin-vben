@@ -38,7 +38,7 @@ export function onSiteOperationConfirmFormSchema(
   };
   return [
     {
-      fieldName: 'operationType',
+      fieldName: 'machineSpreaderChangeType',
       label: '现场作业类别',
       component: 'ApiSelect',
       componentProps: {
@@ -59,7 +59,7 @@ export function onSiteOperationConfirmFormSchema(
         resultField: 'list',
         labelField: 'label',
         valueField: 'value',
-        disabled: shouldDisable('operationType'),
+        disabled: shouldDisable('machineSpreaderChangeType'),
       },
       rules: 'required',
     },
@@ -473,12 +473,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'payerCodeSea',
+      fieldName: 'payerNameSea',
       label: '缴费方（海侧）',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入缴费方（海侧）',
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
@@ -491,12 +488,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'payerCodeGate',
+      fieldName: 'payerNameGate',
       label: '缴费方（陆侧）',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入缴费方（海侧）',
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
