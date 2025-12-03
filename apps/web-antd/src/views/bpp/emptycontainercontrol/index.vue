@@ -23,8 +23,6 @@ import { AdvancedQuery } from '#/components/advanced-query';
 import {
   mainPlanColumns,
   PlanSearchFormSchema,
-  STATIC_SUB_PLAN_DETAIL_DATA,
-  // STATIC_SUB_PLAN_LIST_DATA,
   subPlanColumns,
 } from './data';
 import Detail2 from './modules/detail2.vue';
@@ -60,55 +58,6 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
   destroyOnClose: true,
   footer: false,
 });
-
-// const [Grid, gridApi] = useVbenVxeGrid({
-//   formOptions: {
-//     schema: PlanSearchFormSchema(),
-//     submitButtonOptions: {
-//       content: '查询',
-//     },
-//     wrapperClass: 'grid-cols-4 md:grid-cols-4',
-//   },
-//   gridOptions: {
-//     columns: subPlanColumns(),
-//     height: 'auto',
-//     keepSource: false,
-//     rowConfig: {
-//       keyField: 'id',
-//       isHover: true,
-//     },
-//     toolbarConfig: {
-//       search: true,
-//       custom: true,
-//       export: true,
-//       // import: true,
-//       refresh: true,
-//       zoom: true,
-//     },
-//     pagerConfig: {
-//       pageSize: 10,
-//       enabled: true,
-//     },
-//     editRules: {
-//       applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
-//     },
-//     // proxyConfig: {
-//     //   ajax: {
-//     //     query: async ({ page }, formValues) => {
-//     //       return await getSubPlanPage({
-//     //         pageNo: page.currentPage,
-//     //         pageSize: page.pageSize,
-//     //         ...formValues,
-//     //       });
-//     //     },
-//     //   },
-//     // },
-//   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
-//   gridEvents: {
-//     checkboxAll: handleRowCheckboxChange,
-//     checkboxChange: handleRowCheckboxChange,
-//   },
-// });
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -341,46 +290,6 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-const [ToolChangeGrid2] = useVbenVxeGrid({
-  gridOptions: {
-    columns: mainPlanColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-      zoom: false,
-      custom: false,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    editRules: {
-      applicantCompanyName: [{ required: true }],
-      acceptancePlanNo: [{ required: true }],
-    },
-    proxyConfig: {
-      ajax: {
-        query: async ({ page }, formValues) => {
-          return await getMainPlanPage({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          });
-        },
-      },
-    },
-  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
-  gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-  },
-});
 
 function handleRowCheckboxChange2({
   records,
@@ -411,11 +320,12 @@ function handleCreateSubPlan() {
     message.warning('已勾选多个主计划，请只勾选一个主计划');
     return;
   }
-
-  formModalApi.setData({
-    mainId: checkedIds.value[0],
-    planType: 'SUB'
-  }).open();
+  formModalApi
+    .setData({
+      mainId: checkedIds.value[0],
+      planType: 'SUB',
+    })
+    .open();
 }
 
 /** 导出数据 */
