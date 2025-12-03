@@ -1,31 +1,24 @@
 <script lang="ts" setup>
-import type { UploadProps } from 'ant-design-vue';
+// import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
-import { computed, reactive, ref, toRaw } from 'vue';
+import { computed, reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Button, message, Select } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowoverlimitwork';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
-import { $t } from '#/locales';
+import { containerAreaRangeColumns, subPlanDetailSchema } from '../data';
 
-import { subPlanFormSchema, containerAreaRangeColumns } from '../data';
-import ContainerArea from './containerArea.vue';
+// const emit = defineEmits(['success']);
+// const fileList = ref<UploadProps['fileList']>([]);
 
-const emit = defineEmits(['success']);
-const fileList = ref<UploadProps['fileList']>([]);
-
-const containerAreaModalVisible = ref(false);
+// const containerAreaModalVisible = ref(false);
 
 const containerAreaData = reactive<any[]>([
   {
@@ -62,86 +55,51 @@ const containerAreaData = reactive<any[]>([
   },
 ]);
 
-const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
+const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
-  acceptancePlanNo: '',
-  status: '',
-  placeContainer: '',
-  applicantCompanyName: '',
-  applicantPlanCount: 0,
-  applicantPlanEnd: '',
-  applicantPlanStart: '',
-  applicantPlanType: '',
-  applicantType: '',
-  attachmentFile: '',
-  cargoAgentCode: '',
-  cargoOwnerCode: '',
-  category: '',
-  conclusionTime: '',
-  dataSource: '',
-  handlerConfirmTime: '',
-  handlerConfirmation: '',
-  handlerRemark: '',
-  handlingPerson: '',
-  invoiceTitle: '',
-  isSystemRate: false,
-  payerCodeGate: '',
-  payerCodeSea: '',
-  paymentTypeGate: '',
-  paymentTypeSea: '',
-  planStatus: '',
-  plannedOperationTime: '',
-  submissionTime: '',
-  vesselCode: '',
-  vesselName: '',
-  vesselVoyage: '',
+  ownerList: [],
+  isoNoList: [],
+  isRelease: false,
+  pickupPlanNo: '',
+  tradeType: '',
+  planQuantity: '',
+  completedReleaseQuantity: '',
+  bayRangeList: {
+    emptyContainerControlId: 0,
+    id: 0,
+    yardBay: '',
+    yardRaw: '',
+  },
+  // bayRangeList: [],
+  planType: '',
+  mainId: '',
+  planNo: '',
 });
 
-const acceptancePlanOverOperationRespVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
-    id: 0,
-    isAllowedStacking: false,
-    plannedMachineryType: '',
-    plannedSpreaderType: '',
-    acceptancePlanNo: '',
-    processInstanceId: '',
-  });
-
-const acceptancePlanBillMessageVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
-    id: 0,
-    acceptancePlanNo: '',
-    billNo: '',
-    cargoType: '',
-    cargoName: '',
-    cargoCount: 0,
-    billType: '',
-  });
-
-const selectContainerArea = () => {
-  containerAreaModalVisible.value = true;
-};
-
-const handleContainerAreaConfirm = (positions: string[]) => {
-  const $grid = gridApi.grid;
-  if ($grid) {
-    // 清空现有数据
-    containerAreaData.splice(0);
-
-    // 添加新选择的数据
-    const newRows = positions.map((pos, index) => ({
-      id: `row_${Date.now()}_${index}`,
-      yardPosition: `${pos}-01`, // 假设默认层号为01
-      yardColumns: [],
-      totalCount: '',
-      minStorageDays: '',
-      maxStorageDays: '',
-    }));
-
-    containerAreaData.push(...newRows);
-    $grid.reloadData(containerAreaData);
-  }
-};
+// const selectContainerArea = () => {
+//   containerAreaModalVisible.value = true;
+// };
+//
+// const handleContainerAreaConfirm = (positions: string[]) => {
+//   const $grid = gridApi.grid;
+//   if ($grid) {
+//     // 清空现有数据
+//     containerAreaData.splice(0);
+//
+//     // 添加新选择的数据
+//     const newRows = positions.map((pos, index) => ({
+//       id: `row_${Date.now()}_${index}`,
+//       yardPosition: `${pos}-01`, // 假设默认层号为01
+//       yardColumns: [],
+//       totalCount: '',
+//       minStorageDays: '',
+//       maxStorageDays: '',
+//     }));
+//
+//     containerAreaData.push(...newRows);
+//     $grid.reloadData(containerAreaData);
+//   }
+// };
 
 // 删除行方法
 const deleteRow = async (row: any) => {
@@ -158,7 +116,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: subPlanFormSchema(),
+  schema: subPlanDetailSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values) => {
@@ -184,9 +142,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       trigger: 'manual',
     },
     editRules: {
-      yardPosition: [{ required: true, message: '必须填写' }],
-      yardColumns: [{ required: true, message: '必须选择堆场列' }],
-      totalCount: [{ required: true, message: '必须填写' }],
+      // yardPosition: [{ required: true, message: '必须填写' }],
+      // yardColumns: [{ required: true, message: '必须选择堆场列' }],
+      // totalCount: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -202,142 +160,83 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 const [Modal, modalApi] = useVbenModal({
-  async onConfirm() {
-    const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-      (record) => toRaw(record),
-    );
-
-    if (containerAreaArray.length === 0) {
-      message.warning('请至少添加一条箱区范围数据');
-      return;
-    }
-
-    const { valid } = await formApi.validate();
-    const gridValid: boolean = await gridApi.grid.validate(true);
-
-    if (!valid || gridValid) {
-      return;
-    }
-
-    Object.assign(formData, await formApi.getValues());
-    const data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO = {
-      acceptancePlanSaveReqVO: {
-        ...formData,
-      } as FlowOverLimitWorkApi.AcceptancePlanVO,
-      acceptancePlanOverOperationSaveReqVO: {
-        ...acceptancePlanOverOperationRespVO,
-      } as FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
-      acceptancePlanOverOperationContainerSaveReqVOs: containerAreaArray,
-      acceptancePlanBillMessageSaveReqVO: {
-        ...acceptancePlanBillMessageVO,
-      } as FlowOverLimitWorkApi.AcceptancePlanBillMessageVO,
-    };
-    data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
-    data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
-    data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
-
-    data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
-      if (item.id && String(item.id).startsWith('row_')) {
-        item.id = item.id.replace('row_', '');
-      }
-    });
-    data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
-
-    await (formData?.id
-      ? updateAcceptancePlanOverOperation(data)
-      : createAcceptancePlanOverOperation(data));
-
-    await modalApi.close();
-    emit('success');
-    message.success($t('ui.actionMessage.operationSuccess'));
-  },
+  showConfirmButton: false,
+  showCancelButton: false,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        acceptancePlanNo: '',
-        status: '',
-        placeContainer: '',
-        applicantCompanyName: '',
-        applicantPlanCount: 0,
-        applicantPlanEnd: '',
-        applicantPlanStart: '',
-        applicantPlanType: '',
-        applicantType: '',
-        attachmentFile: '',
-        cargoAgentCode: '',
-        cargoOwnerCode: '',
-        category: '',
-        conclusionTime: '',
-        dataSource: '',
-        handlerConfirmTime: '',
-        handlerConfirmation: '',
-        handlerRemark: '',
-        handlingPerson: '',
-        invoiceTitle: '',
-        isSystemRate: false,
-        payerCodeGate: '',
-        payerCodeSea: '',
-        paymentTypeGate: '',
-        paymentTypeSea: '',
-        planStatus: '',
-        plannedOperationTime: '',
-        submissionTime: '',
-        vesselCode: '',
-        vesselName: '',
-        vesselVoyage: '',
+        ownerList: [],
+        isoNoList: [],
+        isRelease: false,
+        pickupPlanNo: '',
+        tradeType: '',
+        planQuantity: '',
+        completedReleaseQuantity: '',
+        // bayRangeList: {
+        //   emptyContainerControlId: 0,
+        //   yardBay: '',
+        //   yardRaw: '',
+        // },
+        bayRangeList: [],
+        planType: '',
+        mainId: '',
+        planNo: '',
       });
       containerAreaData.splice(0);
       return;
     }
 
-    const data =
-      await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
+    const data = await modalApi.getData<any>();
 
     if (data) {
-      Object.assign(formData, data.acceptancePlanRespVO);
-      Object.assign(
-        acceptancePlanOverOperationRespVO,
-        data.acceptancePlanOverOperationRespVO,
-      );
-      Object.assign(
-        acceptancePlanBillMessageVO,
-        data.acceptancePlanBillMessageRespVO,
-      );
-      if (data?.acceptancePlanRespVO?.id) {
+      // 清空现有数据
+      containerAreaData.splice(0);
+
+      const subPlanData = data.acceptancePlanRespVO || data;
+      Object.assign(formData, subPlanData);
+
+      if (data.planType) {
+        formData.planType = data.planType;
+      }
+      if (data.mainId) {
+        formData.mainId = data.mainId;
+      }
+
+      if (subPlanData?.id) {
         modalApi.lock();
         try {
-          await formApi.setValues(data.acceptancePlanRespVO);
-          await formApi.setFieldValue(
-            'billNo',
-            data?.acceptancePlanBillMessageRespVO?.billNo,
-          );
-          await formApi.setFieldValue(
-            'cargoName',
-            data?.acceptancePlanBillMessageRespVO?.cargoName,
-          );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
+          await formApi.setValues(subPlanData);
 
-          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
+          // 设置箱区范围数据
+          if (data.yardPositionResp) {
             const $grid = gridApi.grid;
             if ($grid) {
-              await $grid.insertAt(item, -1);
+              for (const item of data.yardPositionResp) {
+                await $grid.insertAt(
+                  {
+                    ...item,
+                    id: `row_${item.id}`, // 确保ID格式正确
+                  },
+                  -1,
+                );
+              }
             }
           }
         } finally {
           modalApi.unlock();
         }
+      } else {
+        // 新创建的子计划，确保planType为SUB
+        formData.planType = 'SUB';
       }
     }
   },
 });
 
 const modalTitle = computed(() => {
-  return formData.id
-    ? $t('ui.actionTitle.edit', ['子计划'])
-    : $t('ui.actionTitle.create', ['子计划']);
+  return '子计划详情';
 });
-
 </script>
 
 <template>
@@ -347,10 +246,10 @@ const modalTitle = computed(() => {
       <template #containerAreaRange>
         <div class="mt-4 w-full">
           <div class="mb-2 flex items-center gap-2">
-            <span class="font-medium">箱区范围</span>
-            <Button type="primary" @click="selectContainerArea">
-              选择箱区范围
-            </Button>
+            <!--            <span class="font-medium">箱区范围</span>-->
+            <!--            <Button type="primary" @click="selectContainerArea">-->
+            <!--              选择箱区范围-->
+            <!--            </Button>-->
           </div>
           <div class="table-container">
             <Grid>
@@ -377,32 +276,27 @@ const modalTitle = computed(() => {
                   :show-search="false"
                 />
               </template>
-              <template #actions="{ row }">
-                <TableAction
-                  :actions="[
-                    {
-                      label: '删除',
-                      type: 'link',
-                      danger: true,
-                      onClick: () => deleteRow(row),
-                    },
-                  ]"
-                />
-              </template>
+              <!--              <template #actions="{ row }">-->
+              <!--                <TableAction-->
+              <!--                  :actions="[-->
+              <!--                    {-->
+              <!--                      label: '删除',-->
+              <!--                      type: 'link',-->
+              <!--                      danger: true,-->
+              <!--                      onClick: () => deleteRow(row),-->
+              <!--                    },-->
+              <!--                  ]"-->
+              <!--                />-->
+              <!--              </template>-->
             </Grid>
           </div>
         </div>
       </template>
-      <template #handlingPersonLast>
-        <span class="text-gray-600" v-if="formData && formData.handlingPerson">
-          {{ formData.handlingPerson }}
-        </span>
-      </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerArea
-      v-model:visible="containerAreaModalVisible"
-      @confirm="handleContainerAreaConfirm"
-    />
+    <!--    <ContainerArea-->
+    <!--      v-model:visible="containerAreaModalVisible"-->
+    <!--      @confirm="handleContainerAreaConfirm"-->
+    <!--    />-->
   </Modal>
 </template>

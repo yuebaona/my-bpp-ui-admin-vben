@@ -20,11 +20,7 @@ import {
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 
-import {
-  mainPlanColumns,
-  PlanSearchFormSchema,
-  subPlanColumns,
-} from './data';
+import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 import Detail2 from './modules/detail2.vue';
 import Detail from './modules/detail.vue';
 import Form2 from './modules/form2.vue';
@@ -48,7 +44,7 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-const [DetailModal] = useVbenModal({
+const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
@@ -84,19 +80,14 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          // 如果还没有选中主计划，则不进行查询
           if (!hasSelectedMainPlan.value) {
             return { total: 0, list: [] };
           }
-
           const transformedParams = transformFormToRequest(formValues);
-
-          // 添加主计划 ID 参数
           if (selectedMainId.value) {
             transformedParams.planType = 'SUB';
             transformedParams.mainId = selectedMainId.value;
           }
-
           return await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -124,12 +115,10 @@ function handleRowCheckboxChange({
   if (records.length > 0) {
     selectedMainId.value = records[0].id.toString();
     hasSelectedMainPlan.value = true;
-    // 当主计划选择变化时，刷新子计划列表
     subGridApi.query();
   } else {
     selectedMainId.value = null;
     hasSelectedMainPlan.value = false;
-    // 清空子计划列表数据
     subGridApi.grid.reloadData([]);
   }
 }
@@ -290,15 +279,14 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-
-function handleRowCheckboxChange2({
-  records,
-}: {
-  records: EmptyContainerControlApi.mainPlanVO[];
-}) {
-  checkedIds.value = records.map((item) => item.id);
-  MainPlanNo.value = records.map((item) => item.MainPlanNo);
-}
+// function handleRowCheckboxChange2({
+//   records,
+// }: {
+//   records: EmptyContainerControlApi.mainPlanVO[];
+// }) {
+//   checkedIds.value = records.map((item) => item.id);
+//   MainPlanNo.value = records.map((item) => item.MainPlanNo);
+// }
 
 // 高级查询处理函数
 /** 刷新表格 */
@@ -353,7 +341,7 @@ const handleMainPlanDetail = async (
 /** 查看子计划详情 */
 const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  detailModalApi.setData(res).open();
 };
 
 /** 编辑主计划申请 */
@@ -397,12 +385,12 @@ const adcancedQueryModalOpen = () => {
 
 <template>
   <Page auto-content-height>
-    <FormModal class="w-1/2" @success="handleRefresh" />
+    <FormModal class="w-3/5" @success="handleRefresh" />
     <FormModal2 class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal />
+    <DetailModal class="w-3/5" />
     <DetailModal2 />
     <LogQueryModal />
     <!-- 主计划列表 -->

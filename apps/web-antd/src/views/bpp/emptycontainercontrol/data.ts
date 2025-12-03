@@ -231,6 +231,100 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     },
   ];
 }
+export function subPlanDetailSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'planNo',
+      label: '子计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '系统自动生成',
+        allowClear: true,
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'isRelease',
+      label: '是否放箱',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是（Y）', value: true },
+          { label: '否（N）', value: false },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'pickupPlanNo',
+      label: '提箱受理计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入提箱受理计划号',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'dischargeVesselSchedule',
+      label: '卸船船期',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入卸船船期',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'owners',
+      label: '持箱人',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入持箱人，可多条',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'tradeType',
+      label: '贸易类型',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '内贸', value: 'DOMESTIC' },
+          { label: '外贸', value: 'FOREIGN' },
+        ],
+      },
+    },
+    {
+      fieldName: 'isoNos',
+      label: 'ISO',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入ISO，可多条',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'containerAreaRange',
+      label: '箱区范围',
+      component: 'Input',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
+      },
+      formItemClass: 'col-span-2',
+    },
+    {
+      fieldName: 'planQuantity',
+      label: '计划箱量',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入计划箱量',
+        allowClear: true,
+      },
+    },
+  ];
+}
 
 /** 空箱空箱列表的搜索栏 */
 export function PlanSearchFormSchema(): VbenFormSchema[] {

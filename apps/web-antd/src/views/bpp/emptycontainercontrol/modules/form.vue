@@ -16,47 +16,14 @@ import { createSubPlan, updateSubPlan } from '#/api/bpp/emptycontainercontrol';
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
-import ContainerArea from './containerArea.vue';
+import ContainerAreaModal from './containerArea.vue';
 
 const emit = defineEmits(['success']);
 // const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
 
-const containerAreaData = reactive<any[]>([
-  {
-    id: 'row_1',
-    yardPosition: 'A01-01-01',
-    yardColumns: ['A', 'B'],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_2',
-    yardPosition: 'A02-01-01',
-    yardColumns: [],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_3',
-    yardPosition: 'B01-01-01',
-    yardColumns: ['A', 'B', 'H'],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_4',
-    yardPosition: 'B02-01-01',
-    yardColumns: [],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-]);
+const containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
@@ -67,38 +34,17 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
-  // bayRangeList: {
-  //   emptyContainerControlId: 0,
-  //   id: 0,
-  //   yardBay: '',
-  //   yardRaw: '',
-  // },
-  bayRangeList: [],
+  bayRangeList: {
+    emptyContainerControlId: 0,
+    id: 0,
+    yardBay: '',
+    yardRaw: '',
+  },
+  // bayRangeList: [],
   planType: '',
   mainId: '',
   planNo: '',
 });
-
-// const acceptancePlanOverOperationRespVO =
-//   reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
-//     id: 0,
-//     isAllowedStacking: false,
-//     plannedMachineryType: '',
-//     plannedSpreaderType: '',
-//     acceptancePlanNo: '',
-//     processInstanceId: '',
-//   });
-//
-// const acceptancePlanBillMessageVO =
-//   reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
-//     id: 0,
-//     acceptancePlanNo: '',
-//     billNo: '',
-//     cargoType: '',
-//     cargoName: '',
-//     cargoCount: 0,
-//     billType: '',
-//   });
 
 const selectContainerArea = () => {
   containerAreaModalVisible.value = true;
@@ -210,12 +156,18 @@ const [Modal, modalApi] = useVbenModal({
     }
     // 转换持箱人字符串为数组
     const ownerList = formValues.owners
-      ? formValues.owners.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
+      ? formValues.owners
+          .split(/[,，]/)
+          .map((item: string) => item.trim())
+          .filter(Boolean)
       : [];
 
     // 转换ISO字符串为数组
     const isoNoList = formValues.isoNos
-      ? formValues.isoNos.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
+      ? formValues.isoNos
+          .split(/[,，]/)
+          .map((item: string) => item.trim())
+          .filter(Boolean)
       : [];
 
     // 转换表格数据为bayRangeList格式
@@ -227,14 +179,13 @@ const [Modal, modalApi] = useVbenModal({
     }));
 
     // 构建符合新接口格式的数据
-    const data: EmptyContainerControlApi.subPlanVO  = {
-        ...formData,
-        // 确保数组字段正确处理
-        // ownerList: formData.ownerList || [],
-        // isoNoList: formData.isoNoList || [],
+    const data: EmptyContainerControlApi.subPlanVO = {
+      ...formData,
+      // 确保数组字段正确处理
+      // ownerList: formData.ownerList || [],
+      // isoNoList: formData.isoNoList || [],
       ownerList,
       isoNoList,
-
     } as EmptyContainerControlApi.subPlanVO;
 
     await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
@@ -377,7 +328,7 @@ const modalTitle = computed(() => {
       </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerArea
+    <ContainerAreaModal
       v-model:visible="containerAreaModalVisible"
       @confirm="handleContainerAreaConfirm"
     />

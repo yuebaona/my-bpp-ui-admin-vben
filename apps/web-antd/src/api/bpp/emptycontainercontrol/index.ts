@@ -1,4 +1,4 @@
-import type { PageParam, PageResult } from '@vben/request';
+// import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
@@ -90,14 +90,6 @@ export namespace EmptyContainerControlApi {
     acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
-
-  // 总数据
-  export interface SubPlanSaveReqVO {
-    acceptancePlanSaveReqVO: subPlanVO;
-    // acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
-    // acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
-    // acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
-  }
 }
 
 // 创建主计划信息
@@ -143,15 +135,17 @@ export const deleteMainPlan = (id: number) => {
 // 创建子计划信息
 export const createSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/create', data
+    '/bpp/flow/empty/container-control-main/create',
+    data,
   );
 };
 
 // 修改子计划信息
-export const updateSubPlan = (
-  data: EmptyContainerControlApi.subPlanVO,
-) => {
-  return requestClient.put('/bpp/flow/empty/container-control-main/update', data);
+export const updateSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
+  return requestClient.put(
+    '/bpp/flow/empty/container-control-main/update',
+    data,
+  );
 };
 
 // 查询子计划信息详情
@@ -169,11 +163,12 @@ export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {
 };
 
 export const deleteSubPlan = (id: number) => {
-  return requestClient.delete(`/bpp/flow/empty/container-control-main/delete?id=${id}`);
+  return requestClient.delete(
+    `/bpp/flow/empty/container-control-main/sub/delete?id=${id}`,
+  );
 };
 
-export const getLogQueryData = (params: PageParam) => {
-  return requestClient.get<
-    PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
-  >('/bpp/flow/sub-plan/log-query', { params });
-};
+// export const getLogQueryData = (params: PageParam) => {
+//   return requestClient.get<PageResult<EmptyContainerControlApi.subPlanVO>>(
+//   >('/bpp/flow/sub-plan/log-query', { params });
+// };
