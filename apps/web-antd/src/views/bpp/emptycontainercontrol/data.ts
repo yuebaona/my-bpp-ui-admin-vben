@@ -54,7 +54,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
 export function mainPlanFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'acceptancePlanWebNo',
+      fieldName: 'mainId',
       label: '主计划号',
       component: 'Input',
       componentProps: {
@@ -64,19 +64,19 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'applicantCompanyName',
+      fieldName: 'isRelease',
       label: '是否放箱',
       component: 'RadioGroup',
       componentProps: {
         options: [
-          { label: '是（Y）', value: 'Y' },
-          { label: '否（N）', value: 'N' },
+          { label: '是（Y）', value: true },
+          { label: '否（N）', value: false },
         ],
       },
       rules: 'required',
     },
     {
-      fieldName: 'handlingPerson',
+      fieldName: 'pickupPlanNo',
       label: '提箱受理计划号',
       component: 'Input',
       componentProps: {
@@ -85,7 +85,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'handlePerson',
+      fieldName: 'owners',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -95,18 +95,18 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'paymentTypeSea',
+      fieldName: 'tradeType',
       label: '贸易类型',
       component: 'RadioGroup',
       componentProps: {
         options: [
-          { label: '内贸', value: 'neimao' },
-          { label: '外贸', value: 'waimao' },
+          { label: '内贸', value: 'DOMESTIC' },
+          { label: '外贸', value: 'FOREIGN' },
         ],
       },
     },
     {
-      fieldName: 'iso',
+      fieldName: 'isoNos',
       label: 'ISO',
       component: 'Input',
       componentProps: {
