@@ -101,20 +101,16 @@ export namespace EmptyContainerControlApi {
 }
 
 // 创建主计划信息
-export const createMainplan = (
-  data: EmptyContainerControlApi.mainPlanSaveReqVO,
-) => {
+export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.post(
     '/bpp/flow/empty/container-control-main/create',
     data,
   );
 };
 // 修改主计划信息
-export const updateMainPlan = (
-  data: EmptyContainerControlApi.mainPlanSaveReqVO,
-) => {
+export const updateMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.put(
-    '/bpp/flow/acceptance-plan-over-operation/update',
+    '/bpp/flow/empty/container-control-main/update',
     data,
   );
 };
@@ -136,22 +132,24 @@ export const getMainPlanPage = (data: EmptyContainerControlApi.mainPlanVO) => {
 // 删除主计划
 export const deleteMainPlan = (id: number) => {
   return requestClient.delete(
-    `/bpp/flow/empty/container-control-main/delete?id=${id}`,
+    `/bpp/flow/empty/container-control-main/main/delete?id=${id}`,
   );
 };
 
 // 创建子计划信息
 export const createSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/create', data
+    '/bpp/flow/empty/container-control-main/create',
+    data,
   );
 };
 
 // 修改子计划信息
-export const updateSubPlan = (
-  data: EmptyContainerControlApi.subPlanVO,
-) => {
-  return requestClient.put('/bpp/flow/empty/container-control-main/update', data);
+export const updateSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
+  return requestClient.put(
+    '/bpp/flow/empty/container-control-main/update',
+    data,
+  );
 };
 
 // 查询子计划信息详情
@@ -169,7 +167,9 @@ export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {
 };
 
 export const deleteSubPlan = (id: number) => {
-  return requestClient.delete(`/bpp/flow/empty/container-control-main/delete?id=${id}`);
+  return requestClient.delete(
+    `/bpp/flow/empty/container-control-main/delete?id=${id}`,
+  );
 };
 
 export const getLogQueryData = (params: PageParam) => {
