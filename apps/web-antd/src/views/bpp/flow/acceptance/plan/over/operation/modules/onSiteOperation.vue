@@ -1,16 +1,19 @@
 <script lang="ts" setup>
-import type { FlowOverLimitWorkApi } from "#/api/bpp/flow/acceptance/plan/over/operation";
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message, Select } from "ant-design-vue";
+import { message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { getVVd } from '#/api/bpp/common'
-import { confirmMachineSpreaderChangeRecord, updateMachineSpreaderRecord} from '#/api/bpp/flow/acceptance/plan/over/operation';
+import { getVVd } from '#/api/bpp/common';
+import {
+  confirmMachineSpreaderChangeRecord,
+  updateMachineSpreaderRecord,
+} from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flow/acceptance/plan/over/operation/data';
 
 const emit = defineEmits(['success']);
@@ -63,7 +66,7 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   stopStartTime: '',
   stopEndTime: '',
   stopRemark: '',
-  overOperationContainerIds: []
+  overOperationContainerIds: [],
 });
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -91,8 +94,7 @@ const [Modal, modalApi] = useVbenModal({
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
     formData.value.acceptancePlanNo = acceptancePlanNo;
-    formData.value.vesselCode = vesselCode.value
-    console.log(vesselCode.value)
+    formData.value.vesselCode = vesselCode.value;
     formData.value.operationFile = JSON.stringify(data.operationFile);
     await (formData.value?.id
       ? updateMachineSpreaderRecord(formData.value)
@@ -113,33 +115,45 @@ const [Modal, modalApi] = useVbenModal({
     formData.value.acceptancePlanNo = data.value?.acceptancePlanNo;
     if (data?.id) {
       await formApi.setValues(data);
-      if (data?.vesselName) {
-        vesselNameState.value = {
-          label: data?.vesselName,
-          value: data?.vesselName,
-        };
+    }
+    if (data?.vesselName || data.value?.vesselName) {
+      vesselNameState.value = {
+        label: data?.vesselName || data.value?.vesselName,
+        value: data?.vesselName || data.value?.vesselName,
+      };
 
-        // 同时查询对应的航次列表
-        const voyageRes = await getVVd({
-          condition: data?.vesselName,
-          queryType: 'VOYAGE',
-        });
-        if (voyageRes) {
-          vesselVoyageState.data = voyageRes.map((item: any) => ({
-            label: item.vieVoy,
-            value: item.vieVoy,
-          }));
-        }
+      // 同时查询对应的航次列表
+      const voyageRes = await getVVd({
+        condition: data?.vesselName || data.value?.vesselName,
+        queryType: 'VOYAGE',
+      });
+      if (voyageRes) {
+        vesselVoyageState.data = voyageRes.map((item: any) => ({
+          label: item.vieVoy,
+          value: item.vieVoy,
+        }));
       }
-      if (data?.vesselVoyage) {
-        vesselVoyageState.value = {
-          label: data?.vesselVoyage,
-          value: data?.vesselVoyage,
-        };
-      }
-      if (data?.vesselCode) {
-        vesselCode.value = data?.vesselCode;
-      }
+      await formApi.setFieldValue(
+        'vesselCode',
+        data.value?.vesselCode || data?.vesselCode,
+      );
+      await formApi.setFieldValue(
+        'vesselName',
+        data.value?.vesselName || data?.vesselName,
+      );
+    }
+    if (data?.vesselVoyage || data.value?.vesselVoyage) {
+      vesselVoyageState.value = {
+        label: data?.vesselVoyage || data.value?.vesselVoyage,
+        value: data?.vesselVoyage || data.value?.vesselVoyage,
+      };
+      await formApi.setFieldValue(
+        'vesselVoyage',
+        data.value?.vesselVoyage || data?.vesselVoyage,
+      );
+    }
+    if (data?.vesselCode || data.value?.vesselCode) {
+      vesselCode.value = data?.vesselCode || data.value?.vesselCode;
     }
     // 数据回显
     await setFieldAndDisable(
@@ -158,6 +172,12 @@ const [Modal, modalApi] = useVbenModal({
       'overOperationContainerIds',
       data.value?.overOperationContainerIds,
     );
+    if (data.value?.spreaderType || data?.spreaderType) {
+      await formApi.setFieldValue(
+        'spreaderType',
+        data.value?.spreaderType || data?.spreaderType,
+      );
+    }
     const newSchema = onSiteOperationConfirmFormSchema(disabledFields.value);
     formApi.updateSchema(newSchema);
     modalApi.unlock();
@@ -166,17 +186,17 @@ const [Modal, modalApi] = useVbenModal({
 
 const modalTitle = ref<string>('现场操作确认');
 const handleVesselSearch = async (value: any) => {
-  if(!value) return;
+  if (!value) return;
   vesselNameState.data = [];
   vesselNameState.fetching = true;
   const res = await getVVd({
     condition: value,
   });
-  if(res){
+  if (res) {
     vesselNameState.data = res.map((item: any) => ({
       label: item.vieVslCName,
       value: item.vieVslCName,
-      data: item
+      data: item,
     }));
     vesselNameState.fetching = false;
   }
@@ -194,7 +214,7 @@ const vesselNameSelect = async (value: any, option: any) => {
     queryType: 'VOYAGE',
   });
 
-  if(res){
+  if (res) {
     vesselVoyageState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
@@ -216,8 +236,8 @@ const vesselNameChange = async () => {
   vesselVoyageState.data = [];
   selectKey.value++;
 };
-//赋值到表单
-const vesselVoyageSelect = async(value: any)=> {
+// 赋值到表单
+const vesselVoyageSelect = async (value: any) => {
   await formApi.setFieldValue('vesselVoyage', value.label);
 };
 watch(vesselNameState.value, () => {
@@ -244,11 +264,10 @@ const selectKey = ref(0);
           :not-found-content="vesselNameState.fetching ? undefined : null"
           :options="vesselNameState.data"
           @search="handleVesselSearch"
-          allowClear
+          allow-clear
           @select="vesselNameSelect"
           @change="vesselNameChange"
-        >
-        </Select>
+        />
       </template>
       <template #vesselVoyage>
         <Select
@@ -260,11 +279,10 @@ const selectKey = ref(0);
           :filter-option="true"
           :not-found-content="vesselVoyageState.fetching ? undefined : null"
           :options="vesselVoyageState.data"
-          allowClear
+          allow-clear
           @select="vesselVoyageSelect"
           :key="selectKey"
-        >
-        </Select>
+        />
       </template>
     </Form>
   </Modal>

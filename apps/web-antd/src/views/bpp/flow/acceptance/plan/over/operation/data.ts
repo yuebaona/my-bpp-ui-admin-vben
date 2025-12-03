@@ -173,7 +173,7 @@ export function onSiteOperationConfirmFormSchema(
       label: '实际吊具类型',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请选择现场作业类别',
+        placeholder: '请选择实际吊具类型',
         allowClear: true,
         api: async (params?: any) => {
           return await getDictDataPage(params);

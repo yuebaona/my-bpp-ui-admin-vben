@@ -8,7 +8,6 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
-import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -24,16 +23,18 @@ import {
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
+import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
+import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
+import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
+
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
-import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
-import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -41,6 +42,10 @@ interface OnSideOperation {
   machineSpreaderChangeType: string;
   acceptancePlanNo: string;
   containerNo: string;
+  spreaderType: string;
+  vesselCode: string;
+  vesselVoyage: string;
+  vesselName: string;
 }
 interface batchQueryConditionsVO {
   acceptancePlanNo: string;
@@ -147,6 +152,10 @@ const handleOnSiteOperation = async () => {
     machineSpreaderChangeType: '',
     acceptancePlanNo: '',
     containerNo: '',
+    spreaderType: '',
+    vesselCode: '',
+    vesselVoyage: '',
+    vesselName: '',
   });
   if (!initiationTypeValue.value) {
     // 提示要选择发起类型
@@ -160,6 +169,10 @@ const handleOnSiteOperation = async () => {
     case '客户发起': {
       if (containerNos.value.length === 0) {
         message.error('请选择要操作的箱');
+        return;
+      }
+      if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+        message.error('请选择现场作业节点不是初始化或完成的状态');
         return;
       }
       if (boxAcceptancePlanNo.value.length > 1) {
@@ -196,9 +209,11 @@ const handleOnSiteOperation = async () => {
           message.error('存在不同的现在作业节点，请检查');
         }
       }
-      if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
-        message.error('请选择现场作业节点不是初始化或完成的状态');
-        return;
+      if (plannedSpreaderTypes.value.length > 1) {
+        const uniqueNodes = new Set(plannedSpreaderTypes.value);
+        if (uniqueNodes.size > 1) {
+          message.error('存在不同的现场作业吊具，请检查');
+        }
       }
       data.value = {
         overOperationContainerIds: containerIds,
@@ -206,6 +221,10 @@ const handleOnSiteOperation = async () => {
         machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
         acceptancePlanNo: boxAcceptancePlanNo.value[0],
         containerNo: containerNos.value.join(','),
+        spreaderType: plannedSpreaderTypes.value[0],
+        vesselCode: vesselCodes.value[0],
+        vesselVoyage: vesselVoyages.value[0],
+        vesselName: vesselNames.value[0],
       };
       break;
     }
@@ -330,6 +349,8 @@ const machineSpreaderChangeTypes = ref<string[]>([]);
 const containerOperationNodes = ref<string[]>([]);
 const vesselCodes = ref<string[]>([]);
 const vesselVoyages = ref<string[]>([]);
+const vesselNames = ref<string[]>([]);
+const plannedSpreaderTypes = ref<string[]>([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
@@ -344,6 +365,8 @@ function boxHandleRowCheckboxChange({
     containerOperationNodes,
     vesselCodes,
     vesselVoyages,
+    vesselNames,
+    plannedSpreaderTypes,
   };
   const fieldMappings = {
     boxCheckedIds: 'id',
@@ -354,6 +377,8 @@ function boxHandleRowCheckboxChange({
     containerOperationNodes: 'containerOperationNode',
     vesselCodes: 'vesselCode',
     vesselVoyages: 'vesselVoyage',
+    vesselNames: 'vesselName',
+    plannedSpreaderTypes: 'plannedSpreaderType',
   };
   Object.entries(fieldMappings).forEach(([refName, field]) => {
     refMap[refName].value = records.map((item) => item[field]);
@@ -394,7 +419,6 @@ const getDictDataList = async () => {
   //     })
   //   ).list,
   // );
-
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -750,12 +774,14 @@ const handleSaveTemplate = (templateName: string) => {
         <template #actions="{ row }">
           <TableAction
             :actions="[
-              (row.reviewFlag ? {
-                label: '审核',
-                type: 'link',
-                icon: ACTION_ICON.AUDIT,
-                onClick: handleViewDetail.bind(null, row),
-              }: ''),
+              row.reviewFlag
+                ? {
+                    label: '审核',
+                    type: 'link',
+                    icon: ACTION_ICON.AUDIT,
+                    onClick: handleViewDetail.bind(null, row),
+                  }
+                : '',
               {
                 label: '修改',
                 type: 'link',
@@ -823,7 +849,9 @@ const handleSaveTemplate = (templateName: string) => {
       </div>
       <div class="ml-3 w-1/2">
         <!-- 变更吊具记录表格 -->
-        <MachineSpreaderChangeRecordGrid :table-title="$t('cxmo.overOperation.machineSpreaderRecord')">
+        <MachineSpreaderChangeRecordGrid
+          :table-title="$t('cxmo.overOperation.machineSpreaderRecord')"
+        >
           <template #toolbar-tools>
             <TableAction
               :actions="[
