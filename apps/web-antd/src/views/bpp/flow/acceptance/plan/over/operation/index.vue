@@ -405,7 +405,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: acceptancePlanOvrOprFormSchema(),
     submitButtonOptions: {
-      content: '查询',
+      content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
   },
@@ -710,7 +710,7 @@ const handleSaveTemplate = (templateName: string) => {
     <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 超限作业申请列表 -->
     <div class="h-3/5 w-full">
-      <Grid table-title="超限作业申请列表">
+      <Grid :table-title="$t('cxmo.overOperation.operationListName')">
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -718,7 +718,7 @@ const handleSaveTemplate = (templateName: string) => {
           <TableAction
             :actions="[
               {
-                label: '新增',
+                label: $t('cxmo.action.add'),
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
                 auth: ['system:user:create'],
@@ -777,7 +777,7 @@ const handleSaveTemplate = (templateName: string) => {
     <div class="my-3 flex h-2/5 w-full">
       <div class="w-1/2">
         <!-- 箱列表表格 -->
-        <BoxGrid table-title="箱列表">
+        <BoxGrid :table-title="$t('cxmo.overOperation.boxListName')">
           <template #toolbar-tools>
             <div class="mr-4">
               <a-radio-group
@@ -798,20 +798,20 @@ const handleSaveTemplate = (templateName: string) => {
             <TableAction
               :actions="[
                 {
-                  label: '现场操作确认',
+                  label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleOnSiteOperation,
                 },
                 {
-                  label: '实际无作业',
+                  label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
-                  label: '停止后续作业',
+                  label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
@@ -823,7 +823,7 @@ const handleSaveTemplate = (templateName: string) => {
       </div>
       <div class="ml-3 w-1/2">
         <!-- 变更吊具记录表格 -->
-        <MachineSpreaderChangeRecordGrid table-title="变更吊具记录">
+        <MachineSpreaderChangeRecordGrid :table-title="$t('cxmo.overOperation.machineSpreaderRecord')">
           <template #toolbar-tools>
             <TableAction
               :actions="[
@@ -834,7 +834,7 @@ const handleSaveTemplate = (templateName: string) => {
                 //   onClick: handleCreate,
                 // },
                 {
-                  label: '无变更作业',
+                  label: $t('cxmo.overOperation.noChangeOperations'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleMachineSpreaderRecordDeleteList,
