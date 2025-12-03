@@ -1,32 +1,33 @@
 <script lang="ts" setup>
-import {type BpmProcessInstanceApi, createProcess} from '#/api/bpm/processInstance';
+import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
 
 import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { confirm, Page } from '@vben/common-ui';
-import { useVbenForm } from '#/adapter/form';
-import {BpmCandidateStrategyEnum, BpmNodeIdEnum} from '@vben/constants';
+import { BpmCandidateStrategyEnum, BpmNodeIdEnum } from '@vben/constants';
 import { IconifyIcon } from '@vben/icons';
 
-import {Button, Card, message, Space} from 'ant-design-vue';
+import { Button, Card, message, Space } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
+import { useVbenForm } from '#/adapter/form';
 import { getProcessDefinition } from '#/api/bpm/definition';
 import { getApprovalDetail as getApprovalDetailApi } from '#/api/bpm/processInstance';
+import { createAcceptancePlanOverOperation } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { $t } from '#/locales';
 import { router } from '#/router';
-import { useRouter } from 'vue-router';
 import ProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
-import acceptancePlanForm from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/form.vue';
-import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
-import {
-  createAcceptancePlanOverOperation,
-  updateAcceptancePlanOverOperation
-} from "#/api/bpp/flow/acceptance/plan/over/operation";
+import AcceptancePlanForm from '#/views/bpp/flow/acceptance/plan/over/operation/components/acceptancePlanForm.vue';
 
-const userRouter = useRouter();
-const formLoading = ref(false); // 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
+import { acceptancePlanFormSchema } from '../data.ts';
+
+// 表单的加载中：1）修改时的数据加载；2）提交的按钮禁用
 const emit = defineEmits(['cancel']);
+const userRouter = useRouter();
+const formLoading = ref(false);
+const formRef = ref<InstanceType<typeof AcceptancePlanForm>>();
+
 // 审批相关：变量
 const processDefineKey = 'acceptancePlanFlow'; // 流程定义 Key
 const startUserSelectTasks = ref<any>([]); // 发起人需要选择审批人的用户任务列表
@@ -57,86 +58,32 @@ const [Form, formApi] = useVbenForm({
 
 /** 提交申请 */
 async function onSubmit() {
-  // 发起流程
-  await createProcess({
-    processDefinitionKey: processDefineKey,
-    processInstanceVariables: {
-      entity: {id: 71,},
-    },
-    businessKey: '71',
-    businessTableName: 'acceptance_plan_over_operation',
-  });
-  debugger
-  // const { valid } = await formApi.validate();
-  // if (!valid) {
-  //   return;
-  // }
-  // // 获取表单数据
-  // Object.assign(formData, await formApi.getValues());
-  // // 调用API保存数据
-  // await (formData?.id
-  //   ? updateAcceptancePlanOverOperation(data)
-  //   : createAcceptancePlanOverOperation(data));
-  // // 1.2 审批相关：校验指定审批人
-  // if (startUserSelectTasks.value?.length > 0) {
-  //   for (const userTask of startUserSelectTasks.value) {
-  //     if (
-  //       Array.isArray(startUserSelectAssignees.value[userTask.id]) &&
-  //       startUserSelectAssignees.value[userTask.id].length === 0
-  //     ) {
-  //       return message.warning(`请选择${userTask.name}的审批人`);
-  //     }
-  //   }
-  // }
-  // 提交表单
-  // const data = await formApi.getValues();
-  // 审批相关：设置指定审批人
-  if (startUserSelectTasks.value?.length > 0) {
-    data.startUserSelectAssignees = startUserSelectAssignees.value;
-  }
-  // 格式化开始时间和结束时间的值
-  const submitData = {
-    ...data,
-    startTime: Number(data.startTime),
-    endTime: Number(data.endTime),
-  };
+  if (!formRef.value) return;
+
+  console.log('formData', 111);
+  // 直接调用表单组件的验证方法
+  const isValid = await formRef.value.validate();
+  if (!isValid) return;
+
+  // 获取保存数据并提交
+  const saveData = formRef.value.getSaveData();
+
   try {
-    formLoading.value = true;
-    // await (formData.value?.id
-    //   ? updateLeave(submitData)
-    //   : createLeave(submitData));
-    // 发起流程
-    createProcess({
-      processDefinitionKey: processDefineKey,
-      processInstanceVariables:{
-        entity: {id: 71},
-      },
-      businessKey: '71',
-      businessTableName: 'acceptance_plan_over_operation',
-    });
-    // 关闭并提示
-    message.success({
-      content: $t('ui.actionMessage.operationSuccess'),
-      key: 'action_process_msg',
-    });
-    // TODO @ziye、@jason：好像跳转不了？
-    // await router.push({
-    //   name: 'BpmOALeave',
-    // });
-  } catch (error: any) {
-    message.error(error.message);
-  } finally {
-    formLoading.value = false;
+    await createAcceptancePlanOverOperation(saveData);
+    message.success($t('ui.actionMessage.operationSuccess'));
+    router.go(-1);
+  } catch {
+    message.error('保存失败');
   }
 }
-//取消，返回工作流发起主页
+// 取消，返回工作流发起主页
 async function handleCancel() {
   // await router.push({
   //   name: 'BpmProcessInstanceCreate',
   //   query: { processInstanceId: '' },
   //   replace: true
   // });
-  router.go(-1)
+  router.go(-1);
 }
 /** 返回上一页 */
 function onBack() {
@@ -250,7 +197,7 @@ onMounted(async () => {
               返回
             </Button>
           </template>
-          <acceptancePlanForm/>
+          <AcceptancePlanForm ref="formRef" />
           <template #actions>
             <Space warp :size="12" class="w-full px-24">
               <Button type="default" @click="handleCancel"> 取消 </Button>
