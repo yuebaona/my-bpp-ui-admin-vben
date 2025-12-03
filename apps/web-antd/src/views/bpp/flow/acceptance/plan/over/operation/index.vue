@@ -171,10 +171,13 @@ const handleOnSiteOperation = async () => {
         message.error('请选择要操作的箱');
         return;
       }
-      if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+      if (containerOperationNodes.value.some(node =>
+        node === 'INITIALIZATION' || node === 'COM'
+      )) {
         message.error('请选择现场作业节点不是初始化或完成的状态');
         return;
       }
+
       if (boxAcceptancePlanNo.value.length > 1) {
         const uniqueNos = new Set(boxAcceptancePlanNo.value);
         if (uniqueNos.size > 1) {
@@ -339,6 +342,31 @@ function handleRowCheckboxChange({
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
   boxGridApi.query();
 }
+/** 重置箱信息相关数据 */
+const resetContainerData = () => {
+  boxCheckedIds.value = [];
+  boxAcceptancePlanNo.value = [];
+  containerNos.value = [];
+  containerIds.value = [];
+  batchQueryConditions.value = [];
+  machineSpreaderChangeTypes.value = [];
+  containerOperationNodes.value = [];
+  vesselCodes.value = [];
+  vesselVoyages.value = [];
+  vesselNames.value = [];
+  plannedSpreaderTypes.value = [];
+  // 清除表格选中状态
+  if (boxGridApi.grid) {
+    boxGridApi.grid.clearCheckboxRow(); // 清除所有选中行
+    boxGridApi.grid.clearCheckboxRow(); // 清除复选框选中
+  }
+
+  if (machineSpreaderChangeRecordGridApi.grid) {
+    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
+    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
+  }
+  machineSpreaderChangeRecordGridApi.query();
+};
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
 const boxAcceptancePlanNo = ref<string[]>([]);
@@ -715,6 +743,12 @@ const handleReset = () => {
 const handleSaveTemplate = (templateName: string) => {
   console.log('保存模板:', templateName);
 };
+watch(checkedIds, (newVal, oldVal) => {
+  if (newVal.length === 0 && oldVal.length > 0) {
+    // 先重置箱信息数据
+    resetContainerData();
+  }
+});
 </script>
 
 <template>
