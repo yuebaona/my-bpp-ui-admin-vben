@@ -1,0 +1,26 @@
+{
+  "overOperation": {
+    "operationListName": "Over-Limit Operation Application List",
+    "boxListName": "Container List",
+    "machineSpreaderRecord": "Spreader Change Record",
+    "onSiteOperationConfirm": "On-site Operation Confirm",
+    "actuallyNoOperation": "Actually No Operation",
+    "stopSubSequentOperations": "Stop Subsequent Operations",
+    "noChangeOperations": "no Change Operations"
+  },
+  "action": {
+    "action": "Action",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "import": "Import",
+    "export": "Export",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "reset": "Reset",
+    "search": "Search",
+    "more": "More"
+  }
+}

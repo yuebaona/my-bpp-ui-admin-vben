@@ -8,6 +8,7 @@ const routes: RouteRecordRaw[] = [
       title: '工作流',
       hideInMenu: true,
     },
+    component: () => import('#/views/bpm/processInstance/BpmLayout.vue'),
     children: [
       {
         path: 'task',

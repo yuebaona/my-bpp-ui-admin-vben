@@ -15,7 +15,7 @@ defineOptions({ name: 'BpmTodoTask' });
 /** 办理任务 */
 function handleAudit(row: BpmTaskApi.Task) {
   router.push({
-    name: 'BpmProcessInstanceDetail',
+    path: '/bpm/process-instance/detail',
     query: {
       id: row.processInstance!.id,
       taskId: row.id,
