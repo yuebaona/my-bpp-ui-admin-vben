@@ -141,10 +141,10 @@ export const deleteMainPlan = (id: number) => {
 };
 
 // 创建子计划信息
-export const createSubPlan = (
-  data: EmptyContainerControlApi.subPlanVO,
-) => {
-  return requestClient.post('/bpp/flow/empty/container-control-main/create', data);
+export const createSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/create', data
+  );
 };
 
 // 修改子计划信息
@@ -169,7 +169,7 @@ export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {
 };
 
 export const deleteSubPlan = (id: number) => {
-  return requestClient.get(`/bpp/flow/empty/container-control-main/delete?id=${id}`);
+  return requestClient.delete(`/bpp/flow/empty/container-control-main/delete?id=${id}`);
 };
 
 export const getLogQueryData = (params: PageParam) => {
