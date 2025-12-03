@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import type { UploadProps } from 'ant-design-vue';
-
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
-import { computed, reactive, ref, toRaw } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -12,98 +10,48 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { createMainplan } from '#/api/bpp/emptycontainercontrol';
-import { updateAcceptancePlanOverOperation } from '#/api/bpp/flowoverlimitwork';
+import {
+  createMainPlan,
+  updateMainPlan,
+} from '#/api/bpp/emptycontainercontrol';
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
-import ContainerAreaModal from './containerarea.vue';
+import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
-const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
 
-const containerAreaData = reactive<any[]>([
-  {
-    id: 'row_1',
-    yardPosition: 'A01-01-01',
-    yardColumns: ['A', 'B'],
-    totalCount: '3',
-    minStorageDays: '1',
-    maxStorageDays: '1',
-  },
-  {
-    id: 'row_2',
-    yardPosition: 'A02-01-01',
-    yardColumns: [],
-    totalCount: '3',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_3',
-    yardPosition: 'B01-01-01',
-    yardColumns: ['A', 'B', 'H'],
-    totalCount: '3',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_4',
-    yardPosition: 'B02-01-01',
-    yardColumns: [],
-    totalCount: '3',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-]);
+const containerAreaData = reactive<any[]>([]);
 
-// 主计划表单数据
-const formData2 = reactive<EmptyContainerControlApi.mainPlanVO>({
+const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
-  ownerList: ['aaa'],
-  isoNoList: ['111'],
-  isRelease: true,
+  ownerList: [],
+  isoNoList: [],
+  isRelease: false,
   pickupPlanNo: '',
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
-  bayRangeList: {
-    emptyContainerControlId: '',
-    id: '',
-    yardBay: 'A02-01',
-    yardRaw: 'D',
-  },
+  // bayRangeList: {
+  //   emptyContainerControlId: 0,
+  //   id: 0,
+  //   yardBay: '',
+  //   yardRaw: '',
+  // },
+  bayRangeList: [],
+  planType: '',
+  mainId: '',
+  planNo: '',
 });
-
-const acceptancePlanOverOperationRespVO =
-  reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
-    id: 0,
-    isAllowedStacking: false,
-    plannedMachineryType: '',
-    // plannedSpreaderType: '',
-    acceptancePlanNo: '',
-    processInstanceId: '',
-  });
-
-const acceptancePlanBillMessageVO =
-  reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
-    id: 0,
-    acceptancePlanNo: '',
-    billNo: '',
-    cargoType: '',
-    cargoName: '',
-    cargoCount: 0,
-    billType: '',
-  });
 
 const selectContainerArea = () => {
   containerAreaModalVisible.value = true;
 };
 
-const handleContainerAreaConfirm2 = (positions: string[]) => {
-  const $grid = gridApi2.grid;
+const handleContainerAreaConfirm = (positions: string[]) => {
+  const $grid = gridApi.grid;
   if ($grid) {
     // 清空现有数据
     containerAreaData.splice(0);
@@ -111,7 +59,7 @@ const handleContainerAreaConfirm2 = (positions: string[]) => {
     // 添加新选择的数据
     const newRows = positions.map((pos, index) => ({
       id: `row_${Date.now()}_${index}`,
-      yardPosition: `${pos}-01`, // 假设默认层号为01
+      yardPosition: `${pos}`,
       yardColumns: [],
       totalCount: '',
       minStorageDays: '',
@@ -124,13 +72,12 @@ const handleContainerAreaConfirm2 = (positions: string[]) => {
 };
 
 // 删除行方法
-const deleteRow2 = async (row: any) => {
-  const $grid = gridApi2.grid;
+const deleteRow = async (row: any) => {
+  const $grid = gridApi.grid;
   await $grid.remove(row);
 };
 
-// 主计划
-const [Form2, formApi2] = useVbenForm({
+const [Form, formApi] = useVbenForm({
   commonConfig: {
     componentProps: {
       class: 'w-full',
@@ -143,11 +90,11 @@ const [Form2, formApi2] = useVbenForm({
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values) => {
-    Object.assign(formData2, values);
+    Object.assign(formData, values);
   },
 });
 
-const [Grid2, gridApi2] = useVbenVxeGrid({
+const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: containerAreaRangeColumns(),
     height: '300px',
@@ -165,9 +112,9 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       trigger: 'manual',
     },
     editRules: {
-      yardPosition: [{ required: true, message: '必须填写' }],
-      yardColumns: [{ required: true, message: '必须选择堆场列' }],
-      totalCount: [{ required: true, message: '必须填写' }],
+      // yardPosition: [{ required: true, message: '必须填写' }],
+      // yardColumns: [{ required: true, message: '必须选择堆场列' }],
+      // totalCount: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -179,190 +126,156 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       enabled: false,
     },
     data: containerAreaData,
-  } as VxeTableGridOptions,
+  } as VxeTableGridOptions<any>,
 });
 
-const [Modal2, modalApi2] = useVbenModal({
+const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    const containerAreaArray = [...gridApi2.grid.getInsertRecords()].map(
-      (record) => toRaw(record),
-    );
+    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
+    //   (record) => toRaw(record),
+    // );
+
     // if (containerAreaArray.length === 0) {
     //   message.warning('请至少添加一条箱区范围数据');
     //   return;
     // }
 
-    const { valid } = await formApi2.validate();
-    const gridValid: boolean = await gridApi2.grid.validate(true);
+    const { valid } = await formApi.validate();
+    const gridValid: boolean = await gridApi.grid.validate(true);
 
     if (!valid || gridValid) {
       return;
     }
 
-    Object.assign(formData2, await formApi2.getValues());
-    const data: { mainPlanSaveReqVO: EmptyContainerControlApi.mainPlanVO } = {
-      mainPlanSaveReqVO: {
-        ...formData2,
-      } as EmptyContainerControlApi.mainPlanVO,
-    };
-    console.log('data', data);
+    // Object.assign(formData, await formApi.getValues());
+    const formValues = await formApi.getValues();
+    Object.assign(formData, formValues);
+    // 确保planType和mainId被正确设置
+    if (!formData.planType) {
+      formData.planType = 'MAIN';
+    }
+    // 转换持箱人字符串为数组
+    const ownerList = formValues.owners
+      ? formValues.owners
+          .split(/[,，]/)
+          .map((item: string) => item.trim())
+          .filter(Boolean)
+      : [];
 
-    // await (formData2?.id
-    //   ? updateAcceptancePlanOverOperation(data)
-    //   : createMainplan(data));
-    //
-    // await (formData2?.id
-    //   ? updateAcceptancePlanOverOperation(data)
-    //   : createMainplan(formData2));
+    // 转换ISO字符串为数组
+    const isoNoList = formValues.isoNos
+      ? formValues.isoNos
+          .split(/[,，]/)
+          .map((item: string) => item.trim())
+          .filter(Boolean)
+      : [];
 
-    await (formData2?.id
-      ? updateAcceptancePlanOverOperation(data)
-      : createMainplan({
-          id: '',
-          ownerList: ['bbb'],
-          isoNoList: ['222'],
-          isRelease: true,
-          pickupPlanNo: '',
-          tradeType: 'FOREIGN',
-          planQuantity: '',
-          completedReleaseQuantity: '',
-          bayRangeList: [
-            {
-              id: '',
-              emptyContainerControlId: '',
-              yardBay: 'A02-01',
-              yardRaw: 'D',
-            },
-          ],
-          category: '',
-          vesselCode: '',
-          vesselName: '',
-          vesselVoyage: '',
-          plannedOperationTime: '',
-        }));
+    // 转换表格数据为bayRangeList格式
+    const bayRangeList = containerAreaData.map((row: any) => ({
+      emptyContainerControlId: '',
+      id: '',
+      yardBay: row.yardPosition || '',
+      yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
+    }));
 
-    // await (formData2?.id
-    //   ? updateAcceptancePlanOverOperation(data)
-    //   : createMainplan({
-    //     "id": 0,
-    //     "ownerList": [
-    //       "bbbb"
-    //     ],
-    //     "isoNoList": [
-    //       "11"
-    //     ],
-    //     "isRelease": true,
-    //     "pickupPlanNo": "111",
-    //     "tradeType": "FOREIGN",
-    //     "planQuantity": "11",
-    //     "completedReleaseQuantity": "11",
-    //     "bayRangeList": [
-    //       {
-    //         "id": "16606",
-    //         "emptyContainerControlId": "22289",
-    //         "yardBay": "111",
-    //         "yardRaw": "11"
-    //       }
-    //     ]
-    //   }));
+    // 构建符合新接口格式的数据
+    const data: EmptyContainerControlApi.mainPlanVO = {
+      ...formData,
+      // 确保数组字段正确处理
+      // ownerList: formData.ownerList || [],
+      // isoNoList: formData.isoNoList || [],
+      ownerList,
+      isoNoList,
+    } as EmptyContainerControlApi.mainPlanVO;
 
-    await modalApi2.close();
+    await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
+
+    await modalApi.close();
     emit('success');
     message.success($t('ui.actionMessage.operationSuccess'));
   },
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
-      Object.assign(formData2, {
+      Object.assign(formData, {
         id: '',
-        acceptancePlanNo: '',
-        acceptancePlanWebNo: '',
-        applicantCode: '',
-        // applicantCompanyName: '',
-        applicantPlanCount: 0,
-        applicantPlanEnd: '',
-        applicantPlanStart: '',
-        applicantPlanType: '',
-        applicantType: '',
-        attachmentFile: '',
-        cargoAgentCode: '',
-        cargoOwnerCode: '',
-        category: '',
-        conclusionTime: '',
-        dataSource: '',
-        handlerConfirmTime: '',
-        handlerConfirmation: '',
-        handlerRemark: '',
-        handlingPerson: '',
-        invoiceTitle: '',
-        isSystemRate: false,
-        payerCodeGate: '',
-        payerCodeSea: '',
-        paymentTypeGate: '',
-        paymentTypeSea: '',
-        planStatus: '',
-        plannedOperationTime: '',
-        submissionTime: '',
-        vesselCode: '',
-        vesselName: '',
-        vesselVoyage: '',
+        ownerList: [],
+        isoNoList: [],
+        isRelease: false,
+        pickupPlanNo: '',
+        tradeType: '',
+        planQuantity: '',
+        completedReleaseQuantity: '',
+        // bayRangeList: {
+        //   emptyContainerControlId: 0,
+        //   yardBay: '',
+        //   yardRaw: '',
+        // },
+        bayRangeList: [],
+        planType: '',
+        mainId: '',
+        planNo: '',
       });
       containerAreaData.splice(0);
       return;
     }
 
-    const data = await modalApi2.getData<EmptyContainerControlApi.mainPlanVO>();
-
-    console.log('data', data);
-    console.log('formData2', formData2);
+    const data = await modalApi.getData<any>();
 
     if (data) {
-      Object.assign(formData2, data.acceptancePlanRespVO);
-      Object.assign(
-        acceptancePlanOverOperationRespVO,
-        data.acceptancePlanOverOperationRespVO,
-      );
-      Object.assign(
-        acceptancePlanBillMessageVO,
-        data.acceptancePlanBillMessageRespVO,
-      );
-      if (data?.acceptancePlanRespVO?.id) {
-        modalApi2.lock();
-        try {
-          await formApi2.setValues(data.acceptancePlanRespVO);
-          await formApi2.setFieldValue(
-            'billNo',
-            data?.acceptancePlanBillMessageRespVO?.billNo,
-          );
-          await formApi2.setFieldValue(
-            'cargoName',
-            data?.acceptancePlanBillMessageRespVO?.cargoName,
-          );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
+      // 清空现有数据
+      containerAreaData.splice(0);
 
-          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
-            const $grid2 = gridApi2.grid;
-            if ($grid2) {
-              await $grid2.insertAt(item, -1);
+      const mainPlanData = data.acceptancePlanRespVO || data;
+      Object.assign(formData, mainPlanData);
+
+      if (data.planType) {
+        formData.planType = data.planType;
+      }
+      if (data.mainId) {
+        formData.mainId = data.mainId;
+      }
+
+      if (mainPlanData?.id) {
+        modalApi.lock();
+        try {
+          await formApi.setValues(mainPlanData);
+
+          // 设置箱区范围数据
+          if (data.yardPositionResp) {
+            const $grid = gridApi.grid;
+            if ($grid) {
+              for (const item of data.yardPositionResp) {
+                await $grid.insertAt(
+                  {
+                    ...item,
+                    id: `row_${item.id}`, // 确保ID格式正确
+                  },
+                  -1,
+                );
+              }
             }
           }
         } finally {
-          modalApi2.unlock();
+          modalApi.unlock();
         }
+      } else {
+        // 新创建的主计划，确保planType为MAIN
+        formData.planType = 'MAIN';
       }
     }
   },
 });
 
-const modalTitle2 = computed(() => {
-  return formData2.id
+const modalTitle = computed(() => {
+  return formData.id
     ? $t('ui.actionTitle.edit', ['主计划'])
     : $t('ui.actionTitle.create', ['主计划']);
 });
 </script>
 
 <template>
-  <Modal2 :title="modalTitle2">
-    <Form2>
+  <Modal :title="modalTitle">
+    <Form>
       <!-- 箱区范围表格部分 -->
       <template #containerAreaRange>
         <div class="mt-4 w-full">
@@ -373,7 +286,7 @@ const modalTitle2 = computed(() => {
             </Button>
           </div>
           <div class="table-container">
-            <Grid2 :data="containerAreaData">
+            <Grid>
               <!-- 堆场列下拉多选组件 -->
               <template #yardColumns="{ row }">
                 <Select
@@ -404,28 +317,20 @@ const modalTitle2 = computed(() => {
                       label: '删除',
                       type: 'link',
                       danger: true,
-                      onClick: () => deleteRow2(row),
+                      onClick: () => deleteRow(row),
                     },
                   ]"
                 />
               </template>
-            </Grid2>
+            </Grid>
           </div>
         </div>
       </template>
-      <!--      <template #handlingPersonLast>-->
-      <!--        <span-->
-      <!--          class="text-gray-600"-->
-      <!--          v-if="formData2 && formData2.handlingPerson"-->
-      <!--        >-->
-      <!--          {{ formData2.handlingPerson }}-->
-      <!--        </span>-->
-      <!--      </template>-->
-    </Form2>
+    </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerAreaModal
+    <ContainerArea
       v-model:visible="containerAreaModalVisible"
-      @confirm="handleContainerAreaConfirm2"
+      @confirm="handleContainerAreaConfirm"
     />
-  </Modal2>
+  </Modal>
 </template>
