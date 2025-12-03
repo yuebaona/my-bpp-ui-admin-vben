@@ -1,13 +1,13 @@
-import type { VbenFormSchema } from "#/adapter/form";
-import { z } from "#/adapter/form";
-import type { VxeTableGridOptions } from "#/adapter/vxe-table";
-import type { DescriptionItemSchema } from "#/components/description";
-import { getDictDataPage } from "#/api/bpp/base/dict/data";
-import { bppBaseDictStore } from "#/store/bpp/base/dict";
-import { getRangePickerDefaultProps } from "#/utils";
+import type { VbenFormSchema } from '#/adapter/form';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { DescriptionItemSchema } from '#/components/description';
+
+import { z } from '#/adapter/form';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
+import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
-
 // 预加载需要的字典数据
 const loadDictData = async (dictTypes: string[]) => {
   for (const dictType of dictTypes) {
@@ -33,7 +33,19 @@ loadDictData([
   'driving_source',
   'change_reason',
   'spreader_type',
+  'actual_operation',
 ]);
+// 定义受理状态选项配置
+function getPlanStatusOptions(type: string) {
+  const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
+
+  // 将字典数据转换为 CellTag 需要的格式
+  return dictOptions.map((option) => ({
+    value: option.value,
+    label: option.label,
+    color: option.colorType,
+  }));
+}
 // 文件信息
 export interface fileVo {
   fileName: string;
@@ -292,8 +304,8 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
       },
       slots: {
         // 编辑状态下的插槽
-        edit: 'containerLengthEdit'
-      }
+        edit: 'containerLengthEdit',
+      },
     },
     {
       title: '箱型',
@@ -304,8 +316,8 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
       },
       slots: {
         // 编辑状态下的插槽
-        edit: 'containerTypeEdit'
-      }
+        edit: 'containerTypeEdit',
+      },
     },
     {
       title: '货重KG',
@@ -556,14 +568,14 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
         allowClear: true,
         onBlur: (e: Event) => {
           const target = e.target as HTMLInputElement;
-          target.value = target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+          target.value = target.value
+            .toUpperCase()
+            .replaceAll(/[^A-Z0-9]/g, '');
           // 手动触发 input 事件确保表单更新
           target.dispatchEvent(new Event('input', { bubbles: true }));
         },
       },
-      rules: z
-        .string()
-        .regex(/^[A-Z0-9]+$/, '请输入正确的提单号'),
+      rules: z.string().regex(/^[A-Z0-9]+$/, '请输入正确的提单号'),
     },
     {
       fieldName: 'cargoName',
@@ -668,7 +680,6 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         placeholder: '请输入提单号',
         allowClear: true,
       },
-
     },
     {
       fieldName: 'applicantCompanyName',
@@ -987,9 +998,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('system_rate') || [];
-        const option = options.find((opt) => opt.value.toString() === value.cellValue.toString());
+        const options = bppBaseDict.getBppBaseDictOptions('system_rate') || [];
+        const option = options.find(
+          (opt) => opt.value.toString() === value.cellValue.toString(),
+        );
         return option ? option.label : value.cellValue;
       },
     },
@@ -1008,11 +1020,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('acceptance_plan_status') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('acceptance_plan_status'),
       },
     },
     {
@@ -1226,18 +1236,15 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('on_site_operation_node') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('on_site_operation_node'),
       },
     },
   ];
 }
 // 变更吊具记录的字段配置
-export function machineSpreaderChangeRecordGridColumns(
-): VxeTableGridOptions['columns'] {
+export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'checkbox',
@@ -1404,6 +1411,14 @@ export function machineSpreaderChangeRecordGridColumns(
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('actual_operation') || [];
+        const option = options.find(
+          (opt) => opt.value.toString() === value.cellValue.toString(),
+        );
+        return option ? option.label : value.cellValue;
       },
     },
     {
