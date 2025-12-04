@@ -1,7 +1,5 @@
 <!-- AcceptancePlanForm.vue -->
 <script lang="ts" setup>
-import type { UploadProps } from 'ant-design-vue';
-
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import type { SystemUserProfileApi } from '#/api/system/user/profile';
@@ -27,7 +25,7 @@ import { getAcceptancePlanOverOperation } from '#/api/bpp/flow/acceptance/plan/o
 import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';
 
-import { acceptancePlanFormSchema, containerInfoColumns } from '../data.ts';
+import { acceptancePlanFormSchema, containerInfoColumns } from '../data';
 
 interface Props {
   id?: string; // 只需要传递id
@@ -36,24 +34,26 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits(['success', 'validate']);
-
-// 响应式数据
 const vesselCode = ref<string>();
+
 const vesselNameState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
 const vesselVoyageState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
 const payerNameSeaState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
 const payerNameGateState = reactive({
   data: [],
   value: [],
@@ -71,7 +71,7 @@ const isoLengthState = reactive({
 });
 
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
-const fileList = ref<UploadProps['fileList']>([]);
+const fileList = ref<string[]>([]);
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
@@ -84,6 +84,7 @@ const selectKey = ref(0);
 
 // 主表单数据
 const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
+  cargoName: '',
   handlingPhoneNumber: '',
   id: '',
   acceptancePlanNo: '',
@@ -283,6 +284,7 @@ const saveRow = async (
 
 const updateContainerDataList = () => {
   containerDataList.splice(0);
+  // eslint-disable-next-line array-callback-return
   [...gridApi.grid.getInsertRecords()].map((record) => {
     containerDataList.push(toRaw(record));
   });
@@ -485,14 +487,14 @@ const getSaveData = () => {
         ...item,
         id:
           item.id && String(item.id).startsWith('row_')
-            ? item.id.replace('row_', '')
+            ? String(item.id).replace('row_', '')
             : item.id,
       }),
     ),
     acceptancePlanBillMessageSaveReqVO: {
       ...acceptancePlanBillMessageVO,
-      billNo: formData.billNo,
-      cargoName: formData.cargoName,
+      billNo: formData?.billNo,
+      cargoName: formData?.cargoName,
     },
   };
 };
@@ -549,7 +551,7 @@ const payerNameSeaSearch = async (value: string) => {
   if (!value) return;
   payerNameSeaState.fetching = true;
   const res = await getCustomerList({
-    page: 1,
+    pageNo: 1,
     pageSize: 100,
     customerName: value,
   });
@@ -577,7 +579,7 @@ const payerNameGateSearch = async (value: string) => {
   if (!value) return;
   payerNameGateState.fetching = true;
   const res = await getCustomerList({
-    page: 1,
+    pageNo: 1,
     pageSize: 100,
     customerName: value,
   });
