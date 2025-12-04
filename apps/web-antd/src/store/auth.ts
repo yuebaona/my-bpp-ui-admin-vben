@@ -141,11 +141,11 @@ export const useAuthStore = defineStore('auth', () => {
     // accessStore
     accessStore.setAccessMenus(authPermissionInfo.menus);
     accessStore.setAccessCodes(authPermissionInfo.permissions);
+    // 获取待办任务
     const taskTodo = await getTaskTodoPage({
       pageNo: 1,
       pageSize: 100,
     });
-    debugger
     if (taskTodo) {
       localStorage.setItem('taskTodoTotal', String(taskTodo.total));
     }

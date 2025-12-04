@@ -251,3 +251,18 @@ export const machineSpreaderRecordDeleteList = (ids: any) => {
     `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
   );
 };
+// 获得机械吊具变更操作记录
+export const getMachineSpreaderRecord = async (id: any) => {
+  return await requestClient.get(
+    `/bpp/flow/machine-spreader-record/get?id=${id}`,
+  );
+};
+// 修改机械吊具变更操作记录
+export const machineSpreaderRecordUpdateProcess = async (
+  data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  return await requestClient.put(
+    `/bpp/flow/machine-spreader-record/update-process`,
+    data,
+  );
+};

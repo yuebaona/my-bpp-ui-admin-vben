@@ -845,6 +845,12 @@ const handleSaveTemplate = (templateName: string) => {
           <template #actions="{ row }">
             <TableAction
               :actions="[
+                (row.reviewFlag ? {
+                  label: '审核',
+                  type: 'link',
+                  icon: ACTION_ICON.AUDIT,
+                  onClick: handleViewDetail.bind(null, row),
+                }: ''),
                 {
                   label: $t('common.edit'),
                   type: 'link',
