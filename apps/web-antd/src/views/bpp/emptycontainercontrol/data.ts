@@ -375,6 +375,13 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
+      cellRender: {
+        name: 'CellTagDict',
+        options: [
+          { value: true, label: '是' },
+          { value: false, label: '否' },
+        ],
+      },
     },
     {
       field: 'pickupPlanNo',
@@ -498,6 +505,13 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
+      cellRender: {
+        name: 'CellTagDict',
+        options: [
+          { value: true, label: '是' },
+          { value: false, label: '否' },
+        ],
+      },
     },
     {
       field: 'pickupPlanNo',
