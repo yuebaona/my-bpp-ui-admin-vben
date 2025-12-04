@@ -1,7 +1,7 @@
 import { withPwa } from '@vite-pwa/vitepress';
 import { defineConfigWithTheme } from 'vitepress';
 
-import { en } from './en.mts';
+// import { en } from './en.mts';
 import { shared } from './shared.mts';
 import { zh } from './zh.mts';
 
