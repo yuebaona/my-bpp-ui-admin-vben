@@ -11,6 +11,7 @@ export const ACTION_ICON = {
   VIEW: 'lucide:eye',
   COPY: 'lucide:copy',
   CLOSE: 'lucide:x',
+  BOOK: 'lucide:book',
   AUDIT: 'ant-design:audit-outlined',
   UNDO: 'ant-design:undo-outlined',
   LOG: 'material-symbols-light:docs-outline',
