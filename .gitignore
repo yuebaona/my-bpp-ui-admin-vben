@@ -50,4 +50,3 @@ vite.config.ts.*
 *.sw?
 .history
 .cursor
-.workflow
