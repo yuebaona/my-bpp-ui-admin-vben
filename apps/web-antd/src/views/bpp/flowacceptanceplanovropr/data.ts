@@ -3,12 +3,265 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
 import { z } from '#/adapter/form';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
 
+const bppBaseDict = bppBaseDictStore();
+
+// 预加载需要的字典数据
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
+// 文件信息
 export interface fileVo {
   fileName: string;
   fileUrl: string;
 }
+// 现场操作确认表单字段
+export function onSiteOperationConfirmFormSchema(
+  disabledFields: string[] = [], // 需要禁用的字段名数组
+): VbenFormSchema[] {
+  // 判断字段是否应该禁用
+  const shouldDisable = (fieldName: string): boolean => {
+    return disabledFields.includes(fieldName);
+  };
+  return [
+    {
+      fieldName: 'operationType',
+      label: '现场作业类别',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择现场作业类别',
+        allowClear: true,
+        api: async (params?: any) => {
+          return await getDictDataPage(params);
+        },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'on_site_operation_category',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
+        disabled: shouldDisable('operationType'),
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'operationSource',
+      label: '驱动源',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择现场作业类别',
+        allowClear: true,
+        api: async (params?: any) => {
+          return await getDictDataPage(params);
+        },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'driving_source',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
+        disabled: shouldDisable('operationSource'),
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'changeReason',
+      label: '变更原因',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择现场作业类别',
+        allowClear: true,
+        api: async (params?: any) => {
+          return await getDictDataPage(params);
+        },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'change_reason',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'operationFile',
+      label: '现场图片上传',
+      component: 'ImageUpload',
+      formItemClass: 'md:col-span-2',
+      componentProps: {
+        multiple: true,
+        maxNumber: 9,
+      },
+    },
+    {
+      fieldName: 'vesselName',
+      label: '作业船名',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业船名',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'vesselVoyage',
+      label: '作业航次',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业航次',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'containerNo',
+      label: '箱号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入箱号',
+        allowClear: true,
+        disabled: shouldDisable('containerNo'),
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'operationPosition',
+      label: '作业位置',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业位置',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'machineNo',
+      label: '作业机械号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入作业机械号',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'spreaderType',
+      label: '实际吊具类型',
+      component: 'ApiSelect',
+      componentProps: {
+        placeholder: '请选择现场作业类别',
+        allowClear: true,
+        api: async (params?: any) => {
+          return await getDictDataPage(params);
+        },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'spreader_type',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'startTime',
+      label: '更换换吊具开始时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具开始时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'endTime',
+      label: '更换换吊具结束时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具结束时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'startTimeBack',
+      label: '换回原吊具开始时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具开始时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'endTimeBack',
+      label: '换回原吊具结束时间',
+      component: 'DatePicker',
+      componentProps: {
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'x',
+        placeholder: '请选择换吊具结束时间',
+        showTime: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'remark',
+      label: '备注',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+        rows: 4,
+        allowClear: true,
+      },
+    },
+  ];
+}
+// 箱信息表格数据列表
 export function containerInfoColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -39,6 +292,10 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
           { label: '40', value: '40' },
         ],
       },
+      // slots: {
+      //   // 编辑状态下的插槽
+      //   edit: 'containerSizeEdit'
+      // }
     },
     {
       title: '箱型',
@@ -47,8 +304,8 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
       editRender: {
         name: 'select',
         options: [
-          { label: 'FR', value: 'FR' },
-          { label: 'OT', value: 'OT' },
+          { label: 'FR', value: 'FR1' },
+          { label: 'OT', value: 'OT1' },
         ],
       },
     },
@@ -84,6 +341,7 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+// 箱信息详情表格数据列表
 export function containerInfoDetailColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -157,7 +415,10 @@ export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+// 受理计划表单字段
 export function acceptancePlanFormSchema(): VbenFormSchema[] {
+  // 调用预加载
+  loadDictData(['payment_method', 'import_export_type']);
   return [
     // 基本信息
     {
@@ -216,11 +477,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       label: '缴费方式（海侧）',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '现结', value: 'cash' },
-          { label: '账期', value: 'credit' },
-          { label: '现付', value: 'spot' },
-        ],
+        options: bppBaseDict.getBppBaseDictOptions('payment_method'),
       },
       rules: 'required',
     },
@@ -238,11 +495,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       label: '缴费方式（陆侧）',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '月结', value: 'export' },
-          { label: '预收', value: 'import' },
-          { label: '现结', value: 'transit' },
-        ],
+        options: bppBaseDict.getBppBaseDictOptions('payment_method'),
       },
       rules: 'required',
     },
@@ -260,12 +513,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       label: '进出口类别',
       component: 'RadioGroup',
       componentProps: {
-        options: [
-          { label: '收箱出口', value: 'export' },
-          { label: '卸船进口提箱', value: 'import' },
-          { label: '海运中转', value: 'transit' },
-          { label: '船翻倒', value: 'additional' },
-        ],
+        options: bppBaseDict.getBppBaseDictOptions('import_export_type'),
       },
       rules: 'required',
     },
@@ -469,123 +717,391 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
 /** 超限作业申请列表的字段 */
 export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'checkbox', width: 40 },
+    { type: 'checkbox', width: 40 ,fixed: 'left',},
     {
       field: 'acceptancePlanNo',
       title: '申请编号',
       minWidth: 120,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'acceptancePlanWebNo',
       title: '网上编号',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'applicantCompanyName',
       title: '申请单位',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'applicantCode',
       title: '申请人',
-      minWidth: 120,
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      sortable: true,
     },
     {
       field: 'vesselName',
       title: '作业船名',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'vesselVoyage',
       title: '作业航次',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'category',
       title: '进出口类别',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
+        const option = options.find(opt => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'vesselCode',
       title: '作业船名代码',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'billNo',
       title: '提单号',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'cargoName',
       title: '货名',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'payerCodeSea',
       title: '海侧缴费方',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'paymentTypeSea',
       title: '海侧缴费方式',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find(opt => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'payerCodeGate',
       title: '陆侧缴费方',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'paymentTypeGate',
       title: '陆侧缴费方式',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find(opt => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'handlingPerson',
       title: '经办人',
       minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'isSystemRate',
       title: '是否系统费率',
-      minWidth: 100,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'planStatus',
       title: '受理状态',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'auditNode',
       title: '审批节点',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'auditNodeStatus',
       title: '审批状态',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'auditComment',
       title: '审批意见',
       minWidth: 180,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'nextNode',
       title: '下一节点',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'submissionTime',
       title: '提交时间',
       minWidth: 180,
       formatter: 'formatDateTime',
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'conclusionTime',
       title: '审结时间',
       minWidth: 180,
       formatter: 'formatDateTime',
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       title: '操作',
@@ -620,184 +1136,440 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
     {
       type: 'checkbox',
       width: 40,
+      fixed: 'left',
     },
     {
       field: 'containerNo',
       title: '箱号',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerSize',
       title: '尺寸',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerType',
       title: '箱型',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerCargoWeight',
       title: '货物重KG',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerTotalWeight',
       title: '箱货总重KG',
-      minWidth: 100,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerCargoSize',
       title: '货物尺寸CM',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerOverlimitDetails',
       title: '超限明细CM',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerPhysicalStatus',
       title: '受理节点时箱物理状态',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerOperationNode',
       title: '现场作业节点',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
   ];
 }
 // 变更吊具记录的字段配置
-export function useToolChangeGridColumns(): VxeTableGridOptions['columns'] {
+export function machineSpreaderChangeRecordGridColumns(
+  dictStore?: any,
+): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'checkbox',
       width: 40,
+      fixed: 'left',
     },
     {
-      field: 'id',
-      title: '主键ID',
-      minWidth: 80,
-    },
-    {
-      field: 'globalId',
-      title: '全局唯一标识',
-      minWidth: 150,
-    },
-    {
-      field: 'operationType',
+      field: 'machineSpreaderChangeType',
       title: '现场作业类别',
-      minWidth: 120,
+      minWidth: 200,
+      formatter: ({ cellValue }) => {
+        const dict = dictStore?.getDictData?.('operation_type', cellValue);
+        return dict?.label || cellValue;
+      },
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
-      field: 'driveSource',
-      title: '驱动源',
-      minWidth: 100,
-    },
-    {
-      field: 'changeReason',
-      title: '变更原因',
-      minWidth: 120,
-    },
-    {
-      field: 'vesselCode',
+      field: 'vesselName',
       title: '作业船名',
-      minWidth: 100,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
-      field: 'voyageCode',
+      field: 'vesselVoyage',
       title: '作业航次',
-      minWidth: 100,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'containerNo',
       title: '箱号',
-      minWidth: 150,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
-      field: 'operationPosition',
-      title: '作业位置',
-      minWidth: 100,
+      field: 'operationSource',
+      title: '驱动源',
+      minWidth: 200,
+      formatter: ({ cellValue }) => {
+        const dict = dictStore?.getDictData?.('operation_source', cellValue);
+        return dict?.label || cellValue;
+      },
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
-      field: 'machineType',
+      field: 'changeReason',
+      title: '变更原因',
+      minWidth: 200,
+      formatter: ({ cellValue }) => {
+        const dict = dictStore?.getDictData?.('change_reason', cellValue);
+        return dict?.label || cellValue;
+      },
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
+      field: 'machineSpreaderType',
       title: '作业机械类别',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'machineNo',
       title: '作业机械号',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
+      field: 'isOnSiteWork',
+      title: '现场是否实际作业',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
+      field: 'operationPosition',
+      title: '作业位置',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'spreaderType',
       title: '作业吊具类型',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'startTime',
       title: '换吊具开始时间',
-      minWidth: 180,
+      minWidth: 200,
       formatter: 'formatDateTime',
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'endTime',
       title: '换吊具结束时间',
-      minWidth: 180,
+      minWidth: 200,
       formatter: 'formatDateTime',
-    },
-    {
-      field: 'operationFile',
-      title: '现场图片',
-      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'remark',
       title: '备注',
-      minWidth: 150,
-    },
-    {
-      field: 'containerOverId',
-      title: '关联箱计划标识',
-      minWidth: 120,
-    },
-    {
-      field: 'machineStopId',
-      title: '关联机械停止标识',
-      minWidth: 120,
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'creator',
-      title: '创建人',
-      minWidth: 100,
+      title: '创建者',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
-      field: 'create_time',
+      field: 'createTime',
       title: '创建时间',
-      minWidth: 180,
+      minWidth: 200,
+      sortable: true,
       formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
-      field: 'updater',
-      title: '更新人',
-      minWidth: 100,
-    },
-    {
-      field: 'update_time',
-      title: '更新时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'deleted',
-      title: '删除标识',
-      minWidth: 80,
-    },
-    {
-      field: 'tenant_id',
-      title: '租户ID',
-      minWidth: 80,
+      title: '操作',
+      width: 200,
+      fixed: 'right',
+      slots: { default: 'actions' },
     },
   ];
 }

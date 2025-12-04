@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { BpmProcessDefinitionApi } from '#/api/bpm/definition';
 import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
-
-import { computed, nextTick, ref, watch } from 'vue';
+import { registerComponent } from '#/utils';
+import { computed, nextTick, ref, watch,shallowRef } from 'vue';
 
 import {
   BpmCandidateStrategyEnum,
@@ -74,6 +74,8 @@ const timelineRef = ref<any>();
 const activeTab = ref('form');
 const activityNodes = ref<BpmProcessInstanceApi.ApprovalNodeInfo[]>([]);
 const processInstanceStartLoading = ref(false);
+const BusinessFormComponent = shallowRef<any>(null); // 异步组件(业务表单）
+const formType = ref<any>(null); // 表单类型：动态表单、自定义表单
 
 /** 提交按钮 */
 async function submitForm() {
@@ -115,7 +117,7 @@ async function initProcessInfo(row: any, formVariables?: any) {
   // 重置指定审批人
   startUserSelectTasks.value = [];
   startUserSelectAssignees.value = {};
-
+  formType.value = row.formType;
   // 情况一：流程表单
   if (row.formType === BpmModelFormType.NORMAL) {
     // 设置表单
@@ -153,9 +155,13 @@ async function initProcessInfo(row: any, formVariables?: any) {
     }
     // 情况二：业务表单
   } else if (row.formCustomCreatePath) {
-    await router.push({
-      path: row.formCustomCreatePath,
-    });
+      // 注意：ormCustomCreatePath 是组件的全路径，例如说：/crm/contract/detail/index.vue
+      BusinessFormComponent.value = registerComponent(
+        row.formCustomCreatePath || '',
+      );
+    // await router.push({
+    //   path: row.formCustomCreatePath,
+    // });
     // 这里暂时无需加载流程图，因为跳出到另外个 Tab；
   }
 }
@@ -267,57 +273,69 @@ defineExpose({ initProcessInfo });
         </Button>
       </Space>
     </template>
-
-    <Tabs
-      v-model:active-key="activeTab"
-      class="flex flex-1 flex-col overflow-hidden"
-    >
-      <Tabs.TabPane tab="表单填写" key="form">
-        <Row :gutter="[48, 16]" class="pt-4">
-          <Col
-            :xs="24"
-            :sm="24"
-            :md="18"
-            :lg="18"
-            :xl="18"
-            class="flex-1 overflow-auto"
-          >
-            <form-create
-              v-if="isFormReady"
-              :rule="detailForm.rule"
-              v-model:api="fApi"
-              v-model="detailForm.value"
-              :option="detailForm.option"
-              @submit="submitForm"
-            />
-          </Col>
-          <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
-            <ProcessInstanceTimeline
-              ref="timelineRef"
-              :activity-nodes="activityNodes"
-              :show-status-icon="false"
-              @select-user-confirm="selectUserConfirm"
-            />
-          </Col>
-        </Row>
-      </Tabs.TabPane>
-      <Tabs.TabPane
-        tab="流程图"
-        key="flow"
-        class="flex flex-1 overflow-hidden"
-        :force-render="true"
+    <div>
+      <!-- 自定义流程表单 -->
+      <div
+        v-if="formType === BpmModelFormType.CUSTOM"
+        class="h-full"
       >
-        <div class="w-full">
-          <ProcessInstanceSimpleViewer
-            :simple-json="simpleJson"
-            v-if="selectProcessDefinition.modelType === BpmModelType.SIMPLE"
-          />
-        </div>
-      </Tabs.TabPane>
-    </Tabs>
+        <BusinessFormComponent />
+      </div>
+    </div>
+    <!-- 动态流程表单 -->
+    <div v-if="formType === BpmModelFormType.NORMAL">
+      <Tabs
+        v-model:active-key="activeTab"
+        class="flex flex-1 flex-col overflow-hidden"
+      >
+        <Tabs.TabPane tab="业务单据" key="form">
+          <Row :gutter="[48, 16]" class="pt-4">
+            <Col
+              :xs="24"
+              :sm="24"
+              :md="18"
+              :lg="18"
+              :xl="18"
+              class="flex-1 overflow-auto"
+            >
+              <form-create
+                v-if="isFormReady"
+                :rule="detailForm.rule"
+                v-model:api="fApi"
+                v-model="detailForm.value"
+                :option="detailForm.option"
+                @submit="submitForm"
+              />
+            </Col>
+            <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
+              <ProcessInstanceTimeline
+                ref="timelineRef"
+                :activity-nodes="activityNodes"
+                :show-status-icon="false"
+                @select-user-confirm="selectUserConfirm"
+              />
+            </Col>
+          </Row>
+        </Tabs.TabPane>
+        <Tabs.TabPane
+          tab="流程图"
+          key="flow"
+          class="flex flex-1 overflow-hidden"
+          :force-render="true"
+        >
+          <div class="w-full">
+            <ProcessInstanceSimpleViewer
+              :simple-json="simpleJson"
+              v-if="selectProcessDefinition.modelType === BpmModelType.SIMPLE"
+            />
+          </div>
+        </Tabs.TabPane>
+      </Tabs>
+
+    </div>
 
     <template #actions>
-      <template v-if="activeTab === 'form'">
+      <template v-if="activeTab === 'form' && formType === BpmModelFormType.NORMAL">
         <Space wrap class="flex w-full justify-center">
           <Button
             plain

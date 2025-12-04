@@ -108,6 +108,7 @@ export namespace FlowOverLimitWorkApi {
     stopEndTime: number | string;
     stopRemark: string;
     overOperationContainerIds: string[]; // 用于现场操作新增
+    isOnSiteWork: string;
   }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
@@ -124,30 +125,6 @@ export const createAcceptancePlanOverOperation = (
 ) => {
   return requestClient.post(
     '/bpp/flow/acceptance-plan-over-operation/create',
-    data,
-  );
-};
-/**
- * 工作流审批时修改单据信息
- * @param data
- */
-export const startProgressAcceptancePlanOverOperation = (
-  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
-) => {
-  return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/other-process',
-    data,
-  );
-};
-/**
- * 工作流审批时修改单据信息
- * @param data
- */
-export const businessProgressAcceptancePlanOverOperation = (
-  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
-) => {
-  return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/business-process',
     data,
   );
 };

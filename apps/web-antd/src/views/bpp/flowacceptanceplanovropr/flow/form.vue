@@ -2,21 +2,22 @@
 import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
 
 import { computed, nextTick, reactive, ref, toRaw } from 'vue';
-
+import { confirm, Page } from '@vben/common-ui';
 import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
 import { Button, message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
-} from '#/api/bpp/flowacceptanceplanovropr';
+} from '#/api/bpp/flowoverlimitwork';
 import { FileUpload } from '#/components/upload';
 import { $t } from '#/locales';
 
@@ -28,25 +29,6 @@ const fileList = ref<UploadProps['fileList']>([]);
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
-const containerDataList = reactive<
-  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
->([]);
-const formattedContainerTypes = computed(() => {
-  const typeCountMap = new Map();
-
-  // 统计每种箱型的数量
-  containerDataList.forEach((item) => {
-    if (item.containerType) {
-      const count = typeCountMap.get(item.containerType) || 0;
-      typeCountMap.set(item.containerType, count + 1);
-    }
-  });
-  const result = [];
-  for (const [type, count] of typeCountMap.entries()) {
-    result.push(`${count}×${type}`);
-  }
-  return result.join('\n'); // 用换行符连接
-});
 const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   id: '',
   acceptancePlanNo: '',
@@ -138,11 +120,6 @@ const saveRow = async (
     await $grid.clearEdit(row);
     // 更新行数据并重置为初始状态
     await $grid.reloadRow(row, newRecord);
-    // 回显箱型
-    containerDataList.splice(0);
-    [...gridApi.grid.getInsertRecords()].map((record) => {
-      return containerDataList.push(toRaw(record));
-    });
     message.success('数据保存成功');
   }
 };
@@ -223,7 +200,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       {
         serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
         containerNo: '', // 被合并，留空
-        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
+        containerSize: '', // 剩余6列合并区域的内容（第2列字段）
         containerType: '',
         cargoWeight: '',
         totalWeight: '',
@@ -233,6 +210,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
 });
+
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
     // 首先验证containerInfo表格中是否有数据
@@ -269,15 +247,15 @@ const [Modal, modalApi] = useVbenModal({
         ...acceptancePlanBillMessageVO,
       } as FlowOverLimitWorkApi.AcceptancePlanBillMessageVO,
     };
+    data.acceptancePlanOverOperationSaveReqVO.processInstanceId = '1111';
     data.acceptancePlanBillMessageSaveReqVO.billNo = formData.billNo;
     data.acceptancePlanBillMessageSaveReqVO.cargoName = formData.cargoName;
     // 将箱id 置空
-    data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
-      // 判断id 是row开头去掉
-      if (item.id && String(item.id).startsWith('row_')) {
-        item.id = item.id.replace('row_', '');
-      }
-    });
+    if (!formData?.id) {
+      data.acceptancePlanOverOperationContainerSaveReqVOs.forEach((item) => {
+        item.id = '';
+      });
+    }
     data.acceptancePlanSaveReqVO.vesselCode = 'dafafa';
     // 调用API保存数据
     await (formData?.id
@@ -354,16 +332,12 @@ const [Modal, modalApi] = useVbenModal({
             'cargoName',
             data?.acceptancePlanBillMessageRespVO?.cargoName,
           );
-          fileList.value = JSON.parse(data.acceptancePlanRespVO?.attachmentFile);
-          for (const item of data?.acceptancePlanOverOperationContainerRespVOS) {
+          fileList.value = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
+          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
             const $grid = gridApi.grid;
             if ($grid) {
               await $grid.insertAt(item, -1);
             }
-          }
-          // 箱信息
-          for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
-            containerDataList.push(item);
           }
         } finally {
           modalApi.unlock();
@@ -388,7 +362,7 @@ const handleUpload = async (data: any) => {
 </script>
 
 <template>
-  <Modal :title="modalTitle">
+  <Page>
     <Form>
       <template #containerInfo>
         <div class="mt-4 w-full">
@@ -458,6 +432,15 @@ const handleUpload = async (data: any) => {
           {{ formData.handlingPerson }}
         </span>
       </template>
+      <template #handlerConfirmTime>
+        <span
+          class="jus flex text-gray-600"
+          v-if="formData && formData.plannedOperationTime"
+          >{{
+            dayjs(formData.plannedOperationTime).format('YYYY-MM-DD HH:mm:ss')
+          }}
+        </span>
+      </template>
     </Form>
-  </Modal>
+  </Page>
 </template>

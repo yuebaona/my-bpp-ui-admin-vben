@@ -1,31 +1,54 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
 
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
+import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
+  acceptancePlanOverOperationContainerComplete,
+  acceptancePlanOverOperationContainerNoOperation,
+  deleteMachineSpreaderRecord,
   getAcceptancePlanOverOperation,
   getAcceptancePlanOverOperationContainerPage,
   getAcceptancePlanOverOperationPage,
-} from '#/api/bpp/flowoverlimitwork';
+  getMachineSpreaderChangeRecordPage,
+  machineSpreaderRecordDeleteList,
+} from '#/api/bpp/flowacceptanceplanovropr';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
+  machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
-  useToolChangeGridColumns,
 } from './data';
 import Detail from './modules/detail.vue';
 import Form from './modules/form.vue';
+import OnSiteOperation from './modules/onSiteOperation.vue';
 
+interface OnSideOperation {
+  overOperationContainerIds: string;
+  initiationType: string;
+  machineSpreaderChangeType: string;
+  acceptancePlanNo: string;
+  containerNo: string;
+}
+interface batchQueryConditionsVO {
+  acceptancePlanNo: string;
+  containerNo: string;
+}
+// 使用字典 store
+const bppBaseDict = bppBaseDictStore();
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
@@ -38,20 +61,52 @@ const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
-
+// 现场操作确认弹框
+const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
+  connectedComponent: OnSiteOperation,
+  destroyOnClose: true,
+});
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
+  boxGridApi.query();
+  machineSpreaderChangeRecordGridApi.query();
 }
 
 /** 创建新申请 */
 function handleCreate() {
   formModalApi.setData(null).open();
 }
-/** 查看详情 */
-function handleViewDetail(row: OverLimitPlan) {
-  message.info(`查看编号 ${row.acceptancePlanNo} 的详情`);
+
+/** 办理任务 */
+function handleAudit(row: BpmTaskApi.Task) {
+  // router.push({
+  //   name: 'BpmProcessInstanceDetail',
+  //   query: {
+  //     id: row.processInstance!.id,
+  //   },
+  // });
+  router.push({
+    path: '/bpm/process-instance/detail',
+    query: {
+      id: row.processInstance!.id,
+    },
+  });
 }
+
+/** 流程审核 */
+function handleViewDetail(row: OverLimitPlan) {
+  if (!row.processInstanceId) {
+    message.error($t('ui.actionMessage.noProcessInstance'));
+    return;
+  }
+  handleAudit({
+    processInstance:{
+      id: row.processInstanceId,
+    },
+  });
+}
+
 /** 查看详情 */
 const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   const res = await getAcceptancePlanOverOperation(row.id);
@@ -63,9 +118,194 @@ const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   const res = await getAcceptancePlanOverOperation(row.id);
   formModalApi.setData(res).open();
 };
-
+/** 变更吊具修改 */
+const handleOnSiteEditOperation = async (
+  row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  OnSideOperationModalApi.setData(row).open();
+};
+/** 删除变更吊具信息 */
+const handleMachineSpreaderDelete = async (
+  row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  const hideLoading = message.loading({
+    content: $t('ui.actionMessage.deleting', [row.id]),
+    duration: 0,
+  });
+  try {
+    await deleteMachineSpreaderRecord(row.id);
+    message.success($t('ui.actionMessage.deleteSuccess', [row.id]));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
+};
+/** 现场操作确认 */
+const handleOnSiteOperation = async () => {
+  const data = ref<OnSideOperation>({
+    overOperationContainerIds: '',
+    initiationType: '',
+    machineSpreaderChangeType: '',
+    acceptancePlanNo: '',
+    containerNo: '',
+  });
+  if (!initiationTypeValue.value) {
+    // 提示要选择发起类型
+    message.error('请选择发起类型');
+    return;
+  }
+  switch (
+    bppBaseDict.getBppBaseDictData('initiation_type', initiationTypeValue.value)
+      .label
+  ) {
+    case '客户发起': {
+      if (containerNos.value.length === 0) {
+        message.error('请选择要操作的箱');
+        return;
+      }
+      if (boxAcceptancePlanNo.value.length > 1) {
+        const uniqueNos = new Set(boxAcceptancePlanNo.value);
+        if (uniqueNos.size > 1) {
+          message.error('存在不同的受理编号，请检查');
+          return;
+        }
+      }
+      if (vesselCodes.value.length > 1) {
+        const uniqueNames = new Set(vesselCodes.value);
+        if (uniqueNames.size > 1) {
+          message.error('存在不同的船名，请检查');
+          return;
+        }
+      }
+      if (vesselVoyages.value.length > 1) {
+        const uniqueVoyages = new Set(vesselVoyages.value);
+        if (uniqueVoyages.size > 1) {
+          message.error('存在不同的航次，请检查');
+          return;
+        }
+      }
+      if (machineSpreaderChangeTypes.value.length > 1) {
+        const uniqueTypes = new Set(machineSpreaderChangeTypes.value);
+        if (uniqueTypes.size > 1) {
+          message.error('存在不同的吊具类型，请检查');
+          return;
+        }
+      }
+      if (containerOperationNodes.value.length > 1) {
+        const uniqueNodes = new Set(containerOperationNodes.value);
+        if (uniqueNodes.size > 1) {
+          message.error('存在不同的现在作业节点，请检查');
+        }
+      }
+      data.value = {
+        overOperationContainerIds: containerIds,
+        initiationType: initiationTypeValue.value,
+        machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
+        acceptancePlanNo: boxAcceptancePlanNo.value[0],
+        containerNo: containerNos.value.join(','),
+      };
+      break;
+    }
+    case '箱现场突发': {
+      break;
+    }
+    case '舱盖板': {
+      data.value = {
+        containerNo: 'HATCH',
+        initiationType: initiationTypeValue.value,
+      };
+      break;
+    }
+  }
+  OnSideOperationModalApi.setData(data).open();
+};
+/** 实际未发生 */
+const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
+  // 判断是否选中箱
+  if (containerIds.value.length === 0) {
+    message.error('请选择要操作的箱');
+    return;
+  }
+  confirm({
+    content: `${containerNos.value.toString()}箱实际没有在本码头入港作业。`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.processing'),
+        duration: 0,
+      });
+      try {
+        await acceptancePlanOverOperationContainerNoOperation(
+          containerIds.value,
+        );
+        message.success($t('ui.actionMessage.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {});
+};
+/** 停止后续作业  */
+const handleAcceptancePlanOverOperationContainerComplete = async () => {
+  // 判断是否选中箱
+  if (containerIds.value.length === 0) {
+    message.error('请选择要操作的箱');
+    return;
+  }
+  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+    message.error('请选择现场作业节点不是初始化或完成的状态');
+    return;
+  }
+  confirm({
+    content: `${containerNos.value.toString()}箱是否确认现场操作已全部完成？`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.processing'),
+        duration: 0,
+      });
+      try {
+        await acceptancePlanOverOperationContainerComplete(containerIds.value);
+        message.success($t('ui.actionMessage.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {});
+};
+/** 无变更作业 */
+const handleMachineSpreaderRecordDeleteList = async () => {
+  // 判断是否选中变更记录
+  if (machineSpreaderChangeRecordCheckedIds.value.length === 0) {
+    message.error('请选择要变更吊具');
+    return;
+  }
+  confirm({
+    content: `选中记录确认现场未进行变更吊具处理？`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('ui.actionMessage.processing'),
+        duration: 0,
+      });
+      try {
+        await machineSpreaderRecordDeleteList(containerIds.value);
+        message.success($t('ui.actionMessage.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {});
+};
+/** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
-const acceptancePlanNo = ref<number[]>([]);
+const acceptancePlanNo = ref<string[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
@@ -75,7 +315,72 @@ function handleRowCheckboxChange({
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
   boxGridApi.query();
 }
+/** 箱信息选中操作 */
+const boxCheckedIds = ref<number[]>([]);
+const boxAcceptancePlanNo = ref<string[]>([]);
+const containerNos = ref<string[]>([]);
+const containerIds = ref<number[]>([]);
+const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
+const machineSpreaderChangeTypes = ref<string[]>([]);
+const containerOperationNodes = ref<string[]>([]);
+const vesselCodes = ref<string[]>([]);
+const vesselVoyages = ref<string[]>([]);
+function boxHandleRowCheckboxChange({
+  records,
+}: {
+  records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+}) {
+  const refMap = {
+    boxCheckedIds,
+    boxAcceptancePlanNo,
+    containerNos,
+    containerIds,
+    machineSpreaderChangeTypes,
+    containerOperationNodes,
+    vesselCodes,
+    vesselVoyages,
+  };
+  const fieldMappings = {
+    boxCheckedIds: 'id',
+    boxAcceptancePlanNo: 'acceptancePlanNo',
+    containerNos: 'containerNo',
+    containerIds: 'id',
+    machineSpreaderChangeTypes: 'machineSpreaderChangeType',
+    containerOperationNodes: 'containerOperationNode',
+    vesselCodes: 'vesselCode',
+    vesselVoyages: 'vesselVoyage',
+  };
+  Object.entries(fieldMappings).forEach(([refName, field]) => {
+    refMap[refName].value = records.map((item) => item[field]);
+  });
+  batchQueryConditions.value = records.map((item) => ({
+    acceptancePlanNo: item.acceptancePlanNo,
+    containerNo: item.containerNo,
+  }));
 
+  machineSpreaderChangeRecordGridApi.query();
+}
+/** 吊具变更记录选中操作 */
+const machineSpreaderChangeRecordCheckedIds = ref<number[]>([]);
+const machineSpreaderChangeRecordHandleRowCheckboxChange = ({
+  records,
+}: {
+  records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
+}) => {
+  machineSpreaderChangeRecordCheckedIds.value = records.map((item) => item.id);
+};
+/** 获取字典数据 */
+const getDictDataList = async () => {
+  bppBaseDict.setBppBaseDictCacheByData(
+    (
+      await getDictDataPage({
+        dictType: 'initiation_type',
+        pageNo: 1,
+        pageSize: 100,
+      })
+    ).list,
+  );
+};
 // 高级查询处理函数
 function handleHighPriceQuery() {
   message.info('高级查询功能');
@@ -167,64 +472,80 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
       },
     },
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
+  gridEvents: {
+    checkboxAll: boxHandleRowCheckboxChange,
+    checkboxChange: boxHandleRowCheckboxChange,
+  },
 });
 
 // 变更吊具记录表格配置
-const [ToolChangeGrid] = useVbenVxeGrid({
-  gridOptions: {
-    columns: useToolChangeGridColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    data: [
-      {
-        id: 1,
-        global_id: 'GID000001',
-        operation_type: 'DS',
-        drive_source: '客户申请',
-        change_reason: '超高箱作业',
-        vessel_code: 'XX',
-        voyage_code: 'SG001E',
-        container_no: 'TESU00000001',
-        operation_position: '01BAY01',
-        machine_type: 'QC',
-        machine_no: 'QC01',
-        spreader_type: 'HIGH',
-        start_time: '2024-01-01 10:00:00',
-        end_time: '2024-01-01 10:30:00',
-        operation_file: 'file1.jpg,file2.jpg',
-        remark: '需要使用特殊吊具',
-        container_over_id: 1001,
-        machine_stop_id: 2001,
-        creator: 'admin',
-        create_time: '2024-01-01 09:00:00',
-        updater: 'admin',
-        update_time: '2024-01-01 09:30:00',
-        deleted: 0,
-        tenant_id: 1,
+const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
+  useVbenVxeGrid({
+    gridOptions: {
+      columns: machineSpreaderChangeRecordGridColumns(),
+      height: 'auto',
+      keepSource: false,
+      rowConfig: {
+        keyField: 'id',
+        isHover: true,
       },
-    ],
-    // 禁用代理模式，确保不发送远程请求
-    proxyConfig: null,
-  } as VxeTableGridOptions<ToolChangeRecord>,
-});
+      toolbarConfig: {
+        refresh: false,
+        search: false,
+      },
+      pagerConfig: {
+        pageSize: 10,
+        enabled: true,
+      },
+      proxyConfig: {
+        // autoLoad: false,
+        manual: true,
+        ajax: {
+          query: async ({ page }, formValues) => {
+            if (batchQueryConditions.value.length > 0) {
+              formValues.batchQueryConditions = batchQueryConditions.value;
+            }
+            if (formValues?.batchQueryConditions?.length > 0) {
+              return await getMachineSpreaderChangeRecordPage({
+                pageNo: page.currentPage,
+                pageSize: page.pageSize,
+                ...formValues,
+              });
+            }
+            // 无参数时返回空数据（确保界面显示空）
+            return { list: [], total: 0 };
+          },
+        },
+      },
+    } as VxeTableGridOptions<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>,
+    gridEvents: {
+      checkboxAll: machineSpreaderChangeRecordHandleRowCheckboxChange,
+      checkboxChange: machineSpreaderChangeRecordHandleRowCheckboxChange,
+    },
+  });
 
-const radioValue = ref(null);
+const initiationTypeValue = ref<null | string>(null);
 
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
+onMounted(async () => {
+  await getDictDataList();
+});
+watch(
+  () => bppBaseDict.getBppBaseDictOptions('initiation_type'),
+  (options) => {
+    if (options && options.length > 0 && !initiationTypeValue.value) {
+      const customerInitiated = options.find(
+        (item) => item.label === '客户发起',
+      );
+      if (customerInitiated) {
+        initiationTypeValue.value = customerInitiated.value;
+      }
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -234,6 +555,7 @@ const adcancedQueryModalOpen = () => {
       <AdvancedQuery />
     </AdvancedQueryModal>
     <DetailModal />
+    <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 超限作业申请列表 -->
     <div class="h-3/5 w-full">
       <Grid table-title="超限作业申请列表">
@@ -303,41 +625,21 @@ const adcancedQueryModalOpen = () => {
       <div class="w-1/2">
         <!-- 箱列表表格 -->
         <BoxGrid table-title="箱列表">
-          <template #actions="{ row }">
-            <TableAction
-              :actions="[
-                {
-                  label: '查看',
-                  type: 'link',
-                  icon: ACTION_ICON.VIEW,
-                  onClick: () =>
-                    message.info(`查看箱 ${row.container_no} 的详情`),
-                },
-                {
-                  label: '编辑',
-                  type: 'link',
-                  icon: ACTION_ICON.EDIT,
-                  onClick: () => message.info(`编辑箱 ${row.container_no}`),
-                },
-                {
-                  label: '删除',
-                  type: 'link',
-                  danger: true,
-                  icon: ACTION_ICON.DELETE,
-                  popConfirm: {
-                    title: `确认删除箱 ${row.container_no} 吗？`,
-                    confirm: () => message.success('删除成功'),
-                  },
-                },
-              ]"
-            />
-          </template>
           <template #toolbar-tools>
             <div class="mr-4">
-              <a-radio-group name="radioGroup" v-model:value="radioValue">
-                <a-radio value="箱现场突发">箱现场突发</a-radio>
-                <a-radio value="舱盖板">舱盖板</a-radio>
-                <a-radio value="客户发起">客户发起</a-radio>
+              <a-radio-group
+                name="radioGroup"
+                v-model:value="initiationTypeValue"
+              >
+                <a-radio
+                  :value="item.value"
+                  v-for="(item, index) in bppBaseDict.getBppBaseDictOptions(
+                    'initiation_type',
+                  )"
+                  :key="index"
+                >
+                  {{ item.label }}
+                </a-radio>
               </a-radio-group>
             </div>
             <TableAction
@@ -346,19 +648,20 @@ const adcancedQueryModalOpen = () => {
                   label: '现场操作确认',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick: handleOnSiteOperation,
                 },
                 {
-                  label: '现场无此操作',
+                  label: '实际无作业',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick:
+                    handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
-                  label: '无需变更道具',
+                  label: '停止后续作业',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
             />
@@ -367,7 +670,7 @@ const adcancedQueryModalOpen = () => {
       </div>
       <div class="ml-3 w-1/2">
         <!-- 变更吊具记录表格 -->
-        <ToolChangeGrid table-title="变更吊具记录">
+        <MachineSpreaderChangeRecordGrid table-title="变更吊具记录">
           <template #toolbar-tools>
             <TableAction
               :actions="[
@@ -381,12 +684,36 @@ const adcancedQueryModalOpen = () => {
                   label: '无变更作业',
                   type: 'primary',
                   auth: ['system:user:create'],
-                  onClick: handleCreate,
+                  onClick: handleMachineSpreaderRecordDeleteList,
                 },
               ]"
             />
           </template>
-        </ToolChangeGrid>
+          <template #actions="{ row }">
+            <TableAction
+              :actions="[
+                {
+                  label: $t('common.edit'),
+                  type: 'link',
+                  icon: ACTION_ICON.EDIT,
+                  auth: ['system:user:update'],
+                  onClick: handleOnSiteEditOperation.bind(null, row),
+                },
+                {
+                  label: $t('common.delete'),
+                  type: 'link',
+                  danger: true,
+                  icon: ACTION_ICON.DELETE,
+                  auth: ['system:user:delete'],
+                  popConfirm: {
+                    title: $t('ui.actionMessage.deleteConfirm'),
+                    confirm: handleMachineSpreaderDelete.bind(null, row),
+                  },
+                },
+              ]"
+            />
+          </template>
+        </MachineSpreaderChangeRecordGrid>
       </div>
     </div>
   </Page>
