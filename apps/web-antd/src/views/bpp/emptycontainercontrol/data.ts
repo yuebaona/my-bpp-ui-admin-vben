@@ -2,8 +2,45 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
+import { getDictDataPage } from '#/api/system/dict/data/index.ts';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
+
+const bppBaseDict = bppBaseDictStore();
+
+// 预加载需要的字典数据
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
+loadDictData([
+  'empty_container_control_main_status',
+  'empty_container_control_sub_status',
+  'trade_type',
+]);
+
+// 定义受理状态选项配置
+function getPlanStatusOptions(type: string) {
+  const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
+
+  // 将字典数据转换为 CellTag 需要的格式
+  return dictOptions.map((option) => ({
+    value: option.value,
+    label: option.label,
+    color: option.colorType,
+  }));
+}
 
 /** 箱区范围字段 */
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
@@ -329,6 +366,10 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'planStatus',
       title: '状态',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('empty_container_control_main_status'),
+      },
     },
     {
       field: 'isRelease',
@@ -349,6 +390,10 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'tradeType',
       title: '贸易类型',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('trade_type'),
+      },
     },
     {
       field: 'isoNos',
@@ -444,6 +489,10 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'planStatus',
       title: '状态',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('empty_container_control_sub_status'),
+      },
     },
     {
       field: 'isRelease',
@@ -464,6 +513,10 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'tradeType',
       title: '贸易类型',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('trade_type'),
+      },
     },
     {
       field: 'owners',
