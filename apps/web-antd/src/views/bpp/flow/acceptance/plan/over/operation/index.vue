@@ -171,9 +171,11 @@ const handleOnSiteOperation = async () => {
         message.error('请选择要操作的箱');
         return;
       }
-      if (containerOperationNodes.value.some(node =>
-        node === 'INITIALIZATION' || node === 'COM'
-      )) {
+      if (
+        containerOperationNodes.value.some(
+          (node) => node === 'INITIALIZATION' || node === 'COM',
+        )
+      ) {
         message.error('请选择现场作业节点不是初始化或完成的状态');
         return;
       }
@@ -907,12 +909,14 @@ watch(checkedIds, (newVal, oldVal) => {
           <template #actions="{ row }">
             <TableAction
               :actions="[
-                 {
-                    label: '审核',
-                    type: 'link',
-                    icon: ACTION_ICON.AUDIT,
-                    onClick: handleViewDetail.bind(null, row),
-                 },
+                row.reviewFlag
+                  ? {
+                      label: '审核',
+                      type: 'link',
+                      icon: ACTION_ICON.AUDIT,
+                      onClick: handleViewDetail.bind(null, row),
+                    }
+                  : '',
                 {
                   label: $t('common.edit'),
                   type: 'link',
