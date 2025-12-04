@@ -907,6 +907,12 @@ watch(checkedIds, (newVal, oldVal) => {
           <template #actions="{ row }">
             <TableAction
               :actions="[
+                 {
+                    label: '审核',
+                    type: 'link',
+                    icon: ACTION_ICON.AUDIT,
+                    onClick: handleViewDetail.bind(null, row),
+                 },
                 {
                   label: $t('common.edit'),
                   type: 'link',
