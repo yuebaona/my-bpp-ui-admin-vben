@@ -14,7 +14,7 @@ const routes: RouteRecordRaw[] = [
         path: 'flowacceptanceplanovropr/flow/create',
         name: 'FlowacceptanceplanovroprCreate',
         component: () =>
-          import('#/views/bpp/flowacceptanceplanovropr/flow/create.vue'),
+          import('#/views/bpp/flow/acceptance/plan/over/operation/workflow/create.vue'),
         meta: {
           title: '创建受理审批',
           activePath: '/bpp/flowacceptanceplanovropr/flow',
@@ -24,7 +24,7 @@ const routes: RouteRecordRaw[] = [
         path: 'flowacceptanceplanovropr/flow/detail',
         name: 'FlowacceptanceplanovroprCreateDetail',
         component: () =>
-          import('#/views/bpp/flowacceptanceplanovropr/flow/detail.vue'),
+          import('#/views/bpp/flow/acceptance/plan/over/operation/workflow/detail.vue'),
         meta: {
           title: '受理审批详情',
           activePath: '/bpp/flowacceptanceplanovropr/flow',

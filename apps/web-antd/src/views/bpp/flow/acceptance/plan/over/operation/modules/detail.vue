@@ -1,35 +1,24 @@
-<script lang="ts" setup>
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+<script setup lang="ts">
+import type { fileVo } from '../data.ts';
 
-import { computed, reactive, ref, watch } from 'vue';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
+
+import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import {Card,Button} from 'ant-design-vue';
 
 import dayjs from 'dayjs';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getAcceptancePlanOverOperation } from '#/api/bpp/flowoverlimitwork';
 import { useDescription } from '#/components/description';
+import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
   containerInfoDetailColumns,
 } from '../data.ts';
-import type { fileVo } from '../data.ts';
-
-/**
- * 参数
- */
-const props = defineProps({
-  // 业务ID
-  id: {
-    type: String,
-    default: '1',
-  },
-});
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
@@ -46,8 +35,6 @@ const acceptancePlanBillMessageVO =
     cargoCount: 0,
     billType: '',
   });
-// 强制刷新，用于刷新表格，否则vxetable表格合并失败
-const gridKey = ref(0);
 const formattedContainerTypes = computed(() => {
   const typeCountMap = new Map();
 
@@ -82,6 +69,8 @@ const [Descriptions] = useDescription({
   },
   schema: acceptancePlanOvrOprDetailSchema(),
 });
+const acceptancePlanOverOperationRespVO = ref(null);
+const containerDataArray = ref(null);
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
     columns: containerInfoDetailColumns(),
@@ -167,6 +156,8 @@ const [Modal, modalApi] = useVbenModal({
         acceptancePlanBillMessageVO,
         data.acceptancePlanBillMessageRespVO,
       );
+      acceptancePlanOverOperationRespVO.value=data.acceptancePlanOverOperationRespVO;
+      containerDataArray.value=data.acceptancePlanOverOperationContainerRespVOS;
       formData.value = data.acceptancePlanRespVO;
       formData.value.plannedOperationTime = dayjs(
         formData.value.plannedOperationTime,
@@ -190,85 +181,58 @@ const [Modal, modalApi] = useVbenModal({
     }
   },
 });
-// 初始化数据
-async function getById(id) {
-  // 加载数据
-  const data = await getAcceptancePlanOverOperation(id);
-  // 基础信息
-  Object.assign(
-    acceptancePlanBillMessageVO,
-    data.acceptancePlanBillMessageRespVO,
-  );
-  formData.value = data.acceptancePlanRespVO;
-  formData.value.plannedOperationTime = dayjs(
-    formData.value.plannedOperationTime,
-  ).format('YYYY-MM-DD HH:mm:ss');
-  const arr = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
-  arr.forEach((item: fileVo) => {
-    const lastSlashIndex = item.lastIndexOf('/');
-    const fileName =
-      lastSlashIndex === -1 ? item : item.slice(lastSlashIndex + 1);
-    fileList.value.push({
-      fileName: fileName.split('.')[0],
-      filePath: item,
-    });
-  });
-  // 箱信息
-  for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
-    containerData.push(item);
-  }
-  gridKey.value++;
-}
-// 监听 businessKey 变化
-watch(
-  () => props.id,
-  async (newVal, oldVal) => {
-    // 执行业务逻辑（如接口请求、状态更新等）
-    if (newVal !== oldVal) {
-      await getById(newVal);
-    }
-  },
-  { immediate: true }, // 可选：初始值时立即执行一次
-);
 </script>
 <template>
-  <Descriptions :data="formData" />
-  <div>
-    <div class="ant-descriptions-title my-5">箱货信息</div>
-    <div class="flex flex-col justify-start">
-      <div class="flex justify-normal font-serif text-base">
-        <div class="mx-5">提单号：{{ acceptancePlanBillMessageVO.billNo }}</div>
-        <div class="mx-20">
-          货名：{{ acceptancePlanBillMessageVO.cargoName }}
+  <Modal title="超限货物作业申请单详情" class="w-1/2">
+    <Descriptions :data="formData" />
+    <div>
+      <div class="ant-descriptions-title my-5">箱货信息</div>
+      <div class="flex flex-col justify-start">
+        <div class="flex justify-normal font-serif text-base">
+          <div class="mx-5">
+            提单号：{{ acceptancePlanBillMessageVO.billNo }}
+          </div>
+          <div class="mx-20">
+            货名：{{ acceptancePlanBillMessageVO.cargoName }}
+          </div>
         </div>
-      </div>
 
-      <Grid :key="gridKey">
-        <template #serialNumber="{ row }">
-          <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
-        </template>
-      </Grid>
+        <Grid>
+          <template #serialNumber="{ row }">
+            <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
+          </template>
+        </Grid>
+      </div>
     </div>
-  </div>
-  <div>
-    <div class="ant-descriptions-title my-5">附件列表</div>
-    <FileGrid>
-      <template #actions>
-        <TableAction
-          :actions="[
-            {
-              label: '下载',
-              type: 'link',
-            },
-            {
-              label: '预览',
-              type: 'link',
-            },
-          ]"
-        />
-      </template>
-    </FileGrid>
-  </div>
+    <div>
+      <div class="ant-descriptions-title my-5">附件列表</div>
+      <FileGrid>
+        <template #actions>
+          <TableAction
+            :actions="[
+              {
+                label: '下载',
+                type: 'link',
+              },
+              {
+                label: '预览',
+                type: 'link',
+              },
+            ]"
+          />
+        </template>
+      </FileGrid>
+    </div>
+    <div>
+      <!--审批记录-->
+      <taskComment
+        :isShowApply="false"
+        :acceptancePlanOverOperationData="formData"
+        :processInstanceId="acceptancePlanOverOperationRespVO?.processInstanceId"
+        :containerDataArray="containerDataArray"
+      />
+    </div>
+  </Modal>
 </template>
 <style scoped lang="scss">
 .ant-descriptions-title {
@@ -280,12 +244,5 @@ watch(
   line-height: 1.5;
   color: rgb(50 54 57 / 88%);
   white-space: nowrap;
-}
-/* 标题样式 */
-.title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
 }
 </style>

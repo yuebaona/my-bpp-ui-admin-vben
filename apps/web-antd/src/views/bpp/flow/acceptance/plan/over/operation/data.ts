@@ -8,7 +8,6 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
-
 // 预加载需要的字典数据
 const loadDictData = async (dictTypes: string[]) => {
   for (const dictType of dictTypes) {
@@ -24,6 +23,29 @@ const loadDictData = async (dictTypes: string[]) => {
     );
   }
 };
+loadDictData([
+  'system_rate',
+  'acceptance_plan_status',
+  'payment_method',
+  'import_export_type',
+  'on_site_operation_node',
+  'on_site_operation_category',
+  'driving_source',
+  'change_reason',
+  'spreader_type',
+  'actual_operation',
+]);
+// 定义受理状态选项配置
+function getPlanStatusOptions(type: string) {
+  const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
+
+  // 将字典数据转换为 CellTag 需要的格式
+  return dictOptions.map((option) => ({
+    value: option.value,
+    label: option.label,
+    color: option.colorType,
+  }));
+}
 // 文件信息
 export interface fileVo {
   fileName: string;
@@ -39,7 +61,7 @@ export function onSiteOperationConfirmFormSchema(
   };
   return [
     {
-      fieldName: 'operationType',
+      fieldName: 'machineSpreaderChangeType',
       label: '现场作业类别',
       component: 'ApiSelect',
       componentProps: {
@@ -60,7 +82,7 @@ export function onSiteOperationConfirmFormSchema(
         resultField: 'list',
         labelField: 'label',
         valueField: 'value',
-        disabled: shouldDisable('operationType'),
+        disabled: shouldDisable('machineSpreaderChangeType'),
       },
       rules: 'required',
     },
@@ -95,7 +117,7 @@ export function onSiteOperationConfirmFormSchema(
       label: '变更原因',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请选择现场作业类别',
+        placeholder: '请选择变更原因',
         allowClear: true,
         api: async (params?: any) => {
           return await getDictDataPage(params);
@@ -128,21 +150,13 @@ export function onSiteOperationConfirmFormSchema(
     {
       fieldName: 'vesselName',
       label: '作业船名',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名',
-        allowClear: true,
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
       fieldName: 'vesselVoyage',
       label: '作业航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业航次',
-        allowClear: true,
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
@@ -181,7 +195,7 @@ export function onSiteOperationConfirmFormSchema(
       label: '实际吊具类型',
       component: 'ApiSelect',
       componentProps: {
-        placeholder: '请选择现场作业类别',
+        placeholder: '请选择实际吊具类型',
         allowClear: true,
         api: async (params?: any) => {
           return await getDictDataPage(params);
@@ -284,29 +298,25 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
     {
       title: '尺寸',
       field: 'containerSize',
-      minWidth: 80,
+      minWidth: 200,
       editRender: {
         name: 'select',
-        options: [
-          { label: '20', value: '20' },
-          { label: '40', value: '40' },
-        ],
       },
-      // slots: {
-      //   // 编辑状态下的插槽
-      //   edit: 'containerSizeEdit'
-      // }
+      slots: {
+        // 编辑状态下的插槽
+        edit: 'containerLengthEdit',
+      },
     },
     {
       title: '箱型',
       field: 'containerType',
-      minWidth: 80,
+      minWidth: 200,
       editRender: {
         name: 'select',
-        options: [
-          { label: 'FR', value: 'FR1' },
-          { label: 'OT', value: 'OT1' },
-        ],
+      },
+      slots: {
+        // 编辑状态下的插槽
+        edit: 'containerTypeEdit',
       },
     },
     {
@@ -417,8 +427,6 @@ export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
 }
 // 受理计划表单字段
 export function acceptancePlanFormSchema(): VbenFormSchema[] {
-  // 调用预加载
-  loadDictData(['payment_method', 'import_export_type']);
   return [
     // 基本信息
     {
@@ -482,12 +490,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'payerCodeSea',
+      fieldName: 'payerNameSea',
       label: '缴费方（海侧）',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入缴费方（海侧）',
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
@@ -500,12 +505,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'payerCodeGate',
+      fieldName: 'payerNameGate',
       label: '缴费方（陆侧）',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入缴费方（海侧）',
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
@@ -520,17 +522,13 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'vesselName',
       label: '作业船名（中文名称）',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名（中文名称）',
-        allowClear: true,
-      },
+      component: 'Select',
       rules: 'required',
     },
     {
       fieldName: 'vesselVoyage',
       label: '作业航次',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入作业航次',
         allowClear: true,
@@ -568,8 +566,16 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提单号',
         allowClear: true,
+        onBlur: (e: Event) => {
+          const target = e.target as HTMLInputElement;
+          target.value = target.value
+            .toUpperCase()
+            .replaceAll(/[^A-Z0-9]/g, '');
+          // 手动触发 input 事件确保表单更新
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+        },
       },
-      rules: 'required',
+      rules: z.string().regex(/^[A-Z0-9]+$/, '请输入正确的提单号'),
     },
     {
       fieldName: 'cargoName',
@@ -717,7 +723,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
 /** 超限作业申请列表的字段 */
 export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'checkbox', width: 40 ,fixed: 'left',},
+    { type: 'checkbox', width: 40, fixed: 'left' },
     {
       field: 'acceptancePlanNo',
       title: '申请编号',
@@ -830,8 +836,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
-        const option = options.find(opt => opt.value === value.cellValue);
+        const options =
+          bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
         return option ? option.label : value.cellValue;
       },
     },
@@ -884,7 +891,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'payerCodeSea',
+      field: 'payerNameSea',
       title: '海侧缴费方',
       minWidth: 200,
       sortable: true,
@@ -915,13 +922,14 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find(opt => opt.value === value.cellValue);
+        const options =
+          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
         return option ? option.label : value.cellValue;
       },
     },
     {
-      field: 'payerCodeGate',
+      field: 'payerNameGate',
       title: '陆侧缴费方',
       minWidth: 200,
       sortable: true,
@@ -952,8 +960,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find(opt => opt.value === value.cellValue);
+        const options =
+          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
         return option ? option.label : value.cellValue;
       },
     },
@@ -988,6 +997,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
+      formatter: (value) => {
+        const options = bppBaseDict.getBppBaseDictOptions('system_rate') || [];
+        const option = options.find(
+          (opt) => opt.value.toString() === value.cellValue.toString(),
+        );
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'planStatus',
@@ -1004,76 +1020,15 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('acceptance_plan_status'),
+      },
     },
     {
       field: 'auditNode',
       title: '审批节点',
       minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'auditNodeStatus',
-      title: '审批状态',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'auditComment',
-      title: '审批意见',
-      minWidth: 180,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'nextNode',
-      title: '下一节点',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'submissionTime',
-      title: '提交时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1281,13 +1236,15 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
         }
         return true;
       },
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('on_site_operation_node'),
+      },
     },
   ];
 }
 // 变更吊具记录的字段配置
-export function machineSpreaderChangeRecordGridColumns(
-  dictStore?: any,
-): VxeTableGridOptions['columns'] {
+export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       type: 'checkbox',
@@ -1298,10 +1255,6 @@ export function machineSpreaderChangeRecordGridColumns(
       field: 'machineSpreaderChangeType',
       title: '现场作业类别',
       minWidth: 200,
-      formatter: ({ cellValue }) => {
-        const dict = dictStore?.getDictData?.('operation_type', cellValue);
-        return dict?.label || cellValue;
-      },
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1312,6 +1265,12 @@ export function machineSpreaderChangeRecordGridColumns(
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('on_site_operation_category') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
     {
@@ -1366,10 +1325,6 @@ export function machineSpreaderChangeRecordGridColumns(
       field: 'operationSource',
       title: '驱动源',
       minWidth: 200,
-      formatter: ({ cellValue }) => {
-        const dict = dictStore?.getDictData?.('operation_source', cellValue);
-        return dict?.label || cellValue;
-      },
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1380,16 +1335,18 @@ export function machineSpreaderChangeRecordGridColumns(
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('driving_source') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
     {
       field: 'changeReason',
       title: '变更原因',
       minWidth: 200,
-      formatter: ({ cellValue }) => {
-        const dict = dictStore?.getDictData?.('change_reason', cellValue);
-        return dict?.label || cellValue;
-      },
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
@@ -1400,6 +1357,12 @@ export function machineSpreaderChangeRecordGridColumns(
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('change_reason') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
     {
@@ -1449,6 +1412,14 @@ export function machineSpreaderChangeRecordGridColumns(
         }
         return true;
       },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('actual_operation') || [];
+        const option = options.find(
+          (opt) => opt.value.toString() === value.cellValue.toString(),
+        );
+        return option ? option.label : value.cellValue;
+      },
     },
     {
       field: 'operationPosition',
@@ -1480,6 +1451,12 @@ export function machineSpreaderChangeRecordGridColumns(
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      formatter: (value) => {
+        const options =
+          bppBaseDict.getBppBaseDictOptions('spreader_type') || [];
+        const option = options.find((opt) => opt.value === value.cellValue);
+        return option ? option.label : value.cellValue;
       },
     },
     {

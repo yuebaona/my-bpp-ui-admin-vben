@@ -3,6 +3,30 @@ import type { PageParam, PageResult } from '@vben/request';
 import { requestClient } from '#/api/request';
 
 export namespace FlowOverLimitWorkApi {
+  // 受理计划表单VO
+  export interface AcceptancePlanFormVO {
+    id?: string;
+    acceptancePlanNo?: string;
+    acceptancePlanWebNo?: string;
+    applicantCompanyName: string;
+    handlingPerson: string;
+    handlingPhoneNumber: string;
+    paymentTypeSea: string;
+    payerCodeSea: string;
+    paymentTypeGate: string;
+    payerCodeGate: string;
+    category: string;
+    vesselName: string;
+    vesselVoyage: string;
+    plannedOperationTime: string;
+    billNo?: string;
+    cargoName: string;
+    attachmentFile: string;
+    handlerRemark: string;
+    handlerConfirmation: string;
+    payerNameSea: string,
+    payerNameGate: string
+  }
   // 受理计划VO
   export interface AcceptancePlanVO {
     id: number;
@@ -37,6 +61,8 @@ export namespace FlowOverLimitWorkApi {
     cargoAgentCode: string;
     invoiceTitle: string;
     handlingPhoneNumber: string;
+    payerNameGate:string;
+    payerNameSea:string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -45,6 +71,8 @@ export namespace FlowOverLimitWorkApi {
     plannedMachineryType: string;
     acceptancePlanNo: string;
     processInstanceId: string;
+    taskId: string;
+    isUpdate: boolean;
   }
   // 超限受理计划箱信息
   export interface AcceptancePlanOverOperationContainerVO {
@@ -118,7 +146,30 @@ export namespace FlowOverLimitWorkApi {
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
-
+/**
+ * 工作流审批时修改单据信息
+ * @param data
+ */
+export const businessProgressAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation/business-process',
+    data,
+  );
+};
+/**
+ * 工作流审批时修改单据信息
+ * @param data
+ */
+export const startProgressAcceptancePlanOverOperation = (
+  data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
+) => {
+  return requestClient.post(
+    '/bpp/flow/acceptance-plan-over-operation/other-process',
+    data,
+  );
+};
 // 创建超限受理计划信息
 export const createAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,

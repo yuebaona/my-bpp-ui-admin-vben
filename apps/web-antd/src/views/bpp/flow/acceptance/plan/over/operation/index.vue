@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowacceptanceplanovropr';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
-import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -21,10 +20,14 @@ import {
   getAcceptancePlanOverOperationPage,
   getMachineSpreaderChangeRecordPage,
   machineSpreaderRecordDeleteList,
-} from '#/api/bpp/flowacceptanceplanovropr';
+} from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
+import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
+import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
+import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
 
 import {
   acceptancePlanOvrOprColumns,
@@ -32,9 +35,6 @@ import {
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-import Detail from './modules/detail.vue';
-import Form from './modules/form.vue';
-import OnSiteOperation from './modules/onSiteOperation.vue';
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -42,6 +42,10 @@ interface OnSideOperation {
   machineSpreaderChangeType: string;
   acceptancePlanNo: string;
   containerNo: string;
+  spreaderType: string;
+  vesselCode: string;
+  vesselVoyage: string;
+  vesselName: string;
 }
 interface batchQueryConditionsVO {
   acceptancePlanNo: string;
@@ -79,7 +83,7 @@ function handleCreate() {
 }
 
 /** 办理任务 */
-function handleAudit(row: BpmTaskApi.Task) {
+function handleAudit(row: any) {
   // router.push({
   //   name: 'BpmProcessInstanceDetail',
   //   query: {
@@ -95,13 +99,13 @@ function handleAudit(row: BpmTaskApi.Task) {
 }
 
 /** 流程审核 */
-function handleViewDetail(row: OverLimitPlan) {
+function handleViewDetail(row: any) {
   if (!row.processInstanceId) {
     message.error($t('ui.actionMessage.noProcessInstance'));
     return;
   }
   handleAudit({
-    processInstance:{
+    processInstance: {
       id: row.processInstanceId,
     },
   });
@@ -115,8 +119,8 @@ const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 
 /** 编辑申请 */
 const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
-  formModalApi.setData(res).open();
+  // const res = await getAcceptancePlanOverOperation(row.id);
+  formModalApi.setData(row).open();
 };
 /** 变更吊具修改 */
 const handleOnSiteEditOperation = async (
@@ -148,6 +152,10 @@ const handleOnSiteOperation = async () => {
     machineSpreaderChangeType: '',
     acceptancePlanNo: '',
     containerNo: '',
+    spreaderType: '',
+    vesselCode: '',
+    vesselVoyage: '',
+    vesselName: '',
   });
   if (!initiationTypeValue.value) {
     // 提示要选择发起类型
@@ -163,6 +171,15 @@ const handleOnSiteOperation = async () => {
         message.error('请选择要操作的箱');
         return;
       }
+      if (
+        containerOperationNodes.value.some(
+          (node) => node === 'INITIALIZATION' || node === 'COM',
+        )
+      ) {
+        message.error('请选择现场作业节点不是初始化或完成的状态');
+        return;
+      }
+
       if (boxAcceptancePlanNo.value.length > 1) {
         const uniqueNos = new Set(boxAcceptancePlanNo.value);
         if (uniqueNos.size > 1) {
@@ -197,12 +214,22 @@ const handleOnSiteOperation = async () => {
           message.error('存在不同的现在作业节点，请检查');
         }
       }
+      if (plannedSpreaderTypes.value.length > 1) {
+        const uniqueNodes = new Set(plannedSpreaderTypes.value);
+        if (uniqueNodes.size > 1) {
+          message.error('存在不同的现场作业吊具，请检查');
+        }
+      }
       data.value = {
         overOperationContainerIds: containerIds,
         initiationType: initiationTypeValue.value,
         machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
         acceptancePlanNo: boxAcceptancePlanNo.value[0],
         containerNo: containerNos.value.join(','),
+        spreaderType: plannedSpreaderTypes.value[0],
+        vesselCode: vesselCodes.value[0],
+        vesselVoyage: vesselVoyages.value[0],
+        vesselName: vesselNames.value[0],
       };
       break;
     }
@@ -294,7 +321,9 @@ const handleMachineSpreaderRecordDeleteList = async () => {
         duration: 0,
       });
       try {
-        await machineSpreaderRecordDeleteList(containerIds.value);
+        await machineSpreaderRecordDeleteList(
+          machineSpreaderChangeRecordCheckedIds.value,
+        );
         message.success($t('ui.actionMessage.success'));
         handleRefresh();
       } finally {
@@ -315,6 +344,31 @@ function handleRowCheckboxChange({
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
   boxGridApi.query();
 }
+/** 重置箱信息相关数据 */
+const resetContainerData = () => {
+  boxCheckedIds.value = [];
+  boxAcceptancePlanNo.value = [];
+  containerNos.value = [];
+  containerIds.value = [];
+  batchQueryConditions.value = [];
+  machineSpreaderChangeTypes.value = [];
+  containerOperationNodes.value = [];
+  vesselCodes.value = [];
+  vesselVoyages.value = [];
+  vesselNames.value = [];
+  plannedSpreaderTypes.value = [];
+  // 清除表格选中状态
+  if (boxGridApi.grid) {
+    boxGridApi.grid.clearCheckboxRow(); // 清除所有选中行
+    boxGridApi.grid.clearCheckboxRow(); // 清除复选框选中
+  }
+
+  if (machineSpreaderChangeRecordGridApi.grid) {
+    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
+    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
+  }
+  machineSpreaderChangeRecordGridApi.query();
+};
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
 const boxAcceptancePlanNo = ref<string[]>([]);
@@ -325,6 +379,8 @@ const machineSpreaderChangeTypes = ref<string[]>([]);
 const containerOperationNodes = ref<string[]>([]);
 const vesselCodes = ref<string[]>([]);
 const vesselVoyages = ref<string[]>([]);
+const vesselNames = ref<string[]>([]);
+const plannedSpreaderTypes = ref<string[]>([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
@@ -339,6 +395,8 @@ function boxHandleRowCheckboxChange({
     containerOperationNodes,
     vesselCodes,
     vesselVoyages,
+    vesselNames,
+    plannedSpreaderTypes,
   };
   const fieldMappings = {
     boxCheckedIds: 'id',
@@ -349,6 +407,8 @@ function boxHandleRowCheckboxChange({
     containerOperationNodes: 'containerOperationNode',
     vesselCodes: 'vesselCode',
     vesselVoyages: 'vesselVoyage',
+    vesselNames: 'vesselName',
+    plannedSpreaderTypes: 'plannedSpreaderType',
   };
   Object.entries(fieldMappings).forEach(([refName, field]) => {
     refMap[refName].value = records.map((item) => item[field]);
@@ -362,7 +422,7 @@ function boxHandleRowCheckboxChange({
 }
 /** 吊具变更记录选中操作 */
 const machineSpreaderChangeRecordCheckedIds = ref<number[]>([]);
-const machineSpreaderChangeRecordHandleRowCheckboxChange = ({
+const machineSpreaderChangeRecordHandleRowCheck = ({
   records,
 }: {
   records: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO[];
@@ -380,6 +440,15 @@ const getDictDataList = async () => {
       })
     ).list,
   );
+  // bppBaseDict.setBppBaseDictCacheByData(
+  //   (
+  //     await getDictDataPage({
+  //       dictType: 'acceptance_plan_status',
+  //       pageNo: 1,
+  //       pageSize: 100,
+  //     })
+  //   ).list,
+  // );
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -390,7 +459,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: acceptancePlanOvrOprFormSchema(),
     submitButtonOptions: {
-      content: '查询',
+      content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
   },
@@ -405,7 +474,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     toolbarConfig: {
       search: true,
       custom: true,
-      export: true,
       // import: true,
       refresh: true,
       zoom: true,
@@ -492,6 +560,16 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
       toolbarConfig: {
         refresh: false,
         search: false,
+        export: true,
+        tools: [
+          // 方式3
+          { name: '自定义导出按钮', code: 'export', status: 'primary' },
+          {
+            name: '自定义高级导出按钮',
+            code: 'open_export',
+            status: 'success',
+          },
+        ],
       },
       pagerConfig: {
         pageSize: 10,
@@ -519,8 +597,8 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
       },
     } as VxeTableGridOptions<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>,
     gridEvents: {
-      checkboxAll: machineSpreaderChangeRecordHandleRowCheckboxChange,
-      checkboxChange: machineSpreaderChangeRecordHandleRowCheckboxChange,
+      checkboxAll: machineSpreaderChangeRecordHandleRowCheck,
+      checkboxChange: machineSpreaderChangeRecordHandleRowCheck,
     },
   });
 
@@ -546,19 +624,153 @@ watch(
   },
   { immediate: true },
 );
+// 字段配置
+const fields = ref([
+  {
+    fldName: 'name',
+    fldLabel: '姓名',
+    fldType: 'string',
+    options: [],
+  },
+  {
+    fldName: 'age',
+    fldLabel: '年龄',
+    fldType: 'number',
+    options: [],
+  },
+  {
+    fldName: 'gender',
+    fldLabel: '性别',
+    fldType: 'select',
+    options: [
+      { label: '男', value: 'male' },
+      { label: '女', value: 'female' },
+    ],
+  },
+  {
+    fldName: 'birthday',
+    fldLabel: '生日',
+    fldType: 'date',
+    options: [],
+  },
+  {
+    fldName: 'department',
+    fldLabel: '部门',
+    fldType: 'select',
+    options: [
+      { label: '技术部', value: 'tech' },
+      { label: '市场部', value: 'market' },
+      { label: '人事部', value: 'hr' },
+    ],
+  },
+  {
+    fldName: 'salary',
+    fldLabel: '薪资',
+    fldType: 'number',
+    options: [],
+  },
+]);
+
+// 运算符映射
+const operatorsMap = reactive({
+  default: [
+    {
+      refCode: 'eq',
+      refName: '等于',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+    {
+      refCode: 'ne',
+      refName: '不等于',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+    { refCode: 'gt', refName: '大于', supportedTypes: ['number', 'date'] },
+    { refCode: 'ge', refName: '大于等于', supportedTypes: ['number', 'date'] },
+    { refCode: 'lt', refName: '小于', supportedTypes: ['number', 'date'] },
+    { refCode: 'le', refName: '小于等于', supportedTypes: ['number', 'date'] },
+    { refCode: 'like', refName: '包含', supportedTypes: ['string'] },
+    { refCode: 'notlike', refName: '不包含', supportedTypes: ['string'] },
+    {
+      refCode: 'null',
+      refName: '为空',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+    {
+      refCode: 'notnull',
+      refName: '不为空',
+      supportedTypes: ['string', 'number', 'date', 'select'],
+    },
+  ],
+});
+
+// 默认层级数据 - 空查询条件
+const defaultLevels = ref([
+  {
+    relation: 'AND',
+    conditions: [
+      {
+        relation: 'AND',
+        conditions: [
+          {
+            relation: 'AND',
+            conditions: [
+              {
+                field: '',
+                operator: '',
+                value: '',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]);
+// 查询结果
+const queryResult = ref<any>(null);
+
+// 处理查询事件
+const handleQuery = (params: any) => {
+  console.log('查询参数:', params);
+  queryResult.value = params;
+};
+
+// 处理重置事件
+const handleReset = () => {
+  console.log('重置查询条件');
+  queryResult.value = null;
+};
+
+// 处理保存模板事件
+const handleSaveTemplate = (templateName: string) => {
+  console.log('保存模板:', templateName);
+};
+watch(checkedIds, (newVal, oldVal) => {
+  if (newVal.length === 0 && oldVal.length > 0) {
+    // 先重置箱信息数据
+    resetContainerData();
+  }
+});
 </script>
 
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
-      <AdvancedQuery />
+      <AdvancedQuery
+        :fields="fields"
+        :operators-map="operatorsMap"
+        :default-levels="defaultLevels"
+        @query="handleQuery"
+        @reset="handleReset"
+        @save-template="handleSaveTemplate"
+      />
     </AdvancedQueryModal>
     <DetailModal />
     <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 超限作业申请列表 -->
     <div class="h-3/5 w-full">
-      <Grid table-title="超限作业申请列表">
+      <Grid :table-title="$t('cxmo.overOperation.operationListName')">
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -566,43 +778,46 @@ watch(
           <TableAction
             :actions="[
               {
-                label: '新增',
+                label: $t('cxmo.action.add'),
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
                 auth: ['system:user:create'],
                 onClick: handleCreate,
               },
-              {
-                label: '撤销',
-                type: 'default',
-                icon: ACTION_ICON.UNDO,
-                onClick: handleHighPriceQuery,
-              },
-              {
-                label: '撤销审核',
-                type: 'default',
-                icon: ACTION_ICON.UNDO,
-                disabled: true,
-                onClick: handleHighPriceQuery,
-              },
-              {
-                label: '日志查询',
-                type: 'primary',
-                icon: ACTION_ICON.LOG,
-                onClick: handleHighPriceQuery,
-              },
+              // {
+              //   label: '撤销',
+              //   type: 'default',
+              //   icon: ACTION_ICON.UNDO,
+              //   onClick: handleHighPriceQuery,
+              // },
+              //
+              // {
+              //   label: '撤销审核',
+              //   type: 'default',
+              //   icon: ACTION_ICON.UNDO,
+              //   disabled: true,
+              //   onClick: handleHighPriceQuery,
+              // },
+              // {
+              //   label: '日志查询',
+              //   type: 'primary',
+              //   icon: ACTION_ICON.LOG,
+              //   onClick: handleHighPriceQuery,
+              // },
             ]"
           />
         </template>
         <template #actions="{ row }">
           <TableAction
             :actions="[
-              {
-                label: '审核',
-                type: 'link',
-                icon: ACTION_ICON.AUDIT,
-                onClick: handleViewDetail.bind(null, row),
-              },
+              row.reviewFlag
+                ? {
+                    label: '审核',
+                    type: 'link',
+                    icon: ACTION_ICON.AUDIT,
+                    onClick: handleViewDetail.bind(null, row),
+                  }
+                : '',
               {
                 label: '修改',
                 type: 'link',
@@ -624,7 +839,7 @@ watch(
     <div class="my-3 flex h-2/5 w-full">
       <div class="w-1/2">
         <!-- 箱列表表格 -->
-        <BoxGrid table-title="箱列表">
+        <BoxGrid :table-title="$t('cxmo.overOperation.boxListName')">
           <template #toolbar-tools>
             <div class="mr-4">
               <a-radio-group
@@ -645,20 +860,20 @@ watch(
             <TableAction
               :actions="[
                 {
-                  label: '现场操作确认',
+                  label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleOnSiteOperation,
                 },
                 {
-                  label: '实际无作业',
+                  label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
-                  label: '停止后续作业',
+                  label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
@@ -670,18 +885,20 @@ watch(
       </div>
       <div class="ml-3 w-1/2">
         <!-- 变更吊具记录表格 -->
-        <MachineSpreaderChangeRecordGrid table-title="变更吊具记录">
+        <MachineSpreaderChangeRecordGrid
+          :table-title="$t('cxmo.overOperation.machineSpreaderRecord')"
+        >
           <template #toolbar-tools>
             <TableAction
               :actions="[
+                // {
+                //   label: '日志查询',
+                //   type: 'primary',
+                //   auth: ['system:user:create'],
+                //   onClick: handleCreate,
+                // },
                 {
-                  label: '日志查询',
-                  type: 'primary',
-                  auth: ['system:user:create'],
-                  onClick: handleCreate,
-                },
-                {
-                  label: '无变更作业',
+                  label: $t('cxmo.overOperation.noChangeOperations'),
                   type: 'primary',
                   auth: ['system:user:create'],
                   onClick: handleMachineSpreaderRecordDeleteList,
@@ -692,6 +909,14 @@ watch(
           <template #actions="{ row }">
             <TableAction
               :actions="[
+                row.reviewFlag
+                  ? {
+                      label: '审核',
+                      type: 'link',
+                      icon: ACTION_ICON.AUDIT,
+                      onClick: handleViewDetail.bind(null, row),
+                    }
+                  : '',
                 {
                   label: $t('common.edit'),
                   type: 'link',

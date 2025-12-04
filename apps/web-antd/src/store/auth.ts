@@ -8,6 +8,7 @@ import { useRouter } from 'vue-router';
 import { LOGIN_PATH } from '@vben/constants';
 import { preferences } from '@vben/preferences';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
+import { getTaskTodoPage } from '#/api/bpm/task';
 
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
@@ -140,6 +141,13 @@ export const useAuthStore = defineStore('auth', () => {
     // accessStore
     accessStore.setAccessMenus(authPermissionInfo.menus);
     accessStore.setAccessCodes(authPermissionInfo.permissions);
+    const taskTodo = await getTaskTodoPage({
+      pageNo: 1,
+      pageSize: 100,
+    });
+    if (taskTodo) {
+      localStorage.setItem('taskTodoTotal', String(taskTodo.total));
+    }
     return authPermissionInfo;
   }
 

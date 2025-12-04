@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import {computed, onMounted, reactive, ref, watch} from 'vue';
-import {useRoute} from 'vue-router';
+import { onMounted, reactive, ref, watch} from 'vue';
 
 import {router} from '#/router'
 import {Button, Card, Flex, message, Space} from "ant-design-vue";
 import {confirm} from '@vben/common-ui';
-import {businessProgressAcceptancePlanOverOperation,} from "#/api/bpp/flowoverlimitwork";
+import {
+  businessProgressAcceptancePlanOverOperation
+} from "#/api/bpp/flow/acceptance/plan/over/operation";
 import {approveTask, rejectTask, transferTask,} from '#/api/bpm/task';
 import {getSimpleUserList} from '#/api/system/user';
+import {useRefresh} from '@vben/hooks';
+
 
 defineOptions({name: 'BusinessButtonView'});
+
+// 刷新当前路由
+const { refresh } = useRefresh();
 const emit = defineEmits(['closeCallBack']);
 /**
  * 参数
@@ -31,19 +37,10 @@ const props = defineProps({
   processInstance: Object, // 流程实例信息
 });
 const transferVisible = ref(false);
-const operationButtonRef = ref();
 const buttonLoading = ref(false);
-const plannedSpreaderTypeArray = ref([])
-const initPlannedMachineryTypeArray = ref([]);
-const plannedMachineryTypeArray = ref([]);
-const detailData = ref(null);
 const openTask = ref(false);
 const formRef = ref(null);
 
-const { query } = useRoute();
-const queryId = computed(() => query.id as string);
-// 下一步审批节点
-const nextNodeNameArray = ref([])
 const transferFormRef = ref(null);
 const transferFormData = ref({
   assigneeUserId: undefined,
@@ -62,18 +59,13 @@ const containerFormData= ref({
     priceGate: undefined,
   }]
 });
-//取消审批
-function closeForm(){
-  router.back();
-}
-//打开审批任务窗口
-function openTaskModal(){
-  openTask.value = true;
-}
 function closeTask(){
   emit('close-form');
 }
-//审批通过
+function cancelTask(){
+  closeTask();
+}
+// 审批通过
 async function passTask() {
   try {
     buttonLoading.value = true;
@@ -141,11 +133,11 @@ function noPassTask() {
     }
   });
 }
-//任务转办弹窗
+// 任务转办弹窗
 async function openTransferTask(){
   transferVisible.value = true;
 }
-//转办任务
+// 转办任务
 async function doTransferTask(){
   await transferFormRef.value.validate();
   try {
@@ -164,7 +156,7 @@ async function doTransferTask(){
     }, 500);
   }catch (e) {
     message.error('转办失败' + JSON.stringify(e));
-  }finally {
+  } finally {
     buttonLoading.value = false;
   }
 }
@@ -333,12 +325,17 @@ onMounted(async () => {
     </div>
     <Flex justify="end">
       <Space>
-        <Button @click="closeTask">取消</Button>
+        <Button @click="cancelTask">取消</Button>
         <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
-        <Button type="primary" danger @click="noPassTask" :loading="buttonLoading">拒绝</Button>
+        <Button
+          type="primary"
+          danger
+          @click="noPassTask"
+          :loading="buttonLoading"
+          >拒绝</Button>
         <a-popover v-model:open="transferVisible" title="转办" trigger="click">
           <template #content>
-            <a-card  style="width: 500px;height: 246px">
+            <a-card style="width: 500px; height: 246px">
               <a-form
                 ref="transferFormRef"
                 :model="transferFormData"
