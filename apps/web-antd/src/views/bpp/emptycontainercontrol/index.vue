@@ -31,6 +31,8 @@ const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
 const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
+const checkedSubIds = ref<number[]>([]);
+const subPlanNo = ref<string[]>([]);
 // const checkedIds2 = ref<number[]>([]);
 // const mainPlanNo = ref<string[]>([]);
 
@@ -98,29 +100,48 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     },
   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
   gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
+    checkboxAll: handleSubRowCheckboxChange,
+    checkboxChange: handleSubRowCheckboxChange,
   },
 });
 
-// 修改 handleRowCheckboxChange 函数
+// 主计划行点击事件处理函数
+function handleRowClick({ row }: { row: EmptyContainerControlApi.mainPlanVO }) {
+  checkedSubIds.value = [];
+  subPlanNo.value = [];
+  selectedMainId.value = row.id.toString();
+  hasSelectedMainPlan.value = true;
+  subGridApi.query();
+}
+
+// 子计划勾选事件处理函数
+function handleSubRowCheckboxChange({
+  records,
+}: {
+  records: EmptyContainerControlApi.subPlanVO[];
+}) {
+  // 检查是否已勾选主计划
+  if (checkedIds.value.length > 0) {
+    message.warning('主计划和子计划不能同时勾选');
+    // 取消勾选操作
+    return false;
+  }
+  checkedSubIds.value = records.map((item) => item.id);
+  subPlanNo.value = records.map((item) => item.planNo);
+}
+
 function handleRowCheckboxChange({
   records,
 }: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
+  // 检查是否已勾选子计划
+  if (checkedSubIds.value.length > 0) {
+    message.warning('主计划和子计划不能同时勾选');
+    return false;
+  }
   checkedIds.value = records.map((item) => item.id);
   planNo.value = records.map((item) => item.planNo);
-
-  if (records.length > 0) {
-    selectedMainId.value = records[0].id.toString();
-    hasSelectedMainPlan.value = true;
-    subGridApi.query();
-  } else {
-    selectedMainId.value = null;
-    hasSelectedMainPlan.value = false;
-    subGridApi.grid.reloadData([]);
-  }
 }
 const [FormModal2, formModalApi2] = useVbenModal({
   connectedComponent: Form2,
@@ -276,6 +297,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
+    cellClick: handleRowClick,
   },
 });
 
@@ -310,7 +332,7 @@ function handleCreateSubPlan() {
   }
   formModalApi
     .setData({
-      mainId: checkedIds.value[0],
+      mainId: selectedMainId.value,
       planType: 'SUB',
     })
     .open();

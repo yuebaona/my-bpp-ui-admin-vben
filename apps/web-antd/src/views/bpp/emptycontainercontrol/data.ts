@@ -651,25 +651,6 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
   ];
 }
 
-/** 子计划详情字段 */
-// export function subPlanDetailSchema(): DescriptionItemSchema[] {
-//   return [
-//     // 基础信息
-//     { field: 'acceptancePlanNo', label: '子计划号' },
-//     { field: 'applicantCompanyName', label: '申请公司名称' },
-//     { field: 'handlingPerson', label: '经办人' },
-//     { field: 'handlingPhoneNumber', label: '经办人联系电话' },
-//     { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
-//     { field: 'payerCodeSea', label: '缴费方（海侧）' },
-//     { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
-//     { field: 'payerCodeGate', label: '缴费方（陆侧）' },
-//     { field: 'category', label: '进出口类别' },
-//     { field: 'vesselName', label: '作业船名（中文名称）' },
-//     { field: 'vesselVoyage', label: '作业航次' },
-//     { field: 'plannedOperationTime', label: '预计作业时间' },
-//   ]
-// }
-
 /** 日志查询表单 */
 export function logQueryFormSchema(): VbenFormSchema[] {
   return [
@@ -787,63 +768,6 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-
-export const STATIC_SUB_PLAN_LIST_DATA = [
-  {
-    id: 1,
-    planNo: 'SP20230001',
-    planStatus: '已提交',
-    isRelease: true,
-    pickupPlanNo: 'TXSLJH2023001',
-    dischargeVesselSchedule: '2023-12-01',
-    tradeType: 'FOREIGN',
-    owners: '持箱人A',
-    isoNos: 'ISO001',
-    bayRanges: 'A01-B02',
-    planQuantity: '100',
-    mainGateReleaseQuantity: '80',
-    completedReleaseQuantity: '60',
-    uncompletedReleaseQuantity: '40',
-    activeOccupiedQuantity: '20',
-    creator: '管理员',
-    createTime: '2023-11-01 10:00:00',
-    updater: '修改人A',
-    updateTime: '2023-11-01 15:00:00',
-  },
-  {
-    id: 2,
-    planNo: 'SP20230002',
-    planStatus: '审核中',
-    isRelease: false,
-    pickupPlanNo: 'TXSLJH2023002',
-    dischargeVesselSchedule: '2023-12-02',
-    tradeType: 'DOMESTIC',
-    owners: '持箱人B',
-    isoNos: 'ISO002',
-    bayRanges: 'C01-D02',
-    planQuantity: '200',
-    mainGateReleaseQuantity: '150',
-    completedReleaseQuantity: '100',
-    uncompletedReleaseQuantity: '50',
-    activeOccupiedQuantity: '30',
-    creator: '操作员',
-    createTime: '2023-11-02 10:00:00',
-    updater: '修改人B',
-    updateTime: '2023-11-02 15:00:00',
-  },
-];
-
-export const STATIC_SUB_PLAN_DETAIL_DATA = {
-  id: 61,
-  planNo: 'SP20230001',
-  isRelease: true,
-  pickupPlanNo: '测试经办人',
-  dischargeVesselSchedule: '13800138000',
-  owners: '在线支付',
-  tradeType: 'DOMESTIC',
-  isoNos: 'ISO003',
-  planQuantity: '200',
-};
 
 export const STATIC_MASTER_PLAN_QUERY_DATA = [
   {

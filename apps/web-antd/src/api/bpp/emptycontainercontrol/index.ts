@@ -25,7 +25,7 @@ export namespace EmptyContainerControlApi {
   }
   // 子计划VO
   export interface subPlanVO {
-    id: number;
+    id: null | number;
     ownerList: Array<string>;
     isoNoList: Array<string>;
     isRelease: boolean;
@@ -33,12 +33,12 @@ export namespace EmptyContainerControlApi {
     tradeType: string;
     planQuantity: string;
     completedReleaseQuantity: string;
-    bayRangeList: {
-      emptyContainerControlId: number | string;
-      id: number | string;
+    bayRangeList: Array<{
+      emptyContainerControlId: null | string;
+      id: null | number;
       yardBay: string;
       yardRaw: string;
-    };
+    }>;
     planType: string;
     mainId: string;
     planNo: string;

@@ -26,7 +26,7 @@ const containerAreaModalVisible = ref(false);
 const containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
-  id: '',
+  id: null,
   ownerList: [],
   isoNoList: [],
   isRelease: false,
@@ -34,13 +34,7 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
-  bayRangeList: {
-    emptyContainerControlId: 0,
-    id: 0,
-    yardBay: '',
-    yardRaw: '',
-  },
-  // bayRangeList: [],
+  bayRangeList: [],
   planType: '',
   mainId: '',
   planNo: '',
@@ -53,13 +47,9 @@ const selectContainerArea = () => {
 const handleContainerAreaConfirm = (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
-    // 清空现有数据
     containerAreaData.splice(0);
-
-    // 添加新选择的数据
-    const newRows = positions.map((pos, index) => ({
-      id: `row_${Date.now()}_${index}`,
-      yardPosition: `${pos}-01`, // 假设默认层号为01
+    const newRows = positions.map((pos) => ({
+      yardPosition: `${pos}`,
       yardColumns: [],
       totalCount: '',
       minStorageDays: '',
@@ -131,30 +121,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-    //   (record) => toRaw(record),
-    // );
-
-    // if (containerAreaArray.length === 0) {
-    //   message.warning('请至少添加一条箱区范围数据');
-    //   return;
-    // }
-
-    const { valid } = await formApi.validate();
-    const gridValid: boolean = await gridApi.grid.validate(true);
-
-    if (!valid || gridValid) {
-      return;
-    }
-
     // Object.assign(formData, await formApi.getValues());
     const formValues = await formApi.getValues();
     Object.assign(formData, formValues);
-    // 确保planType和mainId被正确设置
+
     if (!formData.planType) {
       formData.planType = 'SUB';
     }
-    // 转换持箱人字符串为数组
+
     const ownerList = formValues.owners
       ? formValues.owners
           .split(/[,，]/)
@@ -162,30 +136,27 @@ const [Modal, modalApi] = useVbenModal({
           .filter(Boolean)
       : [];
 
-    // 转换ISO字符串为数组
     const isoNoList = formValues.isoNos
       ? formValues.isoNos
           .split(/[,，]/)
           .map((item: string) => item.trim())
           .filter(Boolean)
       : [];
-
-    // 转换表格数据为bayRangeList格式
-    const bayRangeList = containerAreaData.map((row: any) => ({
-      emptyContainerControlId: '',
-      id: '',
+    const $grid = gridApi.grid;
+    const gridData = $grid ? $grid.getData() : containerAreaData;
+    const bayRangeList = gridData.map((row: any) => ({
+      // emptyContainerControlId: '',
+      // id: '',
       yardBay: row.yardPosition || '',
-      yardRaw: row.yardColumns ? row.yardColumns.join(',') : ''
+      yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
-    // 构建符合新接口格式的数据
+    // 构建符合接口格式的数据
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
-      // 确保数组字段正确处理
-      // ownerList: formData.ownerList || [],
-      // isoNoList: formData.isoNoList || [],
       ownerList,
       isoNoList,
+      bayRangeList,
     } as EmptyContainerControlApi.subPlanVO;
 
     await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
@@ -205,11 +176,6 @@ const [Modal, modalApi] = useVbenModal({
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
-        // bayRangeList: {
-        //   emptyContainerControlId: 0,
-        //   yardBay: '',
-        //   yardRaw: '',
-        // },
         bayRangeList: [],
         planType: '',
         mainId: '',
@@ -239,16 +205,46 @@ const [Modal, modalApi] = useVbenModal({
         modalApi.lock();
         try {
           await formApi.setValues(subPlanData);
-
-          // 设置箱区范围数据
-          if (data.yardPositionResp) {
-            const $grid = gridApi.grid;
-            if ($grid) {
+          const $grid = gridApi.grid;
+          if ($grid) {
+            // 设置箱区范围数据
+            if (data.yardPositionResp) {
               for (const item of data.yardPositionResp) {
                 await $grid.insertAt(
                   {
                     ...item,
-                    id: `row_${item.id}`, // 确保ID格式正确
+                  },
+                  -1,
+                );
+              }
+            } else if (subPlanData.bayRangeList) {
+              // 如果是数组格式
+              if (Array.isArray(subPlanData.bayRangeList)) {
+                for (const bayRange of subPlanData.bayRangeList) {
+                  await $grid.insertAt(
+                    {
+                      yardPosition: bayRange.yardBay || '',
+                      yardColumns: bayRange.yardRaw
+                        ? bayRange.yardRaw.split(',')
+                        : [],
+                      totalCount: '',
+                      minStorageDays: '',
+                      maxStorageDays: '',
+                    },
+                    -1,
+                  );
+                }
+              } else {
+                // 兼容单个对象格式
+                await $grid.insertAt(
+                  {
+                    yardPosition: subPlanData.bayRangeList.yardBay || '',
+                    yardColumns: subPlanData.bayRangeList.yardRaw
+                      ? subPlanData.bayRangeList.yardRaw.split(',')
+                      : [],
+                    totalCount: '',
+                    minStorageDays: '',
+                    maxStorageDays: '',
                   },
                   -1,
                 );

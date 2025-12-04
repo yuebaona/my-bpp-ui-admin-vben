@@ -17,12 +17,7 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const selectedYardPositions = ref<string[]>([
-  'A01-01',
-  'A02-01',
-  'B01-01',
-  'B02-01',
-]);
+const selectedYardPositions = ref<string[]>([]);
 const searchValue = ref('');
 
 const yardPositionTreeData = ref<TreeProps['treeData']>([
