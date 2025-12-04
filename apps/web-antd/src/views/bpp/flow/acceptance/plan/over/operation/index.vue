@@ -8,7 +8,6 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
-import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -24,16 +23,18 @@ import {
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
+import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
+import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
+import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
+
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
-import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
-import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -41,6 +42,10 @@ interface OnSideOperation {
   machineSpreaderChangeType: string;
   acceptancePlanNo: string;
   containerNo: string;
+  spreaderType: string;
+  vesselCode: string;
+  vesselVoyage: string;
+  vesselName: string;
 }
 interface batchQueryConditionsVO {
   acceptancePlanNo: string;
@@ -78,7 +83,7 @@ function handleCreate() {
 }
 
 /** 办理任务 */
-function handleAudit(row: BpmTaskApi.Task) {
+function handleAudit(row: any) {
   // router.push({
   //   name: 'BpmProcessInstanceDetail',
   //   query: {
@@ -94,13 +99,13 @@ function handleAudit(row: BpmTaskApi.Task) {
 }
 
 /** 流程审核 */
-function handleViewDetail(row: OverLimitPlan) {
+function handleViewDetail(row: any) {
   if (!row.processInstanceId) {
     message.error($t('ui.actionMessage.noProcessInstance'));
     return;
   }
   handleAudit({
-    processInstance:{
+    processInstance: {
       id: row.processInstanceId,
     },
   });
@@ -147,6 +152,10 @@ const handleOnSiteOperation = async () => {
     machineSpreaderChangeType: '',
     acceptancePlanNo: '',
     containerNo: '',
+    spreaderType: '',
+    vesselCode: '',
+    vesselVoyage: '',
+    vesselName: '',
   });
   if (!initiationTypeValue.value) {
     // 提示要选择发起类型
@@ -162,6 +171,13 @@ const handleOnSiteOperation = async () => {
         message.error('请选择要操作的箱');
         return;
       }
+      if (containerOperationNodes.value.some(node =>
+        node === 'INITIALIZATION' || node === 'COM'
+      )) {
+        message.error('请选择现场作业节点不是初始化或完成的状态');
+        return;
+      }
+
       if (boxAcceptancePlanNo.value.length > 1) {
         const uniqueNos = new Set(boxAcceptancePlanNo.value);
         if (uniqueNos.size > 1) {
@@ -196,9 +212,11 @@ const handleOnSiteOperation = async () => {
           message.error('存在不同的现在作业节点，请检查');
         }
       }
-      if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
-        message.error('请选择现场作业节点不是初始化或完成的状态');
-        return;
+      if (plannedSpreaderTypes.value.length > 1) {
+        const uniqueNodes = new Set(plannedSpreaderTypes.value);
+        if (uniqueNodes.size > 1) {
+          message.error('存在不同的现场作业吊具，请检查');
+        }
       }
       data.value = {
         overOperationContainerIds: containerIds,
@@ -206,6 +224,10 @@ const handleOnSiteOperation = async () => {
         machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
         acceptancePlanNo: boxAcceptancePlanNo.value[0],
         containerNo: containerNos.value.join(','),
+        spreaderType: plannedSpreaderTypes.value[0],
+        vesselCode: vesselCodes.value[0],
+        vesselVoyage: vesselVoyages.value[0],
+        vesselName: vesselNames.value[0],
       };
       break;
     }
@@ -320,6 +342,31 @@ function handleRowCheckboxChange({
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
   boxGridApi.query();
 }
+/** 重置箱信息相关数据 */
+const resetContainerData = () => {
+  boxCheckedIds.value = [];
+  boxAcceptancePlanNo.value = [];
+  containerNos.value = [];
+  containerIds.value = [];
+  batchQueryConditions.value = [];
+  machineSpreaderChangeTypes.value = [];
+  containerOperationNodes.value = [];
+  vesselCodes.value = [];
+  vesselVoyages.value = [];
+  vesselNames.value = [];
+  plannedSpreaderTypes.value = [];
+  // 清除表格选中状态
+  if (boxGridApi.grid) {
+    boxGridApi.grid.clearCheckboxRow(); // 清除所有选中行
+    boxGridApi.grid.clearCheckboxRow(); // 清除复选框选中
+  }
+
+  if (machineSpreaderChangeRecordGridApi.grid) {
+    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
+    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
+  }
+  machineSpreaderChangeRecordGridApi.query();
+};
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
 const boxAcceptancePlanNo = ref<string[]>([]);
@@ -330,6 +377,8 @@ const machineSpreaderChangeTypes = ref<string[]>([]);
 const containerOperationNodes = ref<string[]>([]);
 const vesselCodes = ref<string[]>([]);
 const vesselVoyages = ref<string[]>([]);
+const vesselNames = ref<string[]>([]);
+const plannedSpreaderTypes = ref<string[]>([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
@@ -344,6 +393,8 @@ function boxHandleRowCheckboxChange({
     containerOperationNodes,
     vesselCodes,
     vesselVoyages,
+    vesselNames,
+    plannedSpreaderTypes,
   };
   const fieldMappings = {
     boxCheckedIds: 'id',
@@ -354,6 +405,8 @@ function boxHandleRowCheckboxChange({
     containerOperationNodes: 'containerOperationNode',
     vesselCodes: 'vesselCode',
     vesselVoyages: 'vesselVoyage',
+    vesselNames: 'vesselName',
+    plannedSpreaderTypes: 'plannedSpreaderType',
   };
   Object.entries(fieldMappings).forEach(([refName, field]) => {
     refMap[refName].value = records.map((item) => item[field]);
@@ -394,7 +447,6 @@ const getDictDataList = async () => {
   //     })
   //   ).list,
   // );
-
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -691,6 +743,12 @@ const handleReset = () => {
 const handleSaveTemplate = (templateName: string) => {
   console.log('保存模板:', templateName);
 };
+watch(checkedIds, (newVal, oldVal) => {
+  if (newVal.length === 0 && oldVal.length > 0) {
+    // 先重置箱信息数据
+    resetContainerData();
+  }
+});
 </script>
 
 <template>
@@ -750,12 +808,14 @@ const handleSaveTemplate = (templateName: string) => {
         <template #actions="{ row }">
           <TableAction
             :actions="[
-              (row.reviewFlag ? {
-                label: '审核',
-                type: 'link',
-                icon: ACTION_ICON.AUDIT,
-                onClick: handleViewDetail.bind(null, row),
-              }: ''),
+              row.reviewFlag
+                ? {
+                    label: '审核',
+                    type: 'link',
+                    icon: ACTION_ICON.AUDIT,
+                    onClick: handleViewDetail.bind(null, row),
+                  }
+                : '',
               {
                 label: '修改',
                 type: 'link',
@@ -823,7 +883,9 @@ const handleSaveTemplate = (templateName: string) => {
       </div>
       <div class="ml-3 w-1/2">
         <!-- 变更吊具记录表格 -->
-        <MachineSpreaderChangeRecordGrid :table-title="$t('cxmo.overOperation.machineSpreaderRecord')">
+        <MachineSpreaderChangeRecordGrid
+          :table-title="$t('cxmo.overOperation.machineSpreaderRecord')"
+        >
           <template #toolbar-tools>
             <TableAction
               :actions="[

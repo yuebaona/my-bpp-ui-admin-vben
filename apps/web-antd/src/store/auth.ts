@@ -145,7 +145,6 @@ export const useAuthStore = defineStore('auth', () => {
       pageNo: 1,
       pageSize: 100,
     });
-    debugger
     if (taskTodo) {
       localStorage.setItem('taskTodoTotal', String(taskTodo.total));
     }

@@ -33,7 +33,7 @@ export const getCustomerList = (params: PageParam) => {
   );
 };
 // 获取船名航次
-export const getVVd = ({
+export const  getVVd = ({
   queryType = 'VESSEL',
   condition,
 }: {

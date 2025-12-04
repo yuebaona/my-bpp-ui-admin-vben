@@ -123,6 +123,22 @@ setupVbenVxeTable({
         return h(Tag, { color: props?.color }, () => row[column.field]);
       },
     });
+    // 用于回显dict 的label值
+    vxeUI.renderer.add('CellTagDict', {
+      renderTableDefault(renderOpts, params) {
+        const { options } = renderOpts;
+        const { column, row } = params;
+        let color = '';
+        let label = '';
+        options.find((item) => {
+          if (item.value === row[column.field]) {
+            color = item.color;
+            label = item.label;
+          }
+        });
+        return h(Tag, { color }, () => label);
+      },
+    });
 
     vxeUI.renderer.add('CellTags', {
       renderTableDefault(renderOpts, params) {
