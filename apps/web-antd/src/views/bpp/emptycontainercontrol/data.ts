@@ -664,7 +664,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'owner',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -673,7 +673,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'iso',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -682,7 +682,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerArea',
+      fieldName: 'yardBay',
       label: '箱区',
       component: 'Input',
       componentProps: {
@@ -717,52 +717,52 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'isRelease',
+      field: 'mainIsRelease',
       title: '是否放箱(Y/N)',
       minWidth: 120,
     },
     {
-      field: 'acceptancePlanNo',
+      field: 'mainPickupPlanNo',
       title: '提箱受理计划号',
       minWidth: 150,
     },
     {
-      field: 'owners',
+      field: 'owner',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'tradeType',
+      field: 'mainTradeType',
       title: '贸易类型',
       minWidth: 100,
     },
     {
-      field: 'isoNos',
+      field: 'iso',
       title: 'ISO',
       minWidth: 100,
     },
     {
-      field: 'bayRanges',
+      field: 'yardBay',
       title: '箱区范围',
       minWidth: 120,
     },
     {
-      field: 'mainGateReleaseQty',
+      field: 'mainGateAvailableQuantity',
       title: '主闸可放箱量',
       minWidth: 120,
     },
     {
-      field: 'modifier',
+      field: 'operator',
       title: '修改人',
       minWidth: 100,
     },
     {
-      field: 'modifyTime',
+      field: 'operationTimestamp',
       title: '修改时间',
       minWidth: 150,
     },
     {
-      field: 'modifyType',
+      field: 'operationType',
       title: '修改类型',
       minWidth: 100,
     },

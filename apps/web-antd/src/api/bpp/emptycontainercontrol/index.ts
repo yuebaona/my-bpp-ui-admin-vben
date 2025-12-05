@@ -1,6 +1,14 @@
-// import type { PageParam, PageResult } from '@vben/request';
+import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
+
+export interface LogQueryParams extends PageParam {
+  mainPlanNo?: string; // 主计划号
+  owner?: string; // 持箱人
+  iso?: string; // ISO
+  yardBay?: string; // 箱区
+  createTime?: [string, string]; // 创建时间范围
+}
 
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
@@ -43,6 +51,34 @@ export namespace EmptyContainerControlApi {
     mainId: string;
     planNo: string;
   }
+
+  export interface mainLogVO {
+    id: string;
+    operationType: string;
+    operationTimestamp: number;
+    operator: number;
+    mainId: number;
+    mainPlanNo: string;
+    mainPlanStatus: string;
+    mainIsRelease: boolean;
+    mainPickupPlanNo: string;
+    mainTradeType: string;
+    mainPlanQuantity: string;
+    createTime: string;
+    owner: string;
+    iso: string;
+    yardBay: string;
+    mainGateAvailableQuantity: string;
+  }
+
+  // export interface logQueryParams extends PageParam {
+  //   mainPlanNo?: string;
+  //   owner?: string;
+  //   iso?: string;
+  //   yardBay?: string;
+  //   createTime?: [string, string];
+  // }
+
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
     id: number;
@@ -168,7 +204,17 @@ export const deleteSubPlan = (id: number) => {
   );
 };
 
-// export const getLogQueryData = (params: PageParam) => {
-//   return requestClient.get<PageResult<EmptyContainerControlApi.subPlanVO>>(
-//   >('/bpp/flow/sub-plan/log-query', { params });
+// 日志分页查询
+export const getLogQueryPage = (params: LogQueryParams) => {
+  return requestClient.get<PageResult<EmptyContainerControlApi.mainLogVO>>(
+    '/bpp/flow/empty/container-control-main-log/page',
+    { params },
+  );
+};
+
+// 日志查询
+// export const getLogQueryData = (id: number) => {
+//   return requestClient.get(
+//     `/bpp/flow/empty/container-control-main-log/get?id=${id}`,
+//   );
 // };
