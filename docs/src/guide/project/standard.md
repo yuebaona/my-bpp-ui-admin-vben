@@ -182,7 +182,7 @@ git commit -m 'feat: add home page' --no-verify
 
 ```bash [永久关闭]
 # 删除 lefthook.yml 文件即可
-rm lefthook.yml
+#rm lefthook.yml
 ```
 
 :::

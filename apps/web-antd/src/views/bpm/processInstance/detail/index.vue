@@ -4,7 +4,7 @@ import type { SystemUserApi } from '#/api/system/user';
 
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 
-import { Page } from '@vben/common-ui';
+import { Page, useVbenModal } from '@vben/common-ui';
 import {
   BpmFieldPermissionType,
   BpmModelFormType,
@@ -13,6 +13,7 @@ import {
   DICT_TYPE,
 } from '@vben/constants';
 import {
+  IconifyIcon,
   SvgBpmApproveIcon,
   SvgBpmCancelIcon,
   SvgBpmRejectIcon,
@@ -33,18 +34,20 @@ import { registerComponent } from '#/utils';
 
 import ProcessInstanceBpmnViewer from './modules/bpm-viewer.vue';
 import ProcessInstanceOperationButton from './modules/operation-button.vue';
+import ProcessssPrint from './modules/process-print.vue';
 import ProcessInstanceSimpleViewer from './modules/simple-bpm-viewer.vue';
 import BpmProcessInstanceTaskList from './modules/task-list.vue';
 import ProcessInstanceTimeline from './modules/time-line.vue';
 
 defineOptions({ name: 'BpmProcessInstanceDetail' });
-
+// 流程状态
 const props = defineProps<{
   activityId?: string; // 流程活动编号，用于抄送查看
   id: string; // 流程实例的编号
   taskId?: string; // 任务编号
 }>();
-
+const flowStatus = ref(null); // 流程状态
+const todoTask = ref(null);
 const processInstanceLoading = ref(false); // 流程实例的加载中
 const processInstance = ref<BpmProcessInstanceApi.ProcessInstance>(); // 流程实例
 const processDefinition = ref<any>({}); // 流程定义
@@ -107,7 +110,8 @@ async function getApprovalDetail() {
 
     processInstance.value = data.processInstance;
     processDefinition.value = data.processDefinition;
-
+    flowStatus.value = data.status;
+    todoTask.value = data.todoTask;
     // 设置表单信息
     if (processDefinition.value.formType === BpmModelFormType.NORMAL) {
       // 获取表单字段权限
@@ -183,14 +187,21 @@ function setFieldPermission(field: string, permission: string) {
   }
 }
 
-// TODO @jason：这个还要么？
-/**
- * 操作成功后刷新
- */
-// const refresh = () => {
-//   // 重新获取详情
-//   getDetail();
-// };
+/** 操作成功后刷新 */
+const refresh = () => {
+  // 重新获取详情
+  getDetail();
+};
+
+const [PrintModal, printModalApi] = useVbenModal({
+  connectedComponent: ProcessssPrint,
+  destroyOnClose: true,
+});
+
+/** 打开打印对话框 */
+function handlePrint() {
+  printModalApi.setData({ processInstanceId: props.id }).open();
+}
 
 /** 监听 Tab 切换，当切换到 "record" 标签时刷新任务列表 */
 watch(
@@ -221,7 +232,14 @@ onMounted(async () => {
       }"
     >
       <template #title>
-        <span class="text-gray-500">编号：{{ id || '-' }}</span>
+        <div class="flex items-center gap-4">
+          <span class="text-gray-500">编号：{{ id || '-' }}</span>
+          <IconifyIcon
+            icon="lucide:printer"
+            class="cursor-pointer hover:text-primary"
+            @click="handlePrint"
+          />
+        </div>
       </template>
 
       <div class="flex h-full flex-col">
@@ -282,7 +300,7 @@ onMounted(async () => {
                   :xl="16"
                   class="h-full"
                 >
-                  <!-- 流程表单 -->
+                  <!-- 流程表单,动态表单 -->
                   <div
                     v-if="
                       processDefinition?.formType === BpmModelFormType.NORMAL
@@ -296,13 +314,21 @@ onMounted(async () => {
                       :rule="detailForm.rule"
                     />
                   </div>
+                  <!-- 流程表单,自定义表单 -->
                   <div
                     v-else-if="
                       processDefinition?.formType === BpmModelFormType.CUSTOM
                     "
                     class="h-full"
                   >
-                    <BusinessFormComponent :id="processInstance?.businessKey" />
+                    <BusinessFormComponent
+                      :id="processInstance?.businessKey"
+                      :business-key="processInstance?.businessKey"
+                      :todo-task="todoTask"
+                      :status="flowStatus"
+                      :activity-nodes="activityNodes"
+                      :process-instance="processInstance"
+                    />
                   </div>
                 </Col>
                 <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="8" class="h-full">
@@ -360,7 +386,8 @@ onMounted(async () => {
       </div>
 
       <template #actions>
-        <div class="px-4">
+        <!--动态表单显示流程操作按钮-->
+        <div class="px-4" v-if="processDefinition?.formType === BpmModelFormType.NORMAL">
           <ProcessInstanceOperationButton
             ref="operationButtonRef"
             :process-instance="processInstance"
@@ -369,11 +396,13 @@ onMounted(async () => {
             :normal-form="detailForm"
             :normal-form-api="fApi"
             :writable-fields="writableFields"
-            @success="getDetail"
+            @success="refresh"
           />
         </div>
       </template>
     </Card>
+    <!-- 打印对话框 -->
+    <PrintModal />
   </Page>
 </template>
 

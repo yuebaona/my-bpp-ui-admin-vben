@@ -16,6 +16,7 @@ import {
   erpCountInputFormatter,
   erpNumberFormatter,
   fenToYuan,
+  formatFileSize,
   formatPast2,
   isFunction,
   isString,
@@ -121,6 +122,22 @@ setupVbenVxeTable({
         const { props } = renderOpts;
         const { column, row } = params;
         return h(Tag, { color: props?.color }, () => row[column.field]);
+      },
+    });
+    // 用于回显dict 的label值
+    vxeUI.renderer.add('CellTagDict', {
+      renderTableDefault(renderOpts, params) {
+        const { options } = renderOpts;
+        const { column, row } = params;
+        let color = '';
+        let label = '';
+        options.find((item) => {
+          if (item.value === row[column.field]) {
+            color = item.color;
+            label = item.label;
+          }
+        });
+        return h(Tag, { color }, () => label);
       },
     });
 
@@ -354,12 +371,7 @@ setupVbenVxeTable({
     // add by 星语：文件大小格式化
     vxeUI.formats.add('formatFileSize', {
       tableCellFormatMethod({ cellValue }, digits = 2) {
-        if (!cellValue) return '0 B';
-        const unitArr = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        const index = Math.floor(Math.log(cellValue) / Math.log(1024));
-        const size = cellValue / 1024 ** index;
-        const formattedSize = size.toFixed(digits);
-        return `${formattedSize} ${unitArr[index]}`;
+        return formatFileSize(cellValue, digits);
       },
     });
   },

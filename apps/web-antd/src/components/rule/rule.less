@@ -1,0 +1,129 @@
+* {
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.rule {
+  --border-color: #d9d9d9;
+  position: relative;
+  &-border {
+    border: 1px solid var(--border-color);
+  }
+  &-relation {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    width: 26px;
+    height: calc(100% - 52px);
+    left: 21px;
+    top: 26px;
+    bottom: 26px;
+    border-left: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    &.is-level {
+      left: 11.5px;
+    }
+    &.is-list {
+      left: 11.5px;
+      height: calc(100% - 72px);
+      top: 36px;
+      bottom: 36px;
+    }
+    &.is-item {
+      height: calc(100% - 40px);
+      top: 20px;
+      bottom: 20px;
+    }
+    &-inner {
+      width: 24px;
+      height: 24px;
+      background-color: #f2f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      margin-left: -12px;
+      &.is-level {
+        color: #fff;
+      }
+    }
+  }
+
+  &-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    cursor: pointer;
+    .add {
+      color: var(--apex-color-primary);
+    }
+    .delete {
+      color: var(--apex-color-error);
+    }
+  }
+
+  &-handler {
+    margin-top: 10px;
+    color: var(--apex-color-primary);
+    cursor: pointer;
+  }
+}
+
+.rule.is-multiple .rule-relation.is-list {
+  left: 21px;
+}
+
+.rule.is-multiple .rule-level {
+  margin-left: 36px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.rule-level {
+  position: relative;
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+}
+
+.rule-level.is-multiple .rule-list {
+  margin-left: 36px;
+}
+
+.rule-list {
+  display: flex;
+  position: relative;
+  &:not(:first-child) {
+    margin-top: 10px;
+  }
+  &-inner {
+    position: relative;
+    width: calc(100% - 108px);
+    padding: 10px;
+    border: 1px solid var(--border-color);
+  }
+}
+
+.rule-list.is-multiple .rule-item {
+  margin-left: 36px;
+}
+
+.rule-item {
+  display: flex;
+  &:not(:last-child) {
+    margin-bottom: 10px;
+  }
+
+  &-field {
+    margin-right: 8px;
+    width: 140px;
+  }
+  &-operator {
+    margin-right: 8px;
+    width: 100px;
+  }
+}

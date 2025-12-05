@@ -1,0 +1,26 @@
+{
+  "overOperation": {
+    "operationListName": "超限作业申请列表",
+    "boxListName": "箱列表",
+    "machineSpreaderRecord": "变更吊具记录",
+    "onSiteOperationConfirm": "现场操作确认",
+    "actuallyNoOperation": "实际无作业",
+    "stopSubSequentOperations": "停止后续作业",
+    "noChangeOperations": "无变更作业"
+  },
+  "action": {
+    "action": "操作",
+    "add": "新增",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "import": "导入",
+    "export": "导出",
+    "submit": "提交",
+    "cancel": "取消",
+    "confirm": "确认",
+    "reset": "重置",
+    "search": "查询",
+    "more": "更多"
+  }
+}

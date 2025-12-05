@@ -18,72 +18,72 @@ import { useGridColumns } from './data';
 
 defineOptions({ name: 'BpmProcessDefinition' });
 
+const route = useRoute();
+const router = useRouter();
+
 const [FormCreateDetailModal, formCreateDetailModalApi] = useVbenModal({
   connectedComponent: FormCreateDetail,
   destroyOnClose: true,
 });
 
+/** 刷新表格 */
+function handleRefresh() {
+  gridApi.query();
+}
+
 /** 查看表单详情 */
-function handleFormDetail(row: any) {
+async function handleFormDetail(
+  row: BpmProcessDefinitionApi.ProcessDefinition,
+) {
   if (row.formType === BpmModelFormType.NORMAL) {
     const data = {
       id: row.formId,
     };
     formCreateDetailModalApi.setData(data).open();
   } else {
-    // TODO 待实现
-    console.warn('业务表单待实现', row);
+    await router.push({
+      path: row.formCustomCreatePath,
+    });
   }
 }
 
-const router = useRouter();
 /** 恢复流程模型 */
-async function openModelForm(id?: number) {
+async function handleRecover(row: BpmProcessDefinitionApi.ProcessDefinition) {
   await router.push({
     name: 'BpmModelUpdate',
-    params: { id, type: 'definition' },
+    params: { id: row.id, type: 'definition' },
   });
 }
-
-/** 刷新表格 */
-function onRefresh() {
-  gridApi.query();
-}
-
-const route = useRoute();
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useGridColumns(),
     height: 'auto',
     keepSource: true,
-    pagerConfig: {
-      enabled: true,
-    },
     proxyConfig: {
       ajax: {
         query: async ({ page }) => {
-          const params = {
-            pageNo: page?.currentPage,
-            pageSize: page?.pageSize,
-            key: route.query.key,
-          };
-          return await getProcessDefinitionPage(params);
+          return await getProcessDefinitionPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            key: route.query.key as string,
+          });
         },
       },
     },
     rowConfig: {
       keyField: 'id',
+      isHover: true,
     },
     toolbarConfig: {
       refresh: true,
     },
-  } as VxeTableGridOptions,
+  } as VxeTableGridOptions<BpmProcessDefinitionApi.ProcessDefinition>,
 });
 
 /** 初始化 */
 onMounted(() => {
-  onRefresh();
+  handleRefresh();
 });
 </script>
 
@@ -91,16 +91,18 @@ onMounted(() => {
   <Page auto-content-height>
     <Grid table-title="流程定义列表">
       <template #startUsers="{ row }">
-        <template v-if="!row.startUsers?.length">全部可见</template>
+        <template v-if="!row.startUsers || row.startUsers.length === 0">
+          全部可见
+        </template>
         <template v-else-if="row.startUsers.length === 1">
-          {{ row.startUsers[0].nickname }}
+          {{ row.startUsers[0]!.nickname }}
         </template>
         <template v-else>
           <Tooltip
             placement="top"
             :title="row.startUsers.map((user: any) => user.nickname).join(',')"
           >
-            {{ row.startUsers[0].nickname }}等
+            {{ row.startUsers[0]!.nickname }}等
             {{ row.startUsers.length }} 人可见
           </Tooltip>
         </template>
@@ -129,12 +131,11 @@ onMounted(() => {
               label: '恢复',
               type: 'link',
               auth: ['bpm:model:update'],
-              onClick: openModelForm.bind(null, row.id),
+              onClick: handleRecover.bind(null, row),
             },
           ]"
         />
       </template>
     </Grid>
-    <FormCreateDetailModal />
   </Page>
 </template>
