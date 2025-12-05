@@ -6,6 +6,8 @@ import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+import { h } from 'vue';
+import { Tag } from "ant-design-vue";
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
@@ -1145,11 +1147,50 @@ export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
     { field: 'applicantCompanyName', label: '申请公司名称' },
     { field: 'handlingPerson', label: '经办人' },
     { field: 'handlingPhoneNumber', label: '经办人联系电话' },
-    { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
-    { field: 'payerCodeSea', label: '缴费方（海侧）' },
-    { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
-    { field: 'payerCodeGate', label: '缴费方（陆侧）' },
-    { field: 'category', label: '进出口类别' },
+    {
+      field: 'paymentTypeSea',
+      label: '缴费方式（海侧）',
+      render: ( cellValue ) => {
+        const options = getPlanStatusOptions('payment_method')
+        let color = '';
+        let label = '';
+        options.find((item) => {
+          if (item.value === cellValue) {
+            color = item.color;
+            label = item.label;
+          }
+        });
+        return h(Tag, { color }, () => label);
+      }
+    },
+    { field: 'payerNameSea', label: '缴费方（海侧）' },
+    { field: 'paymentTypeGate', label: '缴费方式（陆侧）',
+      render: ( cellValue ) => {
+        const options = getPlanStatusOptions('payment_method')
+        let color = '';
+        let label = '';
+        options.find((item) => {
+          if (item.value === cellValue) {
+            color = item.color;
+            label = item.label;
+          }
+        });
+        return h(Tag, { color }, () => label);
+      }},
+    { field: 'payerNameGate', label: '缴费方（陆侧）' },
+    { field: 'category', label: '进出口类别',
+      render: ( cellValue ) => {
+        const options = getPlanStatusOptions('import_export_type')
+        let color = '';
+        let label = '';
+        options.find((item) => {
+          if (item.value === cellValue) {
+            color = item.color;
+            label = item.label;
+          }
+        });
+        return h(Tag, { color }, () => label);
+      }},
     { field: 'vesselName', label: '作业船名（中文名称）' },
     { field: 'vesselVoyage', label: '作业航次' },
     { field: 'plannedOperationTime', label: '预计作业时间' },
@@ -1671,7 +1712,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props:{
+        props: {
           placeholder: '',
           allowClear: true,
         }
