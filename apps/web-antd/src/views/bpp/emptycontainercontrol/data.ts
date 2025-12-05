@@ -461,6 +461,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 110,
+      formatter: 'formatDateTime',
     },
     {
       field: 'updater',
@@ -470,7 +471,8 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'updateTime',
       title: '修改时间',
-      minWidth: 100,
+      minWidth: 110,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',
@@ -581,6 +583,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
       field: 'updater',
@@ -591,6 +594,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'updateTime',
       title: '修改时间',
       minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',
