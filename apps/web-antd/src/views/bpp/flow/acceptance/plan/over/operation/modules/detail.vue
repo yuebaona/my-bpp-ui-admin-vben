@@ -18,7 +18,7 @@ import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
   containerInfoDetailColumns,
-} from '../data.ts';
+} from '../data';
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
@@ -54,13 +54,8 @@ const formattedContainerTypes = computed(() => {
   return result.join('\n'); // 用换行符连接
 });
 const [Descriptions] = useDescription({
-  componentProps: {
-    bordered: true,
-    column: 2,
-    class: 'm-10',
-    size: 'small',
-    title: '基础信息',
-  },
+  column: 2,
+  size: 'small',
   labelStyle: {
     textAlign: 'right',
   },
@@ -184,6 +179,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 <template>
   <Modal title="超限货物作业申请单详情" class="w-1/2">
+    <div class="ant-descriptions-title my-5">基础信息</div>
     <Descriptions :data="formData" />
     <div>
       <div class="ant-descriptions-title my-5">箱货信息</div>

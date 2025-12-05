@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { BpmProcessDefinitionApi } from '#/api/bpm/definition';
 import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
-import { registerComponent } from '#/utils';
-import { computed, nextTick, ref, watch,shallowRef } from 'vue';
+
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 
 import {
   BpmCandidateStrategyEnum,
@@ -24,6 +24,8 @@ import {
 } from '#/api/bpm/processInstance';
 import { decodeFields, setConfAndFields2 } from '#/components/form-create';
 import { router } from '#/router';
+import { registerComponent } from '#/utils';
+import ProcessInstanceBpmnViewer from '#/views/bpm/processInstance/detail/modules/bpm-viewer.vue';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
 import ProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
 
@@ -50,8 +52,8 @@ const props = defineProps({
 
 const emit = defineEmits(['cancel']);
 const { closeCurrentTab } = useTabs();
-
-const isFormReady = ref(false); // 表单就绪状态变量：表单就绪后再渲染 form-create
+ref(false);
+// 表单就绪状态变量：表单就绪后再渲染 form-create
 const getTitle = computed(() => {
   return `流程表单 - ${props.selectProcessDefinition.name}`;
 });
@@ -124,21 +126,32 @@ async function initProcessInfo(row: any, formVariables?: any) {
     // 注意：需要从 formVariables 中，移除不在 row.formFields 的值。
     // 原因是：后端返回的 formVariables 里面，会有一些非表单的信息。例如说，某个流程节点的审批人。
     //        这样，就可能导致一个流程被审批不通过后，重新发起时，会直接后端报错！！！
-    const formApi = formCreate.create(decodeFields(row.formFields));
-    const allowedFields = formApi.fields();
-    for (const key in formVariables) {
-      if (!allowedFields.includes(key)) {
-        delete formVariables[key];
+
+    // 解析表单字段列表（不创建实例，避免重复渲染）
+    const decodedFields = decodeFields(row.formFields);
+    const allowedFields = new Set(
+      decodedFields.map((field: any) => field.field).filter(Boolean),
+    );
+
+    // 过滤掉不允许的字段
+    if (formVariables) {
+      for (const key in formVariables) {
+        if (!allowedFields.has(key)) {
+          delete formVariables[key];
+        }
       }
     }
+
     setConfAndFields2(detailForm, row.formConf, row.formFields, formVariables);
 
-    // 设置表单就绪状态
-    // TODO @jason：这个变量是必须的，有没可能简化掉？
-    isFormReady.value = true;
+    // 在配置中禁用 form-create 自带的提交和重置按钮
+    detailForm.value.option = {
+      ...detailForm.value.option,
+      submitBtn: false,
+      resetBtn: false,
+    };
 
     await nextTick();
-    fApi.value?.btn.show(false); // 隐藏提交按钮
 
     // 获取流程审批信息,当再次发起时，流程审批节点要根据原始表单参数预测出来
     await getApprovalDetail({
@@ -155,10 +168,12 @@ async function initProcessInfo(row: any, formVariables?: any) {
     }
     // 情况二：业务表单
   } else if (row.formCustomCreatePath) {
-      // 注意：ormCustomCreatePath 是组件的全路径，例如说：/crm/contract/detail/index.vue
-      BusinessFormComponent.value = registerComponent(
-        row.formCustomCreatePath || '',
-      );
+    // 注意：ormCustomCreatePath 是组件的全路径，例如说：/crm/contract/detail/index.vue
+    BusinessFormComponent.value = registerComponent(
+      row.formCustomCreatePath || '',
+    );
+    // 返回选择流程
+    emit('cancel');
     // await router.push({
     //   path: row.formCustomCreatePath,
     // });
@@ -168,21 +183,21 @@ async function initProcessInfo(row: any, formVariables?: any) {
 
 /** 预测流程节点会因为输入的参数值而产生新的预测结果值，所以需重新预测一次 */
 watch(
-  detailForm.value,
+  () => detailForm.value.value,
   (newValue) => {
-    if (newValue && Object.keys(newValue.value).length > 0) {
+    if (newValue && Object.keys(newValue).length > 0) {
       // 记录之前的节点审批人
       tempStartUserSelectAssignees.value = startUserSelectAssignees.value;
       startUserSelectAssignees.value = {};
       // 加载最新的审批详情
       getApprovalDetail({
         id: props.selectProcessDefinition.id,
-        processVariablesStr: JSON.stringify(newValue.value), // 解决 GET 无法传递对象的问题，后端 String 再转 JSON
+        processVariablesStr: JSON.stringify(newValue), // 解决 GET 无法传递对象的问题，后端 String 再转 JSON
       });
     }
   },
   {
-    immediate: true,
+    deep: true,
   },
 );
 
@@ -273,69 +288,72 @@ defineExpose({ initProcessInfo });
         </Button>
       </Space>
     </template>
-    <div>
-      <!-- 自定义流程表单 -->
-      <div
-        v-if="formType === BpmModelFormType.CUSTOM"
-        class="h-full"
-      >
-        <BusinessFormComponent />
-      </div>
-    </div>
-    <!-- 动态流程表单 -->
-    <div v-if="formType === BpmModelFormType.NORMAL">
-      <Tabs
-        v-model:active-key="activeTab"
-        class="flex flex-1 flex-col overflow-hidden"
-      >
-        <Tabs.TabPane tab="业务单据" key="form">
-          <Row :gutter="[48, 16]" class="pt-4">
-            <Col
-              :xs="24"
-              :sm="24"
-              :md="18"
-              :lg="18"
-              :xl="18"
-              class="flex-1 overflow-auto"
-            >
+
+    <Tabs
+      v-model:active-key="activeTab"
+      class="flex flex-1 flex-col overflow-hidden"
+    >
+      <Tabs.TabPane tab="表单填写" key="form">
+        <Row :gutter="[48, 16]" class="pt-4">
+          <Col
+            :xs="24"
+            :sm="24"
+            :md="18"
+            :lg="18"
+            :xl="18"
+            class="flex-1 overflow-auto"
+          >
+            <div>
+              <!-- 自定义流程表单 -->
+              <div v-if="formType === BpmModelFormType.CUSTOM" class="h-full">
+                <BusinessFormComponent />
+              </div>
+            </div>
+            <!-- 动态流程表单 -->
+            <div v-if="formType === BpmModelFormType.NORMAL">
               <form-create
-                v-if="isFormReady"
                 :rule="detailForm.rule"
                 v-model:api="fApi"
                 v-model="detailForm.value"
                 :option="detailForm.option"
                 @submit="submitForm"
               />
-            </Col>
-            <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
-              <ProcessInstanceTimeline
-                ref="timelineRef"
-                :activity-nodes="activityNodes"
-                :show-status-icon="false"
-                @select-user-confirm="selectUserConfirm"
-              />
-            </Col>
-          </Row>
-        </Tabs.TabPane>
-        <Tabs.TabPane
-          tab="流程图"
-          key="flow"
-          class="flex flex-1 overflow-hidden"
-          :force-render="true"
-        >
-          <div class="w-full">
-            <ProcessInstanceSimpleViewer
-              :simple-json="simpleJson"
-              v-if="selectProcessDefinition.modelType === BpmModelType.SIMPLE"
+            </div>
+          </Col>
+          <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
+            <ProcessInstanceTimeline
+              ref="timelineRef"
+              :activity-nodes="activityNodes"
+              :show-status-icon="false"
+              @select-user-confirm="selectUserConfirm"
             />
-          </div>
-        </Tabs.TabPane>
-      </Tabs>
-
-    </div>
+          </Col>
+        </Row>
+      </Tabs.TabPane>
+      <Tabs.TabPane
+        tab="流程图"
+        key="flow"
+        class="flex flex-1 overflow-hidden"
+        :force-render="true"
+      >
+        <div class="h-full w-full">
+          <!-- BPMN 流程图预览 -->
+          <ProcessInstanceBpmnViewer
+            :bpmn-xml="bpmnXML"
+            v-if="BpmModelType.BPMN === selectProcessDefinition.modelType"
+          />
+          <ProcessInstanceSimpleViewer
+            :simple-json="simpleJson"
+            v-if="BpmModelType.SIMPLE === selectProcessDefinition.modelType"
+          />
+        </div>
+      </Tabs.TabPane>
+    </Tabs>
 
     <template #actions>
-      <template v-if="activeTab === 'form' && formType === BpmModelFormType.NORMAL">
+      <template
+        v-if="activeTab === 'form' && formType === BpmModelFormType.NORMAL"
+      >
         <Space wrap class="flex w-full justify-center">
           <Button
             plain

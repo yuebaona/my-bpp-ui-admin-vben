@@ -462,8 +462,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
+    submitOnEnter: true
   },
   gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
     keepSource: false,
@@ -504,6 +511,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     columns: useBoxGridColumns(),
     height: 'auto',
     keepSource: false,
@@ -550,6 +563,12 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      floatingFilterConfig: {
+        enabled: true,
+      },
+      filterConfig: {
+        showIcon: false,
+      },
       columns: machineSpreaderChangeRecordGridColumns(),
       height: 'auto',
       keepSource: false,
@@ -781,7 +800,7 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: $t('cxmo.action.add'),
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                auth: ['system:user:create'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
               // {
@@ -822,13 +841,14 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: '修改',
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
-                auth: ['system:user:update'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
               },
               {
                 label: '详情',
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
+                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
                 onClick: handleDetail.bind(null, row),
               },
             ]"
