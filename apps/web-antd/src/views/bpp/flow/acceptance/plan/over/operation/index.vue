@@ -8,7 +8,6 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
-import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -24,7 +23,7 @@ import {
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-
+import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
@@ -800,7 +799,7 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: $t('cxmo.action.add'),
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                auth: ['system:user:create'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
               // {
@@ -841,13 +840,14 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: '修改',
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
-                auth: ['system:user:update'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
               },
               {
                 label: '详情',
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
+                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
                 onClick: handleDetail.bind(null, row),
               },
             ]"
