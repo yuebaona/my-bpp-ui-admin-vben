@@ -8,6 +8,7 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
+import { router } from '#/router';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -23,7 +24,7 @@ import {
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import { router } from '#/router';
+
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';

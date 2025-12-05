@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch} from 'vue';
+import {onMounted, reactive, ref, watch} from 'vue';
 
-import {router} from '#/router'
 import {Button, Card, Flex, message, Space} from "ant-design-vue";
 import {confirm} from '@vben/common-ui';
 import {
@@ -9,14 +8,10 @@ import {
 } from "#/api/bpp/flow/acceptance/plan/over/operation";
 import {approveTask, rejectTask, transferTask,} from '#/api/bpm/task';
 import {getSimpleUserList} from '#/api/system/user';
-import {useRefresh} from '@vben/hooks';
-
 
 defineOptions({name: 'BusinessButtonView'});
 
-// 刷新当前路由
-const { refresh } = useRefresh();
-const emit = defineEmits(['closeCallBack']);
+const emit = defineEmits(['close-form']);
 /**
  * 参数
  */
@@ -38,7 +33,6 @@ const props = defineProps({
 });
 const transferVisible = ref(false);
 const buttonLoading = ref(false);
-const openTask = ref(false);
 const formRef = ref(null);
 
 const transferFormRef = ref(null);
@@ -69,7 +63,7 @@ function cancelTask(){
 async function passTask() {
   try {
     buttonLoading.value = true;
-    await formRef.value.validate();
+    await formRef?.value.validate();
     // 修改单据数据
     await businessProgressAcceptancePlanOverOperation(containerFormData.value.containerFormDataArray)
     //流程变量
@@ -139,7 +133,7 @@ async function openTransferTask(){
 }
 // 转办任务
 async function doTransferTask(){
-  await transferFormRef.value.validate();
+  await transferFormRef?.value.validate();
   try {
     buttonLoading.value = true;
     const data = {
