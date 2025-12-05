@@ -129,20 +129,16 @@ export namespace EmptyContainerControlApi {
 }
 
 // 创建主计划信息
-export const createMainplan = (
-  data: EmptyContainerControlApi.mainPlanSaveReqVO,
-) => {
+export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.post(
     '/bpp/flow/empty/container-control-main/create',
     data,
   );
 };
 // 修改主计划信息
-export const updateMainPlan = (
-  data: EmptyContainerControlApi.mainPlanSaveReqVO,
-) => {
+export const updateMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.put(
-    '/bpp/flow/acceptance-plan-over-operation/update',
+    '/bpp/flow/empty/container-control-main/update',
     data,
   );
 };
@@ -164,7 +160,7 @@ export const getMainPlanPage = (data: EmptyContainerControlApi.mainPlanVO) => {
 // 删除主计划
 export const deleteMainPlan = (id: number) => {
   return requestClient.delete(
-    `/bpp/flow/empty/container-control-main/delete?id=${id}`,
+    `/bpp/flow/empty/container-control-main/main/delete?id=${id}`,
   );
 };
 
@@ -211,10 +207,3 @@ export const getLogQueryPage = (params: LogQueryParams) => {
     { params },
   );
 };
-
-// 日志查询
-// export const getLogQueryData = (id: number) => {
-//   return requestClient.get(
-//     `/bpp/flow/empty/container-control-main-log/get?id=${id}`,
-//   );
-// };
