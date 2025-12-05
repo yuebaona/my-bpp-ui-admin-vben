@@ -823,8 +823,8 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'applicantCode',
-      title: '申请人',
+      field: 'handlingPerson',
+      title: '经办人',
       minWidth: 150,
       filters: [{ data: '' }],
       filterRender: {
