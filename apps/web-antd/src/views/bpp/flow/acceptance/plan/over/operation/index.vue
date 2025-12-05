@@ -462,6 +462,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
+    submitOnEnter: true
   },
   gridOptions: {
     floatingFilterConfig: {
