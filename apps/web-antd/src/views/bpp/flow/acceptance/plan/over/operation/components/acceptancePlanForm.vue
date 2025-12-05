@@ -504,6 +504,10 @@ const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
   if (!value) return;
+  if(value.length<2){
+    message.warning('请输入至少两个字符');
+    return;
+  }
   vesselNameState.fetching = true;
   const res = await getVVd({ condition: value });
   if (res) {
