@@ -18,7 +18,7 @@ import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
   containerInfoDetailColumns,
-} from '../data.ts';
+} from '../data';
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
