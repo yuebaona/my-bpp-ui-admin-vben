@@ -234,6 +234,9 @@ const handleOnSiteOperation = async () => {
       break;
     }
     case '箱现场突发': {
+      data.value = {
+        initiationType: initiationTypeValue.value,
+      };
       break;
     }
     case '舱盖板': {
