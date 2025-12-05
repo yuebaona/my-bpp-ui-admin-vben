@@ -464,6 +464,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
   },
   gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
     keepSource: false,
@@ -504,6 +510,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     columns: useBoxGridColumns(),
     height: 'auto',
     keepSource: false,
@@ -550,6 +562,12 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      floatingFilterConfig: {
+        enabled: true,
+      },
+      filterConfig: {
+        showIcon: false,
+      },
       columns: machineSpreaderChangeRecordGridColumns(),
       height: 'auto',
       keepSource: false,

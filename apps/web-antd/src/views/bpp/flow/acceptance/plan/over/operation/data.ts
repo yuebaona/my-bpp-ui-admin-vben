@@ -752,6 +752,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -768,6 +772,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -784,6 +792,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -799,6 +811,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -816,6 +832,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -832,6 +852,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -848,6 +872,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('import_export_type'),
       formatter: (value) => {
@@ -865,6 +893,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -881,6 +913,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -897,6 +933,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -913,6 +953,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -929,6 +973,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('payment_method'),
       formatter: (value) => {
@@ -946,6 +994,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -962,6 +1014,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('payment_method'),
       formatter: (value) => {
@@ -979,6 +1035,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -995,6 +1055,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('system_rate'),
       formatter: (value) => {
@@ -1013,6 +1077,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('acceptance_plan_status'),
       cellRender: {
@@ -1028,6 +1096,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1045,6 +1117,10 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1096,6 +1172,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1112,6 +1192,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1128,6 +1212,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1144,6 +1232,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1160,6 +1252,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1176,6 +1272,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1192,6 +1292,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1208,6 +1312,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1224,6 +1332,10 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('on_site_operation_node'),
       cellRender: {
@@ -1249,6 +1361,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('on_site_operation_category'),
       formatter: (value) => {
@@ -1266,6 +1382,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1282,6 +1402,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1298,6 +1422,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1314,6 +1442,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('driving_source'),
       formatter: (value) => {
@@ -1331,6 +1463,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('change_reason'),
       formatter: (value) => {
@@ -1348,6 +1484,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1364,6 +1504,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1380,6 +1524,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('actual_operation'),
       formatter: (value) => {
@@ -1399,6 +1547,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1415,6 +1567,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: createDictFilter('spreader_type'),
       formatter: (value) => {
@@ -1433,6 +1589,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1450,6 +1610,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1466,6 +1630,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1475,13 +1643,17 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       },
     },
     {
-      field: 'creator',
+      field: 'creatorName',
       title: '创建者',
       minWidth: 200,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1499,6 +1671,10 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
+        props:{
+          placeholder: '',
+          allowClear: true,
+        }
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
