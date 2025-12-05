@@ -122,8 +122,10 @@ function handleSubRowCheckboxChange({
 }) {
   // 检查是否已勾选主计划
   if (checkedIds.value.length > 0) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    gridApi2.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
-    // 取消勾选操作
     return false;
   }
   checkedSubIds.value = records.map((item) => item.id);
@@ -137,11 +139,18 @@ function handleRowCheckboxChange({
 }) {
   // 检查是否已勾选子计划
   if (checkedSubIds.value.length > 0) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    subGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
-    return false;
   }
   checkedIds.value = records.map((item) => item.id);
   planNo.value = records.map((item) => item.planNo);
+  if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    subGridApi.grid.setAllCheckboxRow(false);
+  }
 }
 const [FormModal2, formModalApi2] = useVbenModal({
   connectedComponent: Form2,
@@ -313,7 +322,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi.query();
+  gridApi2.query();
 }
 
 /** 创建主计划新申请 */
