@@ -800,7 +800,7 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: $t('cxmo.action.add'),
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                auth: ['system:user:create'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
               // {
@@ -841,13 +841,14 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: '修改',
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
-                auth: ['system:user:update'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
               },
               {
                 label: '详情',
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
+                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
                 onClick: handleDetail.bind(null, row),
               },
             ]"
