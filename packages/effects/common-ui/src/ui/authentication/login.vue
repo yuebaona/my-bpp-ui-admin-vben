@@ -155,49 +155,49 @@ defineExpose({
       {{ submitButtonText || $t('common.login') }}
     </VbenButton>
 
-    <div
-      v-if="showCodeLogin || showQrcodeLogin"
-      class="mb-2 mt-4 flex items-center justify-between"
-    >
-      <VbenButton
-        v-if="showCodeLogin"
-        class="w-1/2"
-        variant="outline"
-        @click="handleGo(codeLoginPath)"
-      >
-        {{ $t('authentication.mobileLogin') }}
-      </VbenButton>
-      <VbenButton
-        v-if="showQrcodeLogin"
-        class="ml-4 w-1/2"
-        variant="outline"
-        @click="handleGo(qrCodeLoginPath)"
-      >
-        {{ $t('authentication.qrcodeLogin') }}
-      </VbenButton>
-    </div>
+<!--    <div-->
+<!--      v-if="showCodeLogin || showQrcodeLogin"-->
+<!--      class="mb-2 mt-4 flex items-center justify-between"-->
+<!--    >-->
+<!--      <VbenButton-->
+<!--        v-if="showCodeLogin"-->
+<!--        class="w-1/2"-->
+<!--        variant="outline"-->
+<!--        @click="handleGo(codeLoginPath)"-->
+<!--      >-->
+<!--        {{ $t('authentication.mobileLogin') }}-->
+<!--      </VbenButton>-->
+<!--      <VbenButton-->
+<!--        v-if="showQrcodeLogin"-->
+<!--        class="ml-4 w-1/2"-->
+<!--        variant="outline"-->
+<!--        @click="handleGo(qrCodeLoginPath)"-->
+<!--      >-->
+<!--        {{ $t('authentication.qrcodeLogin') }}-->
+<!--      </VbenButton>-->
+<!--    </div>-->
 
     <!-- 第三方登录 -->
-    <slot name="third-party-login">
-      <ThirdPartyLogin
-        v-if="showThirdPartyLogin"
-        @third-login="handleThirdLogin"
-      />
-    </slot>
+<!--    <slot name="third-party-login">-->
+<!--      <ThirdPartyLogin-->
+<!--        v-if="showThirdPartyLogin"-->
+<!--        @third-login="handleThirdLogin"-->
+<!--      />-->
+<!--    </slot>-->
 
-    <slot name="to-register">
-      <div v-if="showRegister" class="mt-3 text-center text-sm">
-        {{ $t('authentication.accountTip') }}
-        <span
-          class="vben-link text-sm font-normal"
-          @click="handleGo(registerPath)"
-        >
-          {{ $t('authentication.createAccount') }}
-        </span>
-      </div>
-    </slot>
+<!--    <slot name="to-register">-->
+<!--      <div v-if="showRegister" class="mt-3 text-center text-sm">-->
+<!--        {{ $t('authentication.accountTip') }}-->
+<!--        <span-->
+<!--          class="vben-link text-sm font-normal"-->
+<!--          @click="handleGo(registerPath)"-->
+<!--        >-->
+<!--          {{ $t('authentication.createAccount') }}-->
+<!--        </span>-->
+<!--      </div>-->
+<!--    </slot>-->
 
     <!-- 萌新必读 -->
-    <DocLink />
+<!--    <DocLink />-->
   </div>
 </template>
