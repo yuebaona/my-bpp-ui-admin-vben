@@ -23,6 +23,7 @@
     "export": "导出"
   },
   "actionMessage": {
+    "noProcessInstance": "未找到流程实例，检查是否已发起流程",
     "deleteConfirm": "确定删除 {0} 吗？",
     "deleteBatchConfirm": "确定删除所选项吗？",
     "deleting": "正在删除 {0} ...",

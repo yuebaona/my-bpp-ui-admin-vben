@@ -118,6 +118,13 @@ export namespace BpmProcessInstanceApi {
   }
 }
 
+/** 发起工作流 */
+export async function createProcess(data: any) {
+  return requestClient.post(
+    '/bpp/flow/create-process',
+    data,
+  );
+}
 /** 查询我的流程实例分页 */
 export async function getProcessInstanceMyPage(params: PageParam) {
   return requestClient.get<PageResult<BpmProcessInstanceApi.ProcessInstance>>(

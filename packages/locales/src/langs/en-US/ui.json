@@ -23,6 +23,7 @@
     "export": "Export"
   },
   "actionMessage": {
+    "noProcessInstance": "No process instance was found. Check if the process has been initiated.",
     "deleteConfirm": "Are you sure to delete {0}?",
     "deleteBatchConfirm": "Are you sure to delete selected items?",
     "deleting": "Deleting {0} ...",

@@ -2,7 +2,7 @@
 import type { fileVo } from '../data.ts';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
 import { computed, reactive, ref } from 'vue';
 
@@ -12,12 +12,13 @@ import dayjs from 'dayjs';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
+import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
   containerInfoDetailColumns,
-} from '../data.ts';
+} from '../data';
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
@@ -68,6 +69,8 @@ const [Descriptions] = useDescription({
   },
   schema: acceptancePlanOvrOprDetailSchema(),
 });
+const acceptancePlanOverOperationRespVO = ref(null);
+const containerDataArray = ref(null);
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
     columns: containerInfoDetailColumns(),
@@ -153,6 +156,8 @@ const [Modal, modalApi] = useVbenModal({
         acceptancePlanBillMessageVO,
         data.acceptancePlanBillMessageRespVO,
       );
+      acceptancePlanOverOperationRespVO.value=data.acceptancePlanOverOperationRespVO;
+      containerDataArray.value=data.acceptancePlanOverOperationContainerRespVOS;
       formData.value = data.acceptancePlanRespVO;
       formData.value.plannedOperationTime = dayjs(
         formData.value.plannedOperationTime,
@@ -219,7 +224,13 @@ const [Modal, modalApi] = useVbenModal({
       </FileGrid>
     </div>
     <div>
-      <div class="ant-descriptions-title my-5">审批记录</div>
+      <!--审批记录-->
+      <taskComment
+        :isShowApply="false"
+        :acceptancePlanOverOperationData="formData"
+        :processInstanceId="acceptancePlanOverOperationRespVO?.processInstanceId"
+        :containerDataArray="containerDataArray"
+      />
     </div>
   </Modal>
 </template>

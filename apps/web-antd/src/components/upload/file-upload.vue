@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<FileUploadProps>(), {
   drag: false,
   helpText: '',
   maxSize: 2,
-  maxNumber: 1,
+  maxNumber: 9,
   accept: () => [],
   multiple: false,
   api: undefined,

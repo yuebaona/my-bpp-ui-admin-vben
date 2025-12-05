@@ -2,7 +2,7 @@
 import type { BpmProcessDefinitionApi } from '#/api/bpm/definition';
 import type { BpmProcessInstanceApi } from '#/api/bpm/processInstance';
 
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 
 import {
   BpmCandidateStrategyEnum,
@@ -24,6 +24,7 @@ import {
 } from '#/api/bpm/processInstance';
 import { decodeFields, setConfAndFields2 } from '#/components/form-create';
 import { router } from '#/router';
+import { registerComponent } from '#/utils';
 import ProcessInstanceBpmnViewer from '#/views/bpm/processInstance/detail/modules/bpm-viewer.vue';
 import ProcessInstanceSimpleViewer from '#/views/bpm/processInstance/detail/modules/simple-bpm-viewer.vue';
 import ProcessInstanceTimeline from '#/views/bpm/processInstance/detail/modules/time-line.vue';
@@ -51,7 +52,8 @@ const props = defineProps({
 
 const emit = defineEmits(['cancel']);
 const { closeCurrentTab } = useTabs();
-
+ref(false);
+// 表单就绪状态变量：表单就绪后再渲染 form-create
 const getTitle = computed(() => {
   return `流程表单 - ${props.selectProcessDefinition.name}`;
 });
@@ -74,6 +76,8 @@ const timelineRef = ref<any>();
 const activeTab = ref('form');
 const activityNodes = ref<BpmProcessInstanceApi.ApprovalNodeInfo[]>([]);
 const processInstanceStartLoading = ref(false);
+const BusinessFormComponent = shallowRef<any>(null); // 异步组件(业务表单）
+const formType = ref<any>(null); // 表单类型：动态表单、自定义表单
 
 /** 提交按钮 */
 async function submitForm() {
@@ -115,7 +119,7 @@ async function initProcessInfo(row: any, formVariables?: any) {
   // 重置指定审批人
   startUserSelectTasks.value = [];
   startUserSelectAssignees.value = {};
-
+  formType.value = row.formType;
   // 情况一：流程表单
   if (row.formType === BpmModelFormType.NORMAL) {
     // 设置表单
@@ -164,12 +168,16 @@ async function initProcessInfo(row: any, formVariables?: any) {
     }
     // 情况二：业务表单
   } else if (row.formCustomCreatePath) {
-    // 这里暂时无需加载流程图，因为跳出到另外个 Tab；
-    await router.push({
-      path: row.formCustomCreatePath,
-    });
+    // 注意：ormCustomCreatePath 是组件的全路径，例如说：/crm/contract/detail/index.vue
+    BusinessFormComponent.value = registerComponent(
+      row.formCustomCreatePath || '',
+    );
     // 返回选择流程
     emit('cancel');
+    // await router.push({
+    //   path: row.formCustomCreatePath,
+    // });
+    // 这里暂时无需加载流程图，因为跳出到另外个 Tab；
   }
 }
 
@@ -295,13 +303,22 @@ defineExpose({ initProcessInfo });
             :xl="18"
             class="flex-1 overflow-auto"
           >
-            <form-create
-              :rule="detailForm.rule"
-              v-model:api="fApi"
-              v-model="detailForm.value"
-              :option="detailForm.option"
-              @submit="submitForm"
-            />
+            <div>
+              <!-- 自定义流程表单 -->
+              <div v-if="formType === BpmModelFormType.CUSTOM" class="h-full">
+                <BusinessFormComponent />
+              </div>
+            </div>
+            <!-- 动态流程表单 -->
+            <div v-if="formType === BpmModelFormType.NORMAL">
+              <form-create
+                :rule="detailForm.rule"
+                v-model:api="fApi"
+                v-model="detailForm.value"
+                :option="detailForm.option"
+                @submit="submitForm"
+              />
+            </div>
           </Col>
           <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="6">
             <ProcessInstanceTimeline
@@ -334,7 +351,9 @@ defineExpose({ initProcessInfo });
     </Tabs>
 
     <template #actions>
-      <template v-if="activeTab === 'form'">
+      <template
+        v-if="activeTab === 'form' && formType === BpmModelFormType.NORMAL"
+      >
         <Space wrap class="flex w-full justify-center">
           <Button
             plain
