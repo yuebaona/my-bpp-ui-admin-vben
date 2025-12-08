@@ -19,13 +19,13 @@ import {
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-
-import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
 import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
 import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
 import Form from '#/views/bpp/empty/container/control/modules/form.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
+
+import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
