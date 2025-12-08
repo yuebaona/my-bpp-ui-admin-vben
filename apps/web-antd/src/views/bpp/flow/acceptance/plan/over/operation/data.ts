@@ -27,22 +27,10 @@ const loadDictData = async (dictTypes: string[]) => {
     );
   }
 };
-loadDictData([
-  'system_rate',
-  'acceptance_plan_status',
-  'payment_method',
-  'import_export_type',
-  'on_site_operation_node',
-  'on_site_operation_category',
-  'driving_source',
-  'change_reason',
-  'spreader_type',
-  'actual_operation',
-]).then();
 // 定义受理状态选项配置
-function getPlanStatusOptions(type: string) {
+async function getPlanStatusOptions(type: string) {
+  await loadDictData([type]);
   const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
-
   // 将字典数据转换为 CellTag 需要的格式
   return dictOptions.map((option) => ({
     value: option.value,
@@ -454,6 +442,7 @@ export function attachmentDetailColumns(): VxeTableGridOptions['columns'] {
       title: '附件地址',
       field: 'filePath',
       minWidth: 80,
+      slots: { default: 'filePath' },
     },
     {
       title: '操作',
@@ -896,11 +885,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         },
       },
       filterMethod: createDictFilter('import_export_type'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'import_export_type',
       },
     },
     {
@@ -997,11 +984,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         },
       },
       filterMethod: createDictFilter('payment_method'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'payment_method',
       },
     },
     {
@@ -1038,31 +1023,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         },
       },
       filterMethod: createDictFilter('payment_method'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
-      },
-    },
-    {
-      field: 'handlingPerson',
-      title: '经办人',
-      minWidth: 100,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'payment_method',
       },
     },
     {
@@ -1079,12 +1042,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         },
       },
       filterMethod: createDictFilter('system_rate'),
-      formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('system_rate') || [];
-        const option = options.find(
-          (opt) => opt.value?.toString() === value.cellValue?.toString(),
-        );
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props:'system_rate',
       },
     },
     {
@@ -1103,7 +1063,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filterMethod: createDictFilter('acceptance_plan_status'),
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('acceptance_plan_status'),
+        props: 'acceptance_plan_status',
       },
     },
     {
@@ -1376,7 +1336,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       filterMethod: createDictFilter('on_site_operation_node'),
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('on_site_operation_node'),
+        props: 'on_site_operation_node',
       },
     },
   ];
@@ -1403,11 +1363,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: createDictFilter('on_site_operation_category'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('on_site_operation_category') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'on_site_operation_category',
       },
     },
     {
@@ -1484,11 +1442,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: createDictFilter('driving_source'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('driving_source') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'driving_source',
       },
     },
     {
@@ -1505,11 +1461,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: createDictFilter('change_reason'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('change_reason') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'change_reason',
       },
     },
     {
@@ -1566,13 +1520,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: createDictFilter('actual_operation'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('actual_operation') || [];
-        const option = options.find(
-          (opt) => opt.value?.toString() === value.cellValue?.toString(),
-        );
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'actual_operation',
       },
     },
     {
@@ -1609,11 +1559,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: createDictFilter('spreader_type'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('spreader_type') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'spreader_type',
       },
     },
     {

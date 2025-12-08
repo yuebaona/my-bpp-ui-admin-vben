@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { onMounted, reactive, ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -53,6 +53,20 @@ interface batchQueryConditionsVO {
 }
 // 使用字典 store
 const bppBaseDict = bppBaseDictStore();
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
@@ -256,6 +270,10 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     message.error('请选择要操作的箱');
     return;
   }
+  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+    message.error('请选择现场作业节点不是初始化或完成的状态');
+    return;
+  }
   confirm({
     content: `${containerNos.value.toString()}箱实际没有在本码头入港作业。`,
     icon: 'info',
@@ -434,24 +452,19 @@ const machineSpreaderChangeRecordHandleRowCheck = ({
 };
 /** 获取字典数据 */
 const getDictDataList = async () => {
-  bppBaseDict.setBppBaseDictCacheByData(
-    (
-      await getDictDataPage({
-        dictType: 'initiation_type',
-        pageNo: 1,
-        pageSize: 100,
-      })
-    ).list,
-  );
-  // bppBaseDict.setBppBaseDictCacheByData(
-  //   (
-  //     await getDictDataPage({
-  //       dictType: 'acceptance_plan_status',
-  //       pageNo: 1,
-  //       pageSize: 100,
-  //     })
-  //   ).list,
-  // );
+  await loadDictData([
+    'system_rate',
+    'acceptance_plan_status',
+    'payment_method',
+    'import_export_type',
+    'on_site_operation_node',
+    'on_site_operation_category',
+    'driving_source',
+    'change_reason',
+    'spreader_type',
+    'actual_operation',
+    'initiation_type',
+  ]);
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -465,7 +478,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
-    submitOnEnter: true
+    submitOnEnter: true,
   },
   gridOptions: {
     floatingFilterConfig: {
@@ -496,6 +509,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          await getDictDataList();
           return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -629,9 +643,6 @@ const initiationTypeValue = ref<null | string>(null);
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
-onMounted(async () => {
-  await getDictDataList();
-});
 watch(
   () => bppBaseDict.getBppBaseDictOptions('initiation_type'),
   (options) => {
