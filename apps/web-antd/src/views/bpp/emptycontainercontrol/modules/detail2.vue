@@ -1,31 +1,19 @@
 <script setup lang="ts">
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flowoverlimitwork';
+import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
+
+import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 
 import { reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-
-import dayjs from 'dayjs';
+import { useVbenVxeGrid } from '@vben/plugins/vxe-table';
 
 import { useDescription } from '#/components/description';
 
-import { mainPlanDetailSchema } from '../data';
-// 箱信息数据
-const containerData = reactive<
-  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
->([]);
-const formData = ref<FlowOverLimitWorkApi.AcceptancePlanVO>();
-// const fileList = ref<fileVo>([]);
-const acceptancePlanBillMessageVO =
-  reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
-    id: 0,
-    acceptancePlanNo: '',
-    billNo: '',
-    cargoType: '',
-    cargoName: '',
-    cargoCount: 0,
-    billType: '',
-  });
+import { containerAreaRangeColumns, mainPlanDetailSchema } from '../data';
+// 主计划信息
+const containerData = reactive<EmptyContainerControlApi.mainPlanVO[]>([]);
+const formData = ref<EmptyContainerControlApi.mainPlanVO>();
 const [Descriptions] = useDescription({
   componentProps: {
     bordered: true,
@@ -33,6 +21,7 @@ const [Descriptions] = useDescription({
     class: 'm-10',
     size: 'small',
     title: '基础信息',
+    labelMinWidth: 30,
   },
   labelStyle: {
     textAlign: 'right',
@@ -42,6 +31,33 @@ const [Descriptions] = useDescription({
   },
   schema: mainPlanDetailSchema(),
 });
+const [Grid] = useVbenVxeGrid({
+  gridOptions: {
+    columns: containerAreaRangeColumns().filter(
+      (col) => col.type !== 'checkbox' && col.title !== '操作',
+    ),
+    height: '250px',
+    keepSource: true,
+    border: true,
+    showOverflow: false,
+    autoWidth: true,
+    rowConfig: {
+      keyField: 'id',
+      isHover: true,
+    },
+    toolbarConfig: {
+      refresh: false,
+      search: false,
+      zoom: false,
+      custom: false,
+    },
+    pagerConfig: {
+      enabled: false,
+    },
+    data: containerData,
+    showFooter: true,
+  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
+});
 
 const [Modal, modalApi] = useVbenModal({
   async onOpenChange(isOpen: boolean) {
@@ -49,36 +65,13 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     // 加载数据
-    const data =
-      await modalApi.getData<FlowOverLimitWorkApi.AcceptancePlanVO>();
-    if (!data || !data.acceptancePlanRespVO.id) {
+    const data = modalApi.getData<EmptyContainerControlApi.mainPlanVO>();
+    if (!data || !data.id) {
       return;
     }
     modalApi.lock();
     try {
-      // 基础信息
-      Object.assign(
-        acceptancePlanBillMessageVO,
-        data.acceptancePlanBillMessageRespVO,
-      );
-      formData.value = data.acceptancePlanRespVO;
-      formData.value.plannedOperationTime = dayjs(
-        formData.value.plannedOperationTime,
-      ).format('YYYY-MM-DD HH:mm:ss');
-      const arr = JSON.parse(data.acceptancePlanRespVO.attachmentFile);
-      // arr.forEach((item: fileVo) => {
-      //   const lastSlashIndex = item.lastIndexOf('/');
-      //   const fileName =
-      //     lastSlashIndex === -1 ? item : item.slice(lastSlashIndex + 1);
-      //   fileList.value.push({
-      //     fileName: fileName.split('.')[0],
-      //     filePath: item,
-      //   });
-      // });
-      // 箱信息
-      for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
-        containerData.push(item);
-      }
+      formData.value = data;
     } finally {
       modalApi.unlock();
     }
@@ -88,12 +81,18 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal title="主计划详情" class="w-1/2">
     <Descriptions :data="formData" />
+    <div>
+      <div class="ant-descriptions-title">箱区范围</div>
+      <Grid />
+    </div>
   </Modal>
 </template>
 <style scoped lang="scss">
 .ant-descriptions-title {
   flex: auto;
   overflow: hidden;
+  margin-top: 20px;
+  margin-bottom: 6px;
   text-overflow: ellipsis;
   font-size: 16px;
   font-weight: 600;
