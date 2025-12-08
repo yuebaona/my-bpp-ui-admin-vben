@@ -2,7 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
-import { getDictDataPage } from '#/api/system/dict/data/index.ts';
+import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -68,15 +68,25 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
       editRender: { name: 'input', attrs: { type: 'number' } },
     },
     {
-      title: '最低准存天数 ♦ ▽ ◁',
+      title: '最低准存天数',
       field: 'minStorageDays',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
       editRender: { name: 'input', attrs: { type: 'number' } },
     },
     {
-      title: '最高准存天数 ♦ ▽ ◁',
+      title: '最高准存天数',
       field: 'maxStorageDays',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
       editRender: { name: 'input', attrs: { type: 'number' } },
     },
     {
@@ -611,10 +621,24 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
     // 基础信息
     { field: 'planNo', label: '主计划号' },
     { field: 'planStatus', label: '状态' },
-    { field: 'isRelease', label: '是否放箱' },
+    {
+      field: 'isRelease',
+      label: '是否放箱',
+      render: (value) => {
+        return `${value ? '是' : '否'}`;
+      },
+    },
     { field: 'pickupPlanNo', label: '提箱受理计划号' },
     { field: 'owners', label: '持箱人' },
     { field: 'tradeType', label: '贸易类型' },
+    // 确保数据中 tradeType 字段的值正确
+    {
+      field: 'tradeType',
+      label: '贸易类型',
+      render: (value) => {
+        return value === 'FOREIGN' ? '外贸' : '内贸';
+      },
+    },
     { field: 'isoNos', label: 'ISO' },
     { field: 'bayRanges', label: '箱区范围' },
     { field: 'planQuantity', label: '计划箱量' },
