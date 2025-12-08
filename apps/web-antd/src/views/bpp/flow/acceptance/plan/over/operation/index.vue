@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, onActivated } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -783,6 +783,9 @@ watch(checkedIds, (newVal, oldVal) => {
     // 先重置箱信息数据
     resetContainerData();
   }
+});
+onActivated(() => {
+  handleRefresh();
 });
 </script>
 
