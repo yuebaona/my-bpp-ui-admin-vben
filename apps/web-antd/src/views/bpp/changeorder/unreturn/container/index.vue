@@ -26,7 +26,7 @@ import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.v
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
 
 import {
-  acceptancePlanOvrOprColumns,
+  acceptancePlanColumns,
   acceptancePlanSearchSchema,
   payInfoFormSchema,
   planInfoFormSchema,
@@ -252,7 +252,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     filterConfig: {
       showIcon: false,
     },
-    columns: acceptancePlanOvrOprColumns(),
+    columns: acceptancePlanColumns(),
     height: 'auto',
     keepSource: false,
     rowConfig: {
@@ -390,6 +390,7 @@ const handleReset = () => {
     <DetailModal />
     <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 未回场箱信息修改 -->
+    <div class="my-3 flex" style="height: 50px">111</div>
     <div class="my-3 flex" style="height: 220px">
       <div class="h-full w-1/2">
         <div class="flex h-full flex-col rounded-lg bg-white p-4 shadow">
@@ -405,7 +406,7 @@ const handleReset = () => {
       </div>
     </div>
     <div class="h-3/5 w-full">
-      <Grid :table-title="$t('cxmo.overOperation.operationListName')">
+      <Grid table-title=" 受理计划列表 ">
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -419,53 +420,18 @@ const handleReset = () => {
                 auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
-              // {
-              //   label: '撤销',
-              //   type: 'default',
-              //   icon: ACTION_ICON.UNDO,
-              //   onClick: handleHighPriceQuery,
-              // },
-              //
-              // {
-              //   label: '撤销审核',
-              //   type: 'default',
-              //   icon: ACTION_ICON.UNDO,
-              //   disabled: true,
-              //   onClick: handleHighPriceQuery,
-              // },
-              // {
-              //   label: '日志查询',
-              //   type: 'primary',
-              //   icon: ACTION_ICON.LOG,
-              //   onClick: handleHighPriceQuery,
-              // },
             ]"
           />
         </template>
         <template #actions="{ row }">
           <TableAction
             :actions="[
-              row.reviewFlag
-                ? {
-                    label: '审核',
-                    type: 'link',
-                    icon: ACTION_ICON.AUDIT,
-                    onClick: handleViewDetail.bind(null, row),
-                  }
-                : '',
               {
-                label: '修改',
+                label: '编辑',
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
                 auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
-              },
-              {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
-                onClick: handleDetail.bind(null, row),
               },
             ]"
           />

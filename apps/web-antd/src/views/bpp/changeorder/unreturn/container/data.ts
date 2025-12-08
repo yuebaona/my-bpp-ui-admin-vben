@@ -1,15 +1,14 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-// import type { DescriptionItemSchema } from '#/components/description';
 
+// import type { DescriptionItemSchema } from '#/components/description';
 // import { h } from 'vue';
 //
 // import { Tag } from 'ant-design-vue';
-
 // import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import { getRangePickerDefaultProps } from '#/utils';
+// import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
@@ -40,37 +39,38 @@ loadDictData([
   'actual_operation',
 ]).then();
 // 定义受理状态选项配置
-function getPlanStatusOptions(type: string) {
-  const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
+// function getPlanStatusOptions(type: string) {
+//   const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
+//
+//   // 将字典数据转换为 CellTag 需要的格式
+//   return dictOptions.map((option) => ({
+//     value: option.value,
+//     label: option.label,
+//     color: option.colorType,
+//   }));
+// }
+// function createDictFilter(dictType: string) {
+//   return ({ option, row, column }: { column: any; option: any; row: any }) => {
+//     if (option.data) {
+//       const searchText = option.data.toLowerCase();
+//       const dictOptions = bppBaseDict.getBppBaseDictOptions(dictType) || [];
+//       const cellValue = `${row[column.field]}`.toLowerCase();
+//
+//       // 查找标签或值包含搜索文本的字典项
+//       const dictItem = dictOptions.find(
+//         (item) =>
+//           item.label.toLowerCase().includes(searchText) ||
+//           item.value.toLowerCase().includes(searchText),
+//       );
+//
+//       // 如果找到字典项，使用字典值匹配；否则使用原始搜索文本匹配
+//       const matchValue = dictItem ? dictItem.value.toLowerCase() : searchText;
+//       return cellValue.includes(matchValue);
+//     }
+//     return true;
+//   };
+// }
 
-  // 将字典数据转换为 CellTag 需要的格式
-  return dictOptions.map((option) => ({
-    value: option.value,
-    label: option.label,
-    color: option.colorType,
-  }));
-}
-function createDictFilter(dictType: string) {
-  return ({ option, row, column }: { column: any; option: any; row: any }) => {
-    if (option.data) {
-      const searchText = option.data.toLowerCase();
-      const dictOptions = bppBaseDict.getBppBaseDictOptions(dictType) || [];
-      const cellValue = `${row[column.field]}`.toLowerCase();
-
-      // 查找标签或值包含搜索文本的字典项
-      const dictItem = dictOptions.find(
-        (item) =>
-          item.label.toLowerCase().includes(searchText) ||
-          item.value.toLowerCase().includes(searchText),
-      );
-
-      // 如果找到字典项，使用字典值匹配；否则使用原始搜索文本匹配
-      const matchValue = dictItem ? dictItem.value.toLowerCase() : searchText;
-      return cellValue.includes(matchValue);
-    }
-    return true;
-  };
-}
 // function renderTagDict(dictType: string, cellValue: string) {
 //   const options = getPlanStatusOptions(dictType);
 //   let color = '';
@@ -84,7 +84,6 @@ function createDictFilter(dictType: string) {
 //   });
 //   return h(Tag, { color }, () => label);
 // }
-
 
 export function planInfoFormSchema(): VbenFormSchema[] {
   return [
@@ -132,7 +131,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
     },
-  ]
+  ];
 }
 
 export function payInfoFormSchema(): VbenFormSchema[] {
@@ -165,14 +164,14 @@ export function payInfoFormSchema(): VbenFormSchema[] {
       },
       rules: 'required',
     },
-  ]
+  ];
 }
 
 /** 受理计划列表搜索栏 */
 export function acceptancePlanSearchSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'shipNo',
+      fieldName: 'vesselName',
       label: '船名航次',
       component: 'Input',
       componentProps: {
@@ -216,482 +215,301 @@ export function acceptancePlanSearchSchema(): VbenFormSchema[] {
         allowClear: true,
       },
     },
-  ]
-}
-/** 超限作业申请列表的搜索表单 */
-export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      fieldName: 'acceptancePlanNo',
-      label: '申请编号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入申请编号',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'vesselName',
-      label: '作业船名',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'vesselVoyage',
-      label: '作业航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业航次',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'billNo',
-      label: '提单号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入提单号',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'applicantCompanyName',
-      label: '申请单位',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入申请单位',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'containerNo',
-      label: '箱号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输箱号',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'createTime',
-      label: '创建时间',
-      component: 'TimeRangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'conclusionTime',
-      label: '审结时间',
-      component: 'TimeRangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
   ];
 }
-
 /** 超限作业申请列表的字段 */
-export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
+export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
   return [
+    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
     { type: 'checkbox', width: 40, fixed: 'left' },
     {
       field: 'acceptancePlanNo',
-      title: '申请编号',
+      title: '受理计划号',
       minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      fixed: 'left',
     },
     {
-      field: 'acceptancePlanWebNo',
-      title: '网上编号',
-      minWidth: 150,
+      field: 'transportOrdNo',
+      title: '运输指令号',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'applicantCompanyName',
-      title: '申请单位',
-      minWidth: 150,
+      field: 'businessType',
+      title: '业务类型',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'handlingPerson',
-      title: '经办人',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      field: 'containerNo',
+      title: '集装箱号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'instructionStatus',
+      title: '指令状态',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'pickupNo',
+      title: '提单号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'isLCL',
+      title: '是否拼箱',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'cargo',
+      title: '货名',
+      minWidth: 120,
       sortable: true,
     },
     {
       field: 'vesselName',
-      title: '作业船名',
-      minWidth: 150,
+      title: '船名航次',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'vesselVoyage',
-      title: '作业航次',
-      minWidth: 150,
+      field: 'dischargePort',
+      title: '卸货港',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'category',
-      title: '进出口类别',
-      minWidth: 150,
+      field: 'destinationPort',
+      title: '目的港',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('import_export_type'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('import_export_type') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
-      },
     },
     {
-      field: 'vesselCode',
-      title: '作业船名代码',
-      minWidth: 150,
+      field: 'tradeType',
+      title: '内外贸',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'billNo',
-      title: '提单号',
-      minWidth: 150,
+      field: 'owner',
+      title: '持箱人',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'cargoName',
-      title: '货名',
-      minWidth: 150,
+      field: 'size',
+      title: '尺寸',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'payerNameSea',
-      title: '海侧缴费方',
-      minWidth: 200,
+      field: 'containerType',
+      title: '箱型',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'paymentTypeSea',
-      title: '海侧缴费方式',
-      minWidth: 200,
+      field: 'containerHeight',
+      title: '箱高',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('payment_method'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
-      },
     },
     {
-      field: 'payerNameGate',
-      title: '陆侧缴费方',
-      minWidth: 200,
+      field: 'iso',
+      title: 'ISO',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'paymentTypeGate',
-      title: '陆侧缴费方式',
-      minWidth: 200,
+      field: 'isEmpty',
+      title: '空重',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('payment_method'),
-      formatter: (value) => {
-        const options =
-          bppBaseDict.getBppBaseDictOptions('payment_method') || [];
-        const option = options.find((opt) => opt.value === value.cellValue);
-        return option ? option.label : value.cellValue;
-      },
     },
     {
-      field: 'handlingPerson',
-      title: '经办人',
-      minWidth: 100,
+      field: 'imdg',
+      title: 'IMDG',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'isSystemRate',
-      title: '是否系统费率',
-      minWidth: 200,
+      field: 'unno',
+      title: 'UNNO',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('system_rate'),
-      formatter: (value) => {
-        const options = bppBaseDict.getBppBaseDictOptions('system_rate') || [];
-        const option = options.find(
-          (opt) => opt.value?.toString() === value.cellValue?.toString(),
-        );
-        return option ? option.label : value.cellValue;
-      },
     },
     {
-      field: 'planStatus',
-      title: '受理状态',
-      minWidth: 150,
+      field: 'isReefer',
+      title: '是否打冷',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('acceptance_plan_status'),
-      cellRender: {
-        name: 'CellTagDict',
-        options: getPlanStatusOptions('acceptance_plan_status'),
-      },
     },
     {
-      field: 'approvalWorkflowCurrentNode',
-      title: '审批节点',
-      minWidth: 150,
+      field: 'temperature',
+      title: '打冷温度',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
     },
     {
-      field: 'conclusionTime',
-      title: '审结时间',
-      minWidth: 180,
-      formatter: 'formatDateTime',
+      field: 'vent',
+      title: '通风口',
+      minWidth: 120,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+    },
+    {
+      field: 'sealNo',
+      title: '铅封号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'weight',
+      title: '箱重',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'containerLevel',
+      title: '箱等级',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'damage',
+      title: '是否残存',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'damageLevel',
+      title: '残损等级',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'overLimit',
+      title: '是否超限',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'front',
+      title: '前超',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'rear',
+      title: '后超',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'left',
+      title: '左超',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'right',
+      title: '右超',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'pickup',
+      title: '直装直提',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'PTI',
+      title: '是否PTI有效',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'PTITime',
+      title: 'PTI有效期',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'relatePickupNo',
+      title: '关联提单号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'relateTO',
+      title: '关联TO号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'returnPort',
+      title: '返厂码头',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'payer',
+      title: '付费人',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'payment',
+      title: '付费方式',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'title',
+      title: '发票抬头',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'oldContainerNo',
+      title: '旧箱号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'newContainerNo',
+      title: '新箱号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'isBand',
+      title: '是否捆绑',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'subContainer',
+      title: '子箱号',
+      minWidth: 120,
+      sortable: true,
+    },
+    {
+      field: 'remark',
+      title: '备注',
+      minWidth: 120,
+      sortable: true,
     },
     {
       title: '操作',
-      width: 200,
+      width: 120,
       fixed: 'right',
       slots: { default: 'actions' },
     },
   ];
 }
-
-
