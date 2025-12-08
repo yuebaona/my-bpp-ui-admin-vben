@@ -3,7 +3,7 @@
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 // import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
-import type { LogQueryParams } from '#/api/bpp/emptycontainercontrol';
+import type { LogQueryParams } from '#/api/bpp/empty/container/control';
 
 import { reactive } from 'vue';
 
@@ -11,7 +11,7 @@ import { useVbenModal } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getLogQueryPage } from '#/api/bpp/emptycontainercontrol';
+import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
 import {
   logQueryColumns,

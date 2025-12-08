@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+// import type { UploadProps } from 'ant-design-vue';
+
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { computed, reactive, ref } from 'vue';
 
@@ -10,23 +12,21 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  createMainPlan,
-  updateMainPlan,
-} from '#/api/bpp/emptycontainercontrol';
+import { createSubPlan, updateSubPlan } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
-import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
-import ContainerArea from './containerArea.vue';
+import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
+import ContainerAreaModal from './containerArea.vue';
 
 const emit = defineEmits(['success']);
+// const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
 
 const containerAreaData = reactive<any[]>([]);
 
-const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
-  id: '',
+const formData = reactive<EmptyContainerControlApi.subPlanVO>({
+  id: null,
   ownerList: [],
   isoNoList: [],
   isRelease: false,
@@ -34,12 +34,6 @@ const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
-  // bayRangeList: {
-  //   emptyContainerControlId: 0,
-  //   id: 0,
-  //   yardBay: '',
-  //   yardRaw: '',
-  // },
   bayRangeList: [],
   planType: '',
   mainId: '',
@@ -53,12 +47,8 @@ const selectContainerArea = () => {
 const handleContainerAreaConfirm = (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
-    // 清空现有数据
     containerAreaData.splice(0);
-
-    // 添加新选择的数据
-    const newRows = positions.map((pos, index) => ({
-      id: `row_${Date.now()}_${index}`,
+    const newRows = positions.map((pos) => ({
       yardPosition: `${pos}`,
       yardColumns: [],
       totalCount: '',
@@ -86,7 +76,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: mainPlanFormSchema(),
+  schema: subPlanFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values) => {
@@ -131,30 +121,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-    //   (record) => toRaw(record),
-    // );
-
-    // if (containerAreaArray.length === 0) {
-    //   message.warning('请至少添加一条箱区范围数据');
-    //   return;
-    // }
-
-    const { valid } = await formApi.validate();
-    const gridValid: boolean = await gridApi.grid.validate(true);
-
-    if (!valid || gridValid) {
-      return;
-    }
-
     // Object.assign(formData, await formApi.getValues());
     const formValues = await formApi.getValues();
     Object.assign(formData, formValues);
-    // 确保planType和mainId被正确设置
+
     if (!formData.planType) {
-      formData.planType = 'MAIN';
+      formData.planType = 'SUB';
     }
-    // 转换持箱人字符串为数组
+
     const ownerList = formValues.owners
       ? formValues.owners
           .split(/[,，]/)
@@ -162,33 +136,30 @@ const [Modal, modalApi] = useVbenModal({
           .filter(Boolean)
       : [];
 
-    // 转换ISO字符串为数组
     const isoNoList = formValues.isoNos
       ? formValues.isoNos
           .split(/[,，]/)
           .map((item: string) => item.trim())
           .filter(Boolean)
       : [];
-
-    // 转换表格数据为bayRangeList格式
-    const bayRangeList = containerAreaData.map((row: any) => ({
-      emptyContainerControlId: '',
-      id: '',
+    const $grid = gridApi.grid;
+    const gridData = $grid ? $grid.getData() : containerAreaData;
+    const bayRangeList = gridData.map((row: any) => ({
+      // emptyContainerControlId: '',
+      // id: '',
       yardBay: row.yardPosition || '',
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
-    // 构建符合新接口格式的数据
-    const data: EmptyContainerControlApi.mainPlanVO = {
+    // 构建符合接口格式的数据
+    const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
-      // 确保数组字段正确处理
-      // ownerList: formData.ownerList || [],
-      // isoNoList: formData.isoNoList || [],
       ownerList,
       isoNoList,
-    } as EmptyContainerControlApi.mainPlanVO;
+      bayRangeList,
+    } as EmptyContainerControlApi.subPlanVO;
 
-    await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
+    await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
 
     await modalApi.close();
     emit('success');
@@ -205,11 +176,6 @@ const [Modal, modalApi] = useVbenModal({
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
-        // bayRangeList: {
-        //   emptyContainerControlId: 0,
-        //   yardBay: '',
-        //   yardRaw: '',
-        // },
         bayRangeList: [],
         planType: '',
         mainId: '',
@@ -225,8 +191,8 @@ const [Modal, modalApi] = useVbenModal({
       // 清空现有数据
       containerAreaData.splice(0);
 
-      const mainPlanData = data.acceptancePlanRespVO || data;
-      Object.assign(formData, mainPlanData);
+      const subPlanData = data.acceptancePlanRespVO || data;
+      Object.assign(formData, subPlanData);
 
       if (data.planType) {
         formData.planType = data.planType;
@@ -235,20 +201,50 @@ const [Modal, modalApi] = useVbenModal({
         formData.mainId = data.mainId;
       }
 
-      if (mainPlanData?.id) {
+      if (subPlanData?.id) {
         modalApi.lock();
         try {
-          await formApi.setValues(mainPlanData);
-
-          // 设置箱区范围数据
-          if (data.yardPositionResp) {
-            const $grid = gridApi.grid;
-            if ($grid) {
+          await formApi.setValues(subPlanData);
+          const $grid = gridApi.grid;
+          if ($grid) {
+            // 设置箱区范围数据
+            if (data.yardPositionResp) {
               for (const item of data.yardPositionResp) {
                 await $grid.insertAt(
                   {
                     ...item,
-                    id: `row_${item.id}`, // 确保ID格式正确
+                  },
+                  -1,
+                );
+              }
+            } else if (subPlanData.bayRangeList) {
+              // 如果是数组格式
+              if (Array.isArray(subPlanData.bayRangeList)) {
+                for (const bayRange of subPlanData.bayRangeList) {
+                  await $grid.insertAt(
+                    {
+                      yardPosition: bayRange.yardBay || '',
+                      yardColumns: bayRange.yardRaw
+                        ? bayRange.yardRaw.split(',')
+                        : [],
+                      totalCount: '',
+                      minStorageDays: '',
+                      maxStorageDays: '',
+                    },
+                    -1,
+                  );
+                }
+              } else {
+                // 兼容单个对象格式
+                await $grid.insertAt(
+                  {
+                    yardPosition: subPlanData.bayRangeList.yardBay || '',
+                    yardColumns: subPlanData.bayRangeList.yardRaw
+                      ? subPlanData.bayRangeList.yardRaw.split(',')
+                      : [],
+                    totalCount: '',
+                    minStorageDays: '',
+                    maxStorageDays: '',
                   },
                   -1,
                 );
@@ -259,8 +255,8 @@ const [Modal, modalApi] = useVbenModal({
           modalApi.unlock();
         }
       } else {
-        // 新创建的主计划，确保planType为MAIN
-        formData.planType = 'MAIN';
+        // 新创建的子计划，确保planType为SUB
+        formData.planType = 'SUB';
       }
     }
   },
@@ -268,8 +264,8 @@ const [Modal, modalApi] = useVbenModal({
 
 const modalTitle = computed(() => {
   return formData.id
-    ? $t('ui.actionTitle.edit', ['主计划'])
-    : $t('ui.actionTitle.create', ['主计划']);
+    ? $t('ui.actionTitle.edit', ['子计划'])
+    : $t('ui.actionTitle.create', ['子计划']);
 });
 </script>
 
@@ -328,7 +324,7 @@ const modalTitle = computed(() => {
       </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerArea
+    <ContainerAreaModal
       v-model:visible="containerAreaModalVisible"
       @confirm="handleContainerAreaConfirm"
     />

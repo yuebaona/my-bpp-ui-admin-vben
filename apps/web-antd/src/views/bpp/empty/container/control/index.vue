@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { ref } from 'vue';
 
@@ -16,16 +16,16 @@ import {
   getMainPlanPage,
   getSubPlan,
   getSubPlanPage,
-} from '#/api/bpp/emptycontainercontrol';
+} from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
-import Detail2 from './modules/detail2.vue';
-import Detail from './modules/detail.vue';
-import Form2 from './modules/form2.vue';
-import Form from './modules/form.vue';
-import LogQuery from './modules/logQuery.vue';
+import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
+import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
+import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
+import Form from '#/views/bpp/empty/container/control/modules/form.vue';
+import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
