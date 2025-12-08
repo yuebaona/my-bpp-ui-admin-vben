@@ -27,17 +27,6 @@ const loadDictData = async (dictTypes: string[]) => {
     );
   }
 };
-// 定义受理状态选项配置
-async function getPlanStatusOptions(type: string) {
-  await loadDictData([type]);
-  const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
-  // 将字典数据转换为 CellTag 需要的格式
-  return dictOptions.map((option) => ({
-    value: option.value,
-    label: option.label,
-    color: option.colorType,
-  }));
-}
 function createDictFilter(dictType: string) {
   return ({ option, row, column }: { column: any; option: any; row: any }) => {
     if (option.data) {
@@ -60,11 +49,17 @@ function createDictFilter(dictType: string) {
   };
 }
 function renderTagDict(dictType: string, cellValue: string) {
-  const options = getPlanStatusOptions(dictType);
+  const dictOptions = bppBaseDict.getBppBaseDictOptions(
+    dictType
+  );
+  const data = dictOptions.map((option) => ({
+    value: option.value,
+    label: option.label,
+    color: option.colorType,
+  }));
   let color = '';
   let label = '';
-  // eslint-disable-next-line array-callback-return
-  options.find((item) => {
+  data.find((item) => {
     if (item.value === cellValue) {
       color = item.color;
       label = item.label;
