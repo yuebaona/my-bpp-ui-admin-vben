@@ -2,7 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
-import { getDictDataPage } from '#/api/system/dict/data/index.ts';
+import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 // import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -28,6 +28,7 @@ loadDictData([
   'empty_container_control_main_status',
   'empty_container_control_sub_status',
   'trade_type',
+  'empty_container_control_main_operation_type',
 ]);
 
 // 定义受理状态选项配置
@@ -787,6 +788,13 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       field: 'mainIsRelease',
       title: '是否放箱(Y/N)',
       minWidth: 120,
+      cellRender: {
+        name: 'CellTagDict',
+        options: [
+          { value: true, label: '是' },
+          { value: false, label: '否' },
+        ],
+      },
     },
     {
       field: 'mainPickupPlanNo',
@@ -802,6 +810,10 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       field: 'mainTradeType',
       title: '贸易类型',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('trade_type'),
+      },
     },
     {
       field: 'iso',
@@ -832,6 +844,12 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       field: 'operationType',
       title: '修改类型',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions(
+          'empty_container_control_main_operation_type',
+        ),
+      },
     },
   ];
 }
