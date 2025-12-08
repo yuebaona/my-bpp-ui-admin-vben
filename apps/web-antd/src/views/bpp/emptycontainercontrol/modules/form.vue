@@ -2,7 +2,7 @@
 // import type { UploadProps } from 'ant-design-vue';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { computed, reactive, ref } from 'vue';
 
@@ -12,7 +12,7 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { createSubPlan, updateSubPlan } from '#/api/bpp/emptycontainercontrol';
+import { createSubPlan, updateSubPlan } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';

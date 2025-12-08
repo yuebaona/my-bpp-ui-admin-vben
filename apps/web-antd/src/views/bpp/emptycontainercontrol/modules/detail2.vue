@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { reactive, ref } from 'vue';
 

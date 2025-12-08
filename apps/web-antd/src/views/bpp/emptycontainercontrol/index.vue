@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { ref } from 'vue';
 
@@ -16,15 +16,11 @@ import {
   getMainPlanPage,
   getSubPlan,
   getSubPlanPage,
-} from '#/api/bpp/emptycontainercontrol';
+} from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 
-import {
-  mainPlanColumns,
-  PlanSearchFormSchema,
-  subPlanColumns,
-} from './data';
+import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 import Detail2 from './modules/detail2.vue';
 import Detail from './modules/detail.vue';
 import Form2 from './modules/form2.vue';
@@ -257,7 +253,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      search: true,
+      search: false,
       custom: true,
       export: true,
       // import: true,
@@ -303,7 +299,7 @@ function handleRowCheckboxChange2({
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi.query();
+  gridApi2.query();
 }
 
 /** 创建主计划新申请 */
@@ -329,9 +325,8 @@ function handleCreateSubPlan() {
 }
 
 /** 导出数据 */
-// function handleExport() {
-//   message.info('导出功能');
-// }
+function handleMainExport() {
+}
 
 function handleSubExport() {
   message.info('导出功能');
@@ -424,7 +419,7 @@ const adcancedQueryModalOpen = () => {
               {
                 label: '强制完成',
                 type: 'primary',
-                icon: ACTION_ICON.CLOSE,
+                icon: ACTION_ICON.AUDIT,
                 onClick: handleForceComplete,
               },
               {

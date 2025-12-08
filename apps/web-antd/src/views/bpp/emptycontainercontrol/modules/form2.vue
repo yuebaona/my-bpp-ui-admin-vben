@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { computed, reactive, ref } from 'vue';
 
@@ -13,7 +13,7 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createMainPlan,
   updateMainPlan,
-} from '#/api/bpp/emptycontainercontrol';
+} from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
@@ -29,7 +29,7 @@ const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
   ownerList: [],
   isoNoList: [],
-  isRelease: false,
+  isRelease: undefined,
   pickupPlanNo: '',
   tradeType: '',
   planQuantity: '',
@@ -200,7 +200,7 @@ const [Modal, modalApi] = useVbenModal({
         id: '',
         ownerList: [],
         isoNoList: [],
-        isRelease: false,
+        isRelease: undefined,
         pickupPlanNo: '',
         tradeType: '',
         planQuantity: '',
