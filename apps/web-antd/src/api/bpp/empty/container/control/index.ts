@@ -123,7 +123,10 @@ export const getMainPlan = (id: number) => {
 
 // 主计划分页查询
 export const getMainPlanPage = (data: any) => {
-  return requestClient.post('/bpp/flow/empty/container-control-main/page', data);
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/page',
+    data,
+  );
 };
 
 // 删除主计划
