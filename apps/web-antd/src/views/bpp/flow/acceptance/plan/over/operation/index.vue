@@ -184,11 +184,11 @@ const handleOnSiteOperation = async () => {
         message.error('请选择要操作的箱');
         return;
       }
-      if (
-        containerOperationNodes.value.some(
-          (node) => node === 'INITIALIZATION' || node === 'COM',
-        )
-      ) {
+      const invalidNodes = ['INITIALIZATION', 'COM'];
+      const hasInvalidNode = containerOperationNodes.value.some(node =>
+        invalidNodes.includes(node)
+      );
+      if (hasInvalidNode) {
         message.error('请选择现场作业节点不是初始化或完成的状态');
         return;
       }
@@ -269,7 +269,11 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     message.error('请选择要操作的箱');
     return;
   }
-  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+  const invalidNodes = ['INITIALIZATION', 'COM'];
+  const hasInvalidNode = containerOperationNodes.value.some(node =>
+    invalidNodes.includes(node)
+  );
+  if (hasInvalidNode) {
     message.error('请选择现场作业节点不是初始化或完成的状态');
     return;
   }
@@ -301,7 +305,11 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
     message.error('请选择要操作的箱');
     return;
   }
-  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+  const invalidNodes = ['INITIALIZATION', 'COM'];
+  const hasInvalidNode = containerOperationNodes.value.some(node =>
+    invalidNodes.includes(node)
+  );
+  if (hasInvalidNode) {
     message.error('请选择现场作业节点不是初始化或完成的状态');
     return;
   }
@@ -839,12 +847,12 @@ const handleSearch = () => {
                 auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
-              // {
-              //   label: '撤销',
-              //   type: 'default',
-              //   icon: ACTION_ICON.UNDO,
-              //   onClick: handleHighPriceQuery,
-              // },
+              {
+                label: '撤销',
+                type: 'default',
+                icon: ACTION_ICON.UNDO,
+                onClick: handleHighPriceQuery,
+              },
               //
               // {
               //   label: '撤销审核',
