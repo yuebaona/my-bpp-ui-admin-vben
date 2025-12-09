@@ -273,6 +273,6 @@ export const machineSpreaderRecordUpdateProcess = async (
 // 撤销超限受理计划信息
 export const cancelAcceptancePlanOverOperation = (ids: number[] | string[]) => {
   return requestClient.post(
-    `/sgc/bpp/flow/acceptance-plan-over-operation/cancel?ids=${ids}`,
+    `/bpp/flow/acceptance-plan-over-operation/cancel?ids=${ids}`,
   );
 }
