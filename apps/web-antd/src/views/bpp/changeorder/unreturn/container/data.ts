@@ -217,7 +217,7 @@ export function acceptancePlanSearchSchema(): VbenFormSchema[] {
     },
   ];
 }
-/** 超限作业申请列表的字段 */
+/** 受理计划列表的字段 */
 export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
@@ -258,6 +258,7 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '提单号',
       minWidth: 120,
       sortable: true,
+      slots: { default: 'pickupNoAction' },
     },
     {
       field: 'isLCL',
@@ -498,6 +499,7 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '子箱号',
       minWidth: 120,
       sortable: true,
+      slots: { default: 'boxAction' },
     },
     {
       field: 'remark',
@@ -510,6 +512,136 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       width: 120,
       fixed: 'right',
       slots: { default: 'actions' },
+    },
+  ];
+}
+
+/** 提单信息管理表格列配置 */
+export function ladingBillColumns(): VxeTableGridOptions['columns'] {
+  return [
+    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
+    { type: 'checkbox', width: 40, fixed: 'left' },
+    {
+      field: 'pickupNo',
+      title: '提单号',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'cargo',
+      title: '货名',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'packageWeight',
+      title: '货件重',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'quantity',
+      title: '货件重',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'totalWeight',
+      title: '货总重',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'volume',
+      title: '货体积',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'operation',
+      title: '操作',
+      minWidth: 120,
+      sortable: true,
+      slots: { default: 'operationAction' },
+    },
+  ];
+}
+
+export function bundleBoxColumns(): VxeTableGridOptions['columns'] {
+  return [
+    { type: 'seq', width: 50, align: 'center' },
+    { type: 'checkbox', width: 40 },
+    {
+      field: 'containerNo',
+      title: '箱号',
+      minWidth: 120,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'mainContainerNo',
+      title: '母箱号',
+      minWidth: 120,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'size',
+      title: '尺寸',
+      minWidth: 120,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'containerType',
+      title: '箱型',
+      minWidth: 120,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'containerHeight',
+      title: '箱高',
+      minWidth: 120,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'iso',
+      title: '箱iso',
+      minWidth: 120,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'operation',
+      title: '操作',
+      minWidth: 120,
+      slots: { default: 'operationAction' },
     },
   ];
 }

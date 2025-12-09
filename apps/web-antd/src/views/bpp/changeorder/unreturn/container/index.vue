@@ -31,6 +31,8 @@ import {
   payInfoFormSchema,
   planInfoFormSchema,
 } from './data';
+import BundleBox from './modules/bundleBox.vue';
+import LadingBill from './modules/ladingBill.vue';
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -66,6 +68,19 @@ const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
   connectedComponent: OnSiteOperation,
   destroyOnClose: true,
 });
+
+// 提单信息管理模态框
+const [LadingBillModal, ladingBillModalApi] = useVbenModal({
+  connectedComponent: LadingBill,
+  destroyOnClose: true,
+});
+
+// 捆绑箱维护弹窗
+const [BundleBoxModal, bundleBoxModalApi] = useVbenModal({
+  connectedComponent: BundleBox,
+  destroyOnClose: true,
+});
+
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
@@ -379,6 +394,16 @@ const handleReset = () => {
   console.log('重置查询条件');
   queryResult.value = null;
 };
+
+/** 处理点击提单号事件 */
+const handleClickPickupNo = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+  // message.info('查看提单号信息');
+  ladingBillModalApi.setData(null).open();
+};
+
+const handleClickSubBox = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+  bundleBoxModalApi.setData(null).open();
+};
 </script>
 
 <template>
@@ -388,6 +413,8 @@ const handleReset = () => {
       <AdvancedQuery />
     </AdvancedQueryModal>
     <DetailModal />
+    <LadingBillModal class="w-3/4" @success="handleRefresh" />
+    <BundleBoxModal class="w-3/4" @success="handleRefresh" />
     <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 未回场箱信息修改 -->
     <div class="my-3 flex" style="height: 50px">111</div>
@@ -435,6 +462,20 @@ const handleReset = () => {
               },
             ]"
           />
+        </template>
+        <template #pickupNoAction="{ row }">
+          <a-button
+            type="primary"
+            size="small"
+            @click="handleClickPickupNo(row)"
+          >
+            提单信息管理
+          </a-button>
+        </template>
+        <template #boxAction="{ row }">
+          <a-button type="primary" size="small" @click="handleClickSubBox(row)">
+            捆绑箱维护
+          </a-button>
         </template>
       </Grid>
     </div>
