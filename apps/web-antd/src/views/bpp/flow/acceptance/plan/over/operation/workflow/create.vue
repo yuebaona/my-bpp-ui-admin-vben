@@ -60,7 +60,6 @@ const [Form, formApi] = useVbenForm({
 async function onSubmit() {
   if (!formRef.value) return;
 
-  console.log('formData', 111);
   // 直接调用表单组件的验证方法
   const isValid = await formRef.value.validate();
   if (!isValid) return;
