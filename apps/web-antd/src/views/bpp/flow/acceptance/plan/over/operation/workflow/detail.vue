@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
+import type {FlowOverLimitWorkApi} from '#/api/bpp/flow/acceptance/plan/over/operation';
+import {getAcceptancePlanOverOperation} from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import {onMounted, ref} from 'vue';
 
-import { ContentWrap } from '@vben/common-ui';
+import {ContentWrap} from '@vben/common-ui';
 
-import { Button, Card, Flex, Modal, Space } from 'ant-design-vue';
-
-import { getAcceptancePlanOverOperation } from '#/api/bpp/flow/acceptance/plan/over/operation';
-import { router } from '#/router';
+import {Button, Card, Flex, Modal, Space} from 'ant-design-vue';
+import {router} from '#/router';
 import businessButtonView from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/audit/businessButtonView.vue';
 import customButtonView from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/audit/customButtonView.vue';
 import acceptancePlanForm from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/detailView.vue';
@@ -19,19 +17,30 @@ import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflo
  * 参数
  */
 const props = defineProps({
-  businessKey: String,
+  businessKey: {
+    type: String,
+  },
   // 业务单据ID
   id: {
     type: String,
     default: '1',
   },
   // 流程状态
-  status: Number,
+  status: {
+    type: Number,
+  },
   // 当前任务对象
-  todoTask: Object,
+  todoTask: {
+    type: Object,
+  },
   // 流程节点信息
-  activityNodes: Object,
-  processInstance: Object, // 流程实例信息
+  activityNodes: {
+    type: Object,
+  },
+  // 流程实例信息
+  processInstance: {
+    type: Object,
+  },
 });
 const buttonKey = ref(0);
 const openTask = ref(false);
@@ -44,31 +53,31 @@ const containerDataArray =
       plannedSpreaderType: undefined,
     },
   ]);
-const { query } = useRoute();
-const queryId = computed(() => query.id as string);
-const acceptancePlanOverOperationData = ref(null);
-const acceptancePlanData = ref(null);
+const acceptancePlanOverOperationData = ref({});
+const acceptancePlanData = ref({});
 
 async function getDetailData() {
   // 加载单据数据
   const businessData = await getAcceptancePlanOverOperation(props.businessKey);
-  containerDataArray.value =
-    businessData.acceptancePlanOverOperationContainerRespVOS;
-  acceptancePlanOverOperationData.value =
-    businessData.acceptancePlanOverOperationRespVO;
+  containerDataArray.value = businessData.acceptancePlanOverOperationContainerRespVOS;
+  acceptancePlanOverOperationData.value = businessData.acceptancePlanOverOperationRespVO;
   acceptancePlanData.value = businessData.acceptancePlanRespVO;
 }
+
 // 取消审批
 function closeForm() {
   router.back();
 }
+
 // 打开审批任务窗口
 function openTaskModal() {
   openTask.value = true;
   buttonKey.value++;
 }
+
 const taskKey = ref(0);
-function closeCallBack() {
+
+function closeCallBack(type: string | '') {
   openTask.value = false;
   taskKey.value++;
   // 返回超限受理列表
@@ -92,6 +101,7 @@ function checkBusiness() {
   }
   return false;
 }
+
 onMounted(() => {
   getDetailData();
 });
@@ -134,7 +144,7 @@ onMounted(() => {
     </div>
     <!--审批完成，即流程结束,-->
     <div v-else>
-      <acceptancePlanForm :id="id" />
+      <acceptancePlanForm :id="id"/>
     </div>
   </ContentWrap>
   <!--任务办理窗口-->

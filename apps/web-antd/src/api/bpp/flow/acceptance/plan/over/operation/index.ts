@@ -151,7 +151,7 @@ export namespace FlowOverLimitWorkApi {
   }
 }
 /**
- * 工作流审批时修改单据信息
+ * 工作流审批通过时修改单据信息
  * @param data
  */
 export const businessProgressAcceptancePlanOverOperation = (
@@ -163,7 +163,7 @@ export const businessProgressAcceptancePlanOverOperation = (
   );
 };
 /**
- * 工作流审批时修改单据信息
+ * 工作流审批结束时修改单据信息
  * @param data
  */
 export const startProgressAcceptancePlanOverOperation = (
@@ -172,6 +172,15 @@ export const startProgressAcceptancePlanOverOperation = (
   return requestClient.post(
     '/bpp/flow/acceptance-plan-over-operation/other-process',
     data,
+  );
+};
+/**
+ * 工作流审批拒绝时修改单据信息
+ * @param data
+ */
+export const acceptancePlanOverRejectProgress = (data: { id: any }) => {
+  return requestClient.post(
+    `/bpp/flow/acceptance-plan-over-operation/reject-progress?id=${data.id}`,
   );
 };
 // 创建超限受理计划信息
