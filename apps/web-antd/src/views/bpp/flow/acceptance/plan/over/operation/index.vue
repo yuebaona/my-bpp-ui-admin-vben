@@ -12,6 +12,7 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
+  cancelAcceptancePlanOverOperation,
   acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
   deleteMachineSpreaderRecord,
@@ -93,6 +94,41 @@ function handleRefresh() {
 /** 创建新申请 */
 function handleCreate() {
   formModalApi.setData(null).open();
+}
+/** 撤销  */
+function handleRevoke() {
+  if(acceptancePlanNo.value.length === 0) {
+    message.error($t('cxmo.message.revokeMessage'));
+    return;
+  }
+  const invalidNodes = ['INITIALIZATION','REVIEWING','CONFIRMED','REJECTED'];
+  const hasInvalidNode = planStatusArr.value.some(node =>
+    invalidNodes.includes(node)
+  );
+  if (!hasInvalidNode) {
+    message.error($t('cxmo.message.revokeVerifyMessage'));
+    return;
+  }
+  confirm({
+    content: `您确定撤销以下${acceptancePlanNo.value.toString()}申请编号的数据吗？`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('cxmo.action.processing'),
+        duration: 0,
+      });
+      try {
+        await cancelAcceptancePlanOverOperation(
+          checkedIds.value,
+        );
+        message.success($t('cxmo.action.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {})
 }
 
 /** 办理任务 */
@@ -181,7 +217,7 @@ const handleOnSiteOperation = async () => {
   ) {
     case '客户发起': {
       if (containerNos.value.length === 0) {
-        message.error('请选择要操作的箱');
+        message.error($t('cxmo.message.boxMessage'));
         return;
       }
       const invalidNodes = ['INITIALIZATION', 'COM'];
@@ -189,7 +225,7 @@ const handleOnSiteOperation = async () => {
         invalidNodes.includes(node)
       );
       if (hasInvalidNode) {
-        message.error('请选择现场作业节点不是初始化或完成的状态');
+        message.error($t('cxmo.message.iniOrComMessage'));
         return;
       }
 
@@ -266,7 +302,7 @@ const handleOnSiteOperation = async () => {
 const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   // 判断是否选中箱
   if (containerIds.value.length === 0) {
-    message.error('请选择要操作的箱');
+    message.error($t('cxmo.message.boxMessage'));
     return;
   }
   const invalidNodes = ['INITIALIZATION', 'COM'];
@@ -274,7 +310,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     invalidNodes.includes(node)
   );
   if (hasInvalidNode) {
-    message.error('请选择现场作业节点不是初始化或完成的状态');
+    message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
   confirm({
@@ -302,7 +338,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
 const handleAcceptancePlanOverOperationContainerComplete = async () => {
   // 判断是否选中箱
   if (containerIds.value.length === 0) {
-    message.error('请选择要操作的箱');
+    message.error($t('cxmo.message.boxMessage'));
     return;
   }
   const invalidNodes = ['INITIALIZATION', 'COM'];
@@ -310,7 +346,7 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
     invalidNodes.includes(node)
   );
   if (hasInvalidNode) {
-    message.error('请选择现场作业节点不是初始化或完成的状态');
+    message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
   confirm({
@@ -319,12 +355,12 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
   })
     .then(async () => {
       const hideLoading = message.loading({
-        content: $t('ui.actionMessage.processing'),
+        content: $t('cxmo.action.processing'),
         duration: 0,
       });
       try {
         await acceptancePlanOverOperationContainerComplete(containerIds.value);
-        message.success($t('ui.actionMessage.success'));
+        message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
         hideLoading();
@@ -336,7 +372,7 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 const handleMachineSpreaderRecordDeleteList = async () => {
   // 判断是否选中变更记录
   if (machineSpreaderChangeRecordCheckedIds.value.length === 0) {
-    message.error('请选择要变更吊具');
+    message.error($t('cxmo.message.spreaderChangeMessage'));
     return;
   }
   confirm({
@@ -345,14 +381,14 @@ const handleMachineSpreaderRecordDeleteList = async () => {
   })
     .then(async () => {
       const hideLoading = message.loading({
-        content: $t('ui.actionMessage.processing'),
+        content: $t('cxmo.action.processing'),
         duration: 0,
       });
       try {
         await machineSpreaderRecordDeleteList(
           machineSpreaderChangeRecordCheckedIds.value,
         );
-        message.success($t('ui.actionMessage.success'));
+        message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
         hideLoading();
@@ -363,6 +399,7 @@ const handleMachineSpreaderRecordDeleteList = async () => {
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<string[]>([]);
+const planStatusArr = ref<string[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
@@ -370,6 +407,7 @@ function handleRowCheckboxChange({
 }) {
   checkedIds.value = records.map((item) => item.id);
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+  planStatusArr.value = records.map((item) => item.planStatus);
   boxGridApi.query();
 }
 /** 重置箱信息相关数据 */
@@ -848,10 +886,10 @@ const handleSearch = () => {
                 onClick: handleCreate,
               },
               {
-                label: '撤销',
+                label: $t('cxmo.action.revoke'),
                 type: 'default',
                 icon: ACTION_ICON.UNDO,
-                onClick: handleHighPriceQuery,
+                onClick: handleRevoke,
               },
               //
               // {
@@ -875,21 +913,21 @@ const handleSearch = () => {
             :actions="[
               row.reviewFlag
                 ? {
-                    label: '审核',
+                    label: $t('cxmo.action.audit'),
                     type: 'link',
                     icon: ACTION_ICON.AUDIT,
                     onClick: handleViewDetail.bind(null, row),
                   }
                 : '',
               {
-                label: '修改',
+                label: $t('cxmo.action.edit'),
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
                 auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
               },
               {
-                label: '详情',
+                label: $t('cxmo.action.detail'),
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
                 auth: ['bpp:flow-acceptance-plan-over-operation:query'],
@@ -926,20 +964,17 @@ const handleSearch = () => {
                 {
                   label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
-                  auth: ['system:user:create'],
                   onClick: handleOnSiteOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
-                  auth: ['system:user:create'],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
-                  auth: ['system:user:create'],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
@@ -993,7 +1028,7 @@ const handleSearch = () => {
               :actions="[
                 row.reviewFlag
                   ? {
-                      label: '审核',
+                      label: $t('cxmo.action.audit'),
                       type: 'link',
                       icon: ACTION_ICON.AUDIT,
                       onClick: handleViewDetail.bind(null, row),
