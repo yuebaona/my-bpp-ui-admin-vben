@@ -83,8 +83,7 @@ const handleDownload = async (row: any) => {
     a.download = row.fileName || 'download';
     document.body.append(a);
     a.click();
-    document.body.removeChild(a);
-
+    a.remove();
     message.success('下载完成！');
   } catch (error) {
     message.error('下载失败：' + error.message);
