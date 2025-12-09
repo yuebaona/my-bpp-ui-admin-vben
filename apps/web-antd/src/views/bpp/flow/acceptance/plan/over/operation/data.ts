@@ -767,6 +767,45 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
+      field: 'planStatus',
+      title: '受理状态',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: createDictFilter('acceptance_plan_status'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'acceptance_plan_status',
+      },
+    },
+    {
+      field: 'approvalWorkflowCurrentNode',
+      title: '审批节点',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
       field: 'acceptancePlanWebNo',
       title: '网上编号',
       minWidth: 150,
@@ -1043,45 +1082,6 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'planStatus',
-      title: '受理状态',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('acceptance_plan_status'),
-      cellRender: {
-        name: 'CellTagDict',
-        props: 'acceptance_plan_status',
-      },
-    },
-    {
-      field: 'approvalWorkflowCurrentNode',
-      title: '审批节点',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
       field: 'conclusionTime',
       title: '审结时间',
       minWidth: 180,
@@ -1154,6 +1154,25 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       type: 'checkbox',
       width: 40,
       fixed: 'left',
+    },
+    {
+      field: 'containerOperationNode',
+      title: '现场作业节点',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: createDictFilter('on_site_operation_node'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'on_site_operation_node',
+      },
     },
     {
       field: 'containerNo',
@@ -1293,45 +1312,6 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
-      },
-    },
-    {
-      field: 'containerPhysicalStatus',
-      title: '受理节点时箱物理状态',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'containerOperationNode',
-      title: '现场作业节点',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-      },
-      filterMethod: createDictFilter('on_site_operation_node'),
-      cellRender: {
-        name: 'CellTagDict',
-        props: 'on_site_operation_node',
       },
     },
   ];
