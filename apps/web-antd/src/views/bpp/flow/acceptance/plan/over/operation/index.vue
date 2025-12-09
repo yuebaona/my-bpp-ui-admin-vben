@@ -28,14 +28,13 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
-
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-
+import { IconifyIcon } from '@vben/icons';
 interface OnSideOperation {
   overOperationContainerIds: string;
   initiationType: string;
@@ -595,17 +594,8 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
       },
       toolbarConfig: {
         refresh: false,
-        search: false,
+        search: true,
         export: true,
-        tools: [
-          // 方式3
-          { name: '自定义导出按钮', code: 'export', status: 'primary' },
-          {
-            name: '自定义高级导出按钮',
-            code: 'open_export',
-            status: 'success',
-          },
-        ],
       },
       pagerConfig: {
         pageSize: 10,
@@ -787,6 +777,35 @@ watch(checkedIds, (newVal, oldVal) => {
 onActivated(() => {
   handleRefresh();
 });
+// 控制搜索框显隐的状态
+const showSearchInput = ref(false);
+// 搜索框输入的值
+const searchKeyword = ref('');
+
+// 搜索按钮点击事件 - 切换输入框显隐
+const toggleSearchInput = () => {
+  showSearchInput.value = !showSearchInput.value;
+  // 如果隐藏输入框，清空搜索关键词
+  if (!showSearchInput.value) {
+    searchKeyword.value = '';
+    // 可以在这里触发表格刷新，清空搜索条件
+    machineSpreaderChangeRecordGridApi.query();
+  }
+};
+
+// 执行搜索的方法
+const handleSearch = () => {
+  if (!searchKeyword.value.trim()) {
+    message.warning('请输入搜索关键词');
+    return;
+  }
+  // 这里可以根据实际需求，把搜索关键词传递给表格查询接口
+  // 示例：修改表格查询参数并重新查询
+  machineSpreaderChangeRecordGridApi.setQueryParams({
+    keyword: searchKeyword.value.trim()
+  });
+  machineSpreaderChangeRecordGridApi.query();
+};
 </script>
 
 <template>
@@ -926,6 +945,17 @@ onActivated(() => {
           :table-title="$t('cxmo.overOperation.machineSpreaderRecord')"
         >
           <template #toolbar-tools>
+            <div class="flex items-center mr-2">
+              <!-- 搜索输入框 - 根据showSearchInput控制显隐 -->
+              <a-input-search
+                v-model:value="searchKeyword"
+                placeholder="请输入搜索内容"
+                enter-button
+                @search="handleSearch"
+                v-if="showSearchInput"
+              />
+
+            </div>
             <TableAction
               :actions="[
                 // {
@@ -942,7 +972,14 @@ onActivated(() => {
                 },
               ]"
             />
+            <!-- 搜索按钮 - 切换输入框显隐 -->
+            <a-button type="primary" shape="circle"  @click="toggleSearchInput" class="ml-2">
+              <template #icon>
+                <IconifyIcon icon="iconamoon:search-thin" style="font-size: 15px"/>
+              </template>
+            </a-button>
           </template>
+
           <template #actions="{ row }">
             <TableAction
               :actions="[
