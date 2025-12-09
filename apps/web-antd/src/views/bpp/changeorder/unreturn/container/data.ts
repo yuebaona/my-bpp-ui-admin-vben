@@ -645,3 +645,33 @@ export function bundleBoxColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+
+export function returnManageFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'returnType',
+      label: '返场类型',
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '返出口重箱', value: '返出口重箱' },
+          { label: '返存储空箱', value: '返存储空箱' },
+          { label: '返出口空箱', value: '返出口空箱' },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'returnPort',
+      label: '返场码头',
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '自动化码头', value: '自动化码头' },
+          { label: '人工码头', value: '人工码头' },
+        ],
+      },
+      rules: 'required',
+    },
+  ];
+}

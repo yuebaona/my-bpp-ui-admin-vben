@@ -33,6 +33,7 @@ import {
 } from './data';
 import BundleBox from './modules/bundleBox.vue';
 import LadingBill from './modules/ladingBill.vue';
+import Return from './modules/return.vue';
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -78,6 +79,12 @@ const [LadingBillModal, ladingBillModalApi] = useVbenModal({
 // 捆绑箱维护弹窗
 const [BundleBoxModal, bundleBoxModalApi] = useVbenModal({
   connectedComponent: BundleBox,
+  destroyOnClose: true,
+});
+
+// 返场信息管理弹窗
+const [ReturnModal, returnModalApi] = useVbenModal({
+  connectedComponent: Return,
   destroyOnClose: true,
 });
 
@@ -275,9 +282,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      search: true,
+      export: true,
+      // search: true,
       custom: true,
-      // import: true,
       refresh: true,
       zoom: true,
     },
@@ -391,7 +398,7 @@ const handleQuery = (params: any) => {
 
 // 处理重置事件
 const handleReset = () => {
-  console.log('重置查询条件');
+  // console.log('重置查询条件');
   queryResult.value = null;
 };
 
@@ -404,17 +411,22 @@ const handleClickPickupNo = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
 const handleClickSubBox = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   bundleBoxModalApi.setData(null).open();
 };
+
+const handleClickReturn = () => {
+  returnModalApi.setData(null).open();
+};
 </script>
 
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
-      <AdvancedQuery />
+      <AdvancedQuery @reset="handleReset" />
     </AdvancedQueryModal>
     <DetailModal />
     <LadingBillModal class="w-3/4" @success="handleRefresh" />
     <BundleBoxModal class="w-3/4" @success="handleRefresh" />
+    <ReturnModal class="w-1/4" @success="handleRefresh" />
     <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
     <!-- 未回场箱信息修改 -->
     <div class="my-3 flex" style="height: 50px">111</div>
@@ -441,11 +453,22 @@ const handleClickSubBox = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
           <TableAction
             :actions="[
               {
-                label: $t('cxmo.action.add'),
+                label: '批量修改',
                 type: 'primary',
-                icon: ACTION_ICON.ADD,
-                auth: ['bpp:flow-acceptance-plan-over-operation:create'],
+                icon: ACTION_ICON.EDIT,
                 onClick: handleCreate,
+              },
+              {
+                label: '删除TO',
+                type: 'default',
+                icon: ACTION_ICON.DELETE,
+                onClick: handleCreate,
+              },
+              {
+                label: '返场信息管理',
+                type: 'primary',
+                icon: ACTION_ICON.BRIEFCASE,
+                onClick: handleClickReturn,
               },
             ]"
           />
