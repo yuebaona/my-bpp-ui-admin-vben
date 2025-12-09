@@ -8,7 +8,9 @@ import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
+import { Image,message } from 'ant-design-vue';
 import dayjs from 'dayjs';
+import { Base64 } from 'js-base64';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
@@ -18,7 +20,7 @@ import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
   containerInfoDetailColumns,
-} from '../data.ts';
+} from '../data';
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
@@ -35,6 +37,16 @@ const acceptancePlanBillMessageVO =
     cargoCount: 0,
     billType: '',
   });
+// 图片后缀列表
+const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
+
+const isImageFile = (filePath: string): boolean => {
+  // 处理空值情况
+  if (!filePath) return false;
+  // 提取文件后缀并转小写（兼容大小写后缀，如 PNG/png）
+  const ext = filePath?.split('.').pop().toLowerCase();
+  return imageExts.includes(ext);
+};
 const formattedContainerTypes = computed(() => {
   const typeCountMap = new Map();
 
@@ -53,14 +65,35 @@ const formattedContainerTypes = computed(() => {
   }
   return result.join('\n'); // 用换行符连接
 });
+const handlePreview = async (row: any) => {
+  window.open(
+    `http://10.15.78.1:8012/onlinePreview?url=${encodeURIComponent(Base64.encode(row.filePath))}`,
+  );
+};
+const handleDownload = async (row: any) => {
+  // 判断如果是图片文件，则进行预览
+  if (isImageFile(row.filePath)) {
+    await handlePreview(row);
+    return;
+  }
+  try {
+    // 下载文件
+    const a = document.createElement('a');
+    a.href = row.filePath;
+    a.download = row.fileName || 'download';
+    document.body.append(a);
+    a.click();
+    document.body.removeChild(a);
+
+    message.success('下载完成！');
+  } catch (error) {
+    message.error('下载失败：' + error.message);
+  } finally {
+  }
+};
 const [Descriptions] = useDescription({
-  componentProps: {
-    bordered: true,
-    column: 2,
-    class: 'm-10',
-    size: 'small',
-    title: '基础信息',
-  },
+  column: 2,
+  size: 'small',
   labelStyle: {
     textAlign: 'right',
   },
@@ -156,8 +189,10 @@ const [Modal, modalApi] = useVbenModal({
         acceptancePlanBillMessageVO,
         data.acceptancePlanBillMessageRespVO,
       );
-      acceptancePlanOverOperationRespVO.value=data.acceptancePlanOverOperationRespVO;
-      containerDataArray.value=data.acceptancePlanOverOperationContainerRespVOS;
+      acceptancePlanOverOperationRespVO.value =
+        data.acceptancePlanOverOperationRespVO;
+      containerDataArray.value =
+        data.acceptancePlanOverOperationContainerRespVOS;
       formData.value = data.acceptancePlanRespVO;
       formData.value.plannedOperationTime = dayjs(
         formData.value.plannedOperationTime,
@@ -169,7 +204,7 @@ const [Modal, modalApi] = useVbenModal({
           lastSlashIndex === -1 ? item : item.slice(lastSlashIndex + 1);
         fileList.value.push({
           fileName: fileName.split('.')[0],
-          filePath: item,
+          filePath: item?.split('?')[0],
         });
       });
       // 箱信息
@@ -184,6 +219,7 @@ const [Modal, modalApi] = useVbenModal({
 </script>
 <template>
   <Modal title="超限货物作业申请单详情" class="w-1/2">
+    <div class="ant-descriptions-title my-5">基础信息</div>
     <Descriptions :data="formData" />
     <div>
       <div class="ant-descriptions-title my-5">箱货信息</div>
@@ -207,29 +243,49 @@ const [Modal, modalApi] = useVbenModal({
     <div>
       <div class="ant-descriptions-title my-5">附件列表</div>
       <FileGrid>
-        <template #actions>
+        <template #actions="{ row }">
           <TableAction
             :actions="[
               {
                 label: '下载',
                 type: 'link',
+                onClick: handleDownload.bind(null, row),
               },
               {
                 label: '预览',
                 type: 'link',
+                onClick: handlePreview.bind(null, row),
               },
             ]"
           />
+        </template>
+        <template #filePath="{ row }">
+          <!-- 判断是否为图片类型：是则展示Image组件，否则显示路径文本 -->
+          <template v-if="isImageFile(row.filePath)">
+            <Image
+              :width="100"
+              :src="row.filePath"
+              fit="cover"
+              preview
+              alt="图片预览"
+            />
+          </template>
+          <template v-else>
+            <!-- 非图片类型：显示路径地址（可加样式优化显示） -->
+            <span class="file-path-text">{{ row.filePath }}</span>
+          </template>
         </template>
       </FileGrid>
     </div>
     <div>
       <!--审批记录-->
       <taskComment
-        :isShowApply="false"
-        :acceptancePlanOverOperationData="formData"
-        :processInstanceId="acceptancePlanOverOperationRespVO?.processInstanceId"
-        :containerDataArray="containerDataArray"
+        :is-show-apply="false"
+        :acceptance-plan-over-operation-data="formData"
+        :process-instance-id="
+          acceptancePlanOverOperationRespVO?.processInstanceId
+        "
+        :container-data-array="containerDataArray"
       />
     </div>
   </Modal>

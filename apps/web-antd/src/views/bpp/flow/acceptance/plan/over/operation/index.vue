@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { onMounted, reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, onActivated } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -53,6 +53,20 @@ interface batchQueryConditionsVO {
 }
 // 使用字典 store
 const bppBaseDict = bppBaseDictStore();
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
@@ -171,9 +185,11 @@ const handleOnSiteOperation = async () => {
         message.error('请选择要操作的箱');
         return;
       }
-      if (containerOperationNodes.value.some(node =>
-        node === 'INITIALIZATION' || node === 'COM'
-      )) {
+      if (
+        containerOperationNodes.value.some(
+          (node) => node === 'INITIALIZATION' || node === 'COM',
+        )
+      ) {
         message.error('请选择现场作业节点不是初始化或完成的状态');
         return;
       }
@@ -232,6 +248,9 @@ const handleOnSiteOperation = async () => {
       break;
     }
     case '箱现场突发': {
+      data.value = {
+        initiationType: initiationTypeValue.value,
+      };
       break;
     }
     case '舱盖板': {
@@ -249,6 +268,10 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   // 判断是否选中箱
   if (containerIds.value.length === 0) {
     message.error('请选择要操作的箱');
+    return;
+  }
+  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
+    message.error('请选择现场作业节点不是初始化或完成的状态');
     return;
   }
   confirm({
@@ -429,24 +452,19 @@ const machineSpreaderChangeRecordHandleRowCheck = ({
 };
 /** 获取字典数据 */
 const getDictDataList = async () => {
-  bppBaseDict.setBppBaseDictCacheByData(
-    (
-      await getDictDataPage({
-        dictType: 'initiation_type',
-        pageNo: 1,
-        pageSize: 100,
-      })
-    ).list,
-  );
-  // bppBaseDict.setBppBaseDictCacheByData(
-  //   (
-  //     await getDictDataPage({
-  //       dictType: 'acceptance_plan_status',
-  //       pageNo: 1,
-  //       pageSize: 100,
-  //     })
-  //   ).list,
-  // );
+  await loadDictData([
+    'system_rate',
+    'acceptance_plan_status',
+    'payment_method',
+    'import_export_type',
+    'on_site_operation_node',
+    'on_site_operation_category',
+    'driving_source',
+    'change_reason',
+    'spreader_type',
+    'actual_operation',
+    'initiation_type',
+  ]);
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -460,8 +478,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
+    submitOnEnter: true,
   },
   gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
     keepSource: false,
@@ -484,6 +509,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          await getDictDataList();
           return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -502,6 +528,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     columns: useBoxGridColumns(),
     height: 'auto',
     keepSource: false,
@@ -548,6 +580,12 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      floatingFilterConfig: {
+        enabled: true,
+      },
+      filterConfig: {
+        showIcon: false,
+      },
       columns: machineSpreaderChangeRecordGridColumns(),
       height: 'auto',
       keepSource: false,
@@ -605,9 +643,6 @@ const initiationTypeValue = ref<null | string>(null);
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
-onMounted(async () => {
-  await getDictDataList();
-});
 watch(
   () => bppBaseDict.getBppBaseDictOptions('initiation_type'),
   (options) => {
@@ -749,6 +784,9 @@ watch(checkedIds, (newVal, oldVal) => {
     resetContainerData();
   }
 });
+onActivated(() => {
+  handleRefresh();
+});
 </script>
 
 <template>
@@ -779,7 +817,7 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: $t('cxmo.action.add'),
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                auth: ['system:user:create'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
               // {
@@ -820,13 +858,14 @@ watch(checkedIds, (newVal, oldVal) => {
                 label: '修改',
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
-                auth: ['system:user:update'],
+                auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
               },
               {
                 label: '详情',
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
+                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
                 onClick: handleDetail.bind(null, row),
               },
             ]"
@@ -907,6 +946,14 @@ watch(checkedIds, (newVal, oldVal) => {
           <template #actions="{ row }">
             <TableAction
               :actions="[
+                row.reviewFlag
+                  ? {
+                      label: '审核',
+                      type: 'link',
+                      icon: ACTION_ICON.AUDIT,
+                      onClick: handleViewDetail.bind(null, row),
+                    }
+                  : '',
                 {
                   label: $t('common.edit'),
                   type: 'link',

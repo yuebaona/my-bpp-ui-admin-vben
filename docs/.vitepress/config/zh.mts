@@ -68,7 +68,7 @@ function sidebarBppGuide(): DefaultTheme.SidebarItem[] {
       ]
     },
   ]
- }
+}
 
 
 function sidebarGuide(): DefaultTheme.SidebarItem[] {
@@ -246,29 +246,29 @@ function sidebarBack(): DefaultTheme.SidebarItem[] {
         { link: 'microservices/queue-Kafka', text: '消息队列（Kafka）'},
       ],
     },
-  {
-    collapsed: false,
-    text: '系统手册',
-    items: [
-      { link: 'system/message', text: '短信配置'},
-      { link: 'system/email', text: '邮件配置'},
-      { link: 'system/internal-message', text: '站内信配置'},
-      { link: 'system/data-masking', text: '数据脱敏'},
-      { link: 'system/region', text: '地区&IP 库'},
-    ],
-  },
-  {
-    collapsed: false,
-    text: '运维手册',
-    items: [
-      { link: 'maintenance/env', text: '开发环境'},
-      { link: 'maintenance/linux', text: 'Linux 部署'},
-      { link: 'maintenance/docker', text: 'Docker 部署'},
-      { link: 'maintenance/jenkins', text: 'Jenkins 部署'},
-      { link: 'maintenance/baota', text: '宝塔部署'},
-      { link: 'maintenance/monitor', text: '服务监控'},
-    ],
-  },
+    {
+      collapsed: false,
+      text: '系统手册',
+      items: [
+        { link: 'system/message', text: '短信配置'},
+        { link: 'system/email', text: '邮件配置'},
+        { link: 'system/internal-message', text: '站内信配置'},
+        { link: 'system/data-masking', text: '数据脱敏'},
+        { link: 'system/region', text: '地区&IP 库'},
+      ],
+    },
+    {
+      collapsed: false,
+      text: '运维手册',
+      items: [
+        { link: 'maintenance/env', text: '开发环境'},
+        { link: 'maintenance/linux', text: 'Linux 部署'},
+        { link: 'maintenance/docker', text: 'Docker 部署'},
+        { link: 'maintenance/jenkins', text: 'Jenkins 部署'},
+        { link: 'maintenance/baota', text: '宝塔部署'},
+        { link: 'maintenance/monitor', text: '服务监控'},
+      ],
+    },
   ];
 }
 
@@ -437,20 +437,20 @@ function nav(): DefaultTheme.NavItem[] {
 //     {
 //       link: '/commercial/community',
 //       text: '👨‍👦‍👦 交流群',
-      // items: [
-      //   {
-      //     link: 'https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=22ySzj7pKiw&businessType=9&from=246610&biz=ka&mainSourceId=share&subSourceId=others&jumpsource=shorturl#/pc',
-      //     text: 'QQ频道',
-      //   },
-      //   {
-      //     link: 'https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=mjZmlhgVzzUxvdxllB6C1vHpX8O8QRL0&authKey=DBdFbBwERmfaKY95JvRWqLCJIRGJAmKyZbrpzZ41EKDMZ5SR6MfbjOBaaNRN73fr&noverify=0&group_code=4286109',
-      //     text: 'QQ群',
-      //   },
-      //   {
-      //     link: 'https://discord.gg/VU62jTecad',
-      //     text: 'Discord',
-      //   },
-      // ],
+    // items: [
+    //   {
+    //     link: 'https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=22ySzj7pKiw&businessType=9&from=246610&biz=ka&mainSourceId=share&subSourceId=others&jumpsource=shorturl#/pc',
+    //     text: 'QQ频道',
+    //   },
+    //   {
+    //     link: 'https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=mjZmlhgVzzUxvdxllB6C1vHpX8O8QRL0&authKey=DBdFbBwERmfaKY95JvRWqLCJIRGJAmKyZbrpzZ41EKDMZ5SR6MfbjOBaaNRN73fr&noverify=0&group_code=4286109',
+    //     text: 'QQ群',
+    //   },
+    //   {
+    //     link: 'https://discord.gg/VU62jTecad',
+    //     text: 'Discord',
+    //   },
+    // ],
 //     },
     // {
     //   link: '/friend-links/',

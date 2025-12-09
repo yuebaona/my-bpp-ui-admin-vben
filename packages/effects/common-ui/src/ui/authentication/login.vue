@@ -6,7 +6,7 @@ import type { VbenFormSchema } from '@vben-core/form-ui';
 import type { AuthenticationProps } from './types';
 
 import { computed, onMounted, reactive, ref } from 'vue';
-// import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import { $t } from '@vben/locales';
 
@@ -14,8 +14,8 @@ import { useVbenForm } from '@vben-core/form-ui';
 import { VbenButton, VbenCheckbox } from '@vben-core/shadcn-ui';
 
 import Title from './auth-title.vue';
-// import DocLink from './doc-link.vue';
-// import ThirdPartyLogin from './third-party-login.vue';
+import DocLink from './doc-link.vue';
+import ThirdPartyLogin from './third-party-login.vue';
 
 interface Props extends AuthenticationProps {
   formSchema?: VbenFormSchema[];
@@ -58,7 +58,7 @@ const [Form, formApi] = useVbenForm(
     showDefaultActions: false,
   }),
 );
-// const router = useRouter();
+const router = useRouter();
 
 const REMEMBER_ME_KEY = `REMEMBER_ME_USERNAME_${location.hostname}`;
 
@@ -78,18 +78,18 @@ async function handleSubmit() {
   }
 }
 
-// function handleGo(path: string) {
-//   router.push(path);
-// }
+function handleGo(path: string) {
+  router.push(path);
+}
 
 /**
  * 处理第三方登录
  *
  * @param type 第三方平台类型
  */
-// function handleThirdLogin(type: number) {
-//   emit('thirdLogin', type);
-// }
+function handleThirdLogin(type: number) {
+  emit('thirdLogin', type);
+}
 
 onMounted(() => {
   if (localUsername) {
@@ -107,7 +107,7 @@ defineExpose({
     <slot name="title">
       <Title>
         <slot name="title">
-          {{ title || `${$t('authentication.welcomeLogin')} 👋🏻` }}
+          {{ title || `${$t('authentication.welcomeBack')} 👋🏻` }}
         </slot>
         <template #desc>
           <span class="text-muted-foreground">
@@ -128,20 +128,20 @@ defineExpose({
       <div class="flex-center">
         <VbenCheckbox
           v-if="showRememberMe"
-          v-model:checked="rememberMe"
+          v-model="rememberMe"
           name="rememberMe"
         >
           {{ $t('authentication.rememberMe') }}
         </VbenCheckbox>
       </div>
 
-<!--      <span-->
-<!--        v-if="showForgetPassword"-->
-<!--        class="vben-link text-sm font-normal"-->
-<!--        @click="handleGo(forgetPasswordPath)"-->
-<!--      >-->
-<!--        {{ $t('authentication.forgetPassword') }}-->
-<!--      </span>-->
+      <span
+        v-if="showForgetPassword"
+        class="vben-link text-sm font-normal"
+        @click="handleGo(forgetPasswordPath)"
+      >
+        {{ $t('authentication.forgetPassword') }}
+      </span>
     </div>
     <VbenButton
       :class="{
@@ -177,7 +177,7 @@ defineExpose({
 <!--      </VbenButton>-->
 <!--    </div>-->
 
-<!--    &lt;!&ndash; 第三方登录 &ndash;&gt;-->
+    <!-- 第三方登录 -->
 <!--    <slot name="third-party-login">-->
 <!--      <ThirdPartyLogin-->
 <!--        v-if="showThirdPartyLogin"-->
@@ -197,7 +197,7 @@ defineExpose({
 <!--      </div>-->
 <!--    </slot>-->
 
-<!--    &lt;!&ndash; 萌新必读 &ndash;&gt;-->
+    <!-- 萌新必读 -->
 <!--    <DocLink />-->
   </div>
 </template>

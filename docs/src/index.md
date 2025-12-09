@@ -5,7 +5,7 @@ sidebar: false
 
 hero:
   name: 业务处理平台文档中心
-#  text: 开发指南与用户手册
+  #  text: 开发指南与用户手册
   tagline:
   image:
     src: http://rsim.portsgmt.com:9001/bgbpp-vben/北港单LOGO.png
@@ -14,9 +14,9 @@ hero:
     - theme: brand
       text: 前端指南
       link: /guide/introduction/vben
-#    - theme: alt
-#      text: 前端组件
-#      link: /components/introduction
+    #    - theme: alt
+    #      text: 前端组件
+    #      link: /components/introduction
     - theme: alt
       text: 后端指南
       link: /back/introduction/api

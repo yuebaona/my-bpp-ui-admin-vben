@@ -99,7 +99,6 @@ onMounted(() => {
 
 <template>
   <ContentWrap class="m-2">
-    {{ status }}>>
     <!--审批中-->
     <div v-if="status === 1">
       <acceptancePlanForm :id="id" />

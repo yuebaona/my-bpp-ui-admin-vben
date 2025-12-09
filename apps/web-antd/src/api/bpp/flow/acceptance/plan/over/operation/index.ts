@@ -24,12 +24,12 @@ export namespace FlowOverLimitWorkApi {
     attachmentFile: string;
     handlerRemark: string;
     handlerConfirmation: string;
-    payerNameSea: string,
-    payerNameGate: string
+    payerNameSea: string;
+    payerNameGate: string;
   }
   // 受理计划VO
   export interface AcceptancePlanVO {
-    id: number;
+    id: number | string;
     acceptancePlanNo: string;
     acceptancePlanWebNo: string;
     applicantCode: string;
@@ -61,8 +61,11 @@ export namespace FlowOverLimitWorkApi {
     cargoAgentCode: string;
     invoiceTitle: string;
     handlingPhoneNumber: string;
-    payerNameGate:string;
-    payerNameSea:string;
+    payerNameGate: string;
+    payerNameSea: string;
+    billNo?: string;
+    cargoName: string;
+    submissionTime: string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -94,6 +97,7 @@ export namespace FlowOverLimitWorkApi {
     machineSpreaderChangeType: string;
     machineSpreaderType: string;
     plannedSpreaderType: string;
+    serialNumber: string;
   }
   // 提单信息表
   export interface AcceptancePlanBillMessageVO {
@@ -189,7 +193,7 @@ export const updateAcceptancePlanOverOperation = (
   );
 };
 // 查询超限受理计划信息详情
-export const getAcceptancePlanOverOperation = (id: number) => {
+export const getAcceptancePlanOverOperation = (id: number | string) => {
   return requestClient.get(
     `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
   );
@@ -249,5 +253,20 @@ export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
 export const machineSpreaderRecordDeleteList = (ids: any) => {
   return requestClient.delete(
     `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
+  );
+};
+// 获得机械吊具变更操作记录
+export const getMachineSpreaderRecord = async (id: any) => {
+  return await requestClient.get(
+    `/bpp/flow/machine-spreader-record/get?id=${id}`,
+  );
+};
+// 修改机械吊具变更操作记录
+export const machineSpreaderRecordUpdateProcess = async (
+  data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
+) => {
+  return await requestClient.put(
+    `/bpp/flow/machine-spreader-record/update-process`,
+    data,
   );
 };

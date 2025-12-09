@@ -1,4 +1,3 @@
-<!-- 原组件修改后 -->
 <script lang="ts" setup>
 import { ref,computed } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
