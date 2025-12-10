@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ref,onActivated } from 'vue';
+import { onActivated, ref } from 'vue';
 
 import { Affix } from 'ant-design-vue';
 
 import BillOfLadingInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/billOfLadingInfo.vue';
-import boxList from '#/views/bpp/changeorder/acceptance/plan/update/modules/boxList.vue';
+import BoxList from '#/views/bpp/changeorder/acceptance/plan/update/modules/boxList.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/changeOrderPlanInfo.vue';
 import HeaderInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/headerInfo.vue';
 import InboxInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/inboxInfo.vue';
 import OriginalPlanPaymentInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/originalPlanPaymentInfo.vue';
+
 const affix = ref(0);
 // 模拟父组件传递的参数
 const businessTypes = ref([
@@ -70,6 +71,9 @@ onActivated(() => {
         <InboxInfo />
       </div>
     </div>
-    <boxList />
+    <div class="mt-2">
+      <!-- 箱信息 -->
+      <BoxList />
+    </div>
   </Page>
 </template>
