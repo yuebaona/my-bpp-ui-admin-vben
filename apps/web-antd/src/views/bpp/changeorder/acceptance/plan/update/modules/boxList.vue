@@ -2,10 +2,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import { $t } from '@vben/locales';
-
-import { Card } from 'ant-design-vue';
-
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { inboxInfoColumns } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 
@@ -46,8 +42,7 @@ const searchKeyword = ref('');
 const handleSearch = () => {};
 </script>
 <template>
-  <Card title="集装箱列表">
-    <Grid>
+    <Grid table-title="集装箱列表">
       <template #toolbar-tools>
         <div class="flex items-center">
           <label class="w-1/5">箱号</label>
@@ -62,5 +57,4 @@ const handleSearch = () => {};
         </div>
       </template>
     </Grid>
-  </Card>
 </template>
