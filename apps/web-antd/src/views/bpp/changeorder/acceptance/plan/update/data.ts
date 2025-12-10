@@ -209,9 +209,8 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'billNo',
-      component: 'Input',
+      component: 'none',
       label: '提单号',
-      componentProps: { placeholder: '请输入提单号' },
       rules: 'required',
     },
     {
