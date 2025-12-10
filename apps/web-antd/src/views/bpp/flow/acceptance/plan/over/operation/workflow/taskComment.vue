@@ -154,12 +154,12 @@ onMounted(async () => {
           作业吊具
         </td>
         <td>
-          <a-flex wrap="wrap" gap="small" align="start" vertical>
-              <Card v-for="item in containerDataArray" :key="item.containerNo" style="width: 200px">
+          <Flex>
+              <Card v-for="item in containerDataArray" :key="item.containerNo" style="width: 200px;margin-right: 5px">
                 <p>箱号：{{item.containerNo}}</p>
                 <p>吊具类型：{{item.plannedSpreaderType}}</p>
               </Card>
-          </a-flex>
+          </Flex>
         </td>
       </tr>
       </tbody>
