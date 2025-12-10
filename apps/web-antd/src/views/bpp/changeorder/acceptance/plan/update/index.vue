@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref,onActivated } from 'vue';
 
 import { Affix } from 'ant-design-vue';
 
@@ -10,6 +10,7 @@ import ChangeOrderPlanInfo from '#/views/bpp/changeorder/acceptance/plan/update/
 import HeaderInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/headerInfo.vue';
 import InboxInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/inboxInfo.vue';
 import OriginalPlanPaymentInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/originalPlanPaymentInfo.vue';
+const affix = ref(0);
 // 模拟父组件传递的参数
 const businessTypes = ref([
   { label: '受理计划修改', value: 'acceptance_plan_modify' },
@@ -25,11 +26,15 @@ const buttonDisplay = ref({
   executeModify: true,
   executeModifyTos: false,
 });
+onActivated(() => {
+  // 强制更新Affix组件，使组件重新渲染
+  affix.value++;
+});
 </script>
 
 <template>
   <Page auto-content-height>
-    <Affix :offset-top="89">
+    <Affix :offset-top="89" :key="affix">
       <HeaderInfo
         :business-types="businessTypes"
         :selected-business-type="selectedBusinessType"
