@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { ref } from 'vue';
 
@@ -15,26 +15,26 @@ import {
   getMainPlan,
   getMainPlanPage,
   getSubPlan,
-  // getSubPlanPage, //因使用固定数据暂时注销
-} from '#/api/bpp/emptycontainercontrol';
+  getSubPlanPage,
+} from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
+import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
+import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
+import Form from '#/views/bpp/empty/container/control/modules/form.vue';
+import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 
-import {
-  mainPlanColumns,
-  PlanSearchFormSchema,
-  STATIC_SUB_PLAN_DETAIL_DATA,
-  STATIC_SUB_PLAN_LIST_DATA,
-  subPlanColumns,
-} from './data';
-import Detail2 from './modules/detail2.vue';
-import Detail from './modules/detail.vue';
-import Form2 from './modules/form2.vue';
-import Form from './modules/form.vue';
-import LogQuery from './modules/logQuery.vue';
+import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
+const selectedMainId = ref<null | string>(null);
+const hasSelectedMainPlan = ref(false);
+const checkedSubIds = ref<number[]>([]);
+const subPlanNo = ref<string[]>([]);
+// const checkedIds2 = ref<number[]>([]);
+// const mainPlanNo = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -46,7 +46,7 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-const [DetailModal] = useVbenModal({
+const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
@@ -57,56 +57,7 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
   footer: false,
 });
 
-// const [Grid, gridApi] = useVbenVxeGrid({
-//   formOptions: {
-//     schema: PlanSearchFormSchema(),
-//     submitButtonOptions: {
-//       content: '查询',
-//     },
-//     wrapperClass: 'grid-cols-4 md:grid-cols-4',
-//   },
-//   gridOptions: {
-//     columns: subPlanColumns(),
-//     height: 'auto',
-//     keepSource: false,
-//     rowConfig: {
-//       keyField: 'id',
-//       isHover: true,
-//     },
-//     toolbarConfig: {
-//       search: true,
-//       custom: true,
-//       export: true,
-//       // import: true,
-//       refresh: true,
-//       zoom: true,
-//     },
-//     pagerConfig: {
-//       pageSize: 10,
-//       enabled: true,
-//     },
-//     editRules: {
-//       applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
-//     },
-//     // proxyConfig: {
-//     //   ajax: {
-//     //     query: async ({ page }, formValues) => {
-//     //       return await getSubPlanPage({
-//     //         pageNo: page.currentPage,
-//     //         pageSize: page.pageSize,
-//     //         ...formValues,
-//     //       });
-//     //     },
-//     //   },
-//     // },
-//   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
-//   gridEvents: {
-//     checkboxAll: handleRowCheckboxChange,
-//     checkboxChange: handleRowCheckboxChange,
-//   },
-// });
-
-const [SubGrid] = useVbenVxeGrid({
+const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: subPlanColumns(),
     height: 'auto',
@@ -125,47 +76,82 @@ const [SubGrid] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    editRules: {
-      applicantCompanyName: [{ required: true }],
-      acceptancePlanNo: [{ required: true }],
-    },
+    // editRules: {
+    //
+    // },
     proxyConfig: {
       ajax: {
-        // query: async ({ page }, formValues) => {
-        //   // return await getSubPlanPage({
-        //   //   pageNo: page.currentPage,
-        //   //   pageSize: page.pageSize,
-        //   //   ...formValues,
-        //   // });
-        //   return {
-        //     list: STATIC_SUB_PLAN_LIST_DATA,
-        //     total: STATIC_SUB_PLAN_LIST_DATA.length
-        //   };
-        // },
-        query: async () => {
-          return {
-            list: STATIC_SUB_PLAN_LIST_DATA,
-            total: STATIC_SUB_PLAN_LIST_DATA.length,
-          };
+        query: async ({ page }, formValues) => {
+          if (!hasSelectedMainPlan.value) {
+            return { total: 0, list: [] };
+          }
+          const transformedParams = transformFormToRequest(formValues);
+          if (selectedMainId.value) {
+            transformedParams.planType = 'SUB';
+            transformedParams.mainId = selectedMainId.value;
+          }
+          return await getSubPlanPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...transformedParams,
+          });
         },
       },
     },
   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
   gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
+    checkboxAll: handleSubRowCheckboxChange,
+    checkboxChange: handleSubRowCheckboxChange,
   },
 });
 
-function handleRowCheckboxChange({
+// 主计划行点击事件处理函数
+function handleRowClick({ row }: { row: EmptyContainerControlApi.mainPlanVO }) {
+  checkedSubIds.value = [];
+  subPlanNo.value = [];
+  selectedMainId.value = row.id.toString();
+  hasSelectedMainPlan.value = true;
+  subGridApi.query();
+}
+
+// 子计划勾选事件处理函数
+function handleSubRowCheckboxChange({
   records,
 }: {
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
-  checkedIds.value = records.map((item) => item.id);
-  planNo.value = records.map((item) => item.planNo);
+  // 检查是否已勾选主计划
+  if (checkedIds.value.length > 0) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    gridApi2.grid.setAllCheckboxRow(false);
+    message.warning('主计划和子计划不能同时勾选');
+    return false;
+  }
+  checkedSubIds.value = records.map((item) => item.id);
+  subPlanNo.value = records.map((item) => item.planNo);
 }
 
+function handleRowCheckboxChange({
+  records,
+}: {
+  records: EmptyContainerControlApi.mainPlanVO[];
+}) {
+  // 检查是否已勾选子计划
+  if (checkedSubIds.value.length > 0) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    subGridApi.grid.setAllCheckboxRow(false);
+    message.warning('主计划和子计划不能同时勾选');
+  }
+  checkedIds.value = records.map((item) => item.id);
+  planNo.value = records.map((item) => item.planNo);
+  if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    subGridApi.grid.setAllCheckboxRow(false);
+  }
+}
 const [FormModal2, formModalApi2] = useVbenModal({
   connectedComponent: Form2,
   destroyOnClose: true,
@@ -175,6 +161,103 @@ const [DetailModal2, detailModalApi2] = useVbenModal({
   connectedComponent: Detail2,
   destroyOnClose: true,
 });
+
+/**
+ * 转换表单值为接口请求参数格式
+ */
+const transformFormToRequest = (
+  formValues: Record<string, any>,
+): Record<string, any> => {
+  const params = JSON.parse(JSON.stringify(formValues || {}));
+  delete params.pageNo;
+  delete params.pageSize;
+
+  if (params.bayRangeList) {
+    const [yardBay, yardRaw] = params.bayRangeList
+      .split('-')
+      .map((item: string) => item.trim());
+    params.bayRangeList = [
+      {
+        yardBay: yardBay || '',
+        yardRaw: yardRaw || '',
+      },
+    ];
+  } else {
+    delete params.bayRangeList;
+  }
+
+  if (params.ownerList) {
+    params.ownerList = params.ownerList
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean); // 过滤空字符串
+  } else {
+    delete params.ownerList;
+  }
+
+  if (params.isoNoList) {
+    params.isoNoList = params.isoNoList
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  } else {
+    delete params.isoNoList;
+  }
+
+  if (params.createTime) {
+    if (params.createTime.length === 0) {
+      delete params.createTime;
+    }
+  } else {
+    delete params.createTime;
+  }
+
+  // 主计划号 planNo：空值删除
+  if (
+    params.planNo === '' ||
+    params.planNo === undefined ||
+    params.planNo === null
+  ) {
+    delete params.planNo;
+  }
+
+  // 进口航次 importVoyageNo：空值删除
+  if (
+    params.importVoyageNo === '' ||
+    params.importVoyageNo === undefined ||
+    params.importVoyageNo === null
+  ) {
+    delete params.importVoyageNo;
+  }
+
+  // 贸易类型 tradeType：空值删除
+  if (
+    params.tradeType === '' ||
+    params.tradeType === undefined ||
+    params.tradeType === null
+  ) {
+    delete params.tradeType;
+  }
+
+  // 受理提箱计划号 pickupPlanNo：空值删除
+  if (
+    params.pickupPlanNo === '' ||
+    params.pickupPlanNo === undefined ||
+    params.pickupPlanNo === null
+  ) {
+    delete params.pickupPlanNo;
+  }
+
+  params.planType = 'MAIN';
+  Object.keys(params).forEach((key) => {
+    const value = params[key];
+    if (value === '' || value === undefined || value === null) {
+      delete params[key];
+    }
+  });
+  const finalParams = JSON.parse(JSON.stringify(params));
+  return finalParams;
+};
 
 const [Grid2, gridApi2] = useVbenVxeGrid({
   formOptions: {
@@ -210,10 +293,11 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          const transformedParams = transformFormToRequest(formValues);
           return await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...transformedParams,
           });
         },
       },
@@ -222,17 +306,18 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
+    cellClick: handleRowClick,
   },
 });
 
-function handleRowCheckboxChange2({
-  records,
-}: {
-  records: EmptyContainerControlApi.mainPlanVO[];
-}) {
-  checkedIds.value = records.map((item) => item.id);
-  MainPlanNo.value = records.map((item) => item.MainPlanNo);
-}
+// function handleRowCheckboxChange2({
+//   records,
+// }: {
+//   records: EmptyContainerControlApi.mainPlanVO[];
+// }) {
+//   checkedIds.value = records.map((item) => item.id);
+//   MainPlanNo.value = records.map((item) => item.MainPlanNo);
+// }
 
 // 高级查询处理函数
 /** 刷新表格 */
@@ -246,7 +331,20 @@ function handleCreateMainPlan() {
 }
 /** 创建新申请 */
 function handleCreateSubPlan() {
-  formModalApi.setData(null).open();
+  // 检查是否只勾选了一个主计划
+  if (checkedIds.value.length === 0) {
+    message.warning('请勾选一个主计划');
+    return;
+  } else if (checkedIds.value.length > 1) {
+    message.warning('已勾选多个主计划，请只勾选一个主计划');
+    return;
+  }
+  formModalApi
+    .setData({
+      mainId: selectedMainId.value,
+      planType: 'SUB',
+    })
+    .open();
 }
 
 /** 导出数据 */
@@ -274,43 +372,20 @@ const handleMainPlanDetail = async (
 /** 查看子计划详情 */
 const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  detailModalApi.setData(res).open();
 };
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
+  console.log('row.id', row.id);
   const res = await getMainPlan(row.id);
   formModalApi2.setData(res).open();
 };
 
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
-  // 使用固定数据填充弹窗
-  const editData = {
-    acceptancePlanRespVO: {
-      ...STATIC_SUB_PLAN_DETAIL_DATA,
-    },
-    yardPositionResp: [
-      {
-        id: 1,
-        yardPosition: 'A01-01-01',
-        yardColumns: ['A', 'B'],
-        totalCount: '50',
-        minStorageDays: '3',
-        maxStorageDays: '10',
-      },
-      {
-        id: 2,
-        yardPosition: 'B02-01-01',
-        yardColumns: ['C', 'D'],
-        totalCount: '30',
-        minStorageDays: '2',
-        maxStorageDays: '8',
-      },
-    ],
-  };
-
-  formModalApi.setData(editData).open();
+  const res = await getSubPlan(row.id);
+  formModalApi.setData(res).open();
 };
 
 /** 删除主计划 */
@@ -341,12 +416,12 @@ const adcancedQueryModalOpen = () => {
 
 <template>
   <Page auto-content-height>
-    <FormModal class="w-1/2" @success="handleRefresh" />
+    <FormModal class="w-3/5" @success="handleRefresh" />
     <FormModal2 class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal />
+    <DetailModal class="w-3/5" />
     <DetailModal2 />
     <LogQueryModal />
     <!-- 主计划列表 -->

@@ -1,5 +1,9 @@
 <script lang="ts" setup>
+// import type { PageParam } from '@vben/request';
+
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+// import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
+import type { LogQueryParams } from '#/api/bpp/empty/container/control';
 
 import { reactive } from 'vue';
 
@@ -7,13 +11,13 @@ import { useVbenModal } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
 import {
   logQueryColumns,
   logQueryFormSchema,
-  STATIC_MASTER_PLAN_QUERY_DATA,
+  // STATIC_MASTER_PLAN_QUERY_DATA,
 } from '../data';
-// import { getLogQueryData } from '#/api/bpp/emptycontainercontrol';
 
 const formValues = reactive({});
 
@@ -36,8 +40,8 @@ const [Form, formApi] = useVbenForm({
   },
   handleReset: async () => {
     formApi.resetForm();
-    // 重置时清空表格数据
-    gridApi.reload({ list: [], total: 0 });
+    Object.assign(formValues, {});
+    await handleQuery();
   },
 });
 
@@ -64,23 +68,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     proxyConfig: {
       ajax: {
-        // query: async ({ page }, formValues) => {
-        //   // 调用后端接口获取数据
-        //   const res = await getLogQueryData({
-        //     pageNo: page.currentPage,
-        //     pageSize: page.pageSize,
-        //     ...formValues,
-        //   });
-        //
-        //   return {
-        //     list: res.items,
-        //     total: res.total,
-        //   };
-        // },
-        query: async () => {
+        query: async ({ page }) => {
+          const params: LogQueryParams = {
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            ...formValues,
+          };
+          const res = await getLogQueryPage(params);
           return {
-            list: STATIC_MASTER_PLAN_QUERY_DATA,
-            total: STATIC_MASTER_PLAN_QUERY_DATA.length,
+            list: res.list,
+            total: res.total,
           };
         },
       },
@@ -91,8 +88,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 /** 查询处理函数 */
 const handleQuery = async () => {
   try {
-    // 触发表格重新加载数据
-    gridApi.reload();
+    await gridApi.query();
   } catch (error) {
     console.error('查询失败:', error);
   }
@@ -102,6 +98,9 @@ const [Modal, modalApi] = useVbenModal({
   title: '日志查询',
   fullscreen: false,
   class: 'w-[95vw] max-w-[1450px]',
+  onOpened() {
+    handleQuery();
+  },
   onConfirm: () => {
     modalApi.close();
   },
