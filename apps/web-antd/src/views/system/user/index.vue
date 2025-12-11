@@ -75,14 +75,14 @@ function handleCreate() {
 
 /** 同步钉钉用户信息 */
 async function handleSyncDingUser() {
-  await confirm($t('是否立即执行数据同步？'));
+  await confirm($t('tptc.dingTalk.sync.user'));
   const hideLoading = message.loading({
-    content: $t('同步中，请稍候......'),
+    content: $t('tptc.dingTalk.sync.doing'),
     duration: 0,
   });
   try {
     await syncDingUser();
-    message.success($t('同步成功'));
+    message.success($t('tptc.dingTalk.sync.success'));
     handleRefresh();
   } finally {
     hideLoading();
@@ -227,7 +227,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
             <TableAction
               :actions="[
                 {
-                  label: $t('同步钉钉用户信息'),
+                  label: $t('tptc.dingTalk.button.user'),
                   type: 'primary',
                   icon: ACTION_ICON.ADD,
                   auth: ['ding:user:sync'],

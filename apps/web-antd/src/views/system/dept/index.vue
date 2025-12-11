@@ -40,14 +40,14 @@ function handleCreate() {
 
 /** 同步部门 */
 async function handleSync() {
-  await confirm($t('是否立即执行数据同步？'));
+  await confirm($t('tptc.dingTalk.sync.department'));
   const hideLoading = message.loading({
-    content: $t('同步中，请稍候...'),
+    content: $t('tptc.dingTalk.sync.doing'),
     duration: 0,
   });
   try {
     await syncFromDing();
-    message.success($t('同步成功'));
+    message.success($t('tptc.dingTalk.sync.success'));
     handleRefresh();
   } finally {
     hideLoading();
@@ -150,7 +150,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
-              label: $t('同步钉钉架构'),
+              label: $t('tptc.dingTalk.sync.department'),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['ding:dept:create'],
