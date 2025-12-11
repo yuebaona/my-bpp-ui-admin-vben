@@ -19,18 +19,20 @@ import {
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
+import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
+import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
+import Form from '#/views/bpp/empty/container/control/modules/form.vue';
+import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
-import Detail2 from './modules/detail2.vue';
-import Detail from './modules/detail.vue';
-import Form2 from './modules/form2.vue';
-import Form from './modules/form.vue';
-import LogQuery from './modules/logQuery.vue';
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
 const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
+const checkedSubIds = ref<number[]>([]);
+const subPlanNo = ref<string[]>([]);
 // const checkedIds2 = ref<number[]>([]);
 // const mainPlanNo = ref<string[]>([]);
 
@@ -44,7 +46,7 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-const [DetailModal] = useVbenModal({
+const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
 });
@@ -80,19 +82,14 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          // 如果还没有选中主计划，则不进行查询
           if (!hasSelectedMainPlan.value) {
             return { total: 0, list: [] };
           }
-
           const transformedParams = transformFormToRequest(formValues);
-
-          // 添加主计划 ID 参数
           if (selectedMainId.value) {
             transformedParams.planType = 'SUB';
             transformedParams.mainId = selectedMainId.value;
           }
-
           return await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -103,30 +100,56 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     },
   } as VxeTableGridOptions<EmptyContainerControlApi.subPlanVO>,
   gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
+    checkboxAll: handleSubRowCheckboxChange,
+    checkboxChange: handleSubRowCheckboxChange,
   },
 });
 
-// 修改 handleRowCheckboxChange 函数
+// 主计划行点击事件处理函数
+function handleRowClick({ row }: { row: EmptyContainerControlApi.mainPlanVO }) {
+  checkedSubIds.value = [];
+  subPlanNo.value = [];
+  selectedMainId.value = row.id.toString();
+  hasSelectedMainPlan.value = true;
+  subGridApi.query();
+}
+
+// 子计划勾选事件处理函数
+function handleSubRowCheckboxChange({
+  records,
+}: {
+  records: EmptyContainerControlApi.subPlanVO[];
+}) {
+  // 检查是否已勾选主计划
+  if (checkedIds.value.length > 0) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    gridApi2.grid.setAllCheckboxRow(false);
+    message.warning('主计划和子计划不能同时勾选');
+    return false;
+  }
+  checkedSubIds.value = records.map((item) => item.id);
+  subPlanNo.value = records.map((item) => item.planNo);
+}
+
 function handleRowCheckboxChange({
   records,
 }: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
+  // 检查是否已勾选子计划
+  if (checkedSubIds.value.length > 0) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    subGridApi.grid.setAllCheckboxRow(false);
+    message.warning('主计划和子计划不能同时勾选');
+  }
   checkedIds.value = records.map((item) => item.id);
   planNo.value = records.map((item) => item.planNo);
-
-  if (records.length > 0) {
-    selectedMainId.value = records[0].id.toString();
-    hasSelectedMainPlan.value = true;
-    // 当主计划选择变化时，刷新子计划列表
-    subGridApi.query();
-  } else {
-    selectedMainId.value = null;
-    hasSelectedMainPlan.value = false;
-    // 清空子计划列表数据
-    subGridApi.grid.reloadData([]);
+  if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
+    checkedSubIds.value = [];
+    subPlanNo.value = [];
+    subGridApi.grid.setAllCheckboxRow(false);
   }
 }
 const [FormModal2, formModalApi2] = useVbenModal({
@@ -283,6 +306,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
+    cellClick: handleRowClick,
   },
 });
 
@@ -318,7 +342,7 @@ function handleCreateSubPlan() {
   }
   formModalApi
     .setData({
-      mainId: checkedIds.value[0],
+      mainId: selectedMainId.value,
       planType: 'SUB',
     })
     .open();
@@ -348,7 +372,7 @@ const handleMainPlanDetail = async (
 /** 查看子计划详情 */
 const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  detailModalApi.setData(res).open();
 };
 
 /** 编辑主计划申请 */
@@ -392,12 +416,12 @@ const adcancedQueryModalOpen = () => {
 
 <template>
   <Page auto-content-height>
-    <FormModal class="w-1/2" @success="handleRefresh" />
+    <FormModal class="w-3/5" @success="handleRefresh" />
     <FormModal2 class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal />
+    <DetailModal class="w-3/5" />
     <DetailModal2 />
     <LogQueryModal />
     <!-- 主计划列表 -->

@@ -2,6 +2,14 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
+export interface LogQueryParams extends PageParam {
+  mainPlanNo?: string; // 主计划号
+  owner?: string; // 持箱人
+  iso?: string; // ISO
+  yardBay?: string; // 箱区
+  createTime?: [string, string]; // 创建时间范围
+}
+
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
   export interface mainPlanVO {
@@ -25,7 +33,7 @@ export namespace EmptyContainerControlApi {
   }
   // 子计划VO
   export interface subPlanVO {
-    id: number;
+    id: null | number;
     ownerList: Array<string>;
     isoNoList: Array<string>;
     isRelease: boolean;
@@ -33,16 +41,44 @@ export namespace EmptyContainerControlApi {
     tradeType: string;
     planQuantity: string;
     completedReleaseQuantity: string;
-    bayRangeList: {
-      emptyContainerControlId: number | string;
-      id: number | string;
+    bayRangeList: Array<{
+      emptyContainerControlId: null | string;
+      id: null | number;
       yardBay: string;
       yardRaw: string;
-    };
+    }>;
     planType: string;
     mainId: string;
     planNo: string;
   }
+
+  export interface mainLogVO {
+    id: string;
+    operationType: string;
+    operationTimestamp: number;
+    operator: number;
+    mainId: number;
+    mainPlanNo: string;
+    mainPlanStatus: string;
+    mainIsRelease: boolean;
+    mainPickupPlanNo: string;
+    mainTradeType: string;
+    mainPlanQuantity: string;
+    createTime: string;
+    owner: string;
+    iso: string;
+    yardBay: string;
+    mainGateAvailableQuantity: string;
+  }
+
+  // export interface logQueryParams extends PageParam {
+  //   mainPlanNo?: string;
+  //   owner?: string;
+  //   iso?: string;
+  //   yardBay?: string;
+  //   createTime?: [string, string];
+  // }
+
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
     id: number;
@@ -89,14 +125,6 @@ export namespace EmptyContainerControlApi {
     acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
     acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
-  }
-
-  // 总数据
-  export interface SubPlanSaveReqVO {
-    acceptancePlanSaveReqVO: subPlanVO;
-    // acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
-    // acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
-    // acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
 
@@ -168,12 +196,14 @@ export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {
 
 export const deleteSubPlan = (id: number) => {
   return requestClient.delete(
-    `/bpp/flow/empty/container-control-main/delete?id=${id}`,
+    `/bpp/flow/empty/container-control-main/sub/delete?id=${id}`,
   );
 };
 
-export const getLogQueryData = (params: PageParam) => {
-  return requestClient.get<
-    PageResult<EmptyContainerControlApi.SubPlanSaveReqVO>
-  >('/bpp/flow/sub-plan/log-query', { params });
+// 日志分页查询
+export const getLogQueryPage = (params: LogQueryParams) => {
+  return requestClient.get<PageResult<EmptyContainerControlApi.mainLogVO>>(
+    '/bpp/flow/empty/container-control-main-log/page',
+    { params },
+  );
 };

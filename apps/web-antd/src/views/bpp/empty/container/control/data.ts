@@ -28,6 +28,7 @@ loadDictData([
   'empty_container_control_main_status',
   'empty_container_control_sub_status',
   'trade_type',
+  'empty_container_control_main_operation_type',
 ]);
 
 // 定义受理状态选项配置
@@ -185,6 +186,100 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
 }
 
 export function subPlanFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'planNo',
+      label: '子计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '系统自动生成',
+        allowClear: true,
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'isRelease',
+      label: '是否放箱',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是（Y）', value: true },
+          { label: '否（N）', value: false },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'pickupPlanNo',
+      label: '提箱受理计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入提箱受理计划号',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'dischargeVesselSchedule',
+      label: '卸船船期',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入卸船船期',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'owners',
+      label: '持箱人',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入持箱人，可多条',
+        allowClear: true,
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'tradeType',
+      label: '贸易类型',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '内贸', value: 'DOMESTIC' },
+          { label: '外贸', value: 'FOREIGN' },
+        ],
+      },
+    },
+    {
+      fieldName: 'isoNos',
+      label: 'ISO',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入ISO，可多条',
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'containerAreaRange',
+      label: '箱区范围',
+      component: 'Input',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
+      },
+      formItemClass: 'col-span-2',
+    },
+    {
+      fieldName: 'planQuantity',
+      label: '计划箱量',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入计划箱量',
+        allowClear: true,
+      },
+    },
+  ];
+}
+export function subPlanDetailSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'planNo',
@@ -652,25 +747,6 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
   ];
 }
 
-/** 子计划详情字段 */
-// export function subPlanDetailSchema(): DescriptionItemSchema[] {
-//   return [
-//     // 基础信息
-//     { field: 'acceptancePlanNo', label: '子计划号' },
-//     { field: 'applicantCompanyName', label: '申请公司名称' },
-//     { field: 'handlingPerson', label: '经办人' },
-//     { field: 'handlingPhoneNumber', label: '经办人联系电话' },
-//     { field: 'paymentTypeSea', label: '缴费方式（海侧）' },
-//     { field: 'payerCodeSea', label: '缴费方（海侧）' },
-//     { field: 'paymentTypeGate', label: '缴费方式（陆侧）' },
-//     { field: 'payerCodeGate', label: '缴费方（陆侧）' },
-//     { field: 'category', label: '进出口类别' },
-//     { field: 'vesselName', label: '作业船名（中文名称）' },
-//     { field: 'vesselVoyage', label: '作业航次' },
-//     { field: 'plannedOperationTime', label: '预计作业时间' },
-//   ]
-// }
-
 /** 日志查询表单 */
 export function logQueryFormSchema(): VbenFormSchema[] {
   return [
@@ -684,7 +760,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'owner',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -693,7 +769,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'iso',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -702,7 +778,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerArea',
+      fieldName: 'yardBay',
       label: '箱区',
       component: 'Input',
       componentProps: {
@@ -737,114 +813,74 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'isRelease',
+      field: 'mainIsRelease',
       title: '是否放箱(Y/N)',
       minWidth: 120,
+      cellRender: {
+        name: 'CellTagDict',
+        options: [
+          { value: true, label: '是' },
+          { value: false, label: '否' },
+        ],
+      },
     },
     {
-      field: 'acceptancePlanNo',
+      field: 'mainPickupPlanNo',
       title: '提箱受理计划号',
       minWidth: 150,
     },
     {
-      field: 'owners',
+      field: 'owner',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'tradeType',
+      field: 'mainTradeType',
       title: '贸易类型',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions('trade_type'),
+      },
     },
     {
-      field: 'isoNos',
+      field: 'iso',
       title: 'ISO',
       minWidth: 100,
     },
     {
-      field: 'bayRanges',
+      field: 'yardBay',
       title: '箱区范围',
       minWidth: 120,
     },
     {
-      field: 'mainGateReleaseQty',
+      field: 'mainGateAvailableQuantity',
       title: '主闸可放箱量',
       minWidth: 120,
     },
     {
-      field: 'modifier',
+      field: 'operator',
       title: '修改人',
       minWidth: 100,
     },
     {
-      field: 'modifyTime',
+      field: 'operationTimestamp',
       title: '修改时间',
       minWidth: 150,
     },
     {
-      field: 'modifyType',
+      field: 'operationType',
       title: '修改类型',
       minWidth: 100,
+      cellRender: {
+        name: 'CellTagDict',
+        options: getPlanStatusOptions(
+          'empty_container_control_main_operation_type',
+        ),
+      },
     },
   ];
 }
-
-export const STATIC_SUB_PLAN_LIST_DATA = [
-  {
-    id: 1,
-    planNo: 'SP20230001',
-    planStatus: '已提交',
-    isRelease: true,
-    pickupPlanNo: 'TXSLJH2023001',
-    dischargeVesselSchedule: '2023-12-01',
-    tradeType: 'FOREIGN',
-    owners: '持箱人A',
-    isoNos: 'ISO001',
-    bayRanges: 'A01-B02',
-    planQuantity: '100',
-    mainGateReleaseQuantity: '80',
-    completedReleaseQuantity: '60',
-    uncompletedReleaseQuantity: '40',
-    activeOccupiedQuantity: '20',
-    creator: '管理员',
-    createTime: '2023-11-01 10:00:00',
-    updater: '修改人A',
-    updateTime: '2023-11-01 15:00:00',
-  },
-  {
-    id: 2,
-    planNo: 'SP20230002',
-    planStatus: '审核中',
-    isRelease: false,
-    pickupPlanNo: 'TXSLJH2023002',
-    dischargeVesselSchedule: '2023-12-02',
-    tradeType: 'DOMESTIC',
-    owners: '持箱人B',
-    isoNos: 'ISO002',
-    bayRanges: 'C01-D02',
-    planQuantity: '200',
-    mainGateReleaseQuantity: '150',
-    completedReleaseQuantity: '100',
-    uncompletedReleaseQuantity: '50',
-    activeOccupiedQuantity: '30',
-    creator: '操作员',
-    createTime: '2023-11-02 10:00:00',
-    updater: '修改人B',
-    updateTime: '2023-11-02 15:00:00',
-  },
-];
-
-export const STATIC_SUB_PLAN_DETAIL_DATA = {
-  id: 61,
-  planNo: 'SP20230001',
-  isRelease: true,
-  pickupPlanNo: '测试经办人',
-  dischargeVesselSchedule: '13800138000',
-  owners: '在线支付',
-  tradeType: 'DOMESTIC',
-  isoNos: 'ISO003',
-  planQuantity: '200',
-};
 
 export const STATIC_MASTER_PLAN_QUERY_DATA = [
   {

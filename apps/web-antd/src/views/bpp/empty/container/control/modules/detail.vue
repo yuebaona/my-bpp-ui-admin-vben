@@ -4,24 +4,21 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Button, message, Select } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { createSubPlan, updateSubPlan } from '#/api/bpp/empty/container/control';
-import { $t } from '#/locales';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
-import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
-import ContainerArea from './containerArea.vue';
+import { containerAreaRangeColumns, subPlanDetailSchema } from '../data';
 
-const emit = defineEmits(['success']);
+// const emit = defineEmits(['success']);
 // const fileList = ref<UploadProps['fileList']>([]);
 
-const containerAreaModalVisible = ref(false);
+// const containerAreaModalVisible = ref(false);
 
 const containerAreaData = reactive<any[]>([
   {
@@ -67,63 +64,42 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
-  // bayRangeList: {
-  //   emptyContainerControlId: 0,
-  //   id: 0,
-  //   yardBay: '',
-  //   yardRaw: '',
-  // },
-  bayRangeList: [],
+  bayRangeList: {
+    emptyContainerControlId: 0,
+    id: 0,
+    yardBay: '',
+    yardRaw: '',
+  },
+  // bayRangeList: [],
   planType: '',
   mainId: '',
   planNo: '',
 });
 
-// const acceptancePlanOverOperationRespVO =
-//   reactive<EmptyContainerControlApi.AcceptancePlanOverOperationVO>({
-//     id: 0,
-//     isAllowedStacking: false,
-//     plannedMachineryType: '',
-//     plannedSpreaderType: '',
-//     acceptancePlanNo: '',
-//     processInstanceId: '',
-//   });
+// const selectContainerArea = () => {
+//   containerAreaModalVisible.value = true;
+// };
 //
-// const acceptancePlanBillMessageVO =
-//   reactive<EmptyContainerControlApi.AcceptancePlanBillMessageVO>({
-//     id: 0,
-//     acceptancePlanNo: '',
-//     billNo: '',
-//     cargoType: '',
-//     cargoName: '',
-//     cargoCount: 0,
-//     billType: '',
-//   });
-
-const selectContainerArea = () => {
-  containerAreaModalVisible.value = true;
-};
-
-const handleContainerAreaConfirm = (positions: string[]) => {
-  const $grid = gridApi.grid;
-  if ($grid) {
-    // 清空现有数据
-    containerAreaData.splice(0);
-
-    // 添加新选择的数据
-    const newRows = positions.map((pos, index) => ({
-      id: `row_${Date.now()}_${index}`,
-      yardPosition: `${pos}-01`, // 假设默认层号为01
-      yardColumns: [],
-      totalCount: '',
-      minStorageDays: '',
-      maxStorageDays: '',
-    }));
-
-    containerAreaData.push(...newRows);
-    $grid.reloadData(containerAreaData);
-  }
-};
+// const handleContainerAreaConfirm = (positions: string[]) => {
+//   const $grid = gridApi.grid;
+//   if ($grid) {
+//     // 清空现有数据
+//     containerAreaData.splice(0);
+//
+//     // 添加新选择的数据
+//     const newRows = positions.map((pos, index) => ({
+//       id: `row_${Date.now()}_${index}`,
+//       yardPosition: `${pos}-01`, // 假设默认层号为01
+//       yardColumns: [],
+//       totalCount: '',
+//       minStorageDays: '',
+//       maxStorageDays: '',
+//     }));
+//
+//     containerAreaData.push(...newRows);
+//     $grid.reloadData(containerAreaData);
+//   }
+// };
 
 // 删除行方法
 const deleteRow = async (row: any) => {
@@ -140,7 +116,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: subPlanFormSchema(),
+  schema: subPlanDetailSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values) => {
@@ -184,65 +160,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 const [Modal, modalApi] = useVbenModal({
-  async onConfirm() {
-    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-    //   (record) => toRaw(record),
-    // );
-
-    // if (containerAreaArray.length === 0) {
-    //   message.warning('请至少添加一条箱区范围数据');
-    //   return;
-    // }
-
-    const { valid } = await formApi.validate();
-    const gridValid: boolean = await gridApi.grid.validate(true);
-
-    if (!valid || gridValid) {
-      return;
-    }
-
-    // Object.assign(formData, await formApi.getValues());
-    const formValues = await formApi.getValues();
-    Object.assign(formData, formValues);
-    // 确保planType和mainId被正确设置
-    if (!formData.planType) {
-      formData.planType = 'SUB';
-    }
-    // 转换持箱人字符串为数组
-    const ownerList = formValues.owners
-      ? formValues.owners.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
-      : [];
-
-    // 转换ISO字符串为数组
-    const isoNoList = formValues.isoNos
-      ? formValues.isoNos.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
-      : [];
-
-    // 转换表格数据为bayRangeList格式
-    const bayRangeList = containerAreaData.map((row: any) => ({
-      emptyContainerControlId: '',
-      id: '',
-      yardBay: row.yardPosition || '',
-      yardRaw: row.yardColumns ? row.yardColumns.join(',') : ''
-    }));
-
-    // 构建符合新接口格式的数据
-    const data: EmptyContainerControlApi.subPlanVO  = {
-        ...formData,
-        // 确保数组字段正确处理
-        // ownerList: formData.ownerList || [],
-        // isoNoList: formData.isoNoList || [],
-      ownerList,
-      isoNoList,
-
-    } as EmptyContainerControlApi.subPlanVO;
-
-    await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
-
-    await modalApi.close();
-    emit('success');
-    message.success($t('ui.actionMessage.operationSuccess'));
-  },
+  showConfirmButton: false,
+  showCancelButton: false,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
       Object.assign(formData, {
@@ -316,9 +235,7 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 const modalTitle = computed(() => {
-  return formData.id
-    ? $t('ui.actionTitle.edit', ['子计划'])
-    : $t('ui.actionTitle.create', ['子计划']);
+  return '子计划详情';
 });
 </script>
 
@@ -329,10 +246,10 @@ const modalTitle = computed(() => {
       <template #containerAreaRange>
         <div class="mt-4 w-full">
           <div class="mb-2 flex items-center gap-2">
-            <span class="font-medium">箱区范围</span>
-            <Button type="primary" @click="selectContainerArea">
-              选择箱区范围
-            </Button>
+            <!--            <span class="font-medium">箱区范围</span>-->
+            <!--            <Button type="primary" @click="selectContainerArea">-->
+            <!--              选择箱区范围-->
+            <!--            </Button>-->
           </div>
           <div class="table-container">
             <Grid>
@@ -359,27 +276,27 @@ const modalTitle = computed(() => {
                   :show-search="false"
                 />
               </template>
-              <template #actions="{ row }">
-                <TableAction
-                  :actions="[
-                    {
-                      label: '删除',
-                      type: 'link',
-                      danger: true,
-                      onClick: () => deleteRow(row),
-                    },
-                  ]"
-                />
-              </template>
+              <!--              <template #actions="{ row }">-->
+              <!--                <TableAction-->
+              <!--                  :actions="[-->
+              <!--                    {-->
+              <!--                      label: '删除',-->
+              <!--                      type: 'link',-->
+              <!--                      danger: true,-->
+              <!--                      onClick: () => deleteRow(row),-->
+              <!--                    },-->
+              <!--                  ]"-->
+              <!--                />-->
+              <!--              </template>-->
             </Grid>
           </div>
         </div>
       </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerArea
-      v-model:visible="containerAreaModalVisible"
-      @confirm="handleContainerAreaConfirm"
-    />
+    <!--    <ContainerArea-->
+    <!--      v-model:visible="containerAreaModalVisible"-->
+    <!--      @confirm="handleContainerAreaConfirm"-->
+    <!--    />-->
   </Modal>
 </template>
