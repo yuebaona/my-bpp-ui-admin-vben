@@ -111,18 +111,18 @@ export function boxInfoColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '集装箱号',
-      minWidth: 120,
+      minWidth: 80,
       fixed: 'left',
     },
     {
       field: 'planStatus',
       title: '船名航次',
-      minWidth: 100,
+      minWidth: 80,
     },
     {
       field: 'isRelease',
       title: '提单号',
-      minWidth: 150,
+      minWidth: 80,
       cellRender: {
         name: 'CellTagDict',
         options: [
@@ -134,22 +134,22 @@ export function boxInfoColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'pickupPlanNo',
       title: '铅封号',
-      minWidth: 120,
+      minWidth: 80,
     },
     {
       field: 'pickupPlanNo',
       title: '持箱人',
-      minWidth: 120,
+      minWidth: 50,
     },
     {
       field: 'owners',
       title: '箱流向',
-      minWidth: 120,
+      minWidth: 80,
     },
     {
       field: 'tradeType',
       title: '状态',
-      minWidth: 100,
+      minWidth: 50,
     },
   ];
 }

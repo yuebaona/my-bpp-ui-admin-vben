@@ -1,32 +1,51 @@
 <script setup lang="ts">
-import { useVbenForm } from '#/adapter/form';
-import { businessTypeInfoFormSchema } from '#/views/bpp/changeorder/current/history/container/data';
 import BoxInfo from '#/views/bpp/changeorder/current/history/container/modules/boxInfo.vue';
 import boxList from '#/views/bpp/changeorder/current/history/container/modules/boxList.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPlanInfo.vue';
+import HeaderInfo from "#/views/bpp/changeorder/current/history/container/modules/headerInfo.vue";
+import {Affix} from "ant-design-vue";
+import {onActivated, ref} from "vue";
 
-const [Form, formApi] = useVbenForm({
-  commonConfig: {
-    componentProps: { class: 'w-1/2' },
-    labelWidth: 150,
-  },
-  scrollToFirstError: true,
-  layout: 'horizontal',
-  showDefaultActions: false,
-  wrapperClass: 'grid-cols-1 md:grid-cols-2',
-  schema: businessTypeInfoFormSchema(),
+const affix = ref(0);
+// 模拟父组件传递的参数
+const businessTypes = ref([
+  { label: '受理计划修改', value: 'acceptance_plan_modify' },
+  { label: '未回场箱信息修改', value: '2' },
+  { label: '在场中转箱修改为进口箱', value: '3' },
+]);
+const selectedBusinessType = ref('3');
+const originalAcceptancePlanNo = ref('');
+
+const buttonDisplay = ref({
+  deleteOriginalPlan: true,
+  deleteModifyPlan: true,
+  saveDraft: true,
+  submitAudit: true,
+  executeModify: true,
+  executeModifyTos: false,
+});
+onActivated(() => {
+  // 强制更新Affix组件，使组件重新渲染
+  affix.value++;
 });
 </script>
 
 <template>
-  <div class="mb-2 w-3/4">
-    <Form />
-  </div>
   <Page auto-content-height>
-    <div class="w-screen">
-      <div class="mb-2 flex">
-        <div class="flex w-1/2 flex-col">
+    <Affix :offset-top="89" :key="affix">
+      <HeaderInfo
+        :business-types="businessTypes"
+        :selected-business-type="selectedBusinessType"
+        status-text="待提交"
+        :original-acceptance-plan-no="originalAcceptancePlanNo"
+        original-acceptance-plan-type="提空返重"
+        :button-display="buttonDisplay"
+      />
+    </Affix>
+    <div class="w-screen mb-2">
+      <div class="mb-2 mt-2 flex">
+        <div class="flex w-3/5 flex-col">
           <div>
             <ChangeOrderPlanInfo />
           </div>
@@ -35,7 +54,7 @@ const [Form, formApi] = useVbenForm({
           </div>
         </div>
         <!-- 箱信息 -->
-        <div class="ml-2 w-1/2">
+        <div class="ml-2 w-full">
           <BoxInfo />
         </div>
       </div>

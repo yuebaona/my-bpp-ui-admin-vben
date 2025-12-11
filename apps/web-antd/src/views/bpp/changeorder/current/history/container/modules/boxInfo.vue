@@ -8,18 +8,16 @@ import {
   boxInfoColumns,
   boxInfoSearchFormSchema,
 } from '#/views/bpp/changeorder/current/history/container/data';
+import {ACTION_ICON, TableAction} from "#/components/table-action";
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: boxInfoSearchFormSchema(),
-    submitButtonOptions: {
-      content: '查询',
-    },
     wrapperClass: 'grid-cols-1 md:grid-cols-2',
   },
   gridOptions: {
     columns: boxInfoColumns(),
-    height: '300px',
+    height: '385px',
     keepSource: false,
     rowConfig: {
       keyField: 'id',
@@ -43,10 +41,27 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {},
   },
 });
+
+// const checkedIds = ref<number[]>([]);
+function handleAddToEdit() {}
 </script>
 
 <template>
-  <Card title="箱信息列表">
-    <Grid />
+  <Card title="箱信息列表" class="w-4/5">
+    <Grid>
+      <template #toolbar-tools>
+        <TableAction
+          :actions="[
+                {
+                  label: '加入修改',
+                  type: 'primary',
+                  icon: ACTION_ICON.ADD,
+                  auth: ['system:user:create'],
+                  onClick: handleAddToEdit,
+                },
+          ]"
+        />
+      </template>
+    </Grid>
   </Card>
 </template>
