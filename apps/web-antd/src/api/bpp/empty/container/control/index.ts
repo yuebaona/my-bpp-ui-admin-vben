@@ -149,8 +149,8 @@ export const getMainPlan = (id: number) => {
   );
 };
 
-// 主计划信息分页查询
-export const getMainPlanPage = (data: EmptyContainerControlApi.mainPlanVO) => {
+// 主计划分页查询
+export const getMainPlanPage = (data: any) => {
   return requestClient.post(
     '/bpp/flow/empty/container-control-main/page',
     data,

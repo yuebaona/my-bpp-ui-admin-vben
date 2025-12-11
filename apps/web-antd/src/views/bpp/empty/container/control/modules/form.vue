@@ -19,14 +19,47 @@ import {
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
-import ContainerAreaModal from './containerArea.vue';
+import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
 // const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
 
-const containerAreaData = reactive<any[]>([]);
+const containerAreaData = reactive<any[]>([
+  {
+    id: 'row_1',
+    yardPosition: 'A01-01-01',
+    yardColumns: ['A', 'B'],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+  {
+    id: 'row_2',
+    yardPosition: 'A02-01-01',
+    yardColumns: [],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+  {
+    id: 'row_3',
+    yardPosition: 'B01-01-01',
+    yardColumns: ['A', 'B', 'H'],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+  {
+    id: 'row_4',
+    yardPosition: 'B02-01-01',
+    yardColumns: [],
+    totalCount: '',
+    minStorageDays: '',
+    maxStorageDays: '',
+  },
+]);
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: null,
@@ -124,6 +157,22 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
+    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
+    //   (record) => toRaw(record),
+    // );
+
+    // if (containerAreaArray.length === 0) {
+    //   message.warning('请至少添加一条箱区范围数据');
+    //   return;
+    // }
+
+    const { valid } = await formApi.validate();
+    const gridValid: boolean = await gridApi.grid.validate(true);
+
+    if (!valid || gridValid) {
+      return;
+    }
+
     // Object.assign(formData, await formApi.getValues());
     const formValues = await formApi.getValues();
     Object.assign(formData, formValues);
@@ -327,7 +376,7 @@ const modalTitle = computed(() => {
       </template>
     </Form>
     <!-- 添加箱区选择弹窗组件 -->
-    <ContainerAreaModal
+    <ContainerArea
       v-model:visible="containerAreaModalVisible"
       @confirm="handleContainerAreaConfirm"
     />

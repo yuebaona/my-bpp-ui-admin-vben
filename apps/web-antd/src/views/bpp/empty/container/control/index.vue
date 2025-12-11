@@ -276,7 +276,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      search: true,
+      search: false,
       custom: true,
       export: true,
       // import: true,
@@ -310,14 +310,15 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-// function handleRowCheckboxChange2({
-//   records,
-// }: {
-//   records: EmptyContainerControlApi.mainPlanVO[];
-// }) {
-//   checkedIds.value = records.map((item) => item.id);
-//   MainPlanNo.value = records.map((item) => item.MainPlanNo);
-// }
+
+function handleRowCheckboxChange2({
+  records,
+}: {
+  records: EmptyContainerControlApi.mainPlanVO[];
+}) {
+  checkedIds.value = records.map((item) => item.id);
+  MainPlanNo.value = records.map((item) => item.MainPlanNo);
+}
 
 // 高级查询处理函数
 /** 刷新表格 */
@@ -348,9 +349,8 @@ function handleCreateSubPlan() {
 }
 
 /** 导出数据 */
-// function handleExport() {
-//   message.info('导出功能');
-// }
+function handleMainExport() {
+}
 
 function handleSubExport() {
   message.info('导出功能');
@@ -443,7 +443,7 @@ const adcancedQueryModalOpen = () => {
               {
                 label: '强制完成',
                 type: 'primary',
-                icon: ACTION_ICON.CLOSE,
+                icon: ACTION_ICON.AUDIT,
                 onClick: handleForceComplete,
               },
               {
