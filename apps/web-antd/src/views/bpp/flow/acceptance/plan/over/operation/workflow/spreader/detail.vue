@@ -1,15 +1,16 @@
 <script lang="ts" setup>
-import {onMounted, reactive, ref, watch} from 'vue';
-import {Button, Card, Descriptions, Flex, message, Space,ImagePreviewGroup,Image} from 'ant-design-vue';
-import {useAuthStore} from "#/store";
+import { onMounted, reactive, ref, watch } from 'vue';
+import { Button, Card, Descriptions, Flex, message, Space,ImagePreviewGroup,Image } from 'ant-design-vue';
+import { useAuthStore } from "#/store";
 import {
   getMachineSpreaderRecord,
   machineSpreaderRecordUpdateProcess,
 } from "#/api/bpp/flow/acceptance/plan/over/operation";
-import {approveTask, rejectTask, transferTask} from "#/api/bpm/task";
-import {getSimpleUserList} from "#/api/system/user";
-import {confirm} from '@vben/common-ui';
+import { approveTask, rejectTask, transferTask } from "#/api/bpm/task";
+import { getSimpleUserList } from "#/api/system/user";
+import { confirm } from '@vben/common-ui';
 import dayjs from "dayjs";
+import {router} from "#/router";
 
 const emit = defineEmits(['close-form']);
 const authStore = useAuthStore();
@@ -17,31 +18,46 @@ const authStore = useAuthStore();
  * 参数
  */
 const props = defineProps({
-  businessKey: String,
+  formPagePath: {
+    type: String,
+  },
+  businessKey: {
+    type: String,
+  },
   // 业务单据ID
   id: {
     type: String,
     default: '1',
   },
   // 流程状态
-  status: Number,
+  status: {
+    type: String,
+  },
   // 当前任务对象
-  todoTask: Object,
+  todoTask: {
+    type: Object,
+  },
   // 流程节点信息
-  activityNodes: Object,
-  containerDataArray: Object,
-  processInstance: Object, // 流程实例信息
+  activityNodes: {
+    type: Object,
+  },
+  containerDataArray: {
+    type: Object,
+  },
+  // 流程实例信息
+  processInstance: {
+    type: Object,
+  },
 });
 const transferVisible = ref(false);
 const buttonLoading = ref(false);
-const openTask = ref(false);
 const formRef = ref(null);
 const machineSpreaderRecord = ref(null);
 const transferFormRef = ref(null);
 const transferFormData = ref({
   assigneeUserId: undefined,
   auditOpinion: undefined,
-})
+});
 // 超限受理集装箱表信息
 const containerFormData = ref({
   auditOpinion: undefined,
@@ -53,9 +69,26 @@ const containerFormData = ref({
     quotePrice: undefined,
   }]
 });
+// 获取待办任务,刷新菜单
+async function reGetTaskTodoPage(){
+  // 获取待办任务
+  const taskTodo = await getTaskTodoPage({
+    pageNo: 1,
+    pageSize: 100,
+  });
+  if (taskTodo) {
+    const globalTaskStore = useGlobalTaskStore();
+    globalTaskStore.setTaskTodoTotal(taskTodo.total);
+  }
+}
 
-function closeTask() {
-  emit('close-form');
+// 关闭窗口
+async function closeTask() {
+  await reGetTaskTodoPage();
+  // 返回待办列表
+  router.push({
+    path: props.formPagePath,
+  });
 }
 
 function cancelTask() {
@@ -105,7 +138,7 @@ async function passTask() {
   }
 }
 
-//拒绝
+// 拒绝
 function noPassTask() {
   if (!containerFormData.value.auditOpinion) {
     message.error('请填写审批意见！');
@@ -243,7 +276,8 @@ onMounted(async () => {
       <Descriptions.Item label="现场图片">
         <Flex>
           <ImagePreviewGroup>
-            <Image v-for="(item,index) in machineSpreaderRecord?.operationFile?JSON.parse(machineSpreaderRecord?.operationFile):[]"
+            <Image
+              v-for="(item,index) in machineSpreaderRecord?.operationFile?JSON.parse(machineSpreaderRecord?.operationFile):[]"
                    :width="80"
                    :height="80"
                    :key="item"3
