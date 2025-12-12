@@ -76,13 +76,11 @@ export namespace EmptyContainerControlApi {
     ownerList: Array<string>;
     tradeType: string;
   }
-  // export interface logQueryParams extends PageParam {
-  //   mainPlanNo?: string;
-  //   owner?: string;
-  //   iso?: string;
-  //   yardBay?: string;
-  //   createTime?: [string, string];
-  // }
+
+  export interface YardRangeResponse {
+    yard: string;
+    yardBayList: string[];
+  }
 
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -218,5 +216,5 @@ export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
   return requestClient.post(
     '/bpp/flow/empty/container-control-main/bay/list',
     data,
-  )
-}
+  );
+};
