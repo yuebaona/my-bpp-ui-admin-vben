@@ -44,6 +44,7 @@ const routes: RouteRecordRaw[] = [
             id: route.query.id,
             taskId: route.query.taskId,
             activityId: route.query.activityId,
+            ...route.query, // 扩展所有query参数
           };
         },
       },
