@@ -12,6 +12,7 @@ import { getTaskTodoPage } from '#/api/bpm/task';
 
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
+import { useGlobalTaskStore } from '#/store/globalTaskStore';
 
 import {
   getAuthPermissionInfoApi,
@@ -147,7 +148,8 @@ export const useAuthStore = defineStore('auth', () => {
       pageSize: 100,
     });
     if (taskTodo) {
-      localStorage.setItem('taskTodoTotal', String(taskTodo.total));
+      const globalTaskStore = useGlobalTaskStore();
+      globalTaskStore.setTaskTodoTotal(taskTodo.total);
     }
     return authPermissionInfo;
   }

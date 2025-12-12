@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { MenuRecordRaw } from '@vben-core/typings';
 
-import {computed, onMounted,ref} from 'vue';
+import {computed, onMounted,ref,watch } from 'vue';
 import { MenuBadge, MenuItem, SubMenu as SubMenuComp } from './components';
 // eslint-disable-next-line import/no-self-import
 import SubMenu from './sub-menu.vue';
+import { useGlobalTaskStore } from '../../../../../apps/web-antd/src/store/globalTaskStore.ts';
 
 interface Props {
   /**
@@ -27,10 +28,8 @@ const hasChildren = computed(() => {
     Reflect.has(menu, 'children') && !!menu.children && menu.children.length > 0
   );
 });
-const taskTodoTotal = ref<number>(0);
-onMounted(() => {
-  taskTodoTotal.value = Number(localStorage.getItem('taskTodoTotal'));
-});
+// 待办任务统计
+const globalTaskStore = useGlobalTaskStore();
 </script>
 
 <template>
@@ -47,7 +46,7 @@ onMounted(() => {
     <template #title>
       <span>{{ menu.name }}</span>
       <div style="margin-top: -20px" v-if="menu.name === '待办任务'">
-        <a-badge :count="taskTodoTotal" :overflow-count="99" />
+        <a-badge :count="globalTaskStore.taskTodoTotal" :overflow-count="99"/>
       </div>
     </template>
   </MenuItem>
@@ -71,7 +70,7 @@ onMounted(() => {
       <div
         style="margin-top: -3px; float: right; margin-left: 3px"
         v-if="
-          taskTodoTotal > 0 &&
+          globalTaskStore.taskTodoTotal > 0 &&
           (menu.name === '审批中心' || menu.name === '工作流程')
         "
       >
