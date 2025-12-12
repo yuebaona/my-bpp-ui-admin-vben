@@ -2,13 +2,7 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-export interface LogQueryParams extends PageParam {
-  mainPlanNo?: string; // 主计划号
-  owner?: string; // 持箱人
-  iso?: string; // ISO
-  yardBay?: string; // 箱区
-  createTime?: [string, string]; // 创建时间范围
-}
+
 
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
@@ -21,12 +15,12 @@ export namespace EmptyContainerControlApi {
     tradeType: string;
     planQuantity: string;
     completedReleaseQuantity: string;
-    bayRangeList: {
+    bayRangeList: Array<{
       emptyContainerControlId: number | string;
       id: number | string;
       yardBay: string;
       yardRaw: string;
-    };
+    }>;
     planType: string;
     mainId: string;
     planNo: string;
@@ -130,7 +124,13 @@ export namespace EmptyContainerControlApi {
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
-
+export interface LogQueryParams extends PageParam {
+  mainPlanNo?: string; // 主计划号
+  owner?: string; // 持箱人
+  iso?: string; // ISO
+  yardBay?: string; // 箱区
+  createTime?: [string, string]; // 创建时间范围
+}
 // 创建主计划信息
 export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.post(
