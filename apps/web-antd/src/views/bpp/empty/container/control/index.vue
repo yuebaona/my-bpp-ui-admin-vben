@@ -16,6 +16,7 @@ import {
   getMainPlanPage,
   getSubPlan,
   getSubPlanPage,
+
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -90,11 +91,15 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
             transformedParams.planType = 'SUB';
             transformedParams.mainId = selectedMainId.value;
           }
-          return await getSubPlanPage({
+          const result = await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...transformedParams,
           });
+          if (result.list) {
+            result.list = result.list.reverse();
+          }
+          return result;
         },
       },
     },
@@ -294,11 +299,15 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           const transformedParams = transformFormToRequest(formValues);
-          return await getMainPlanPage({
+          const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...transformedParams,
           });
+          if (result.list) {
+            result.list = result.list.reverse();
+          }
+          return result;
         },
       },
     },
@@ -324,6 +333,7 @@ function handleRowCheckboxChange2({
 /** 刷新表格 */
 function handleRefresh() {
   gridApi2.query();
+  subGridApi.query();
 }
 
 /** 创建主计划新申请 */

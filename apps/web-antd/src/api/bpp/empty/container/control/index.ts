@@ -33,7 +33,7 @@ export namespace EmptyContainerControlApi {
   }
   // 子计划VO
   export interface subPlanVO {
-    id: null | number;
+    id: number;
     ownerList: Array<string>;
     isoNoList: Array<string>;
     isRelease: boolean;
@@ -71,6 +71,11 @@ export namespace EmptyContainerControlApi {
     mainGateAvailableQuantity: string;
   }
 
+  export interface yardRangeVO {
+    isoNoList: Array<string>;
+    ownerList: Array<string>;
+    tradeType: string;
+  }
   // export interface logQueryParams extends PageParam {
   //   mainPlanNo?: string;
   //   owner?: string;
@@ -207,3 +212,11 @@ export const getLogQueryPage = (params: LogQueryParams) => {
     { params },
   );
 };
+
+// 获取箱区范围
+export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/bay/list',
+    data,
+  )
+}

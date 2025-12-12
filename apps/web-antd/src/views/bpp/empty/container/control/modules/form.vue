@@ -15,6 +15,7 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createSubPlan,
   updateSubPlan,
+  getYardRange,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
@@ -25,6 +26,12 @@ const emit = defineEmits(['success']);
 // const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
+
+const containerAreaParams = reactive({
+  ownerList: [],
+  isoNoList: [],
+  tradeType: '',
+});
 
 const containerAreaData = reactive<any[]>([
   {
@@ -76,7 +83,31 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   planNo: '',
 });
 
-const selectContainerArea = () => {
+const selectContainerArea = async () => {
+  // 获取表单值
+  const formValues = await formApi.getValues();
+
+  // 处理持箱人列表
+  const ownerList = formValues.owners
+    ? formValues.owners
+      .split(/[,，]/)
+      .map((item: string) => item.trim())
+      .filter(Boolean)
+    : [];
+
+  // 处理ISO列表
+  const isoNoList = formValues.isoNos
+    ? formValues.isoNos
+      .split(/[,，]/)
+      .map((item: string) => item.trim())
+      .filter(Boolean)
+    : [];
+
+  // 更新参数
+  containerAreaParams.ownerList = ownerList;
+  containerAreaParams.isoNoList = isoNoList;
+  containerAreaParams.tradeType = formValues.tradeType || '';
+
   containerAreaModalVisible.value = true;
 };
 
@@ -378,6 +409,9 @@ const modalTitle = computed(() => {
     <!-- 添加箱区选择弹窗组件 -->
     <ContainerArea
       v-model:visible="containerAreaModalVisible"
+      :owner-list="containerAreaParams.ownerList"
+      :iso-no-list="containerAreaParams.isoNoList"
+      :trade-type="containerAreaParams.tradeType"
       @confirm="handleContainerAreaConfirm"
     />
   </Modal>
