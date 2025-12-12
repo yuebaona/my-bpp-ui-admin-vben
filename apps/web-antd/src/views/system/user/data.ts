@@ -260,7 +260,7 @@ export function useImportFormSchema(): VbenFormSchema[] {
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'username',
+      fieldName: 'nickname',
       label: '用户名称',
       component: 'Input',
       componentProps: {

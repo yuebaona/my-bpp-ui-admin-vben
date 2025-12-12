@@ -18,6 +18,7 @@ import {
   deleteUserList,
   exportUser,
   getUserPage,
+  syncDingUser,
   updateUserStatus,
 } from '#/api/system/user';
 import { $t } from '#/locales';
@@ -70,6 +71,22 @@ async function handleDeptSelect(dept: SystemDeptApi.Dept) {
 /** 创建用户 */
 function handleCreate() {
   formModalApi.setData(null).open();
+}
+
+/** 同步钉钉用户信息 */
+async function handleSyncDingUser() {
+  await confirm($t('tptc.dingTalk.sync.user'));
+  const hideLoading = message.loading({
+    content: $t('tptc.dingTalk.sync.doing'),
+    duration: 0,
+  });
+  try {
+    await syncDingUser();
+    message.success($t('tptc.dingTalk.sync.success'));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
 /** 导入用户 */
@@ -209,6 +226,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
           <template #toolbar-tools>
             <TableAction
               :actions="[
+                {
+                  label: $t('tptc.dingTalk.button.user'),
+                  type: 'primary',
+                  icon: ACTION_ICON.ADD,
+                  auth: ['ding:user:sync'],
+                  onClick: handleSyncDingUser,
+                },
                 {
                   label: $t('ui.actionTitle.create', ['用户']),
                   type: 'primary',

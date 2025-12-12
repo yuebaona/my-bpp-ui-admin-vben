@@ -1,0 +1,48 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    app: ui-admin-vben-dev
+  name: ui-admin-vben-dev
+  namespace: bgbpp-test  #一定要写名称空间
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ui-admin-vben-dev
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 50%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: ui-admin-vben-dev
+    spec:
+      volumes:
+        - name: volume-66k4wz
+          configMap:
+            name: admin-ui-nginx-conf
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+            defaultMode: 420
+      imagePullSecrets:
+        - name: own-harbor  #提前在项目下配置访问阿里云的账号密码
+      containers:
+        - image: 10.15.28.36/$DOCKERHUB_NAMESPACE/$IMAGE_NAME:SNAPSHOT-$BUILD_NUMBER
+          imagePullPolicy: Always
+          name: app
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: volume-66k4wz
+              readOnly: true
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

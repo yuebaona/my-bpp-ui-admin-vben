@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SystemDeptApi } from '#/api/system/dept';
+import {syncFromDing, type SystemDeptApi} from '#/api/system/dept';
 
 import { ref } from 'vue';
 
@@ -36,6 +36,22 @@ function handleRefresh() {
 /** 创建部门 */
 function handleCreate() {
   formModalApi.setData(null).open();
+}
+
+/** 同步部门 */
+async function handleSync() {
+  await confirm($t('tptc.dingTalk.sync.department'));
+  const hideLoading = message.loading({
+    content: $t('tptc.dingTalk.sync.doing'),
+    duration: 0,
+  });
+  try {
+    await syncFromDing();
+    message.success($t('tptc.dingTalk.sync.success'));
+    handleRefresh();
+  } finally {
+    hideLoading();
+  }
 }
 
 /** 添加下级部门 */
@@ -133,6 +149,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
       <template #toolbar-tools>
         <TableAction
           :actions="[
+            {
+              label: $t('tptc.dingTalk.sync.department'),
+              type: 'primary',
+              icon: ACTION_ICON.ADD,
+              auth: ['ding:dept:create'],
+              onClick: handleSync,
+            },
             {
               label: $t('ui.actionTitle.create', ['部门']),
               type: 'primary',

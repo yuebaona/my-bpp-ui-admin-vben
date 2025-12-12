@@ -2,9 +2,10 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref, watch, onActivated } from 'vue';
+import { onActivated, reactive, ref, watch } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
@@ -12,9 +13,9 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
-  cancelAcceptancePlanOverOperation,
   acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
+  cancelAcceptancePlanOverOperation,
   deleteMachineSpreaderRecord,
   getAcceptancePlanOverOperation,
   getAcceptancePlanOverOperationContainerPage,
@@ -29,13 +30,14 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
+
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-import { IconifyIcon } from '@vben/icons';
+
 interface OnSideOperation {
   overOperationContainerIds: string;
   initiationType: string;
@@ -97,13 +99,18 @@ function handleCreate() {
 }
 /** 撤销  */
 function handleRevoke() {
-  if(acceptancePlanNo.value.length === 0) {
+  if (acceptancePlanNo.value.length === 0) {
     message.error($t('cxmo.message.revokeMessage'));
     return;
   }
-  const invalidNodes = ['INITIALIZATION','REVIEWING','CONFIRMED','REJECTED'];
-  const hasInvalidNode = planStatusArr.value.some(node =>
-    invalidNodes.includes(node)
+  const invalidNodes = new Set([
+    'CONFIRMED',
+    'INITIALIZATION',
+    'REJECTED',
+    'REVIEWING',
+  ]);
+  const hasInvalidNode = planStatusArr.value.some((node) =>
+    invalidNodes.has(node),
   );
   if (!hasInvalidNode) {
     message.error($t('cxmo.message.revokeVerifyMessage'));
@@ -119,16 +126,14 @@ function handleRevoke() {
         duration: 0,
       });
       try {
-        await cancelAcceptancePlanOverOperation(
-          checkedIds.value,
-        );
+        await cancelAcceptancePlanOverOperation(checkedIds.value);
         message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
         hideLoading();
       }
     })
-    .catch(() => {})
+    .catch(() => {});
 }
 
 /** 办理任务 */
@@ -221,9 +226,9 @@ const handleOnSiteOperation = async () => {
         message.error($t('cxmo.message.boxMessage'));
         return;
       }
-      const invalidNodes = ['INITIALIZATION', 'COM'];
-      const hasInvalidNode = containerOperationNodes.value.some(node =>
-        invalidNodes.includes(node)
+      const invalidNodes = new Set(['COM', 'INITIALIZATION']);
+      const hasInvalidNode = containerOperationNodes.value.some((node) =>
+        invalidNodes.has(node),
       );
       if (hasInvalidNode) {
         message.error($t('cxmo.message.iniOrComMessage'));
@@ -306,9 +311,9 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
-  const invalidNodes = ['INITIALIZATION', 'COM'];
-  const hasInvalidNode = containerOperationNodes.value.some(node =>
-    invalidNodes.includes(node)
+  const invalidNodes = new Set(['COM', 'INITIALIZATION']);
+  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+    invalidNodes.has(node),
   );
   if (hasInvalidNode) {
     message.error($t('cxmo.message.iniOrComMessage'));
@@ -342,9 +347,9 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
-  const invalidNodes = ['INITIALIZATION', 'COM'];
-  const hasInvalidNode = containerOperationNodes.value.some(node =>
-    invalidNodes.includes(node)
+  const invalidNodes = new Set(['COM', 'INITIALIZATION']);
+  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+    invalidNodes.has(node),
   );
   if (hasInvalidNode) {
     message.error($t('cxmo.message.iniOrComMessage'));
@@ -411,31 +416,6 @@ function handleRowCheckboxChange({
   planStatusArr.value = records.map((item) => item.planStatus);
   boxGridApi.query();
 }
-/** 重置箱信息相关数据 */
-const resetContainerData = () => {
-  boxCheckedIds.value = [];
-  boxAcceptancePlanNo.value = [];
-  containerNos.value = [];
-  containerIds.value = [];
-  batchQueryConditions.value = [];
-  machineSpreaderChangeTypes.value = [];
-  containerOperationNodes.value = [];
-  vesselCodes.value = [];
-  vesselVoyages.value = [];
-  vesselNames.value = [];
-  plannedSpreaderTypes.value = [];
-  // 清除表格选中状态
-  if (boxGridApi.grid) {
-    boxGridApi.grid.clearCheckboxRow(); // 清除所有选中行
-    boxGridApi.grid.clearCheckboxRow(); // 清除复选框选中
-  }
-
-  if (machineSpreaderChangeRecordGridApi.grid) {
-    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
-    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
-  }
-  machineSpreaderChangeRecordGridApi.query();
-};
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
 const boxAcceptancePlanNo = ref<string[]>([]);
@@ -448,11 +428,15 @@ const vesselCodes = ref<string[]>([]);
 const vesselVoyages = ref<string[]>([]);
 const vesselNames = ref<string[]>([]);
 const plannedSpreaderTypes = ref<string[]>([]);
+const boxList = ref<
+  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
+>([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
   records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
 }) {
+  boxList.value = records;
   const refMap = {
     boxCheckedIds,
     boxAcceptancePlanNo,
@@ -656,10 +640,13 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
             if (batchQueryConditions.value.length > 0) {
               formValues.batchQueryConditions = batchQueryConditions.value;
             }
-            if(searchKeyword){
+            if (searchKeyword.value) {
               formValues.condition = searchKeyword.value;
             }
-            if (formValues?.batchQueryConditions?.length > 0||formValues?.condition) {
+            if (
+              formValues?.batchQueryConditions?.length > 0 ||
+              formValues?.condition
+            ) {
               return await getMachineSpreaderChangeRecordPage({
                 pageNo: page.currentPage,
                 pageSize: page.pageSize,
@@ -818,12 +805,21 @@ const handleReset = () => {
 const handleSaveTemplate = (templateName: string) => {
   console.log('保存模板:', templateName);
 };
-watch(checkedIds, (newVal, oldVal) => {
-  if (newVal.length === 0 && oldVal.length > 0) {
-    // 先重置箱信息数据
-    resetContainerData();
-  }
-});
+// 监听超限作业申请选中的受理编号变化
+watch(
+  () => acceptancePlanNo.value,
+  (newAcceptancePlanNos, oldAcceptancePlanNos) => {
+    const addedPlanNos = new Set(
+      oldAcceptancePlanNos.filter((no) => !newAcceptancePlanNos.includes(no)),
+    );
+    boxList.value.forEach((item) => {
+      if (addedPlanNos.has(item.acceptancePlanNo)) {
+        boxGridApi.grid.setCheckboxRow(item, false);
+      }
+    });
+  },
+  { deep: true },
+);
 onActivated(() => {
   handleRefresh();
 });
@@ -980,7 +976,7 @@ const handleSearch = () => {
           :table-title="$t('cxmo.overOperation.machineSpreaderRecord')"
         >
           <template #toolbar-tools>
-            <div class="flex items-center mr-2">
+            <div class="mr-2 flex items-center">
               <!-- 搜索输入框 - 根据showSearchInput控制显隐 -->
               <a-input-search
                 v-model:value="searchKeyword"
@@ -988,10 +984,9 @@ const handleSearch = () => {
                 enter-button
                 @search="handleSearch"
                 v-if="showSearchInput"
-                @pressEnter="handleSearch"
+                @press-enter="handleSearch"
                 allow-clear
               />
-
             </div>
             <TableAction
               :actions="[
@@ -1010,9 +1005,17 @@ const handleSearch = () => {
               ]"
             />
             <!-- 搜索按钮 - 切换输入框显隐 -->
-            <a-button type="primary" shape="circle"  @click="toggleSearchInput" class="ml-2">
+            <a-button
+              type="primary"
+              shape="circle"
+              @click="toggleSearchInput"
+              class="ml-2"
+            >
               <template #icon>
-                <IconifyIcon icon="iconamoon:search-thin" style="font-size: 15px"/>
+                <IconifyIcon
+                  icon="iconamoon:search-thin"
+                  style="font-size: 15px"
+                />
               </template>
             </a-button>
           </template>
