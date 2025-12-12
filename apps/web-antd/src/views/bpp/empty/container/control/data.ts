@@ -464,7 +464,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '主计划号',
-      minWidth: 120,
+      minWidth: 150,
       fixed: 'left',
     },
     {
@@ -596,7 +596,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '子计划号',
-      minWidth: 120,
+      minWidth: 150,
       fixed: 'left',
     },
     {

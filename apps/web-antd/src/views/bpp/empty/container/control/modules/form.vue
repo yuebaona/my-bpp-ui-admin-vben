@@ -15,7 +15,6 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createSubPlan,
   updateSubPlan,
-  getYardRange,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
@@ -23,7 +22,6 @@ import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
 import ContainerArea from './containerArea.vue';
 
 const emit = defineEmits(['success']);
-// const fileList = ref<UploadProps['fileList']>([]);
 
 const containerAreaModalVisible = ref(false);
 
@@ -33,43 +31,10 @@ const containerAreaParams = reactive({
   tradeType: '',
 });
 
-const containerAreaData = reactive<any[]>([
-  {
-    id: 'row_1',
-    yardPosition: 'A01-01-01',
-    yardColumns: ['A', 'B'],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_2',
-    yardPosition: 'A02-01-01',
-    yardColumns: [],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_3',
-    yardPosition: 'B01-01-01',
-    yardColumns: ['A', 'B', 'H'],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-  {
-    id: 'row_4',
-    yardPosition: 'B02-01-01',
-    yardColumns: [],
-    totalCount: '',
-    minStorageDays: '',
-    maxStorageDays: '',
-  },
-]);
+const containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
-  id: null,
+  id: '',
   ownerList: [],
   isoNoList: [],
   isRelease: false,
@@ -234,7 +199,6 @@ const [Modal, modalApi] = useVbenModal({
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
-    // 构建符合接口格式的数据
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
       ownerList,
@@ -318,7 +282,6 @@ const [Modal, modalApi] = useVbenModal({
                   );
                 }
               } else {
-                // 兼容单个对象格式
                 await $grid.insertAt(
                   {
                     yardPosition: subPlanData.bayRangeList.yardBay || '',
@@ -338,7 +301,6 @@ const [Modal, modalApi] = useVbenModal({
           modalApi.unlock();
         }
       } else {
-        // 新创建的子计划，确保planType为SUB
         formData.planType = 'SUB';
       }
     }
