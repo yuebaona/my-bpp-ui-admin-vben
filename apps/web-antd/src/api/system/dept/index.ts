@@ -50,3 +50,10 @@ export async function deleteDept(id: number) {
 export async function deleteDeptList(ids: number[]) {
   return requestClient.delete(`/system/dept/delete-list?ids=${ids.join(',')}`);
 }
+
+/** 同步部门 */
+export async function syncFromDing() {
+  return requestClient.get(`/system/dept/sync-from-ding`, {
+    timeout: 1000 * 20,
+  });
+}
