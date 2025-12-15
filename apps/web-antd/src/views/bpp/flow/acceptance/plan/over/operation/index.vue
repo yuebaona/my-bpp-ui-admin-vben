@@ -324,14 +324,14 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   })
     .then(async () => {
       const hideLoading = message.loading({
-        content: $t('ui.actionMessage.processing'),
+        content: $t('cxmo.action.processing'),
         duration: 0,
       });
       try {
         await acceptancePlanOverOperationContainerNoOperation(
           containerIds.value,
         );
-        message.success($t('ui.actionMessage.success'));
+        message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
         hideLoading();
@@ -552,6 +552,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
   },
+
 });
 
 // 箱列表表格配置
