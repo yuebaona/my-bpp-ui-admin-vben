@@ -480,12 +480,12 @@ const adcancedQueryModalOpen = () => {
                 auth: ['system:user:update'],
                 onClick: handleMainPlanEdit.bind(null, row),
               },
-              {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                onClick: handleMainPlanDetail.bind(null, row),
-              },
+              // {
+              //   label: '详情',
+              //   type: 'link',
+              //   icon: ACTION_ICON.VIEW,
+              //   onClick: handleMainPlanDetail.bind(null, row),
+              // },
               {
                 label: '删除',
                 type: 'link',
@@ -531,12 +531,12 @@ const adcancedQueryModalOpen = () => {
                 auth: ['system:user:update'],
                 onClick: handleSubEdit.bind(null, row),
               },
-              {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                onClick: handleSubDetail.bind(null, row),
-              },
+              // {
+              //   label: '详情',
+              //   type: 'link',
+              //   icon: ACTION_ICON.VIEW,
+              //   onClick: handleSubDetail.bind(null, row),
+              // },
               {
                 label: '删除',
                 type: 'link',
