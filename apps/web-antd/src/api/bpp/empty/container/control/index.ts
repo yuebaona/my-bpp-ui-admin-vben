@@ -13,7 +13,7 @@ export interface LogQueryParams extends PageParam {
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
   export interface mainPlanVO {
-    id: number;
+    id: null | number;
     ownerList: Array<string>;
     isoNoList: Array<string>;
     isRelease: boolean;
@@ -71,13 +71,18 @@ export namespace EmptyContainerControlApi {
     mainGateAvailableQuantity: string;
   }
 
-  // export interface logQueryParams extends PageParam {
-  //   mainPlanNo?: string;
-  //   owner?: string;
-  //   iso?: string;
-  //   yardBay?: string;
-  //   createTime?: [string, string];
-  // }
+
+  export interface VesselAndVoyageResponse {
+    code: number;
+    msg: string;
+    data: string[]; // 或者更具体的类型如 string[]
+  }
+
+  export interface ISO {
+    code: number;
+    msg: string;
+    data: string[]; // 或者更具体的类型如 string[]
+  }
 
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -205,5 +210,15 @@ export const getLogQueryPage = (params: LogQueryParams) => {
   return requestClient.get<PageResult<EmptyContainerControlApi.mainLogVO>>(
     '/bpp/flow/empty/container-control-main-log/page',
     { params },
+  );
+};
+
+// 查询船名航次
+export const getVesselAndVoyage = (params: { condition: string }) => {
+  return requestClient.get<EmptyContainerControlApi.VesselAndVoyageResponse>(
+    '/bpp/flow/common/get-vvd-union',
+    {
+      params,
+    },
   );
 };

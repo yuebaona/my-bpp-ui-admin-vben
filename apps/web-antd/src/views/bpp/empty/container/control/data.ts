@@ -1,12 +1,9 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
-
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-// import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
-
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -418,6 +415,15 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
+      fieldName: 'createTime',
+      label: '创建时间',
+      component: 'TimeRangePicker',
+      componentProps: {
+        ...getRangePickerDefaultProps(),
+        allowClear: true,
+      },
+    },
+    {
       fieldName: 'ownerList',
       label: '持箱人',
       component: 'Input',
@@ -436,20 +442,21 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'createTime',
-      label: '创建时间',
-      component: 'TimeRangePicker',
+      fieldName: 'vesselUnloadDate',
+      label: '卸船船期',
+      component: 'Select',
       componentProps: {
-        ...getRangePickerDefaultProps(),
+        placeholder: '请输入船名或航次号',
         allowClear: true,
       },
+      slot: 'form-vesselUnloadDate',
     },
     {
       fieldName: 'pickupPlanNo',
-      label: '受理提箱计划号',
+      label: '受理计划号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入受理提箱计划号',
+        placeholder: '请输入受理计划号',
         allowClear: true,
       },
     },

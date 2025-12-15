@@ -2,11 +2,11 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { message } from 'ant-design-vue';
+import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -16,6 +16,7 @@ import {
   getMainPlanPage,
   getSubPlan,
   getSubPlanPage,
+  getVesselAndVoyage,
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -310,15 +311,14 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-
-function handleRowCheckboxChange2({
-  records,
-}: {
-  records: EmptyContainerControlApi.mainPlanVO[];
-}) {
-  checkedIds.value = records.map((item) => item.id);
-  MainPlanNo.value = records.map((item) => item.MainPlanNo);
-}
+// function handleRowCheckboxChange2({
+//   records,
+// }: {
+//   records: EmptyContainerControlApi.mainPlanVO[];
+// }) {
+//   checkedIds.value = records.map((item) => item.id);
+//   MainPlanNo.value = records.map((item) => item.MainPlanNo);
+// }
 
 // 高级查询处理函数
 /** 刷新表格 */
@@ -349,8 +349,7 @@ function handleCreateSubPlan() {
 }
 
 /** 导出数据 */
-function handleMainExport() {
-}
+// function handleMainExport() {}
 
 function handleSubExport() {
   message.info('导出功能');
@@ -412,6 +411,28 @@ function handleLogQuery() {
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
+
+const vesselUnloadDate = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+// 获取卸船船期
+const fetchVesselUnloadDate = async (searchText) => {
+  try {
+    vesselUnloadDate.fetching = true;
+    const result = await getVesselAndVoyage({ condition: searchText });
+    vesselUnloadDate.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    vesselUnloadDate.data = [];
+  } finally {
+    vesselUnloadDate.fetching = false;
+  }
+};
 </script>
 
 <template>
@@ -427,6 +448,20 @@ const adcancedQueryModalOpen = () => {
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <Grid2 table-title="主计划">
+        <template #form-vesselUnloadDate>
+          <Select
+            :options="vesselUnloadDate.data"
+            mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+            v-model:value="vesselUnloadDate.value"
+            style="width: 100%"
+            placeholder="请输入船名或航次号"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="100"
+            @change="fetchVesselUnloadDate"
+          />
+        </template>
+        <template #condition> </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
