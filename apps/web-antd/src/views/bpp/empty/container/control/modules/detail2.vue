@@ -81,10 +81,6 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal title="主计划详情" class="w-1/2">
     <Descriptions :data="formData" />
-    <div>
-      <div class="ant-descriptions-title">箱区范围</div>
-      <Grid />
-    </div>
   </Modal>
 </template>
 <style scoped lang="scss">
