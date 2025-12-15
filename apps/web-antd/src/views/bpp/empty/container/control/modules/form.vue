@@ -55,17 +55,17 @@ const selectContainerArea = async () => {
   // 处理持箱人列表
   const ownerList = formValues.owners
     ? formValues.owners
-      .split(/[,，]/)
-      .map((item: string) => item.trim())
-      .filter(Boolean)
+        .split(/[,，]/)
+        .map((item: string) => item.trim())
+        .filter(Boolean)
     : [];
 
   // 处理ISO列表
   const isoNoList = formValues.isoNos
     ? formValues.isoNos
-      .split(/[,，]/)
-      .map((item: string) => item.trim())
-      .filter(Boolean)
+        .split(/[,，]/)
+        .map((item: string) => item.trim())
+        .filter(Boolean)
     : [];
 
   // 更新参数
@@ -247,14 +247,14 @@ const [Modal, modalApi] = useVbenModal({
       if (data.mainId) {
         formData.mainId = data.mainId;
       }
-
       if (data.planType === 'SUB' && data.mainPlanIsRelease) {
         formData.isRelease = data.mainPlanIsRelease !== true;
       }
+      if (data.planType === 'SUB' && data.mainPlanTradeType) {
+        formData.tradeType = data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN' ;
+      }
 
-      if (!subPlanData?.id) {
-        await formApi.setValues(formData);
-      } else {
+      if (subPlanData?.id) {
         modalApi.lock();
         try {
           await formApi.setValues(subPlanData);
@@ -306,6 +306,8 @@ const [Modal, modalApi] = useVbenModal({
         } finally {
           modalApi.unlock();
         }
+      } else {
+        await formApi.setValues(formData);
       }
       if (!data.planType) {
         formData.planType = 'SUB';

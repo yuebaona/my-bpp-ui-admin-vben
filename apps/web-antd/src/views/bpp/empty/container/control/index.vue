@@ -356,7 +356,8 @@ function handleCreateSubPlan() {
       .setData({
         mainId: selectedMainId.value,
         planType: 'SUB',
-        mainPlanIsRelease: mainPlan.isRelease
+        mainPlanIsRelease: mainPlan.isRelease,
+        mainPlanTradeType: mainPlan.tradeType,
       })
       .open();
   }

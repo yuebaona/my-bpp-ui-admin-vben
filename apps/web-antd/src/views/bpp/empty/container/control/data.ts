@@ -248,6 +248,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
           { label: '外贸', value: 'FOREIGN' },
         ],
       },
+      disabled: true,
     },
     {
       fieldName: 'isoNos',
