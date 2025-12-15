@@ -498,9 +498,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       // 更严格的手机号码校验
       rules: z
         .string()
-        .min(11, '手机号码必须是11位')
-        .max(11, '手机号码必须是11位')
-        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码格式'),
+        .min(11, '手机号码必须是11位纯数字，不含空格及特殊符号')
+        .max(11, '手机号码必须是11位纯数字，不含空格及特殊符号')
+        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码格式，必须是11位纯数字，不含空格及特殊符号'),
     },
     {
       fieldName: 'paymentTypeSea',
