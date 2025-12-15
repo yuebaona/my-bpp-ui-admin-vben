@@ -102,7 +102,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
 export function mainPlanFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'mainId',
+      fieldName: 'planNo',
       label: '主计划号',
       component: 'Input',
       componentProps: {
@@ -208,6 +208,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
         ],
       },
       rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'pickupPlanNo',

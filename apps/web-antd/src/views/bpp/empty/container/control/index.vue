@@ -342,7 +342,6 @@ function handleCreateMainPlan() {
 }
 /** 创建新申请 */
 function handleCreateSubPlan() {
-  // 检查是否只勾选了一个主计划
   if (checkedIds.value.length === 0) {
     message.warning('请勾选一个主计划');
     return;
@@ -350,12 +349,17 @@ function handleCreateSubPlan() {
     message.warning('已勾选多个主计划，请只勾选一个主计划');
     return;
   }
-  formModalApi
-    .setData({
-      mainId: selectedMainId.value,
-      planType: 'SUB',
-    })
-    .open();
+  const selectedMainPlans = gridApi2.grid.getCheckboxRecords();
+  if (selectedMainPlans.length > 0) {
+    const mainPlan = selectedMainPlans[0];
+    formModalApi
+      .setData({
+        mainId: selectedMainId.value,
+        planType: 'SUB',
+        mainPlanIsRelease: mainPlan.isRelease
+      })
+      .open();
+  }
 }
 
 /** 导出数据 */

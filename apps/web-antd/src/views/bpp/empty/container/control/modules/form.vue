@@ -37,7 +37,7 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
   ownerList: [],
   isoNoList: [],
-  isRelease: false,
+  isRelease: null,
   pickupPlanNo: '',
   tradeType: '',
   planQuantity: '',
@@ -248,7 +248,13 @@ const [Modal, modalApi] = useVbenModal({
         formData.mainId = data.mainId;
       }
 
-      if (subPlanData?.id) {
+      if (data.planType === 'SUB' && data.mainPlanIsRelease) {
+        formData.isRelease = data.mainPlanIsRelease !== true;
+      }
+
+      if (!subPlanData?.id) {
+        await formApi.setValues(formData);
+      } else {
         modalApi.lock();
         try {
           await formApi.setValues(subPlanData);
@@ -300,7 +306,8 @@ const [Modal, modalApi] = useVbenModal({
         } finally {
           modalApi.unlock();
         }
-      } else {
+      }
+      if (!data.planType) {
         formData.planType = 'SUB';
       }
     }
@@ -374,6 +381,7 @@ const modalTitle = computed(() => {
       :owner-list="containerAreaParams.ownerList"
       :iso-no-list="containerAreaParams.isoNoList"
       :trade-type="containerAreaParams.tradeType"
+<!--      :selected-positions="containerAreaData.map(item => item.yardPosition).filter(Boolean)"-->
       @confirm="handleContainerAreaConfirm"
     />
   </Modal>
