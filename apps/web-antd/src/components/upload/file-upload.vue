@@ -206,7 +206,7 @@ function getValue() {
               :class="{ 'text-red-500': file.status === 'error' }"
               @click="
                 handlePreview({
-                  filePath: file.url,
+                  filePath: file.url || file.response.split('?')[0],
                 })
               "
             >
