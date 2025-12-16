@@ -9,9 +9,10 @@ import { getYardRange } from '#/api/bpp/empty/container/control';
 
 interface Props {
   visible: boolean;
-  ownerList?: [];
-  isoNoList?: [];
+  ownerCodeList?: [];
+  containerIsoList?: [];
   tradeType?: string;
+  selectedPositions?: string[];
 }
 
 interface Emits {
@@ -20,9 +21,10 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  ownerList: () => [],
-  isoNoList: () => [],
+  ownerCodeList: () => [],
+  containerIsoList: () => [],
   tradeType: '',
+  selectedPositions: () => [],
 });
 const emit = defineEmits<Emits>();
 
@@ -43,7 +45,17 @@ watch(
 );
 
 watch(
-  [() => props.ownerList, () => props.isoNoList, () => props.tradeType],
+  () => props.selectedPositions,
+  (newValue) => {
+    if (props.visible && newValue && newValue.length > 0) {
+      selectedYardPositions.value = [...newValue];
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
+  [() => props.ownerCodeList, () => props.containerIsoList, () => props.tradeType],
   () => {
     if (props.visible) {
       fetchYardRange();
@@ -57,13 +69,12 @@ const fetchYardRange = async () => {
   loading.value = true;
   try {
     const params: EmptyContainerControlApi.yardRangeVO = {
-      ownerList: props.ownerList || [],
-      isoNoList: props.isoNoList || [],
+      ownerCodeList: props.ownerCodeList || [],
+      containerIsoList: props.containerIsoList || [],
       tradeType: props.tradeType || '',
     };
     const response = await getYardRange(params);
     yardPositionTreeData.value = [];
-    console.log('response', response);
 
     if (response.length > 0) {
       yardPositionTreeData.value = response

@@ -121,8 +121,8 @@ function handleRowClick({ row }: { row: EmptyContainerControlApi.mainPlanVO }) {
 
 // 子计划勾选事件处理函数
 function handleSubRowCheckboxChange({
-  records,
-}: {
+                                      records,
+                                    }: {
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   // 检查是否已勾选主计划
@@ -138,8 +138,8 @@ function handleSubRowCheckboxChange({
 }
 
 function handleRowCheckboxChange({
-  records,
-}: {
+                                   records,
+                                 }: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   // 检查是否已勾选子计划
@@ -191,13 +191,13 @@ const transformFormToRequest = (
     delete params.bayRangeList;
   }
 
-  if (params.ownerList) {
-    params.ownerList = params.ownerList
+  if (params.ownerCodeList) {
+    params.ownerCodeList = params.ownerCodeList
       .split(',')
       .map((item: string) => item.trim())
-      .filter(Boolean); // 过滤空字符串
+      .filter(Boolean);
   } else {
-    delete params.ownerList;
+    delete params.ownerCodeList;
   }
 
   if (params.isoNoList) {
@@ -321,8 +321,8 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
 
 
 function handleRowCheckboxChange2({
-  records,
-}: {
+                                    records,
+                                  }: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
@@ -340,7 +340,7 @@ function handleRefresh() {
 function handleCreateMainPlan() {
   formModalApi2.setData(null).open();
 }
-/** 创建新申请 */
+/** 新建子计划 */
 function handleCreateSubPlan() {
   if (checkedIds.value.length === 0) {
     message.warning('请勾选一个主计划');
@@ -509,7 +509,7 @@ const adcancedQueryModalOpen = () => {
                 label: '新增',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                auth: ['system:user:create'],
+                // auth: ['system:user:create'],
                 onClick: handleCreateSubPlan,
               },
               {

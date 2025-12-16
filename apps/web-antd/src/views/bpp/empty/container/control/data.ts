@@ -1,12 +1,9 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
-
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-// import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
-
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -133,7 +130,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -154,7 +151,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -229,7 +226,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -237,6 +234,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
+      // slot: 'ownerCodeList',
     },
     {
       fieldName: 'tradeType',
@@ -251,7 +249,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       disabled: true,
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -324,7 +322,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -345,7 +343,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -420,24 +418,6 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'ownerList',
-      label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '多个持箱人用英文逗号分隔',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'isoNoList',
-      label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '多个ISO用英文逗号分隔',
-        allowClear: true,
-      },
-    },
-    {
       fieldName: 'createTime',
       label: '创建时间',
       component: 'TimeRangePicker',
@@ -447,11 +427,39 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'pickupPlanNo',
-      label: '受理提箱计划号',
+      fieldName: 'ownerCodeList',
+      label: '持箱人',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入受理提箱计划号',
+        placeholder: '多个持箱人用英文逗号分隔',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'containerIsoList',
+      label: 'ISO',
+      component: 'Input',
+      componentProps: {
+        placeholder: '多个ISO用英文逗号分隔',
+        allowClear: true,
+      },
+    },
+    {
+      fieldName: 'vesselUnloadDate',
+      label: '卸船船期',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入船名或航次号',
+        allowClear: true,
+      },
+      slot: 'form-vesselUnloadDate',
+    },
+    {
+      fieldName: 'pickupPlanNo',
+      label: '受理计划号',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入受理计划号',
         allowClear: true,
       },
     },
@@ -496,7 +504,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'owners',
+      field: 'ownerCodeList',
       title: '持箱人',
       minWidth: 120,
     },
@@ -510,7 +518,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'isoNos',
+      field: 'containerIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -642,12 +650,12 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'owners',
+      field: 'ownerCodeList',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'isoNos',
+      field: 'containerIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -726,7 +734,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
       },
     },
     { field: 'pickupPlanNo', label: '提箱受理计划号' },
-    { field: 'owners', label: '持箱人' },
+    { field: 'ownerCodeList', label: '持箱人' },
     { field: 'tradeType', label: '贸易类型' },
     // 确保数据中 tradeType 字段的值正确
     {
@@ -736,7 +744,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
         return value === 'FOREIGN' ? '外贸' : '内贸';
       },
     },
-    { field: 'isoNos', label: 'ISO' },
+    { field: 'containerIsoList', label: 'ISO' },
     { field: 'bayRanges', label: '箱区范围' },
     { field: 'planQuantity', label: '计划箱量' },
     { field: 'completedReleaseQuantity', label: '已放箱量' },

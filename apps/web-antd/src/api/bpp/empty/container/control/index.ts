@@ -7,9 +7,9 @@ import { requestClient } from '#/api/request';
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
   export interface mainPlanVO {
-    id: number;
-    ownerList: Array<string>;
-    isoNoList: Array<string>;
+    id: null | number;
+    ownerCodeList: Array<string>;
+    containerIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
@@ -28,8 +28,8 @@ export namespace EmptyContainerControlApi {
   // 子计划VO
   export interface subPlanVO {
     id: number;
-    ownerList: Array<string>;
-    isoNoList: Array<string>;
+    ownerCodeList: Array<string>;
+    containerIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
@@ -66,8 +66,8 @@ export namespace EmptyContainerControlApi {
   }
 
   export interface yardRangeVO {
-    isoNoList: Array<string>;
-    ownerList: Array<string>;
+    containerIsoList: Array<string>;
+    ownerCodeList: Array<string>;
     tradeType: string;
   }
 
@@ -218,3 +218,18 @@ export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
     data,
   );
 };
+
+// 新建子计划获取持箱人信息
+export const subPlanGetOwnerList = (mainId : number) => {
+  return requestClient.get<Array<string>>(
+    `/bpp/flow/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
+  );
+};
+
+// 新建子计划获取ISO信息
+export const subPlanGetIsoList = (mainId : number) => {
+  return requestClient.get<Array<string>>(
+    `/bpp/flow/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
+  );
+}
+
