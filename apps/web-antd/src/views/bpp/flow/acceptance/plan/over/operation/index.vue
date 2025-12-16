@@ -8,7 +8,7 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
+import { message, Select } from "ant-design-vue";
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -30,13 +30,14 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
-
+import { useDebounceFn } from '@vueuse/core';
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
+import { getCustomerList } from "#/api/bpp/common";
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -840,6 +841,31 @@ const toggleSearchInput = () => {
 const handleSearch = () => {
   machineSpreaderChangeRecordGridApi.query();
 };
+const applicantCompanyNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const applicantCompanyNameSearch =useDebounceFn(async (value: string) => {
+  console.log('applicantCompanyNameSearch', value)
+  gridApi.formApi.form.setFieldValue('applicantCompanyName', value);
+  if (!value) return;
+  applicantCompanyNameState.fetching = true;
+  const res = await getCustomerList({
+    pageNo: 1,
+    pageSize: 100,
+    customerName: value,
+  });
+  if (res) {
+    applicantCompanyNameState.data = res.map((item: any) => ({
+      label: item.customerName,
+      value: item.customerName,
+      data: item,
+    }));
+  }
+  applicantCompanyNameState.fetching = false;
+},100);
+
 </script>
 
 <template>
@@ -860,6 +886,20 @@ const handleSearch = () => {
     <!-- 超限作业申请列表 -->
     <div class="h-3/5 w-full">
       <Grid :table-title="$t('cxmo.overOperation.operationListName')">
+        <template #form-applicantCompanyName>
+          <Select
+            v-model:value="applicantCompanyNameState.value"
+            mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+            label-in-value
+            placeholder="请输入申请单位"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="applicantCompanyNameState.fetching ? undefined : null"
+            :options="applicantCompanyNameState.data"
+            @search="applicantCompanyNameSearch"
+            allow-clear
+          />
+        </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -899,29 +939,32 @@ const handleSearch = () => {
         <template #actions="{ row }">
           <TableAction
             :actions="[
-              row.reviewFlag
-                ? {
-                    label: $t('cxmo.action.audit'),
-                    type: 'link',
-                    icon: ACTION_ICON.AUDIT,
-                    onClick: handleViewDetail.bind(null, row),
-                  }
-                : '',
-              {
-                label: $t('cxmo.action.edit'),
-                type: 'link',
-                icon: ACTION_ICON.EDIT,
-                auth: ['bpp:flow-acceptance-plan-over-operation:update'],
-                onClick: handleEdit.bind(null, row),
-              },
-              {
-                label: $t('cxmo.action.detail'),
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
-                onClick: handleDetail.bind(null, row),
-              },
-            ]"
+      row.reviewFlag
+        ? {
+            label: $t('cxmo.action.audit'),
+            type: 'link',
+            icon: ACTION_ICON.AUDIT,
+            onClick: handleViewDetail.bind(null, row),
+          }
+        : '',
+      // 判断 planStatus 是否在指定状态中
+      ['INITIALIZATION', 'REVIEWING', 'CANCELED', 'REJECTED'].includes(row.planStatus)
+        ? {
+            label: $t('cxmo.action.edit'),
+            type: 'link',
+            icon: ACTION_ICON.EDIT,
+            auth: ['bpp:flow-acceptance-plan-over-operation:update'],
+            onClick: handleEdit.bind(null, row),
+          }
+        : '',
+      {
+        label: $t('cxmo.action.detail'),
+        type: 'link',
+        icon: ACTION_ICON.VIEW,
+        auth: ['bpp:flow-acceptance-plan-over-operation:query'],
+        onClick: handleDetail.bind(null, row),
+      },
+    ]"
           />
         </template>
       </Grid>
@@ -1057,3 +1100,5 @@ const handleSearch = () => {
     </div>
   </Page>
 </template>
+<style scoped lang="scss">
+</style>
