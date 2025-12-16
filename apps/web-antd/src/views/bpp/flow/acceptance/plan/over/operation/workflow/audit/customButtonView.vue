@@ -98,7 +98,7 @@ async function getDetailData() {
   const overFormData = businessData.acceptancePlanOverOperationRespVO;
   formData.value.id = overFormData.id;
   formData.value.isAllowedStacking = overFormData.isAllowedStacking;
-  formData.value.plannedMachineryType = overFormData.plannedMachineryType;
+  formData.value.plannedMachineryType = overFormData.plannedMachineryType||'QC';
   formData.value.acceptancePlanNo = overFormData.acceptancePlanNo;
   formData.value.processInstanceId = overFormData.processInstanceId;
   formData.value.acceptancePlanOverOperationOtherProcessReqVOS = businessData.acceptancePlanOverOperationContainerRespVOS;
@@ -279,11 +279,18 @@ const columns = reactive([
 
 function changeRadio(e) {
   const value = e.target.value;
-  formData.value.plannedMachineryType = null;
   if (value) {
-    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'RMG_QC')
+    // 选择"是"时，过滤出'RMG_QC'选项并设为默认值
+    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'RMG_QC');
+    if (plannedMachineryTypeArray.value.length > 0) {
+      formData.value.plannedMachineryType = plannedMachineryTypeArray.value[0].value;
+    }
   } else {
-    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'QC')
+    // 选择"否"时，过滤出'QC'选项并设为默认值
+    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'QC');
+    if (plannedMachineryTypeArray.value.length > 0) {
+      formData.value.plannedMachineryType = plannedMachineryTypeArray.value[0].value;
+    }
   }
 };
 
