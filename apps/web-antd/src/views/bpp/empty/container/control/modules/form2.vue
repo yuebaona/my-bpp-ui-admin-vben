@@ -27,19 +27,13 @@ const containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
-  ownerList: [],
-  isoNoList: [],
+  ownerCodeList: [],
+  containerIsoList: [],
   isRelease: undefined,
   pickupPlanNo: '',
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
-  // bayRangeList: {
-  //   emptyContainerControlId: 0,
-  //   id: 0,
-  //   yardBay: '',
-  //   yardRaw: '',
-  // },
   bayRangeList: [],
   planType: '',
   mainId: '',
@@ -155,16 +149,16 @@ const [Modal, modalApi] = useVbenModal({
       formData.planType = 'MAIN';
     }
     // 转换持箱人字符串为数组
-    const ownerList = formValues.owners
-      ? formValues.owners
+    const ownerCodeList = formValues.ownerCodeList
+      ? formValues.ownerCodeList
           .split(/[,，]/)
           .map((item: string) => item.trim())
           .filter(Boolean)
       : [];
 
     // 转换ISO字符串为数组
-    const isoNoList = formValues.isoNos
-      ? formValues.isoNos
+    const containerIsoList = formValues.containerIsoList
+      ? formValues.containerIsoList
           .split(/[,，]/)
           .map((item: string) => item.trim())
           .filter(Boolean)
@@ -178,14 +172,11 @@ const [Modal, modalApi] = useVbenModal({
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
-    // 构建符合新接口格式的数据
+    // 构建符合接口格式的数据
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
-      // 确保数组字段正确处理
-      // ownerList: formData.ownerList || [],
-      // isoNoList: formData.isoNoList || [],
-      ownerList,
-      isoNoList,
+      ownerCodeList,
+      containerIsoList,
     } as EmptyContainerControlApi.mainPlanVO;
 
     await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
@@ -198,18 +189,13 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        ownerList: [],
-        isoNoList: [],
+        ownerCodeList: [],
+        containerIsoList: [],
         isRelease: undefined,
         pickupPlanNo: '',
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
-        // bayRangeList: {
-        //   emptyContainerControlId: 0,
-        //   yardBay: '',
-        //   yardRaw: '',
-        // },
         bayRangeList: [],
         planType: '',
         mainId: '',

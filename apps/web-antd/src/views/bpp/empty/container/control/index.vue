@@ -187,22 +187,22 @@ const transformFormToRequest = (
     delete params.bayRangeList;
   }
 
-  if (params.ownerList) {
-    params.ownerList = params.ownerList
+  if (params.ownerCodeList) {
+    params.ownerCodeList = params.ownerCodeList
       .split(',')
       .map((item: string) => item.trim())
       .filter(Boolean); // 过滤空字符串
   } else {
-    delete params.ownerList;
+    delete params.ownerCodeList;
   }
 
-  if (params.isoNoList) {
-    params.isoNoList = params.isoNoList
+  if (params.containerIsoList) {
+    params.containerIsoList = params.containerIsoList
       .split(',')
       .map((item: string) => item.trim())
       .filter(Boolean);
   } else {
-    delete params.isoNoList;
+    delete params.containerIsoList;
   }
 
   if (params.createTime) {

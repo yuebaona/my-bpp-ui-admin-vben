@@ -130,7 +130,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -151,7 +151,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -225,7 +225,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -246,7 +246,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -319,7 +319,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -340,7 +340,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -424,7 +424,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'ownerList',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -433,7 +433,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNoList',
+      fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -501,7 +501,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'owners',
+      field: 'ownerCodeList',
       title: '持箱人',
       minWidth: 120,
     },
@@ -515,7 +515,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'isoNos',
+      field: 'containerIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -647,12 +647,12 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'owners',
+      field: 'ownerCodeList',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'isoNos',
+      field: 'containerIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -731,7 +731,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
       },
     },
     { field: 'pickupPlanNo', label: '提箱受理计划号' },
-    { field: 'owners', label: '持箱人' },
+    { field: 'ownerCodeList', label: '持箱人' },
     { field: 'tradeType', label: '贸易类型' },
     // 确保数据中 tradeType 字段的值正确
     {
@@ -741,7 +741,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
         return value === 'FOREIGN' ? '外贸' : '内贸';
       },
     },
-    { field: 'isoNos', label: 'ISO' },
+    { field: 'containerIsoList', label: 'ISO' },
     { field: 'bayRanges', label: '箱区范围' },
     { field: 'planQuantity', label: '计划箱量' },
     { field: 'completedReleaseQuantity', label: '已放箱量' },
@@ -895,9 +895,9 @@ export const STATIC_MASTER_PLAN_QUERY_DATA = [
     mainPlanNo: 'MP20230001',
     isRelease: true,
     acceptancePlanNo: '137635841765',
-    owners: '李三',
+    ownerCodeList: '李三',
     tradeType: 'FOREIGN',
-    isoNos: 'ISO001',
+    containerIsoList: 'ISO001',
     bayRanges: 'A01-B02',
     mainGateReleaseQty: '100',
     modifier: '管理员',
@@ -909,9 +909,9 @@ export const STATIC_MASTER_PLAN_QUERY_DATA = [
     mainPlanNo: 'MP20230002',
     isRelease: false,
     acceptancePlanNo: '71326815685',
-    owners: '张三',
+    ownerCodeList: '张三',
     tradeType: 'FOREIGN',
-    isoNos: 'ISO002',
+    containerIsoList: 'ISO002',
     bayRanges: 'C01-D02',
     mainGateReleaseQty: '100',
     modifier: '操作员',

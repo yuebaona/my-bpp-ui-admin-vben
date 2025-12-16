@@ -14,8 +14,8 @@ export namespace EmptyContainerControlApi {
   // 主计划信息VO
   export interface mainPlanVO {
     id: null | number;
-    ownerList: Array<string>;
-    isoNoList: Array<string>;
+    ownerCodeList: Array<string>;
+    containerIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
@@ -34,8 +34,8 @@ export namespace EmptyContainerControlApi {
   // 子计划VO
   export interface subPlanVO {
     id: null | number;
-    ownerList: Array<string>;
-    isoNoList: Array<string>;
+    ownerCodeList: Array<string>;
+    containerIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;

@@ -63,8 +63,8 @@ const containerAreaData = reactive<any[]>([
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: null,
-  ownerList: [],
-  isoNoList: [],
+  ownerCodeList: [],
+  containerIsoList: [],
   isRelease: false,
   pickupPlanNo: '',
   tradeType: '',
@@ -181,15 +181,15 @@ const [Modal, modalApi] = useVbenModal({
       formData.planType = 'SUB';
     }
 
-    const ownerList = formValues.owners
-      ? formValues.owners
+    const ownerCodeList = formValues.ownerCodeList
+      ? formValues.ownerCodeList
           .split(/[,，]/)
           .map((item: string) => item.trim())
           .filter(Boolean)
       : [];
 
-    const isoNoList = formValues.isoNos
-      ? formValues.isoNos
+    const containerIsoList = formValues.containerIsoList
+      ? formValues.containerIsoList
           .split(/[,，]/)
           .map((item: string) => item.trim())
           .filter(Boolean)
@@ -206,8 +206,8 @@ const [Modal, modalApi] = useVbenModal({
     // 构建符合接口格式的数据
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
-      ownerList,
-      isoNoList,
+      ownerCodeList,
+      containerIsoList,
       bayRangeList,
     } as EmptyContainerControlApi.subPlanVO;
 
@@ -221,8 +221,8 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        ownerList: [],
-        isoNoList: [],
+        ownerCodeList: [],
+        containerIsoList: [],
         isRelease: false,
         pickupPlanNo: '',
         tradeType: '',
