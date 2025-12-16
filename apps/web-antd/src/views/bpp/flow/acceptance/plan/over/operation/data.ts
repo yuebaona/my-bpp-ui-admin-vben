@@ -625,6 +625,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       component: 'Upload',
       formItemClass: 'mt-3',
       rules: 'required',
+      formItemClass: 'w-full p-0 md:col-span-2',
     },
     {
       fieldName: 'divider',
@@ -668,7 +669,6 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
 }
 /** 超限作业申请列表的搜索表单 */
 export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
-  const customerName = ref('');
   return [
     {
       fieldName: 'acceptancePlanNo',
