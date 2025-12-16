@@ -322,11 +322,16 @@ const loadFormData = async () => {
         formData.billNo = data.acceptancePlanBillMessageRespVO.billNo;
         formData.cargoName = data.acceptancePlanBillMessageRespVO.cargoName;
       }
-
-      // 设置附件
-      fileList.value = JSON.parse(
+      // 解析 JSON
+      const fileListData = JSON.parse(
         data.acceptancePlanRespVO.attachmentFile || '[]',
       );
+
+      fileList.value = fileListData.map((item) => {
+        const parts = item.split('?');
+
+        return parts[0];
+      });
 
       // 设置船舶信息
       if (data.acceptancePlanRespVO.vesselName) {
@@ -504,7 +509,7 @@ const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
   if (!value) return;
-  if(value.length<2){
+  if (value.length < 2) {
     message.warning('请输入至少两个字符');
     return;
   }
