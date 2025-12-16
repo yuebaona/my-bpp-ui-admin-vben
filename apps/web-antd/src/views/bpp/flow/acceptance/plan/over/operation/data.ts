@@ -555,7 +555,9 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
         placeholder: '请输入作业航次',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z.string()
+        .nonempty('作业航次为必填项')
+        .regex(/^[^\u4e00-\u9fa5]*$/, '作业航次不允许输入中文'),
     },
     {
       fieldName: 'plannedOperationTime',
@@ -666,6 +668,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
 }
 /** 超限作业申请列表的搜索表单 */
 export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
+  const customerName = ref('');
   return [
     {
       fieldName: 'acceptancePlanNo',
@@ -706,11 +709,12 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'applicantCompanyName',
       label: '申请单位',
-      component: 'Input',
+      component: 'none',
       componentProps: {
         placeholder: '请输入申请单位',
         allowClear: true,
       },
+      slot: 'form-applicantCompanyName',
     },
     {
       fieldName: 'containerNo',
