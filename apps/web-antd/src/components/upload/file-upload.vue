@@ -14,6 +14,8 @@ import { isFunction, isObject, isString } from '@vben/utils';
 
 import { Button, message, Upload } from 'ant-design-vue';
 
+import { handlePreview } from '#/utils/filePreview';
+
 import { checkFileType } from './helper';
 import { UploadResultStatus } from './typing';
 import { useUpload, useUploadType } from './use-upload';
@@ -25,7 +27,7 @@ const props = withDefaults(defineProps<FileUploadProps>(), {
   directory: undefined,
   disabled: false,
   helpText: '',
-  maxSize: 2,
+  maxSize: 200,
   maxNumber: 9,
   accept: () => [],
   multiple: false,
@@ -191,6 +193,57 @@ function getValue() {
         请上传不超过{{ maxSize }}MB的文件
         <div>支持扩展名：{{ accept.join(' ') }}</div>
       </div>
+      <template #itemRender="{ file, actions }">
+        <div
+          class="group rounded p-2 transition-colors duration-200 hover:bg-gray-100"
+          :class="{ 'hover:bg-red-50': file.status === 'error' }"
+        >
+          <div
+            class="align-center flex flex-1 cursor-pointer flex-wrap items-start gap-2 break-words"
+          >
+            <div
+              class="text-gray-700 transition-colors duration-200 hover:text-blue-500"
+              :class="{ 'text-red-500': file.status === 'error' }"
+              @click="
+                handlePreview({
+                  filePath: file.url,
+                })
+              "
+            >
+              {{ file.name }}
+            </div>
+            <div
+              class="opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            >
+              <Button
+                @click="actions.download"
+                type="text"
+                size="small"
+                class="hover:bg-blue-50"
+              >
+                <IconifyIcon
+                  icon="material-symbols-light:download"
+                  style="font-size: 20px"
+                  class="text-gray-500 hover:text-blue-600"
+                />
+              </Button>
+              <Button
+                @click="actions.remove"
+                danger
+                type="text"
+                size="small"
+                class="hover:bg-red-50"
+              >
+                <IconifyIcon
+                  icon="material-symbols-light:delete-outline"
+                  style="font-size: 20px"
+                  class="text-gray-500 hover:text-red-600"
+                />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </template>
     </Upload>
   </div>
 </template>
