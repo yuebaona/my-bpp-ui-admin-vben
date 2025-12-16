@@ -258,6 +258,19 @@ export function onSiteOperationConfirmFormSchema(
         placeholder: '请选择换吊具结束时间',
         showTime: true,
       },
+      dependencies: {
+        rules(values) {
+          return z
+            .string({ message: '请选择换吊具结束时间' })
+            .refine((value) => {
+              if (!value || !values.startTime) {
+                return true;
+              }
+              return Number(value) > Number(values.startTime);
+            }, '更换吊具结束时间必须大于更换吊具开始时间');
+        },
+        triggerFields: ['endTime', 'startTime'],
+      },
       rules: 'required',
     },
     {
@@ -281,6 +294,19 @@ export function onSiteOperationConfirmFormSchema(
         valueFormat: 'x',
         placeholder: '请选择换吊具结束时间',
         showTime: true,
+      },
+      dependencies: {
+        rules(values) {
+          return z
+            .string({ message: '请选择换回原吊具结束时间' })
+            .refine((value) => {
+              if (!value || !values.startTimeBack) {
+                return true;
+              }
+              return Number(value) > Number(values.startTimeBack);
+            }, '换回原吊具结束时间必须大于换回原吊具开始时间');
+        },
+        triggerFields: ['endTimeBack', 'startTimeBack'],
       },
       rules: 'required',
     },
