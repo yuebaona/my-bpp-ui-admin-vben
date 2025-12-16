@@ -149,20 +149,18 @@ const [Modal, modalApi] = useVbenModal({
       formData.planType = 'MAIN';
     }
     // 转换持箱人字符串为数组
-    const ownerCodeList = formValues.ownerCodeList
+    const ownerCodeList = Array.isArray(formValues.ownerCodeList)
       ? formValues.ownerCodeList
-          .split(/[,，]/)
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-      : [];
+      : typeof formValues.ownerCodeList === 'string'
+        ? formValues.ownerCodeList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
+        : [];
 
     // 转换ISO字符串为数组
-    const containerIsoList = formValues.containerIsoList
+    const containerIsoList = Array.isArray(formValues.containerIsoList)
       ? formValues.containerIsoList
-          .split(/[,，]/)
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-      : [];
+      : typeof formValues.containerIsoList === 'string'
+        ? formValues.containerIsoList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
+        : [];
 
     // 转换表格数据为bayRangeList格式
     const bayRangeList = containerAreaData.map((row: any) => ({

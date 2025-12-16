@@ -181,19 +181,22 @@ const [Modal, modalApi] = useVbenModal({
       formData.planType = 'SUB';
     }
 
-    const ownerCodeList = formValues.ownerCodeList
-      ? formValues.ownerCodeList
-          .split(/[,，]/)
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-      : [];
+    if(formValues.ownerCodeList){
 
-    const containerIsoList = formValues.containerIsoList
+    }
+
+    const ownerCodeList = Array.isArray(formValues.ownerCodeList)
+      ? formValues.ownerCodeList
+      : typeof formValues.ownerCodeList === 'string'
+        ? formValues.ownerCodeList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
+        : [];
+
+    const containerIsoList = Array.isArray(formValues.containerIsoList)
       ? formValues.containerIsoList
-          .split(/[,，]/)
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-      : [];
+      : typeof formValues.containerIsoList === 'string'
+        ? formValues.containerIsoList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
+        : [];
+
     const $grid = gridApi.grid;
     const gridData = $grid ? $grid.getData() : containerAreaData;
     const bayRangeList = gridData.map((row: any) => ({
