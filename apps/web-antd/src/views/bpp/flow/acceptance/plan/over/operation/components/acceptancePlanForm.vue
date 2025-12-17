@@ -616,6 +616,7 @@ const payerNameGateChange = async () => {
   await formApi.setFieldValue('payerCodeGate', '');
   await formApi.setFieldValue('payerNameGate', '');
 };
+const tempInputMap = ref<Record<number | string, string>>({});
 const handleContainerTypeInput = async (val: string, row: any) => {
   const $grid = gridApi.grid;
   const rowKey = row.key || row.id; // 取行唯一标识
@@ -624,6 +625,13 @@ const handleContainerTypeInput = async (val: string, row: any) => {
   if (val) {
     tempInputMap.value[rowKey] = val.toUpperCase();
   }
+  await $grid.validateField(row, 'containerType');
+};
+const containerTypeSelect = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id;
+  row.containerType = val ? val.toUpperCase() : '';
+  tempInputMap.value[rowKey] = row.containerType;
   await $grid.validateField(row, 'containerType');
 };
 
@@ -654,14 +662,6 @@ watch(
     }
   },
 );
-const tempInputMap = ref<Record<number | string, string>>({});
-const containerTypeSelect = async (val: string, row: any) => {
-  const $grid = gridApi.grid;
-  const rowKey = row.key || row.id;
-  row.containerType = val ? val.toUpperCase() : '';
-  tempInputMap.value[rowKey] = row.containerType;
-  await $grid.validateField(row, 'containerType');
-};
 </script>
 
 <template>
@@ -720,11 +720,8 @@ const containerTypeSelect = async (val: string, row: any) => {
                 v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
-                :show-search="true"
-                :filter-option="true"
+                :filter-option="false"
                 :list-height="100"
-                @search="(val) => handleContainerTypeInput(val, row)"
-                @select="(val) => containerTypeSelect(val, row)"
               />
             </template>
           </Grid>
