@@ -199,7 +199,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editRules: {
       containerNo: [
         { required: true, message: '必须填写' },
-        { pattern: /^[A-Z]{4}\d{7}$/i, message: '请输入正确的箱号格式' },
+        { pattern: /^[A-Z]{4}\d{7}$/i, message: '箱号格式（前四位为英文，后七位数字）' },
       ],
       containerSize: [{ required: true, message: '必须填写' }],
     },
