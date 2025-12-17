@@ -17,6 +17,7 @@ import {
   getSubPlan,
   getSubPlanPage,
   getVesselAndVoyage,
+  forceComplete,
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -34,8 +35,7 @@ const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
-// const checkedIds2 = ref<number[]>([]);
-// const mainPlanNo = ref<string[]>([]);
+const mainIdList = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -146,6 +146,7 @@ function handleRowCheckboxChange({
     message.warning('主计划和子计划不能同时勾选');
   }
   checkedIds.value = records.map((item) => item.id);
+  mainIdList.value = [...checkedIds.value];
   planNo.value = records.map((item) => item.planNo);
   if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
     checkedSubIds.value = [];
@@ -311,15 +312,6 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-// function handleRowCheckboxChange2({
-//   records,
-// }: {
-//   records: EmptyContainerControlApi.mainPlanVO[];
-// }) {
-//   checkedIds.value = records.map((item) => item.id);
-//   MainPlanNo.value = records.map((item) => item.MainPlanNo);
-// }
-
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
@@ -356,9 +348,27 @@ function handleSubExport() {
 }
 
 /** 强制完成 */
-function handleForceComplete() {
-  message.info('强制完成');
-}
+const handleForceComplete = async () => {
+  try {
+    const res = await forceComplete({ mainIdList: mainIdList.value });
+    if (res) {
+      message.success('成功强制完成！');
+      mainIdList.value = [];
+      checkedIds.value = [];
+
+      if (gridApi2?.grid) {
+        // 取消所有行勾选
+        gridApi2.grid.setAllCheckboxRow(false);
+      }
+    } else {
+      const errorMsg = res?.msg || '强制完成失败，请重试';
+      message.error(errorMsg);
+    }
+  } catch (error) {
+    console.error('强制完成接口调用异常：', error);
+    message.error('网络异常或接口报错，强制完成操作失败！');
+  }
+};
 
 /** 查看主计划详情 */
 const handleMainPlanDetail = async (
@@ -376,7 +386,6 @@ const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
-  console.log('row.id', row.id);
   const res = await getMainPlan(row.id);
   formModalApi2.setData(res).open();
 };
