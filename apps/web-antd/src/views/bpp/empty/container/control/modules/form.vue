@@ -15,6 +15,7 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createSubPlan,
   updateSubPlan,
+  getStorageQuantity,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
@@ -67,6 +68,7 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   containerIsoList: [],
   isRelease: false,
   pickupPlanNo: '',
+  dischargeVesselSchedule: '',
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
@@ -78,6 +80,17 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
 
 const selectContainerArea = () => {
   containerAreaModalVisible.value = true;
+};
+
+// 将字符串转为数组
+const transformStringToArray = (value: any): string[] => {
+  if (Array.isArray(value)) {
+    return value.map(item => item?.toString().trim()).filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean);
+  }
+  return [];
 };
 
 const handleContainerAreaConfirm = (positions: string[]) => {
@@ -181,21 +194,8 @@ const [Modal, modalApi] = useVbenModal({
       formData.planType = 'SUB';
     }
 
-    if(formValues.ownerCodeList){
-
-    }
-
-    const ownerCodeList = Array.isArray(formValues.ownerCodeList)
-      ? formValues.ownerCodeList
-      : typeof formValues.ownerCodeList === 'string'
-        ? formValues.ownerCodeList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
-        : [];
-
-    const containerIsoList = Array.isArray(formValues.containerIsoList)
-      ? formValues.containerIsoList
-      : typeof formValues.containerIsoList === 'string'
-        ? formValues.containerIsoList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
-        : [];
+    const ownerCodeList = transformStringToArray(formData.ownerCodeList);
+    const containerIsoList = transformStringToArray(formData.containerIsoList);
 
     const $grid = gridApi.grid;
     const gridData = $grid ? $grid.getData() : containerAreaData;
@@ -231,6 +231,7 @@ const [Modal, modalApi] = useVbenModal({
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
+        dischargeVesselSchedule: '',
         bayRangeList: [],
         planType: '',
         mainId: '',
@@ -317,6 +318,54 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 
+// 查询堆存情况
+const getStorageConditionSearch = async (row: any) => {
+  try {
+    // 清空上次查询结果
+    row.totalCount = undefined;
+    row.minDays = undefined;
+    row.maxDays = undefined;
+
+    if (!row.yardPosition) {
+      message.warning('请先填写堆场位置');
+      return;
+    }
+    if (!row.yardColumns || row.yardColumns.length === 0) {
+      message.warning('请至少选择一个堆场列');
+      return;
+    }
+
+    // 构建接口请求参数
+    const requestData = {
+      yardBayList: [
+        {
+          yardBay: row.yardPosition,
+          yardRaw: row.yardColumns.join(','),
+        },
+      ],
+      baseInfo: {
+        containerIsoList: transformStringToArray(formData.containerIsoList),
+        ownerCodeList: transformStringToArray(formData.ownerCodeList),
+        tradeType: formData.tradeType,
+        dischargeVesselSchedule: formData.dischargeVesselSchedule,
+      },
+
+    };
+
+    const response = await getStorageQuantity(requestData);
+    if (response.length > 0) {
+      row.totalCount = response[0].totalCount || 0;
+      row.minDays = response[0].minDays || 0;
+      row.maxDays = response[0].maxDays || 0;
+    } else {
+      message.warning(`无可用量`);
+    }
+  } catch (error) {
+    console.log(error)
+    message.warning('堆存查询失败或异常，请重试');
+  }
+};
+
 const modalTitle = computed(() => {
   return formData.id
     ? $t('ui.actionTitle.edit', ['子计划'])
@@ -359,6 +408,7 @@ const modalTitle = computed(() => {
                   style="width: 100%"
                   :max-tag-count="3"
                   :show-search="false"
+                  @change="getStorageConditionSearch(row)"
                 />
               </template>
               <template #actions="{ row }">
