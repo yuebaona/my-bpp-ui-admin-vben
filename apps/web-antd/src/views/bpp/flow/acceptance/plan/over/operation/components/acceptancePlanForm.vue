@@ -704,12 +704,9 @@ watch(
             <template #containerLengthEdit="{ row }">
               <Select
                 :options="isoLengthState.data"
-                mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
                 v-model:value="row.containerSize"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
-                :show-search="true"
-                :filter-option="true"
                 :list-height="100"
               />
             </template>
@@ -720,8 +717,11 @@ watch(
                 v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
-                :filter-option="false"
+                :show-search="true"
+                :filter-option="true"
                 :list-height="100"
+                @search="(val) => handleContainerTypeInput(val, row)"
+                @select="(val) => containerTypeSelect(val, row)"
               />
             </template>
           </Grid>
