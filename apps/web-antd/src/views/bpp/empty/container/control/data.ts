@@ -1,9 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
+
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -894,4 +896,3 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-

@@ -72,9 +72,14 @@ const selectContainerArea = async () => {
       }
     });
   }
-  // 更新参数
-  containerAreaParams.ownerCodeList = formValues.ownerCodeList;
-  containerAreaParams.containerIsoList = formValues.containerIsoList;
+  containerAreaParams.ownerCodeList = Array.isArray(formValues.ownerCodeList)
+    ? formValues.ownerCodeList
+    : [formValues.ownerCodeList];
+  containerAreaParams.containerIsoList = Array.isArray(
+    formValues.containerIsoList,
+  )
+    ? formValues.containerIsoList
+    : [formValues.containerIsoList];
   containerAreaParams.tradeType = formValues.tradeType || '';
   containerAreaParams.selectedPositions = selectedPositions;
   containerAreaModalVisible.value = true;
@@ -121,22 +126,20 @@ const deleteRow = async (row: any) => {
 const isoSearch = async (value: string) => {
   isoState.fetching = true;
   try {
-    const res = await getContainerIsoList('all');
+    const res = await getContainerIsoList({
+      pageNo: 1,
+      pageSize: 10,
+      containerIso: value,
+      queryType: 'ISO',
+    });
 
-    let allData: any[] = [];
     if (res) {
-      // 只提取containerIso字段
-      allData = res.map((item: any) => item.containerIso);
-      // 去重
-      allData = [...new Set(allData)];
-      // 过滤搜索
-      if (value) {
-        allData = allData.filter((item) =>
-          item.toLowerCase().includes(value.toLowerCase()),
-        );
-      }
+      isoState.data = res.map((item: any) => ({
+        label: item.containerIso,
+        value: item.containerIso,
+        data: item,
+      }));
     }
-    isoState.data = allData.map((item) => ({ label: item, value: item }));
   } catch {
     message.error('获取ISO数据失败');
   } finally {
@@ -151,23 +154,21 @@ const initIsoData = async () => {
 
 // 持箱人搜索函数
 const ownerSearch = async (value: string) => {
-  isoState.fetching = true;
+  ownerState.fetching = true;
   try {
-    const res = await getContainerOwnerList('all');
+    const res = await getContainerOwnerList({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
 
-    let allData: any[] = [];
     if (res) {
-      allData = res.map((item: any) => item.ownerCode);
-      // 去重
-      allData = [...new Set(allData)];
-      // 过滤搜索
-      if (value) {
-        allData = allData.filter((item) =>
-          item.toLowerCase().includes(value.toLowerCase()),
-        );
-      }
+      ownerState.data = res.map((item: any) => ({
+        label: item.ownerCode,
+        value: item.ownerCode,
+        data: item,
+      }));
     }
-    ownerState.data = allData.map((item) => ({ label: item, value: item }));
   } catch {
     message.error('获取持箱人数据失败');
   } finally {
@@ -234,14 +235,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-    //   (record) => toRaw(record),
-    // );
 
-    if (containerAreaData.length === 0) {
-      message.warning('请至少添加一条箱区范围数据');
-      return;
-    }
+    // if (containerAreaData.length === 0) {
+    //   message.warning('请至少添加一条箱区范围数据');
+    //   return;
+    // }
 
     const { valid } = await formApi.validate();
     const gridValid: boolean = await gridApi.grid.validate(true);
@@ -257,19 +255,13 @@ const [Modal, modalApi] = useVbenModal({
       formData.planType = 'MAIN';
     }
 
-    // const ownerCodeList = formValues.
-    //   ? formValues.ownerCodeList
-    //     .split(/[,，]/)
-    //     .map((item: string) => item.trim())
-    //     .filter(Boolean)
-    //   : [];
-    //
-    // const isoNoList = formValues.isoNos
-    //   ? formValues.isoNos
-    //     .split(/[,，]/)
-    //     .map((item: string) => item.trim())
-    //     .filter(Boolean)
-    //   : [];
+    if (!Array.isArray(formData.ownerCodeList)) {
+      formData.ownerCodeList = [formData.ownerCodeList];
+    }
+    if (!Array.isArray(formData.containerIsoList)) {
+      formData.containerIsoList = [formData.containerIsoList];
+    }
+
     const $grid = gridApi.grid;
     const gridData = $grid ? $grid.getData() : containerAreaData;
     const bayRangeList = gridData.map((row: any) => ({
@@ -290,25 +282,104 @@ const [Modal, modalApi] = useVbenModal({
   },
   async onOpenChange(isOpen: boolean) {
     if (isOpen) {
-      // 打开模态框时初始化ISO数据
+      Object.assign(formData, {
+        id: '',
+        ownerCodeList: [],
+        containerIsoList: [],
+        isRelease: false,
+        pickupPlanNo: '',
+        tradeType: '',
+        planQuantity: '',
+        completedReleaseQuantity: '',
+        bayRangeList: [],
+        planType: '',
+        mainId: '',
+        planNo: '',
+      });
+      containerAreaData.splice(0);
       initIsoData();
       initOwnerData();
+    }
+    const data = await modalApi.getData<any>();
 
-      // 如果是编辑模式，解析已有值
-      if (formData.id && formData.containerIsoList) {
-        const isoList = formData.containerIsoList;
-        if (Array.isArray(isoList)) {
-          isoState.value = isoList;
-        } else if (typeof isoList === 'string') {
-          isoState.value = isoList
-            .split(/[,，]/)
-            .map((item) => item.trim())
-            .filter(Boolean);
-        }
+    if (data) {
+      // 清空现有数据
+      containerAreaData.splice(0);
+
+      const mainPlanData = data.acceptancePlanRespVO || data;
+      Object.assign(formData, mainPlanData);
+
+      if (data.planType) {
+        formData.planType = data.planType;
       }
-    } else {
-      isoState.value = [];
-      ownerState.value = [];
+      if (data.mainId) {
+        formData.mainId = data.mainId;
+      }
+
+      if (mainPlanData?.id) {
+        modalApi.lock();
+        try {
+          await formApi.setValues(mainPlanData);
+          if (mainPlanData.ownerCodeList) {
+            ownerState.value = mainPlanData.ownerCodeList;
+          }
+
+          // 设置ISO选择值
+          if (mainPlanData.containerIsoList) {
+            isoState.value = mainPlanData.containerIsoList;
+          }
+          const $grid = gridApi.grid;
+          if ($grid) {
+            // 设置箱区范围数据
+            if (data.yardPositionResp) {
+              for (const item of data.yardPositionResp) {
+                await $grid.insertAt(
+                  {
+                    ...item,
+                  },
+                  -1,
+                );
+              }
+            } else if (mainPlanData.bayRangeList) {
+              // 如果是数组格式
+              if (Array.isArray(mainPlanData.bayRangeList)) {
+                for (const bayRange of mainPlanData.bayRangeList) {
+                  await $grid.insertAt(
+                    {
+                      yardPosition: bayRange.yardBay || '',
+                      yardColumns: bayRange.yardRaw
+                        ? bayRange.yardRaw.split(',')
+                        : [],
+                      totalCount: '',
+                      minStorageDays: '',
+                      maxStorageDays: '',
+                    },
+                    -1,
+                  );
+                }
+              } else {
+                await $grid.insertAt(
+                  {
+                    yardPosition: mainPlanData.bayRangeList.yardBay || '',
+                    yardColumns: mainPlanData.bayRangeList.yardRaw
+                      ? mainPlanData.bayRangeList.yardRaw.split(',')
+                      : [],
+                    totalCount: '',
+                    minStorageDays: '',
+                    maxStorageDays: '',
+                  },
+                  -1,
+                );
+              }
+            }
+          }
+        } finally {
+          modalApi.unlock();
+        }
+      } else {
+        // 新创建的主计划，确保planType为MAIN
+        formData.planType = 'MAIN';
+      }
     }
   },
 });
@@ -352,7 +423,6 @@ const modalTitle = computed(() => {
           allow-clear
           @select="(value) => formApi.setFieldValue('ownerCodeList', value)"
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
-          :max-tag-count="3"
         />
       </template>
       <!-- 箱区范围表格部分 -->

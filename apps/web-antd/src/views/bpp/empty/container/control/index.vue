@@ -16,7 +16,6 @@ import {
   getMainPlanPage,
   getSubPlan,
   getSubPlanPage,
-
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -121,8 +120,8 @@ function handleRowClick({ row }: { row: EmptyContainerControlApi.mainPlanVO }) {
 
 // 子计划勾选事件处理函数
 function handleSubRowCheckboxChange({
-                                      records,
-                                    }: {
+  records,
+}: {
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   // 检查是否已勾选主计划
@@ -138,8 +137,8 @@ function handleSubRowCheckboxChange({
 }
 
 function handleRowCheckboxChange({
-                                   records,
-                                 }: {
+  records,
+}: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   // 检查是否已勾选子计划
@@ -319,10 +318,9 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-
 function handleRowCheckboxChange2({
-                                    records,
-                                  }: {
+  records,
+}: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
@@ -364,8 +362,7 @@ function handleCreateSubPlan() {
 }
 
 /** 导出数据 */
-function handleMainExport() {
-}
+function handleMainExport() {}
 
 function handleSubExport() {
   message.info('导出功能');
@@ -392,7 +389,6 @@ const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
-  console.log('row.id', row.id);
   const res = await getMainPlan(row.id);
   formModalApi2.setData(res).open();
 };
