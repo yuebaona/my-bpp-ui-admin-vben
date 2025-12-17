@@ -1,15 +1,14 @@
-import type { VbenFormSchema } from '#/adapter/form';
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { DescriptionItemSchema } from '#/components/description';
+import type { VbenFormSchema } from "#/adapter/form";
+import { z } from "#/adapter/form";
+import type { VxeTableGridOptions } from "#/adapter/vxe-table";
+import type { DescriptionItemSchema } from "#/components/description";
 
-import { h } from 'vue';
+import { h } from "vue";
 
-import { Tag } from 'ant-design-vue';
-
-import { z } from '#/adapter/form';
-import { getDictDataPage } from '#/api/bpp/base/dict/data';
-import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import { getRangePickerDefaultProps } from '#/utils';
+import { Tag } from "ant-design-vue";
+import { getDictDataPage } from "#/api/bpp/base/dict/data";
+import { bppBaseDictStore } from "#/store/bpp/base/dict";
+import { getRangePickerDefaultProps } from "#/utils";
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
@@ -336,11 +335,30 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
       title: '箱号',
       field: 'containerNo',
       minWidth: 120,
-      editRender: { name: 'input' },
-      formatter({ cellValue }) {
-        // 小写字母转换成大写字母
-        return cellValue.toUpperCase();
+      editRender: {
+        name: 'input',
+        events: {
+          input: async (params: any) => {
+            const seq = params.seq;
+            const currentRow = params.data[seq-1]; // 当前行数据
+
+            setTimeout(() => {
+              const cellEl = params.$grid.getCellElement(currentRow, 'containerNo');
+              const inputEl = cellEl?.querySelector('.vxe-default-input');
+
+              if (inputEl) {
+                inputEl.value = inputEl.value.toUpperCase();
+
+              }
+            }, 10);
+          },
+        },
+        immediate: true,
       },
+      editConfig:{
+        mode: 'row',
+        autoFocus: true
+      }
     },
     {
       title: '尺寸',
@@ -1680,3 +1698,4 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
     },
   ];
 }
+
