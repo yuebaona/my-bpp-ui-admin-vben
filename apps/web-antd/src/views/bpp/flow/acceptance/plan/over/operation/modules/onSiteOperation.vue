@@ -6,8 +6,9 @@ import { reactive, ref, watch } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message, Select } from 'ant-design-vue';
+import { useDebounceFn } from '@vueuse/core';
 
+import { message, Select } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { getVVd } from '#/api/bpp/common';
 import {
@@ -29,6 +30,7 @@ const vesselVoyageState = reactive({
   value: [],
   fetching: false,
 });
+
 async function setFieldAndDisable(fieldName: string, value: any) {
   if (value) {
     await formApi.setFieldValue(fieldName, value);
@@ -37,7 +39,9 @@ async function setFieldAndDisable(fieldName: string, value: any) {
     }
   }
 }
+
 const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
+  isOnSiteWork: '',
   endTimeBack: 0,
   id: '',
   operationType: '',
@@ -68,6 +72,7 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   stopRemark: '',
   overOperationContainerIds: [],
 });
+
 const [Form, formApi] = useVbenForm({
   commonConfig: {
     componentProps: {
@@ -81,13 +86,10 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
 });
-const [Modal, modalApi] = useVbenModal({
-  async onConfirm() {
-    const { valid } = await formApi.validate();
-    if (!valid) {
-      return;
-    }
-    modalApi.lock();
+
+const submitCoreLogic = async () => {
+  modalApi.lock();
+  try {
     // 提交表单
     const acceptancePlanNo = formData.value?.acceptancePlanNo;
     const data =
@@ -96,13 +98,33 @@ const [Modal, modalApi] = useVbenModal({
     formData.value.acceptancePlanNo = acceptancePlanNo;
     formData.value.vesselCode = vesselCode.value;
     formData.value.operationFile = JSON.stringify(data.operationFile);
+
+    // 调用接口提交
     await (formData.value?.id
       ? updateMachineSpreaderRecord(formData.value)
       : confirmMachineSpreaderChangeRecord(formData.value));
+
     // 关闭并提示
     await modalApi.close();
     emit('success');
     message.success($t('ui.actionMessage.operationSuccess'));
+  } catch (error: any) {
+    message.error(`操作失败：${error.message || '未知错误'}`);
+    console.error('提交失败详情：', error);
+  } finally {
+    modalApi.unlock();
+  }
+};
+const debouncedSubmit = useDebounceFn(submitCoreLogic, 200);
+
+const [Modal, modalApi] = useVbenModal({
+  async onConfirm() {
+    const { valid } = await formApi.validate();
+    if (!valid) {
+      return;
+    }
+    // 触发防抖提交
+    await debouncedSubmit();
   },
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
@@ -115,6 +137,11 @@ const [Modal, modalApi] = useVbenModal({
     formData.value.acceptancePlanNo = data.value?.acceptancePlanNo;
     if (data?.id) {
       await formApi.setValues(data);
+      await formApi.setFieldValue('endTime', data?.endTime?.toString()||null);
+      await formApi.setFieldValue(
+        'endTimeBack',
+        data?.endTimeBack?.toString() || null,
+      );
     }
     if (data?.vesselName || data.value?.vesselName) {
       vesselNameState.value = {
