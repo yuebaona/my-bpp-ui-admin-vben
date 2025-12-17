@@ -24,6 +24,15 @@ export namespace CommonApi {
     noticeEmail: string;
     noticePhone: string;
   }
+
+  export interface ContainerOwnerVO {
+    id?: number;
+    ownerCode?: string;
+    ownerName?: string;
+    ownerCountry?: string;
+    ownerMaster?: string;
+    ownerLocalNm?: string;
+  }
 }
 // 获取客户基础信息
 export const getCustomerList = (params: PageParam) => {
@@ -33,7 +42,7 @@ export const getCustomerList = (params: PageParam) => {
   );
 };
 // 获取船名航次
-export const  getVVd = ({
+export const getVVd = ({
   queryType = 'VESSEL',
   condition,
 }: {
@@ -48,5 +57,12 @@ export const  getVVd = ({
 export const getContainerIsoList = (queryType: string) => {
   return requestClient.get(
     `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
+  );
+};
+// 获取集装箱持箱人信息
+export const getContainerOwnerList = (params: string) => {
+  return requestClient.get<PageResult<CommonApi.ContainerOwnerVO>>(
+    '/bpp/flow/common/get-container-owner-list',
+    { params },
   );
 };

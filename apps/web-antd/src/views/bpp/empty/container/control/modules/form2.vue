@@ -10,6 +10,7 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import {
   createMainPlan,
   updateMainPlan,
@@ -28,6 +29,18 @@ const containerAreaParams = reactive({
   containerIsoList: [],
   tradeType: '',
   selectedPositions: [],
+});
+
+const isoState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const ownerState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
 });
 
 const containerAreaData = reactive<any[]>([]);
@@ -71,7 +84,7 @@ const handleContainerAreaConfirm = (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
-    containerAreaData.forEach(row => {
+    containerAreaData.forEach((row) => {
       if (row.yardPosition) {
         existingRowsMap.set(row.yardPosition, row);
       }
@@ -102,6 +115,69 @@ const handleContainerAreaConfirm = (positions: string[]) => {
 const deleteRow = async (row: any) => {
   const $grid = gridApi.grid;
   await $grid.remove(row);
+};
+
+// ISO搜索函数
+const isoSearch = async (value: string) => {
+  isoState.fetching = true;
+  try {
+    const res = await getContainerIsoList('all');
+
+    let allData: any[] = [];
+    if (res) {
+      // 只提取containerIso字段
+      allData = res.map((item: any) => item.containerIso);
+      // 去重
+      allData = [...new Set(allData)];
+      // 过滤搜索
+      if (value) {
+        allData = allData.filter((item) =>
+          item.toLowerCase().includes(value.toLowerCase()),
+        );
+      }
+    }
+    isoState.data = allData.map((item) => ({ label: item, value: item }));
+  } catch {
+    message.error('获取ISO数据失败');
+  } finally {
+    isoState.fetching = false;
+  }
+};
+
+// 初始化ISO数据
+const initIsoData = async () => {
+  await isoSearch('');
+};
+
+// 持箱人搜索函数
+const ownerSearch = async (value: string) => {
+  isoState.fetching = true;
+  try {
+    const res = await getContainerOwnerList('all');
+
+    let allData: any[] = [];
+    if (res) {
+      allData = res.map((item: any) => item.ownerCode);
+      // 去重
+      allData = [...new Set(allData)];
+      // 过滤搜索
+      if (value) {
+        allData = allData.filter((item) =>
+          item.toLowerCase().includes(value.toLowerCase()),
+        );
+      }
+    }
+    ownerState.data = allData.map((item) => ({ label: item, value: item }));
+  } catch {
+    message.error('获取持箱人数据失败');
+  } finally {
+    ownerState.fetching = false;
+  }
+};
+
+// 初始化持箱人数据
+const initOwnerData = async () => {
+  await ownerSearch('');
 };
 
 const [Form, formApi] = useVbenForm({
@@ -197,16 +273,12 @@ const [Modal, modalApi] = useVbenModal({
     const $grid = gridApi.grid;
     const gridData = $grid ? $grid.getData() : containerAreaData;
     const bayRangeList = gridData.map((row: any) => ({
-      // emptyContainerControlId: '',
-      // id: '',
       yardBay: row.yardPosition || '',
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
-      // ownerCodeList,
-      // containerIsoList,
       bayRangeList,
     } as EmptyContainerControlApi.mainPlanVO;
 
@@ -217,97 +289,26 @@ const [Modal, modalApi] = useVbenModal({
     message.success($t('ui.actionMessage.operationSuccess'));
   },
   async onOpenChange(isOpen: boolean) {
-    if (!isOpen) {
-      Object.assign(formData, {
-        id: '',
-        ownerCodeList: [],
-        containerIsoList: [],
-        isRelease: undefined,
-        pickupPlanNo: '',
-        tradeType: '',
-        planQuantity: '',
-        completedReleaseQuantity: '',
-        bayRangeList: [],
-        planType: '',
-        mainId: '',
-        planNo: '',
-      });
-      containerAreaData.splice(0);
-      return;
-    }
+    if (isOpen) {
+      // 打开模态框时初始化ISO数据
+      initIsoData();
+      initOwnerData();
 
-    const data = await modalApi.getData<any>();
-
-    if (data) {
-      // 清空现有数据
-      containerAreaData.splice(0);
-
-      const mainPlanData = data.acceptancePlanRespVO || data;
-      Object.assign(formData, mainPlanData);
-
-      if (data.planType) {
-        formData.planType = data.planType;
-      }
-      if (data.mainId) {
-        formData.mainId = data.mainId;
-      }
-
-      if (mainPlanData?.id) {
-        modalApi.lock();
-        try {
-          await formApi.setValues(mainPlanData);
-          const $grid = gridApi.grid;
-          if ($grid) {
-            if (data.yardPositionResp) {
-              for (const item of data.yardPositionResp) {
-                await $grid.insertAt(
-                  {
-                    ...item,
-                  },
-                  -1,
-                );
-              }
-            } else if (mainPlanData.bayRangeList) {
-              if (Array.isArray(mainPlanData.bayRangeList)) {
-                for (const bayRange of mainPlanData.bayRangeList) {
-                  await $grid.insertAt(
-                    {
-                      yardPosition: bayRange.yardBay || '',
-                      yardColumns: bayRange.yardRaw
-                        ? bayRange.yardRaw.split(',')
-                        : [],
-                      totalCount: '',
-                      minStorageDays: '',
-                      maxStorageDays: '',
-                    },
-                    -1,
-                  );
-                }
-              } else {
-                await $grid.insertAt(
-                  {
-                    yardPosition: mainPlanData.bayRangeList.yardBay || '',
-                    yardColumns: mainPlanData.bayRangeList.yardRaw
-                      ? mainPlanData.bayRangeList.yardRaw.split(',')
-                      : [],
-                    totalCount: '',
-                    minStorageDays: '',
-                    maxStorageDays: '',
-                  },
-                  -1,
-                );
-              }
-            }
-          }
-        } finally {
-          modalApi.unlock();
+      // 如果是编辑模式，解析已有值
+      if (formData.id && formData.containerIsoList) {
+        const isoList = formData.containerIsoList;
+        if (Array.isArray(isoList)) {
+          isoState.value = isoList;
+        } else if (typeof isoList === 'string') {
+          isoState.value = isoList
+            .split(/[,，]/)
+            .map((item) => item.trim())
+            .filter(Boolean);
         }
-      } else {
-        await formApi.setValues(formData);
       }
-      if (!data.planType) {
-        formData.planType = 'MAIN';
-      }
+    } else {
+      isoState.value = [];
+      ownerState.value = [];
     }
   },
 });
@@ -322,6 +323,38 @@ const modalTitle = computed(() => {
 <template>
   <Modal :title="modalTitle">
     <Form>
+      <template #containerIsoList>
+        <Select
+          v-model:value="isoState.value"
+          mode="multiple"
+          placeholder="请输入ISO"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="isoState.fetching ? undefined : null"
+          :options="isoState.data"
+          @search="isoSearch"
+          allow-clear
+          @select="(value) => formApi.setFieldValue('containerIsoList', value)"
+          @change="(value) => formApi.setFieldValue('containerIsoList', value)"
+          :max-tag-count="3"
+        />
+      </template>
+      <template #ownerCodeList>
+        <Select
+          v-model:value="ownerState.value"
+          mode="multiple"
+          placeholder="请输入持箱人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="ownerState.fetching ? undefined : null"
+          :options="ownerState.data"
+          @search="ownerSearch"
+          allow-clear
+          @select="(value) => formApi.setFieldValue('ownerCodeList', value)"
+          @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
+          :max-tag-count="3"
+        />
+      </template>
       <!-- 箱区范围表格部分 -->
       <template #containerAreaRange>
         <div class="mt-4 w-full">
