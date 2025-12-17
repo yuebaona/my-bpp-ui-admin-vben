@@ -24,18 +24,19 @@ const emit = defineEmits(['success']);
 const containerAreaModalVisible = ref(false);
 
 const containerAreaParams = reactive({
-  ownerList: [],
-  isoNoList: [],
+  ownerCodeList: [],
+  containerIsoList: [],
   tradeType: '',
+  selectedPositions: [],
 });
 
 const containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
-  ownerList: [],
-  isoNoList: [],
-  isRelease: false,
+  ownerCodeList: [],
+  containerIsoList: [],
+  isRelease: undefined,
   pickupPlanNo: '',
   tradeType: '',
   planQuantity: '',
@@ -50,41 +51,47 @@ const selectContainerArea = async () => {
   // 获取表单值
   const formValues = await formApi.getValues();
 
-  // 处理持箱人列表
-  const ownerList = formValues.owners
-    ? formValues.owners
-      .split(/[,，]/)
-      .map((item: string) => item.trim())
-      .filter(Boolean)
-    : [];
-
-  // 处理ISO列表
-  const isoNoList = formValues.isoNos
-    ? formValues.isoNos
-      .split(/[,，]/)
-      .map((item: string) => item.trim())
-      .filter(Boolean)
-    : [];
-
+  const selectedPositions: string[] = [];
+  if (formData.bayRangeList && Array.isArray(formData.bayRangeList)) {
+    formData.bayRangeList.forEach((item) => {
+      if (item.yardBay) {
+        selectedPositions.push(item.yardBay);
+      }
+    });
+  }
   // 更新参数
-  containerAreaParams.ownerList = ownerList;
-  containerAreaParams.isoNoList = isoNoList;
+  containerAreaParams.ownerCodeList = formValues.ownerCodeList;
+  containerAreaParams.containerIsoList = formValues.containerIsoList;
   containerAreaParams.tradeType = formValues.tradeType || '';
-
+  containerAreaParams.selectedPositions = selectedPositions;
   containerAreaModalVisible.value = true;
 };
 
 const handleContainerAreaConfirm = (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
+    const existingRowsMap = new Map<string, any>();
+    containerAreaData.forEach(row => {
+      if (row.yardPosition) {
+        existingRowsMap.set(row.yardPosition, row);
+      }
+    });
     containerAreaData.splice(0);
-    const newRows = positions.map((pos) => ({
-      yardPosition: `${pos}`,
-      yardColumns: [],
-      totalCount: '',
-      minStorageDays: '',
-      maxStorageDays: '',
-    }));
+    const newRows = positions.map((pos) => {
+      const yardPosition = `${pos}`;
+
+      if (existingRowsMap.has(yardPosition)) {
+        return existingRowsMap.get(yardPosition);
+      }
+      // 新行数据
+      return {
+        yardPosition,
+        yardColumns: [],
+        totalCount: '',
+        minStorageDays: '',
+        maxStorageDays: '',
+      };
+    });
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
@@ -155,10 +162,10 @@ const [Modal, modalApi] = useVbenModal({
     //   (record) => toRaw(record),
     // );
 
-    // if (containerAreaArray.length === 0) {
-    //   message.warning('请至少添加一条箱区范围数据');
-    //   return;
-    // }
+    if (containerAreaData.length === 0) {
+      message.warning('请至少添加一条箱区范围数据');
+      return;
+    }
 
     const { valid } = await formApi.validate();
     const gridValid: boolean = await gridApi.grid.validate(true);
@@ -170,26 +177,23 @@ const [Modal, modalApi] = useVbenModal({
     // Object.assign(formData, await formApi.getValues());
     const formValues = await formApi.getValues();
     Object.assign(formData, formValues);
-    // 确保planType和mainId被正确设置
     if (!formData.planType) {
       formData.planType = 'MAIN';
     }
-    // 转换持箱人字符串为数组
-    const ownerList = formValues.owners
-      ? formValues.owners
-          .split(/[,，]/)
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-      : [];
 
-    // 转换ISO字符串为数组
-    const isoNoList = formValues.isoNos
-      ? formValues.isoNos
-          .split(/[,，]/)
-          .map((item: string) => item.trim())
-          .filter(Boolean)
-      : [];
-
+    // const ownerCodeList = formValues.
+    //   ? formValues.ownerCodeList
+    //     .split(/[,，]/)
+    //     .map((item: string) => item.trim())
+    //     .filter(Boolean)
+    //   : [];
+    //
+    // const isoNoList = formValues.isoNos
+    //   ? formValues.isoNos
+    //     .split(/[,，]/)
+    //     .map((item: string) => item.trim())
+    //     .filter(Boolean)
+    //   : [];
     const $grid = gridApi.grid;
     const gridData = $grid ? $grid.getData() : containerAreaData;
     const bayRangeList = gridData.map((row: any) => ({
@@ -199,11 +203,10 @@ const [Modal, modalApi] = useVbenModal({
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
-    // 构建符合新接口格式的数据
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
-      ownerList,
-      isoNoList,
+      // ownerCodeList,
+      // containerIsoList,
       bayRangeList,
     } as EmptyContainerControlApi.mainPlanVO;
 
@@ -217,9 +220,9 @@ const [Modal, modalApi] = useVbenModal({
     if (!isOpen) {
       Object.assign(formData, {
         id: '',
-        ownerList: [],
-        isoNoList: [],
-        isRelease: false,
+        ownerCodeList: [],
+        containerIsoList: [],
+        isRelease: undefined,
         pickupPlanNo: '',
         tradeType: '',
         planQuantity: '',
@@ -255,7 +258,6 @@ const [Modal, modalApi] = useVbenModal({
           await formApi.setValues(mainPlanData);
           const $grid = gridApi.grid;
           if ($grid) {
-            // 设置箱区范围数据
             if (data.yardPositionResp) {
               for (const item of data.yardPositionResp) {
                 await $grid.insertAt(
@@ -266,7 +268,6 @@ const [Modal, modalApi] = useVbenModal({
                 );
               }
             } else if (mainPlanData.bayRangeList) {
-              // 如果是数组格式
               if (Array.isArray(mainPlanData.bayRangeList)) {
                 for (const bayRange of mainPlanData.bayRangeList) {
                   await $grid.insertAt(
@@ -285,13 +286,13 @@ const [Modal, modalApi] = useVbenModal({
               } else {
                 await $grid.insertAt(
                   {
-                  yardPosition: mainPlanData.bayRangeList.yardBay || '',
-                  yardColumns: mainPlanData.bayRangeList.yardRaw
-                  ? mainPlanData.bayRangeList.yardRaw.split(',')
-                  : [],
-                  totalCount: '',
-                  minStorageDays: '',
-                  maxStorageDays: '',
+                    yardPosition: mainPlanData.bayRangeList.yardBay || '',
+                    yardColumns: mainPlanData.bayRangeList.yardRaw
+                      ? mainPlanData.bayRangeList.yardRaw.split(',')
+                      : [],
+                    totalCount: '',
+                    minStorageDays: '',
+                    maxStorageDays: '',
                   },
                   -1,
                 );
@@ -302,7 +303,9 @@ const [Modal, modalApi] = useVbenModal({
           modalApi.unlock();
         }
       } else {
-        // 新创建的主计划，确保planType为MAIN
+        await formApi.setValues(formData);
+      }
+      if (!data.planType) {
         formData.planType = 'MAIN';
       }
     }
@@ -373,9 +376,10 @@ const modalTitle = computed(() => {
     <!-- 添加箱区选择弹窗组件 -->
     <ContainerArea
       v-model:visible="containerAreaModalVisible"
-      :owner-list="containerAreaParams.ownerList"
-      :iso-no-list="containerAreaParams.isoNoList"
+      :owner-code-list="containerAreaParams.ownerCodeList"
+      :container-iso-list="containerAreaParams.containerIsoList"
       :trade-type="containerAreaParams.tradeType"
+      :selected-positions="containerAreaParams.selectedPositions"
       @confirm="handleContainerAreaConfirm"
     />
   </Modal>
