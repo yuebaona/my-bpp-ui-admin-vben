@@ -67,7 +67,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '最低准存天数',
-      field: 'minStorageDays',
+      field: 'minDays',
       minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
@@ -78,7 +78,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '最高准存天数',
-      field: 'maxStorageDays',
+      field: 'maxDays',
       minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
@@ -442,7 +442,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'vesselUnloadDate',
+      fieldName: 'dischargeVesselSchedule',
       label: '卸船船期',
       component: 'Select',
       componentProps: {

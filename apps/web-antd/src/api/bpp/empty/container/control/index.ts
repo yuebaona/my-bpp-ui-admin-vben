@@ -30,6 +30,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
+    dischargeVesselSchedule: string;
   }
   // 子计划VO
   export interface subPlanVO {
@@ -50,6 +51,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
+    dischargeVesselSchedule: string;
   }
 
   export interface mainLogVO {
@@ -220,5 +222,21 @@ export const getVesselAndVoyage = (params: { condition: string }) => {
     {
       params,
     },
+  );
+};
+
+// 查询堆存情况
+export const getStorageQuantity = (data: any) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/bay/statistics',
+    data,
+  );
+};
+
+// 强制完成
+export const forceComplete = (data: EmptyContainerControlApi.mainPlanVOVO) => {
+  return requestClient.put(
+    '/bpp/flow/empty/container-control-main/force/complete',
+    data,
   );
 };

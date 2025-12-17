@@ -55,10 +55,10 @@ const yardPositionTreeData = ref<TreeProps['treeData']>([
     ],
   },
   {
-    title: 'B02',
-    key: 'B02',
+    title: 'B05',
+    key: 'B05',
     children: [
-      { title: '01 (02)', key: 'B02-01' },
+      { title: '05 (01)', key: 'B05-95' },
       { title: '03 (04)', key: 'B02-03' },
       { title: '05 (06)', key: 'B02-05' },
       { title: '07 (08)', key: 'B02-07' },
