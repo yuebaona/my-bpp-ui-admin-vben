@@ -76,6 +76,26 @@ export namespace EmptyContainerControlApi {
     yardBayList: string[];
   }
 
+  export interface ContainerOwnerVO {
+    id?: number;
+    ownerCode?: string;
+    ownerName?: string;
+    ownerCountry?: string;
+    ownerMaster?: string;
+    ownerLocalNm?: string;
+  }
+
+  export interface isoVO {
+    id?: number;
+    containerIso?: string;
+    isSpecial?: string;
+    containerType?: string;
+    containerTypeName?: string;
+    containerLength?: string;
+    containerHeight?: string;
+    isoCode?: string;
+  }
+
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
     id: number;
@@ -220,16 +240,15 @@ export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
 };
 
 // 新建子计划获取持箱人信息
-export const subPlanGetOwnerList = (mainId : number) => {
-  return requestClient.get<Array<string>>(
+export const getSubPlanOwnerList = (mainId : string) => {
+  return requestClient.get<Array<EmptyContainerControlApi.ContainerOwnerVO>>(
     `/bpp/flow/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
   );
 };
 
 // 新建子计划获取ISO信息
-export const subPlanGetIsoList = (mainId : number) => {
-  return requestClient.get<Array<string>>(
+export const getSubPlanIsoList = (mainId : string) => {
+  return requestClient.get<Array<EmptyContainerControlApi.isoVO>>(
     `/bpp/flow/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
   );
-}
-
+};

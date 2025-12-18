@@ -405,9 +405,7 @@ const modalTitle = computed(() => {
           :options="isoState.data"
           @search="isoSearch"
           allow-clear
-          @select="(value) => formApi.setFieldValue('containerIsoList', value)"
           @change="(value) => formApi.setFieldValue('containerIsoList', value)"
-          :max-tag-count="3"
         />
       </template>
       <template #ownerCodeList>
@@ -421,7 +419,6 @@ const modalTitle = computed(() => {
           :options="ownerState.data"
           @search="ownerSearch"
           allow-clear
-          @select="(value) => formApi.setFieldValue('ownerCodeList', value)"
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
         />
       </template>

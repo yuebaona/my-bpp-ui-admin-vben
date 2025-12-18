@@ -233,13 +233,13 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入持箱人，可多条',
-        allowClear: true,
+      component: 'Select',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
       },
       rules: 'required',
-      // slot: 'ownerCodeList',
     },
     {
       fieldName: 'tradeType',
@@ -256,9 +256,11 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'containerIsoList',
       label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入ISO，可多条',
+      component: 'Select',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
       },
       rules: 'required',
     },
