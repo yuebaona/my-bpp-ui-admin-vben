@@ -95,9 +95,6 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
             pageSize: page.pageSize,
             ...transformedParams,
           });
-          if (result.list) {
-            result.list = result.list.reverse();
-          }
           return result;
         },
       },
@@ -303,9 +300,6 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
             pageSize: page.pageSize,
             ...transformedParams,
           });
-          if (result.list) {
-            result.list = result.list.reverse();
-          }
           return result;
         },
       },
