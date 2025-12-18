@@ -444,7 +444,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       slot: 'form-containerIsoList',
     },
     {
-      fieldName: 'vesselUnloadDate',
+      fieldName: 'dischargeVesselSchedule',
       label: '卸船船期',
       component: 'Select',
       componentProps: {
