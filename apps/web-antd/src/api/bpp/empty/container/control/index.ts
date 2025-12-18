@@ -73,17 +73,18 @@ export namespace EmptyContainerControlApi {
     mainGateAvailableQuantity: string;
   }
 
-
-  export interface VesselAndVoyageResponse {
+  // 箱列表列表
+  export interface containerIsoList {
     code: number;
     msg: string;
-    data: string[]; // 或者更具体的类型如 string[]
+    data: string[];
   }
 
-  export interface ISO {
+  // 持箱者列表
+  export interface ownerCodeList {
     code: number;
     msg: string;
-    data: string[]; // 或者更具体的类型如 string[]
+    data: string[];
   }
 
   // 超限受理计划信息
@@ -215,7 +216,35 @@ export const getLogQueryPage = (params: LogQueryParams) => {
   );
 };
 
-// 查询船名航次
+// 查询持箱人
+export const getOwnerList = (params: {
+  ownerCode: string;
+  pageNo: number;
+  pageSize: number;
+}) => {
+  return requestClient.get<EmptyContainerControlApi.ownerCodeList>(
+    '/bpp/flow/common/get-container-owner-list',
+    {
+      params,
+    },
+  );
+};
+
+// 查询ISO
+export const getIsoList = (params: {
+  containerIso: string;
+  pageNo: number;
+  pageSize: number;
+}) => {
+  return requestClient.get<EmptyContainerControlApi.containerIsoList>(
+    '/bpp/flow/common/get-container-iso-list',
+    {
+      params,
+    },
+  );
+};
+
+// 查询卸船船期
 export const getVesselAndVoyage = (params: { condition: string }) => {
   return requestClient.get<EmptyContainerControlApi.VesselAndVoyageResponse>(
     '/bpp/flow/common/get-vvd-union',

@@ -426,23 +426,25 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '多个持箱人用英文逗号分隔',
+        placeholder: '请选择持箱人',
         allowClear: true,
       },
+      slot: 'form-ownerCodeList',
     },
     {
       fieldName: 'containerIsoList',
       label: 'ISO',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '多个ISO用英文逗号分隔',
+        placeholder: '请选择ISO号',
         allowClear: true,
       },
+      slot: 'form-containerIsoList',
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'vesselUnloadDate',
       label: '卸船船期',
       component: 'Select',
       componentProps: {

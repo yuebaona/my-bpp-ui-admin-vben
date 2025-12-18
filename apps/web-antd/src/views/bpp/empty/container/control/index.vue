@@ -12,12 +12,14 @@ import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteMainPlan,
   deleteSubPlan,
+  forceComplete,
+  getIsoList,
   getMainPlan,
   getMainPlanPage,
+  getOwnerList,
   getSubPlan,
   getSubPlanPage,
   getVesselAndVoyage,
-  forceComplete,
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -421,11 +423,64 @@ const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
 
+const ownerCodeList = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const containerIsoList = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
 const vesselUnloadDate = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
+// 获取持箱者列表
+const fetchOwnerCodeList = async (searchText) => {
+  try {
+    ownerCodeList.fetching = true;
+    const result = await getOwnerList({
+      ownerCode: searchText,
+      pageNo: 1,
+      pageSize: 100,
+    });
+    ownerCodeList.data = result.map((item) => ({
+      label: item.ownerCode,
+      value: item.ownerCode,
+    }));
+  } catch {
+    ownerCodeList.data = [];
+  } finally {
+    ownerCodeList.fetching = false;
+  }
+};
+
+// 获取ISO列表
+const fetchContainerIsoList = async (searchText) => {
+  try {
+    containerIsoList.fetching = true;
+    const result = await getIsoList({
+      containerIso: searchText,
+      pageNo: 1,
+      pageSize: 100,
+      queryType: 'VESSEL',
+    });
+    containerIsoList.data = result.map((item) => ({
+      label: item.containerIso,
+      value: item.containerIso,
+    }));
+  } catch {
+    containerIsoList.data = [];
+  } finally {
+    containerIsoList.fetching = false;
+  }
+};
 
 // 获取卸船船期
 const fetchVesselUnloadDate = async (searchText) => {
@@ -457,20 +512,45 @@ const fetchVesselUnloadDate = async (searchText) => {
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <Grid2 table-title="主计划">
-        <template #form-vesselUnloadDate>
+        <template #form-ownerCodeList>
           <Select
-            :options="vesselUnloadDate.data"
-            mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
-            v-model:value="vesselUnloadDate.value"
+            :options="ownerCodeList.data"
+            mode="multiple"
+            v-model:value="ownerCodeList.value"
             style="width: 100%"
-            placeholder="请输入船名或航次号"
+            placeholder="请输入持箱人"
             :show-search="true"
             :filter-option="true"
             :list-height="100"
-            @change="fetchVesselUnloadDate"
+            @search="fetchOwnerCodeList"
           />
         </template>
-        <template #condition> </template>
+        <template #form-containerIsoList>
+          <Select
+            :options="containerIsoList.data"
+            mode="multiple"
+            v-model:value="containerIsoList.value"
+            style="width: 100%"
+            placeholder="请输入ISO"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="100"
+            @search="fetchContainerIsoList"
+          />
+        </template>
+        <template #form-vesselUnloadDate>
+          <Select
+            :options="vesselUnloadDate.data"
+            mode="multiple"
+            v-model:value="vesselUnloadDate.value"
+            style="width: 100%"
+            placeholder="请输入船名或航次"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="100"
+            @search="fetchVesselUnloadDate"
+          />
+        </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
