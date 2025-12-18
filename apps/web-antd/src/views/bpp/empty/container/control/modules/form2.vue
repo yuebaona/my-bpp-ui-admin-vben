@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { computed, reactive, ref } from 'vue';
+import {computed, reactive, ref} from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -89,7 +89,9 @@ const handleContainerAreaConfirm = (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
-    containerAreaData.forEach((row) => {
+    const currentGridData = $grid.getTableData();
+
+    currentGridData.fullData.forEach((row) => {
       if (row.yardPosition) {
         existingRowsMap.set(row.yardPosition, row);
       }
@@ -113,13 +115,36 @@ const handleContainerAreaConfirm = (positions: string[]) => {
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
+    formData.bayRangeList = containerAreaData.map(item => ({
+      yardBay: item.yardPosition,
+      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item
+    }));
   }
 };
 
 // 删除行方法
 const deleteRow = async (row: any) => {
   const $grid = gridApi.grid;
-  await $grid.remove(row);
+  if ($grid) {
+    const currentGridData = $grid.getTableData().fullData;
+
+    containerAreaData.splice(0);
+    const dataIndex = currentGridData.findIndex(item => item.yardPosition === row.yardPosition);
+    if (dataIndex !== -1) {
+      currentGridData.splice(dataIndex, 1);
+    }
+
+    containerAreaData.push(...currentGridData);
+    $grid.reloadData(containerAreaData);
+    formData.bayRangeList = containerAreaData.map(item => ({
+      yardBay: item.yardPosition,
+      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item
+    }));
+
+    $grid.clearFilter();
+  }
 };
 
 // ISO搜索函数
@@ -263,7 +288,7 @@ const [Modal, modalApi] = useVbenModal({
     }
 
     const $grid = gridApi.grid;
-    const gridData = $grid ? $grid.getData() : containerAreaData;
+    const gridData = $grid ? $grid.getTableData().fullData : containerAreaData;
     const bayRangeList = gridData.map((row: any) => ({
       yardBay: row.yardPosition || '',
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',

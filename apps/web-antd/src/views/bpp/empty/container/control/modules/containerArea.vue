@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import type { TreeProps } from 'ant-design-vue';
+
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { computed, ref, watch } from 'vue';
 
 import { Button, Input, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
+
 import { getYardRange } from '#/api/bpp/empty/container/control';
 
 interface Props {
@@ -41,7 +43,7 @@ watch(
       fetchYardRange();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -55,13 +57,17 @@ watch(
 );
 
 watch(
-  [() => props.ownerCodeList, () => props.containerIsoList, () => props.tradeType],
+  [
+    () => props.ownerCodeList,
+    () => props.containerIsoList,
+    () => props.tradeType,
+  ],
   () => {
     if (props.visible) {
       fetchYardRange();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // 获取堆场范围数据
@@ -79,7 +85,12 @@ const fetchYardRange = async () => {
     if (response.length > 0) {
       yardPositionTreeData.value = response
         .map((item: any) => {
-          if (!item || !item.yard || !Array.isArray(item.yardBayList) || item.yardBayList.length === 0) {
+          if (
+            !item ||
+            !item.yard ||
+            !Array.isArray(item.yardBayList) ||
+            item.yardBayList.length === 0
+          ) {
             return null;
           }
           return {
