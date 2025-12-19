@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { computed, reactive, ref } from 'vue';
+import {computed, reactive, ref} from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -10,6 +10,7 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import {
   createMainPlan,
   updateMainPlan,
@@ -22,6 +23,25 @@ import ContainerArea from './containerArea.vue';
 const emit = defineEmits(['success']);
 
 const containerAreaModalVisible = ref(false);
+
+const containerAreaParams = reactive({
+  ownerCodeList: [],
+  containerIsoList: [],
+  tradeType: '',
+  selectedPositions: [],
+});
+
+const isoState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const ownerState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
 
 const containerAreaData = reactive<any[]>([]);
 
@@ -40,35 +60,150 @@ const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   planNo: '',
 });
 
-const selectContainerArea = () => {
+const selectContainerArea = async () => {
+  // 获取表单值
+  const formValues = await formApi.getValues();
+
+  const selectedPositions: string[] = [];
+  if (formData.bayRangeList && Array.isArray(formData.bayRangeList)) {
+    formData.bayRangeList.forEach((item) => {
+      if (item.yardBay) {
+        selectedPositions.push(item.yardBay);
+      }
+    });
+  }
+  containerAreaParams.ownerCodeList = Array.isArray(formValues.ownerCodeList)
+    ? formValues.ownerCodeList
+    : [formValues.ownerCodeList];
+  containerAreaParams.containerIsoList = Array.isArray(
+    formValues.containerIsoList,
+  )
+    ? formValues.containerIsoList
+    : [formValues.containerIsoList];
+  containerAreaParams.tradeType = formValues.tradeType || '';
+  containerAreaParams.selectedPositions = selectedPositions;
   containerAreaModalVisible.value = true;
 };
 
 const handleContainerAreaConfirm = (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
-    // 清空现有数据
-    containerAreaData.splice(0);
+    const existingRowsMap = new Map<string, any>();
+    const currentGridData = $grid.getTableData();
 
-    // 添加新选择的数据
-    const newRows = positions.map((pos, index) => ({
-      id: `row_${Date.now()}_${index}`,
-      yardPosition: `${pos}`,
-      yardColumns: [],
-      totalCount: '',
-      minStorageDays: '',
-      maxStorageDays: '',
-    }));
+    currentGridData.fullData.forEach((row) => {
+      if (row.yardPosition) {
+        existingRowsMap.set(row.yardPosition, row);
+      }
+    });
+    containerAreaData.splice(0);
+    const newRows = positions.map((pos) => {
+      const yardPosition = `${pos}`;
+
+      if (existingRowsMap.has(yardPosition)) {
+        return existingRowsMap.get(yardPosition);
+      }
+      // 新行数据
+      return {
+        yardPosition,
+        yardColumns: [],
+        totalCount: '',
+        minStorageDays: '',
+        maxStorageDays: '',
+      };
+    });
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
+    formData.bayRangeList = containerAreaData.map(item => ({
+      yardBay: item.yardPosition,
+      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item
+    }));
   }
 };
 
 // 删除行方法
 const deleteRow = async (row: any) => {
   const $grid = gridApi.grid;
-  await $grid.remove(row);
+  if ($grid) {
+    const currentGridData = $grid.getTableData().fullData;
+
+    containerAreaData.splice(0);
+    const dataIndex = currentGridData.findIndex(item => item.yardPosition === row.yardPosition);
+    if (dataIndex !== -1) {
+      currentGridData.splice(dataIndex, 1);
+    }
+
+    containerAreaData.push(...currentGridData);
+    $grid.reloadData(containerAreaData);
+    formData.bayRangeList = containerAreaData.map(item => ({
+      yardBay: item.yardPosition,
+      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item
+    }));
+
+    $grid.clearFilter();
+  }
+};
+
+// ISO搜索函数
+const isoSearch = async (value: string) => {
+  isoState.fetching = true;
+  try {
+    const res = await getContainerIsoList({
+      pageNo: 1,
+      pageSize: 10,
+      containerIso: value,
+      queryType: 'ISO',
+    });
+
+    if (res) {
+      isoState.data = res.map((item: any) => ({
+        label: item.containerIso,
+        value: item.containerIso,
+        data: item,
+      }));
+    }
+  } catch {
+    message.error('获取ISO数据失败');
+  } finally {
+    isoState.fetching = false;
+  }
+};
+
+// 初始化ISO数据
+const initIsoData = async () => {
+  await isoSearch('');
+};
+
+// 持箱人搜索函数
+const ownerSearch = async (value: string) => {
+  ownerState.fetching = true;
+  try {
+    const res = await getContainerOwnerList({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
+
+    if (res) {
+      ownerState.data = res.map((item: any) => ({
+        label: item.ownerCode,
+        value: item.ownerCode,
+        data: item,
+      }));
+    }
+  } catch {
+    message.error('获取持箱人数据失败');
+  } finally {
+    ownerState.fetching = false;
+  }
+};
+
+// 初始化持箱人数据
+const initOwnerData = async () => {
+  await ownerSearch('');
 };
 
 const [Form, formApi] = useVbenForm({
@@ -125,11 +260,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-    //   (record) => toRaw(record),
-    // );
 
-    // if (containerAreaArray.length === 0) {
+    // if (containerAreaData.length === 0) {
     //   message.warning('请至少添加一条箱区范围数据');
     //   return;
     // }
@@ -144,35 +276,27 @@ const [Modal, modalApi] = useVbenModal({
     // Object.assign(formData, await formApi.getValues());
     const formValues = await formApi.getValues();
     Object.assign(formData, formValues);
-    // 确保planType和mainId被正确设置
     if (!formData.planType) {
       formData.planType = 'MAIN';
     }
-    // 转换持箱人字符串为数组
-    const ownerCodeList = Array.isArray(formValues.ownerCodeList)
-      ? formValues.ownerCodeList
-      : typeof formValues.ownerCodeList === 'string'
-        ? formValues.ownerCodeList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
-        : [];
 
-    // 转换ISO字符串为数组
-    const containerIsoList = Array.isArray(formValues.containerIsoList)
-      ? formValues.containerIsoList
-      : typeof formValues.containerIsoList === 'string'
-        ? formValues.containerIsoList.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean)
-        : [];
+    if (!Array.isArray(formData.ownerCodeList)) {
+      formData.ownerCodeList = [formData.ownerCodeList];
+    }
+    if (!Array.isArray(formData.containerIsoList)) {
+      formData.containerIsoList = [formData.containerIsoList];
+    }
 
-    // 转换表格数据为bayRangeList格式
-    const bayRangeList = containerAreaData.map((row: any) => ({
-      emptyContainerControlId: '',
-      id: '',
+    const $grid = gridApi.grid;
+    const gridData = $grid ? $grid.getTableData().fullData : containerAreaData;
+    const bayRangeList = gridData.map((row: any) => ({
       yardBay: row.yardPosition || '',
       yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
     }));
 
-    // 构建符合接口格式的数据
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
+      bayRangeList,
       ownerCodeList,
       containerIsoList,
     } as EmptyContainerControlApi.mainPlanVO;
@@ -184,7 +308,7 @@ const [Modal, modalApi] = useVbenModal({
     message.success($t('ui.actionMessage.operationSuccess'));
   },
   async onOpenChange(isOpen: boolean) {
-    if (!isOpen) {
+    if (isOpen) {
       Object.assign(formData, {
         id: '',
         ownerCodeList: [],
@@ -200,9 +324,9 @@ const [Modal, modalApi] = useVbenModal({
         planNo: '',
       });
       containerAreaData.splice(0);
-      return;
+      initIsoData();
+      initOwnerData();
     }
-
     const data = await modalApi.getData<any>();
 
     if (data) {
@@ -223,16 +347,53 @@ const [Modal, modalApi] = useVbenModal({
         modalApi.lock();
         try {
           await formApi.setValues(mainPlanData);
+          if (mainPlanData.ownerCodeList) {
+            ownerState.value = mainPlanData.ownerCodeList;
+          }
 
-          // 设置箱区范围数据
-          if (data.yardPositionResp) {
-            const $grid = gridApi.grid;
-            if ($grid) {
+          // 设置ISO选择值
+          if (mainPlanData.containerIsoList) {
+            isoState.value = mainPlanData.containerIsoList;
+          }
+          const $grid = gridApi.grid;
+          if ($grid) {
+            // 设置箱区范围数据
+            if (data.yardPositionResp) {
               for (const item of data.yardPositionResp) {
                 await $grid.insertAt(
                   {
                     ...item,
-                    id: `row_${item.id}`, // 确保ID格式正确
+                  },
+                  -1,
+                );
+              }
+            } else if (mainPlanData.bayRangeList) {
+              // 如果是数组格式
+              if (Array.isArray(mainPlanData.bayRangeList)) {
+                for (const bayRange of mainPlanData.bayRangeList) {
+                  await $grid.insertAt(
+                    {
+                      yardPosition: bayRange.yardBay || '',
+                      yardColumns: bayRange.yardRaw
+                        ? bayRange.yardRaw.split(',')
+                        : [],
+                      totalCount: '',
+                      minStorageDays: '',
+                      maxStorageDays: '',
+                    },
+                    -1,
+                  );
+                }
+              } else {
+                await $grid.insertAt(
+                  {
+                    yardPosition: mainPlanData.bayRangeList.yardBay || '',
+                    yardColumns: mainPlanData.bayRangeList.yardRaw
+                      ? mainPlanData.bayRangeList.yardRaw.split(',')
+                      : [],
+                    totalCount: '',
+                    minStorageDays: '',
+                    maxStorageDays: '',
                   },
                   -1,
                 );
@@ -260,6 +421,34 @@ const modalTitle = computed(() => {
 <template>
   <Modal :title="modalTitle">
     <Form>
+      <template #containerIsoList>
+        <Select
+          v-model:value="isoState.value"
+          mode="multiple"
+          placeholder="请输入ISO"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="isoState.fetching ? undefined : null"
+          :options="isoState.data"
+          @search="isoSearch"
+          allow-clear
+          @change="(value) => formApi.setFieldValue('containerIsoList', value)"
+        />
+      </template>
+      <template #ownerCodeList>
+        <Select
+          v-model:value="ownerState.value"
+          mode="multiple"
+          placeholder="请输入持箱人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="ownerState.fetching ? undefined : null"
+          :options="ownerState.data"
+          @search="ownerSearch"
+          allow-clear
+          @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
+        />
+      </template>
       <!-- 箱区范围表格部分 -->
       <template #containerAreaRange>
         <div class="mt-4 w-full">
@@ -314,6 +503,10 @@ const modalTitle = computed(() => {
     <!-- 添加箱区选择弹窗组件 -->
     <ContainerArea
       v-model:visible="containerAreaModalVisible"
+      :owner-code-list="containerAreaParams.ownerCodeList"
+      :container-iso-list="containerAreaParams.containerIsoList"
+      :trade-type="containerAreaParams.tradeType"
+      :selected-positions="containerAreaParams.selectedPositions"
       @confirm="handleContainerAreaConfirm"
     />
   </Modal>

@@ -1,12 +1,20 @@
 <script lang="ts" setup>
 import type { TreeProps } from 'ant-design-vue';
 
-import { computed, ref } from 'vue';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { Button, Input, Modal, Tag, Tree } from 'ant-design-vue';
+import { computed, ref, watch } from 'vue';
+
+import { Button, Input, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
+
+import { getYardRange } from '#/api/bpp/empty/container/control';
 
 interface Props {
   visible: boolean;
+  ownerCodeList?: [];
+  containerIsoList?: [];
+  tradeType?: string;
+  selectedPositions?: string[];
 }
 
 interface Emits {
@@ -14,61 +22,101 @@ interface Emits {
   (e: 'confirm', positions: string[]): void;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  ownerCodeList: () => [],
+  containerIsoList: () => [],
+  tradeType: '',
+  selectedPositions: () => [],
+});
 const emit = defineEmits<Emits>();
 
 const selectedYardPositions = ref<string[]>([]);
 const searchValue = ref('');
+const loading = ref(false);
 
-const yardPositionTreeData = ref<TreeProps['treeData']>([
-  {
-    title: 'A01',
-    key: 'A01',
-    children: [
-      { title: '01 (02)', key: 'A01-01' },
-      { title: '03 (04)', key: 'A01-03' },
-      { title: '05 (06)', key: 'A01-05' },
-      { title: '07 (08)', key: 'A01-07' },
-      { title: '09 (10)', key: 'A01-09' },
-    ],
+const yardPositionTreeData = ref<TreeProps['treeData']>([]);
+
+watch(
+  () => props.visible,
+  (newValue) => {
+    if (newValue) {
+      fetchYardRange();
+    }
   },
-  {
-    title: 'A02',
-    key: 'A02',
-    children: [
-      { title: '01 (02)', key: 'A02-01' },
-      { title: '03 (04)', key: 'A02-03' },
-      { title: '05 (06)', key: 'A02-05' },
-      { title: '07 (08)', key: 'A02-07' },
-      { title: '09 (10)', key: 'A02-09' },
-    ],
+  { immediate: true },
+);
+
+watch(
+  () => props.selectedPositions,
+  (newValue) => {
+    if (props.visible && newValue && newValue.length > 0) {
+      selectedYardPositions.value = [...newValue];
+    }
   },
-  {
-    title: 'B01',
-    key: 'B01',
-    children: [
-      { title: '01 (02)', key: 'B01-01' },
-      { title: '03 (04)', key: 'B01-03' },
-      { title: '05 (06)', key: 'B01-05' },
-      { title: '07 (08)', key: 'B01-07' },
-      { title: '09 (10)', key: 'B01-09' },
-    ],
+  { immediate: true, deep: true }
+);
+
+watch(
+  [
+    () => props.ownerCodeList,
+    () => props.containerIsoList,
+    () => props.tradeType,
+  ],
+  () => {
+    if (props.visible) {
+      fetchYardRange();
+    }
   },
-  {
-    title: 'B05',
-    key: 'B05',
-    children: [
-      { title: '05 (01)', key: 'B05-95' },
-      { title: '03 (04)', key: 'B02-03' },
-      { title: '05 (06)', key: 'B02-05' },
-      { title: '07 (08)', key: 'B02-07' },
-      { title: '09 (10)', key: 'B02-09' },
-    ],
-  },
-]);
+  { deep: true },
+);
+
+// 获取堆场范围数据
+const fetchYardRange = async () => {
+  loading.value = true;
+  try {
+    const params: EmptyContainerControlApi.yardRangeVO = {
+      ownerCodeList: props.ownerCodeList || [],
+      containerIsoList: props.containerIsoList || [],
+      tradeType: props.tradeType || '',
+    };
+    const response = await getYardRange(params);
+    yardPositionTreeData.value = [];
+
+    if (response.length > 0) {
+      yardPositionTreeData.value = response
+        .map((item: any) => {
+          if (
+            !item ||
+            !item.yard ||
+            !Array.isArray(item.yardBayList) ||
+            item.yardBayList.length === 0
+          ) {
+            return null;
+          }
+          return {
+            title: item.yard,
+            key: item.yard,
+            children: item.yardBayList.map((bay: string) => {
+              return {
+                title: bay,
+                key: `${item.yard}-${bay}`,
+              };
+            }),
+          };
+        })
+        .filter((item: any) => item !== null);
+    } else {
+      message.info('没有找到匹配的箱区数据');
+    }
+  } catch (error) {
+    message.error('获取箱区范围失败，请稍后重试');
+    console.error('获取箱区范围失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
 
 const onTreeCheck = (checkedKeys: any) => {
-  // 只保留叶子节点（包含"-"的key）
   const leafKeys = checkedKeys.filter((key: string) => key.includes('-'));
   selectedYardPositions.value = leafKeys;
 };
@@ -112,13 +160,15 @@ const modalVisible = computed({
         <div class="mb-2 font-medium">堆场贝位</div>
         <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />
         <div style="max-height: 350px; overflow-y: auto">
-          <Tree
-            v-model:checked-keys="selectedYardPositions"
-            checkable
-            :tree-data="yardPositionTreeData"
-            :default-expand-all="true"
-            @check="onTreeCheck"
-          />
+          <Spin :spinning="loading">
+            <Tree
+              v-model:checked-keys="selectedYardPositions"
+              checkable
+              :tree-data="yardPositionTreeData"
+              :default-expand-all="true"
+              @check="onTreeCheck"
+            />
+          </Spin>
         </div>
       </div>
 

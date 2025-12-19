@@ -20,7 +20,6 @@ import {
   getSubPlan,
   getSubPlanPage,
   getVesselAndVoyage,
-  forceComplete,
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -94,11 +93,12 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
             transformedParams.planType = 'SUB';
             transformedParams.mainId = selectedMainId.value;
           }
-          return await getSubPlanPage({
+          const result = await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...transformedParams,
           });
+          return result;
         },
       },
     },
@@ -195,7 +195,7 @@ const transformFormToRequest = (
     params.ownerCodeList = params.ownerCodeList
       .split(',')
       .map((item: string) => item.trim())
-      .filter(Boolean); // 过滤空字符串
+      .filter(Boolean);
   } else {
     delete params.ownerCodeList;
   }
@@ -299,11 +299,12 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           const transformedParams = transformFormToRequest(formValues);
-          return await getMainPlanPage({
+          const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...transformedParams,
           });
+          return result;
         },
       },
     },
@@ -319,15 +320,15 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
 /** 刷新表格 */
 function handleRefresh() {
   gridApi2.query();
+  subGridApi.query();
 }
 
 /** 创建主计划新申请 */
 function handleCreateMainPlan() {
   formModalApi2.setData(null).open();
 }
-/** 创建新申请 */
+/** 新建子计划 */
 function handleCreateSubPlan() {
-  // 检查是否只勾选了一个主计划
   if (checkedIds.value.length === 0) {
     message.warning('请勾选一个主计划');
     return;
@@ -335,12 +336,18 @@ function handleCreateSubPlan() {
     message.warning('已勾选多个主计划，请只勾选一个主计划');
     return;
   }
-  formModalApi
-    .setData({
-      mainId: selectedMainId.value,
-      planType: 'SUB',
-    })
-    .open();
+  const selectedMainPlans = gridApi2.grid.getCheckboxRecords();
+  if (selectedMainPlans.length > 0) {
+    const mainPlan = selectedMainPlans[0];
+    formModalApi
+      .setData({
+        mainId: selectedMainId.value,
+        planType: 'SUB',
+        mainPlanIsRelease: mainPlan.isRelease,
+        mainPlanTradeType: mainPlan.tradeType,
+      })
+      .open();
+  }
 }
 
 /** 导出数据 */
@@ -590,12 +597,12 @@ const fetchVesselUnloadDate = async (searchText) => {
                 auth: ['system:user:update'],
                 onClick: handleMainPlanEdit.bind(null, row),
               },
-              {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                onClick: handleMainPlanDetail.bind(null, row),
-              },
+              // {
+              //   label: '详情',
+              //   type: 'link',
+              //   icon: ACTION_ICON.VIEW,
+              //   onClick: handleMainPlanDetail.bind(null, row),
+              // },
               {
                 label: '删除',
                 type: 'link',
@@ -641,12 +648,12 @@ const fetchVesselUnloadDate = async (searchText) => {
                 auth: ['system:user:update'],
                 onClick: handleSubEdit.bind(null, row),
               },
-              {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                onClick: handleSubDetail.bind(null, row),
-              },
+              // {
+              //   label: '详情',
+              //   type: 'link',
+              //   icon: ACTION_ICON.VIEW,
+              //   onClick: handleSubDetail.bind(null, row),
+              // },
               {
                 label: '删除',
                 type: 'link',

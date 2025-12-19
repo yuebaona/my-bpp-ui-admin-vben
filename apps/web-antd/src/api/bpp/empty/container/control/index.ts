@@ -2,13 +2,7 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-export interface LogQueryParams extends PageParam {
-  mainPlanNo?: string; // 主计划号
-  owner?: string; // 持箱人
-  iso?: string; // ISO
-  yardBay?: string; // 箱区
-  createTime?: [string, string]; // 创建时间范围
-}
+
 
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
@@ -21,12 +15,12 @@ export namespace EmptyContainerControlApi {
     tradeType: string;
     planQuantity: string;
     completedReleaseQuantity: string;
-    bayRangeList: {
+    bayRangeList: Array<{
       emptyContainerControlId: number | string;
       id: number | string;
       yardBay: string;
       yardRaw: string;
-    };
+    }>;
     planType: string;
     mainId: string;
     planNo: string;
@@ -34,7 +28,7 @@ export namespace EmptyContainerControlApi {
   }
   // 子计划VO
   export interface subPlanVO {
-    id: null | number;
+    id: number;
     ownerCodeList: Array<string>;
     containerIsoList: Array<string>;
     isRelease: boolean;
@@ -73,6 +67,37 @@ export namespace EmptyContainerControlApi {
     mainGateAvailableQuantity: string;
   }
 
+  export interface yardRangeVO {
+    containerIsoList: Array<string>;
+    ownerCodeList: Array<string>;
+    tradeType: string;
+  }
+
+  export interface YardRangeResponse {
+    yard: string;
+    yardBayList: string[];
+  }
+
+  export interface ContainerOwnerVO {
+    id?: number;
+    ownerCode?: string;
+    ownerName?: string;
+    ownerCountry?: string;
+    ownerMaster?: string;
+    ownerLocalNm?: string;
+  }
+
+  export interface isoVO {
+    id?: number;
+    containerIso?: string;
+    isSpecial?: string;
+    containerType?: string;
+    containerTypeName?: string;
+    containerLength?: string;
+    containerHeight?: string;
+    isoCode?: string;
+  }
+
   // 箱列表列表
   export interface containerIsoList {
     code: number;
@@ -86,6 +111,7 @@ export namespace EmptyContainerControlApi {
     msg: string;
     data: string[];
   }
+
 
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -135,7 +161,13 @@ export namespace EmptyContainerControlApi {
     acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
-
+export interface LogQueryParams extends PageParam {
+  mainPlanNo?: string; // 主计划号
+  owner?: string; // 持箱人
+  iso?: string; // ISO
+  yardBay?: string; // 箱区
+  createTime?: [string, string]; // 创建时间范围
+}
 // 创建主计划信息
 export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.post(
@@ -267,5 +299,27 @@ export const forceComplete = (data: EmptyContainerControlApi.mainPlanVOVO) => {
   return requestClient.put(
     '/bpp/flow/empty/container-control-main/force/complete',
     data,
+  );
+};
+
+// 获取箱区范围
+export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/bay/list',
+    data,
+  );
+};
+
+// 新建子计划获取持箱人信息
+export const getSubPlanOwnerList = (mainId : string) => {
+  return requestClient.get<Array<EmptyContainerControlApi.ContainerOwnerVO>>(
+    `/bpp/flow/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
+  );
+};
+
+// 新建子计划获取ISO信息
+export const getSubPlanIsoList = (mainId : string) => {
+  return requestClient.get<Array<EmptyContainerControlApi.isoVO>>(
+    `/bpp/flow/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
   );
 };

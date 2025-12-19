@@ -99,7 +99,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
 export function mainPlanFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'mainId',
+      fieldName: 'planNo',
       label: '主计划号',
       component: 'Input',
       componentProps: {
@@ -132,10 +132,11 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入持箱人，可多条',
-        allowClear: true,
+      component: 'Select',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
       },
       rules: 'required',
     },
@@ -153,9 +154,11 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'containerIsoList',
       label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入ISO，可多条',
+      component: 'Select',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
       },
       rules: 'required',
     },
@@ -205,6 +208,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
         ],
       },
       rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'pickupPlanNo',
@@ -227,10 +231,11 @@ export function subPlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入持箱人，可多条',
-        allowClear: true,
+      component: 'Select',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
       },
       rules: 'required',
     },
@@ -244,13 +249,16 @@ export function subPlanFormSchema(): VbenFormSchema[] {
           { label: '外贸', value: 'FOREIGN' },
         ],
       },
+      disabled: true,
     },
     {
       fieldName: 'containerIsoList',
       label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入ISO，可多条',
+      component: 'Select',
+      renderComponentContent: () => {
+        return {
+          default: () => null,
+        };
       },
       rules: 'required',
     },
@@ -473,7 +481,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '主计划号',
-      minWidth: 120,
+      minWidth: 150,
       fixed: 'left',
     },
     {
@@ -524,7 +532,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'bayRanges',
       title: '箱区范围',
-      minWidth: 120,
+      minWidth: 200,
     },
     {
       field: 'planQuantity',
@@ -574,7 +582,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 110,
+      minWidth: 150,
       formatter: 'formatDateTime',
     },
     {
@@ -585,12 +593,12 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'updateTime',
       title: '修改时间',
-      minWidth: 110,
+      minWidth: 150,
       formatter: 'formatDateTime',
     },
     {
       title: '操作',
-      width: 200,
+      width: 150,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -605,7 +613,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '子计划号',
-      minWidth: 120,
+      minWidth: 150,
       fixed: 'left',
     },
     {
@@ -661,7 +669,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'bayRanges',
       title: '箱区范围',
-      minWidth: 120,
+      minWidth: 200,
     },
     {
       field: 'planQuantity',
@@ -712,7 +720,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '操作',
-      width: 200,
+      width: 150,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -890,34 +898,3 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-
-export const STATIC_MASTER_PLAN_QUERY_DATA = [
-  {
-    id: 1,
-    mainPlanNo: 'MP20230001',
-    isRelease: true,
-    acceptancePlanNo: '137635841765',
-    ownerCodeList: '李三',
-    tradeType: 'FOREIGN',
-    containerIsoList: 'ISO001',
-    bayRanges: 'A01-B02',
-    mainGateReleaseQty: '100',
-    modifier: '管理员',
-    modifyTime: '2023-11-01 10:00:00',
-    modifyType: '修改类型A',
-  },
-  {
-    id: 2,
-    mainPlanNo: 'MP20230002',
-    isRelease: false,
-    acceptancePlanNo: '71326815685',
-    ownerCodeList: '张三',
-    tradeType: 'FOREIGN',
-    containerIsoList: 'ISO002',
-    bayRanges: 'C01-D02',
-    mainGateReleaseQty: '100',
-    modifier: '操作员',
-    modifyTime: '2023-11-02 10:00:00',
-    modifyType: '修改类型B',
-  },
-];
