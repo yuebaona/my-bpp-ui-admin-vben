@@ -2,20 +2,24 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { message } from 'ant-design-vue';
+import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   deleteMainPlan,
   deleteSubPlan,
+  forceComplete,
+  getIsoList,
   getMainPlan,
   getMainPlanPage,
+  getOwnerList,
   getSubPlan,
   getSubPlanPage,
+  getVesselAndVoyage,
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
@@ -33,8 +37,7 @@ const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
-// const checkedIds2 = ref<number[]>([]);
-// const mainPlanNo = ref<string[]>([]);
+const mainIdList = ref<string[]>([]);
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -146,6 +149,7 @@ function handleRowCheckboxChange({
     message.warning('主计划和子计划不能同时勾选');
   }
   checkedIds.value = records.map((item) => item.id);
+  mainIdList.value = [...checkedIds.value];
   planNo.value = records.map((item) => item.planNo);
   if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
     checkedSubIds.value = [];
@@ -196,13 +200,13 @@ const transformFormToRequest = (
     delete params.ownerCodeList;
   }
 
-  if (params.isoNoList) {
-    params.isoNoList = params.isoNoList
+  if (params.containerIsoList) {
+    params.containerIsoList = params.containerIsoList
       .split(',')
       .map((item: string) => item.trim())
       .filter(Boolean);
   } else {
-    delete params.isoNoList;
+    delete params.containerIsoList;
   }
 
   if (params.createTime) {
@@ -312,15 +316,6 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-function handleRowCheckboxChange2({
-  records,
-}: {
-  records: EmptyContainerControlApi.mainPlanVO[];
-}) {
-  checkedIds.value = records.map((item) => item.id);
-  MainPlanNo.value = records.map((item) => item.MainPlanNo);
-}
-
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
@@ -356,16 +351,34 @@ function handleCreateSubPlan() {
 }
 
 /** 导出数据 */
-function handleMainExport() {}
+// function handleMainExport() {}
 
 function handleSubExport() {
   message.info('导出功能');
 }
 
 /** 强制完成 */
-function handleForceComplete() {
-  message.info('强制完成');
-}
+const handleForceComplete = async () => {
+  try {
+    const res = await forceComplete({ mainIdList: mainIdList.value });
+    if (res) {
+      message.success('成功强制完成！');
+      mainIdList.value = [];
+      checkedIds.value = [];
+
+      if (gridApi2?.grid) {
+        // 取消所有行勾选
+        gridApi2.grid.setAllCheckboxRow(false);
+      }
+    } else {
+      const errorMsg = res?.msg || '强制完成失败，请重试';
+      message.error(errorMsg);
+    }
+  } catch (error) {
+    console.error('强制完成接口调用异常：', error);
+    message.error('网络异常或接口报错，强制完成操作失败！');
+  }
+};
 
 /** 查看主计划详情 */
 const handleMainPlanDetail = async (
@@ -417,6 +430,81 @@ function handleLogQuery() {
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
+
+const ownerCodeList = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const containerIsoList = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const vesselUnloadDate = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+// 获取持箱者列表
+const fetchOwnerCodeList = async (searchText) => {
+  try {
+    ownerCodeList.fetching = true;
+    const result = await getOwnerList({
+      ownerCode: searchText,
+      pageNo: 1,
+      pageSize: 100,
+    });
+    ownerCodeList.data = result.map((item) => ({
+      label: item.ownerCode,
+      value: item.ownerCode,
+    }));
+  } catch {
+    ownerCodeList.data = [];
+  } finally {
+    ownerCodeList.fetching = false;
+  }
+};
+
+// 获取ISO列表
+const fetchContainerIsoList = async (searchText) => {
+  try {
+    containerIsoList.fetching = true;
+    const result = await getIsoList({
+      containerIso: searchText,
+      pageNo: 1,
+      pageSize: 100,
+      queryType: 'VESSEL',
+    });
+    containerIsoList.data = result.map((item) => ({
+      label: item.containerIso,
+      value: item.containerIso,
+    }));
+  } catch {
+    containerIsoList.data = [];
+  } finally {
+    containerIsoList.fetching = false;
+  }
+};
+
+// 获取卸船船期
+const fetchVesselUnloadDate = async (searchText) => {
+  try {
+    vesselUnloadDate.fetching = true;
+    const result = await getVesselAndVoyage({ condition: searchText });
+    vesselUnloadDate.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    vesselUnloadDate.data = [];
+  } finally {
+    vesselUnloadDate.fetching = false;
+  }
+};
 </script>
 
 <template>
@@ -432,6 +520,45 @@ const adcancedQueryModalOpen = () => {
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <Grid2 table-title="主计划">
+        <template #form-ownerCodeList>
+          <Select
+            :options="ownerCodeList.data"
+            mode="multiple"
+            v-model:value="ownerCodeList.value"
+            style="width: 100%"
+            placeholder="请输入持箱人"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="100"
+            @search="fetchOwnerCodeList"
+          />
+        </template>
+        <template #form-containerIsoList>
+          <Select
+            :options="containerIsoList.data"
+            mode="multiple"
+            v-model:value="containerIsoList.value"
+            style="width: 100%"
+            placeholder="请输入ISO"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="100"
+            @search="fetchContainerIsoList"
+          />
+        </template>
+        <template #form-vesselUnloadDate>
+          <Select
+            :options="vesselUnloadDate.data"
+            mode="multiple"
+            v-model:value="vesselUnloadDate.value"
+            style="width: 100%"
+            placeholder="请输入船名或航次"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="100"
+            @search="fetchVesselUnloadDate"
+          />
+        </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -499,7 +626,7 @@ const adcancedQueryModalOpen = () => {
                 label: '新增',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                // auth: ['system:user:create'],
+                auth: ['system:user:create'],
                 onClick: handleCreateSubPlan,
               },
               {

@@ -2,9 +2,10 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { onMounted, reactive, ref, watch } from 'vue';
+import { onActivated, reactive, ref, watch } from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { message } from 'ant-design-vue';
@@ -14,6 +15,7 @@ import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import {
   acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
+  cancelAcceptancePlanOverOperation,
   deleteMachineSpreaderRecord,
   getAcceptancePlanOverOperation,
   getAcceptancePlanOverOperationContainerPage,
@@ -53,6 +55,20 @@ interface batchQueryConditionsVO {
 }
 // 使用字典 store
 const bppBaseDict = bppBaseDictStore();
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
@@ -80,6 +96,44 @@ function handleRefresh() {
 /** 创建新申请 */
 function handleCreate() {
   formModalApi.setData(null).open();
+}
+/** 撤销  */
+function handleRevoke() {
+  if (acceptancePlanNo.value.length === 0) {
+    message.error($t('cxmo.message.revokeMessage'));
+    return;
+  }
+  const invalidNodes = new Set([
+    'CONFIRMED',
+    'INITIALIZATION',
+    'REJECTED',
+    'REVIEWING',
+  ]);
+  const hasInvalidNode = planStatusArr.value.some((node) =>
+    invalidNodes.has(node),
+  );
+  if (!hasInvalidNode) {
+    message.error($t('cxmo.message.revokeVerifyMessage'));
+    return;
+  }
+  confirm({
+    content: `您确定撤销以下${acceptancePlanNo.value.toString()}申请编号的数据吗？`,
+    icon: 'info',
+  })
+    .then(async () => {
+      const hideLoading = message.loading({
+        content: $t('cxmo.action.processing'),
+        duration: 0,
+      });
+      try {
+        await cancelAcceptancePlanOverOperation(checkedIds.value);
+        message.success($t('cxmo.action.success'));
+        handleRefresh();
+      } finally {
+        hideLoading();
+      }
+    })
+    .catch(() => {});
 }
 
 /** 办理任务 */
@@ -168,15 +222,15 @@ const handleOnSiteOperation = async () => {
   ) {
     case '客户发起': {
       if (containerNos.value.length === 0) {
-        message.error('请选择要操作的箱');
+        message.error($t('cxmo.message.boxMessage'));
         return;
       }
-      if (
-        containerOperationNodes.value.some(
-          (node) => node === 'INITIALIZATION' || node === 'COM',
-        )
-      ) {
-        message.error('请选择现场作业节点不是初始化或完成的状态');
+      const invalidNodes = new Set(['COM', 'INITIALIZATION']);
+      const hasInvalidNode = containerOperationNodes.value.some((node) =>
+        invalidNodes.has(node),
+      );
+      if (hasInvalidNode) {
+        message.error($t('cxmo.message.iniOrComMessage'));
         return;
       }
 
@@ -234,6 +288,9 @@ const handleOnSiteOperation = async () => {
       break;
     }
     case '箱现场突发': {
+      data.value = {
+        initiationType: initiationTypeValue.value,
+      };
       break;
     }
     case '舱盖板': {
@@ -250,7 +307,15 @@ const handleOnSiteOperation = async () => {
 const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   // 判断是否选中箱
   if (containerIds.value.length === 0) {
-    message.error('请选择要操作的箱');
+    message.error($t('cxmo.message.boxMessage'));
+    return;
+  }
+  const invalidNodes = new Set(['COM', 'INITIALIZATION']);
+  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+    invalidNodes.has(node),
+  );
+  if (hasInvalidNode) {
+    message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
   confirm({
@@ -278,11 +343,15 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
 const handleAcceptancePlanOverOperationContainerComplete = async () => {
   // 判断是否选中箱
   if (containerIds.value.length === 0) {
-    message.error('请选择要操作的箱');
+    message.error($t('cxmo.message.boxMessage'));
     return;
   }
-  if (containerOperationNodes.value.includes('INITIALIZATION', 'COM')) {
-    message.error('请选择现场作业节点不是初始化或完成的状态');
+  const invalidNodes = new Set(['COM', 'INITIALIZATION']);
+  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+    invalidNodes.has(node),
+  );
+  if (hasInvalidNode) {
+    message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
   confirm({
@@ -291,12 +360,12 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
   })
     .then(async () => {
       const hideLoading = message.loading({
-        content: $t('ui.actionMessage.processing'),
+        content: $t('cxmo.action.processing'),
         duration: 0,
       });
       try {
         await acceptancePlanOverOperationContainerComplete(containerIds.value);
-        message.success($t('ui.actionMessage.success'));
+        message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
         hideLoading();
@@ -308,7 +377,7 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 const handleMachineSpreaderRecordDeleteList = async () => {
   // 判断是否选中变更记录
   if (machineSpreaderChangeRecordCheckedIds.value.length === 0) {
-    message.error('请选择要变更吊具');
+    message.error($t('cxmo.message.spreaderChangeMessage'));
     return;
   }
   confirm({
@@ -317,14 +386,14 @@ const handleMachineSpreaderRecordDeleteList = async () => {
   })
     .then(async () => {
       const hideLoading = message.loading({
-        content: $t('ui.actionMessage.processing'),
+        content: $t('cxmo.action.processing'),
         duration: 0,
       });
       try {
         await machineSpreaderRecordDeleteList(
           machineSpreaderChangeRecordCheckedIds.value,
         );
-        message.success($t('ui.actionMessage.success'));
+        message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
         hideLoading();
@@ -335,6 +404,7 @@ const handleMachineSpreaderRecordDeleteList = async () => {
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<string[]>([]);
+const planStatusArr = ref<string[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
@@ -342,33 +412,9 @@ function handleRowCheckboxChange({
 }) {
   checkedIds.value = records.map((item) => item.id);
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+  planStatusArr.value = records.map((item) => item.planStatus);
   boxGridApi.query();
 }
-/** 重置箱信息相关数据 */
-const resetContainerData = () => {
-  boxCheckedIds.value = [];
-  boxAcceptancePlanNo.value = [];
-  containerNos.value = [];
-  containerIds.value = [];
-  batchQueryConditions.value = [];
-  machineSpreaderChangeTypes.value = [];
-  containerOperationNodes.value = [];
-  vesselCodes.value = [];
-  vesselVoyages.value = [];
-  vesselNames.value = [];
-  plannedSpreaderTypes.value = [];
-  // 清除表格选中状态
-  if (boxGridApi.grid) {
-    boxGridApi.grid.clearCheckboxRow(); // 清除所有选中行
-    boxGridApi.grid.clearCheckboxRow(); // 清除复选框选中
-  }
-
-  if (machineSpreaderChangeRecordGridApi.grid) {
-    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
-    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
-  }
-  machineSpreaderChangeRecordGridApi.query();
-};
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
 const boxAcceptancePlanNo = ref<string[]>([]);
@@ -381,11 +427,15 @@ const vesselCodes = ref<string[]>([]);
 const vesselVoyages = ref<string[]>([]);
 const vesselNames = ref<string[]>([]);
 const plannedSpreaderTypes = ref<string[]>([]);
+const boxList = ref<
+  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
+>([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
   records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
 }) {
+  boxList.value = records;
   const refMap = {
     boxCheckedIds,
     boxAcceptancePlanNo,
@@ -431,24 +481,19 @@ const machineSpreaderChangeRecordHandleRowCheck = ({
 };
 /** 获取字典数据 */
 const getDictDataList = async () => {
-  bppBaseDict.setBppBaseDictCacheByData(
-    (
-      await getDictDataPage({
-        dictType: 'initiation_type',
-        pageNo: 1,
-        pageSize: 100,
-      })
-    ).list,
-  );
-  // bppBaseDict.setBppBaseDictCacheByData(
-  //   (
-  //     await getDictDataPage({
-  //       dictType: 'acceptance_plan_status',
-  //       pageNo: 1,
-  //       pageSize: 100,
-  //     })
-  //   ).list,
-  // );
+  await loadDictData([
+    'system_rate',
+    'acceptance_plan_status',
+    'payment_method',
+    'import_export_type',
+    'on_site_operation_node',
+    'on_site_operation_category',
+    'driving_source',
+    'change_reason',
+    'spreader_type',
+    'actual_operation',
+    'initiation_type',
+  ]);
 };
 // 高级查询处理函数
 function handleHighPriceQuery() {
@@ -462,7 +507,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       content: $t('cxmo.action.search'),
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
-    submitOnEnter: true
+    submitOnEnter: true,
   },
   gridOptions: {
     floatingFilterConfig: {
@@ -493,6 +538,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          await getDictDataList();
           return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -578,17 +624,8 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
       },
       toolbarConfig: {
         refresh: false,
-        search: false,
+        search: true,
         export: true,
-        tools: [
-          // 方式3
-          { name: '自定义导出按钮', code: 'export', status: 'primary' },
-          {
-            name: '自定义高级导出按钮',
-            code: 'open_export',
-            status: 'success',
-          },
-        ],
       },
       pagerConfig: {
         pageSize: 10,
@@ -602,7 +639,13 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
             if (batchQueryConditions.value.length > 0) {
               formValues.batchQueryConditions = batchQueryConditions.value;
             }
-            if (formValues?.batchQueryConditions?.length > 0) {
+            if (searchKeyword.value) {
+              formValues.condition = searchKeyword.value;
+            }
+            if (
+              formValues?.batchQueryConditions?.length > 0 ||
+              formValues?.condition
+            ) {
               return await getMachineSpreaderChangeRecordPage({
                 pageNo: page.currentPage,
                 pageSize: page.pageSize,
@@ -626,9 +669,6 @@ const initiationTypeValue = ref<null | string>(null);
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
-onMounted(async () => {
-  await getDictDataList();
-});
 watch(
   () => bppBaseDict.getBppBaseDictOptions('initiation_type'),
   (options) => {
@@ -764,12 +804,41 @@ const handleReset = () => {
 const handleSaveTemplate = (templateName: string) => {
   console.log('保存模板:', templateName);
 };
-watch(checkedIds, (newVal, oldVal) => {
-  if (newVal.length === 0 && oldVal.length > 0) {
-    // 先重置箱信息数据
-    resetContainerData();
-  }
+// 监听超限作业申请选中的受理编号变化
+watch(
+  () => acceptancePlanNo.value,
+  (newAcceptancePlanNos, oldAcceptancePlanNos) => {
+    const addedPlanNos = new Set(
+      oldAcceptancePlanNos.filter((no) => !newAcceptancePlanNos.includes(no)),
+    );
+    boxList.value.forEach((item) => {
+      if (addedPlanNos.has(item.acceptancePlanNo)) {
+        boxGridApi.grid.setCheckboxRow(item, false);
+      }
+    });
+  },
+  { deep: true },
+);
+onActivated(() => {
+  handleRefresh();
 });
+// 控制搜索框显隐的状态
+const showSearchInput = ref(false);
+// 搜索框输入的值
+const searchKeyword = ref('');
+
+const toggleSearchInput = () => {
+  showSearchInput.value = !showSearchInput.value;
+  if (!showSearchInput.value) {
+    searchKeyword.value = '';
+    machineSpreaderChangeRecordGridApi.query();
+  }
+};
+
+// 执行搜索的方法
+const handleSearch = () => {
+  machineSpreaderChangeRecordGridApi.query();
+};
 </script>
 
 <template>
@@ -803,12 +872,12 @@ watch(checkedIds, (newVal, oldVal) => {
                 auth: ['bpp:flow-acceptance-plan-over-operation:create'],
                 onClick: handleCreate,
               },
-              // {
-              //   label: '撤销',
-              //   type: 'default',
-              //   icon: ACTION_ICON.UNDO,
-              //   onClick: handleHighPriceQuery,
-              // },
+              {
+                label: $t('cxmo.action.revoke'),
+                type: 'default',
+                icon: ACTION_ICON.UNDO,
+                onClick: handleRevoke,
+              },
               //
               // {
               //   label: '撤销审核',
@@ -831,21 +900,21 @@ watch(checkedIds, (newVal, oldVal) => {
             :actions="[
               row.reviewFlag
                 ? {
-                    label: '审核',
+                    label: $t('cxmo.action.audit'),
                     type: 'link',
                     icon: ACTION_ICON.AUDIT,
                     onClick: handleViewDetail.bind(null, row),
                   }
                 : '',
               {
-                label: '修改',
+                label: $t('cxmo.action.edit'),
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
                 auth: ['bpp:flow-acceptance-plan-over-operation:update'],
                 onClick: handleEdit.bind(null, row),
               },
               {
-                label: '详情',
+                label: $t('cxmo.action.detail'),
                 type: 'link',
                 icon: ACTION_ICON.VIEW,
                 auth: ['bpp:flow-acceptance-plan-over-operation:query'],
@@ -882,20 +951,17 @@ watch(checkedIds, (newVal, oldVal) => {
                 {
                   label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
-                  auth: ['system:user:create'],
                   onClick: handleOnSiteOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
-                  auth: ['system:user:create'],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
-                  auth: ['system:user:create'],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
@@ -909,6 +975,18 @@ watch(checkedIds, (newVal, oldVal) => {
           :table-title="$t('cxmo.overOperation.machineSpreaderRecord')"
         >
           <template #toolbar-tools>
+            <div class="mr-2 flex items-center">
+              <!-- 搜索输入框 - 根据showSearchInput控制显隐 -->
+              <a-input-search
+                v-model:value="searchKeyword"
+                :placeholder="$t('cxmo.message.searchMessage')"
+                enter-button
+                @search="handleSearch"
+                v-if="showSearchInput"
+                @press-enter="handleSearch"
+                allow-clear
+              />
+            </div>
             <TableAction
               :actions="[
                 // {
@@ -925,13 +1003,28 @@ watch(checkedIds, (newVal, oldVal) => {
                 },
               ]"
             />
+            <!-- 搜索按钮 - 切换输入框显隐 -->
+            <a-button
+              type="primary"
+              shape="circle"
+              @click="toggleSearchInput"
+              class="ml-2"
+            >
+              <template #icon>
+                <IconifyIcon
+                  icon="iconamoon:search-thin"
+                  style="font-size: 15px"
+                />
+              </template>
+            </a-button>
           </template>
+
           <template #actions="{ row }">
             <TableAction
               :actions="[
                 row.reviewFlag
                   ? {
-                      label: '审核',
+                      label: $t('cxmo.action.audit'),
                       type: 'link',
                       icon: ACTION_ICON.AUDIT,
                       onClick: handleViewDetail.bind(null, row),

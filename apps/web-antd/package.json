@@ -57,6 +57,7 @@
     "diagram-js": "catalog:",
     "fast-xml-parser": "catalog:",
     "highlight.js": "catalog:",
+    "js-base64": "^3.7.8",
     "pinia": "catalog:",
     "steady-xml": "catalog:",
     "tinymce": "catalog:",

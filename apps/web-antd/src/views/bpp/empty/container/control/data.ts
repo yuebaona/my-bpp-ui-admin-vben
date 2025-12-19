@@ -1,11 +1,9 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
-
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
-
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -69,7 +67,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '最低准存天数',
-      field: 'minStorageDays',
+      field: 'minDays',
       minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
@@ -80,7 +78,7 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '最高准存天数',
-      field: 'maxStorageDays',
+      field: 'maxDays',
       minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
@@ -436,23 +434,25 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '多个持箱人用英文逗号分隔',
+        placeholder: '请选择持箱人',
         allowClear: true,
       },
+      slot: 'form-ownerCodeList',
     },
     {
       fieldName: 'containerIsoList',
       label: 'ISO',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
-        placeholder: '多个ISO用英文逗号分隔',
+        placeholder: '请选择ISO号',
         allowClear: true,
       },
+      slot: 'form-containerIsoList',
     },
     {
-      fieldName: 'vesselUnloadDate',
+      fieldName: 'dischargeVesselSchedule',
       label: '卸船船期',
       component: 'Select',
       componentProps: {

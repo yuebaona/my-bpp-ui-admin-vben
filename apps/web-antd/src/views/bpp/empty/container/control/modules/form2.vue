@@ -296,6 +296,8 @@ const [Modal, modalApi] = useVbenModal({
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
       bayRangeList,
+      ownerCodeList,
+      containerIsoList,
     } as EmptyContainerControlApi.mainPlanVO;
 
     await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
@@ -310,7 +312,7 @@ const [Modal, modalApi] = useVbenModal({
         id: '',
         ownerCodeList: [],
         containerIsoList: [],
-        isRelease: false,
+        isRelease: undefined,
         pickupPlanNo: '',
         tradeType: '',
         planQuantity: '',

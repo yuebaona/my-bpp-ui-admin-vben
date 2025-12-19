@@ -24,6 +24,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
+    dischargeVesselSchedule: string;
   }
   // 子计划VO
   export interface subPlanVO {
@@ -44,6 +45,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
+    dischargeVesselSchedule: string;
   }
 
   export interface mainLogVO {
@@ -95,6 +97,21 @@ export namespace EmptyContainerControlApi {
     containerHeight?: string;
     isoCode?: string;
   }
+
+  // 箱列表列表
+  export interface containerIsoList {
+    code: number;
+    msg: string;
+    data: string[];
+  }
+
+  // 持箱者列表
+  export interface ownerCodeList {
+    code: number;
+    msg: string;
+    data: string[];
+  }
+
 
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -228,6 +245,60 @@ export const getLogQueryPage = (params: LogQueryParams) => {
   return requestClient.get<PageResult<EmptyContainerControlApi.mainLogVO>>(
     '/bpp/flow/empty/container-control-main-log/page',
     { params },
+  );
+};
+
+// 查询持箱人
+export const getOwnerList = (params: {
+  ownerCode: string;
+  pageNo: number;
+  pageSize: number;
+}) => {
+  return requestClient.get<EmptyContainerControlApi.ownerCodeList>(
+    '/bpp/flow/common/get-container-owner-list',
+    {
+      params,
+    },
+  );
+};
+
+// 查询ISO
+export const getIsoList = (params: {
+  containerIso: string;
+  pageNo: number;
+  pageSize: number;
+}) => {
+  return requestClient.get<EmptyContainerControlApi.containerIsoList>(
+    '/bpp/flow/common/get-container-iso-list',
+    {
+      params,
+    },
+  );
+};
+
+// 查询卸船船期
+export const getVesselAndVoyage = (params: { condition: string }) => {
+  return requestClient.get<EmptyContainerControlApi.VesselAndVoyageResponse>(
+    '/bpp/flow/common/get-vvd-union',
+    {
+      params,
+    },
+  );
+};
+
+// 查询堆存情况
+export const getStorageQuantity = (data: any) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/bay/statistics',
+    data,
+  );
+};
+
+// 强制完成
+export const forceComplete = (data: EmptyContainerControlApi.mainPlanVOVO) => {
+  return requestClient.put(
+    '/bpp/flow/empty/container-control-main/force/complete',
+    data,
   );
 };
 

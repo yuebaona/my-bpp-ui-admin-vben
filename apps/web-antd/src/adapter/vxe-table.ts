@@ -33,6 +33,7 @@ import {
 
 import { DictTag } from '#/components/dict-tag';
 import { $t } from '#/locales';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 
 import { useVbenForm } from './form';
 
@@ -127,12 +128,20 @@ setupVbenVxeTable({
     // 用于回显dict 的label值
     vxeUI.renderer.add('CellTagDict', {
       renderTableDefault(renderOpts, params) {
-        const { options } = renderOpts;
+        const bppBaseDict = bppBaseDictStore();
+        const dictOptions = bppBaseDict.getBppBaseDictOptions(
+          renderOpts?.props,
+        );
+        const data = dictOptions.map((option) => ({
+          value: option.value,
+          label: option.label,
+          color: option.colorType,
+        }));
         const { column, row } = params;
         let color = '';
         let label = '';
-        options.find((item) => {
-          if (item.value === row[column.field]) {
+        data.find((item) => {
+          if (item.value?.toString() === row[column.field]?.toString()) {
             color = item.color;
             label = item.label;
           }
