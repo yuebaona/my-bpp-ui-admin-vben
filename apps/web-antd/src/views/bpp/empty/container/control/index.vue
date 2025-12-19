@@ -341,7 +341,7 @@ function handleCreateSubPlan() {
     const mainPlan = selectedMainPlans[0];
     formModalApi
       .setData({
-        mainId: selectedMainId.value,
+        mainId: mainPlan.id,
         planType: 'SUB',
         mainPlanIsRelease: mainPlan.isRelease,
         mainPlanTradeType: mainPlan.tradeType,
