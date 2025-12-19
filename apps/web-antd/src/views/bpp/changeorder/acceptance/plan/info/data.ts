@@ -781,5 +781,11 @@ export function useGridColumns(): VxeTableGridOptions<AcceptancePlanApi.Plan>['c
       title: '备注',
       minWidth: 120,
     },
+    {
+      title: '操作',
+      minWidth: 180,
+      slots: { default: 'actions' },
+      fixed: 'right',
+    },
   ];
 }
