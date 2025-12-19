@@ -744,6 +744,19 @@ export function useGridColumns(): VxeTableGridOptions<AcceptancePlanApi.Plan>['c
       field: 'paymentTypeGate',
       title: '付费方式',
       minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: createDictFilter('billing_method'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'billing_method',
+      },
     },
     {
       field: 'invoiceTitle',
