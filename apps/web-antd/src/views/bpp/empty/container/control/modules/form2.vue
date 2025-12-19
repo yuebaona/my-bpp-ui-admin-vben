@@ -260,7 +260,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-
     // if (containerAreaData.length === 0) {
     //   message.warning('请至少添加一条箱区范围数据');
     //   return;
@@ -477,7 +476,6 @@ const modalTitle = computed(() => {
                     { label: 'J', value: 'J' },
                   ]"
                   style="width: 100%"
-                  :max-tag-count="3"
                   :show-search="false"
                 />
               </template>

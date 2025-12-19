@@ -49,7 +49,7 @@ watch(
 watch(
   () => props.selectedPositions,
   (newValue) => {
-    if (props.visible && newValue && newValue.length > 0) {
+    if (props.visible && newValue) {
       selectedYardPositions.value = [...newValue];
     }
   },
