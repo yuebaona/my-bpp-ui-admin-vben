@@ -490,19 +490,15 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('empty_container_control_main_status'),
+        props:'empty_container_control_main_status',
       },
     },
     {
       field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
+      formatter: ({ cellValue }) => {
+        return cellValue ? 'Y' : 'N';
       },
     },
     {
@@ -521,7 +517,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('trade_type'),
+        props: 'trade_type',
       },
     },
     {
@@ -622,19 +618,15 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('empty_container_control_sub_status'),
+        props: 'empty_container_control_sub_status',
       },
     },
     {
       field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
+      formatter: ({ cellValue }) => {
+        return cellValue ? 'Y' : 'N';
       },
     },
     {
@@ -653,7 +645,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('trade_type'),
+        props: 'trade_type',
       },
     },
     {
@@ -857,7 +849,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('trade_type'),
+        props: 'trade_type',
       },
     },
     {
@@ -891,9 +883,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions(
-          'empty_container_control_main_operation_type',
-        ),
+        props: 'empty_container_control_main_operation_type',
       },
     },
   ];

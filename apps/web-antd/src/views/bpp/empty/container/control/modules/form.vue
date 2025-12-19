@@ -306,8 +306,6 @@ const [Modal, modalApi] = useVbenModal({
 
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
-      ownerCodeList,
-      containerIsoList,
       bayRangeList,
     } as EmptyContainerControlApi.subPlanVO;
 

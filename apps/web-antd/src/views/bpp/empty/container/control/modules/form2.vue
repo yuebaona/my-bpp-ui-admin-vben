@@ -296,8 +296,6 @@ const [Modal, modalApi] = useVbenModal({
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
       bayRangeList,
-      ownerCodeList,
-      containerIsoList,
     } as EmptyContainerControlApi.mainPlanVO;
 
     await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
@@ -307,7 +305,7 @@ const [Modal, modalApi] = useVbenModal({
     message.success($t('ui.actionMessage.operationSuccess'));
   },
   async onOpenChange(isOpen: boolean) {
-    if (isOpen) {
+    if (!isOpen) {
       Object.assign(formData, {
         id: '',
         ownerCodeList: [],
