@@ -10,6 +10,15 @@ export namespace AcceptancePlanApi {
     acceptancePlanWebNo: string; // 线上申请编号
     applicantPlanType: string; // 受理计划类型
     planStatus: string; // 受理状态
+    planTwentyFtVolume: number; // 20尺计划箱量
+    planFortyFtVolume: number; // 40尺计划箱量
+    planFortyFiveFtVolume: number; // 45尺计划箱量
+    completeTwentyFtVolume: number; // 20尺完成箱量
+    completeFortyFtVolume: number; // 40尺完成箱量
+    completeFortyFiveFtVolume: number; // 45尺完成箱量
+    remainingTwentyFtVolume: number; // 20尺剩余箱量
+    remainingFortyFtVolume: number; // 40尺剩余箱量
+    remainingFortyFiveFtVolume: number; // 45尺剩余箱量
     vesselNameIn: string; // 进口船名（英文）
     vesselVoyageIn: string; // 进口航次
     vesselNameOut: string; // 出口船名（英文）
