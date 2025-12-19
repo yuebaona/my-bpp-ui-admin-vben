@@ -55,6 +55,18 @@ export namespace AcceptancePlanApi {
     reviewInfo: string; // 拒绝原因
     handlerRemark: string; // 经办人备注
   }
+  export interface RecordBase {
+    acceptancePlanNo: string; // 受理计划号
+    acceptancePlanWebNo: string; // 网上受理计划号
+    applicantPlanType: string; // 业务类型
+    planStatus: string; // 改单计划状态
+    applicantCode: string; // 申请人
+    payer: string; // 付款人
+    createTime: string; // 创建时间
+    conclusionTime: string; // 审核时间
+    handlerRemark: string; // 备注
+    reviewInfo: string; // 拒绝原因
+  }
 }
 
 /** 查询受理计划信息分页 */
@@ -97,4 +109,7 @@ export function deletePlanList(ids: number[]) {
 /** 导出受理计划信息 */
 export function exportPlan(params: any) {
   return requestClient.download('/bpp/flow/acceptance-plan/export-excel', { params });
+}
+
+export class RecordBase {
 }

@@ -2,12 +2,10 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { AcceptancePlanApi } from '#/api/bpp/changeorder/acceptance/plan/info';
 
-import { DICT_TYPE } from '@vben/constants';
-import { getDictOptions } from '@vben/hooks';
-
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+import type {DescriptionItemSchema} from "#/components/description";
 
 const bppBaseDict = bppBaseDictStore();
 
@@ -36,310 +34,62 @@ function createDictFilter(dictType: string) {
 export function useFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'id',
-      component: 'Input',
-      dependencies: {
-        triggerFields: [''],
-        show: () => false,
-      },
-    },
-    {
-      fieldName: 'acceptancePlanNo',
-      label: '受理计划号（唯一业务标识）',
-      rules: 'required',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入受理计划号（唯一业务标识）',
-      },
-    },
-    {
-      fieldName: 'acceptancePlanWebNo',
-      label: '线上申请编号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入线上申请编号',
-      },
-    },
-    {
-      fieldName: 'applicantCode',
-      label: '申请人代码【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入申请人代码【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'applicantCompanyName',
-      label: '申请公司名称',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入申请公司名称',
-      },
-    },
-    {
-      fieldName: 'payerCodeGate',
-      label: '陆侧缴费方代码【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入陆侧缴费方代码【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'paymentTypeGate',
-      label: '陆侧缴费方式【数据字典】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入陆侧缴费方式【数据字典】',
-      },
-    },
-    {
-      fieldName: 'payerCodeSea',
-      label: '海侧缴费方代码【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入海侧缴费方代码【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'paymentTypeSea',
-      label: '海侧缴费方式【数据字典】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入海侧缴费方式【数据字典】',
-      },
-    },
-    {
-      fieldName: 'category',
-      label: '进出口类别【数据字典】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入进出口类别【数据字典】',
-      },
-    },
-    {
-      fieldName: 'vesselCode',
-      label: '作业船名代码【基础代码-船舶基础数据】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名代码【基础代码-船舶基础数据】',
-      },
-    },
-    {
-      fieldName: 'vesselName',
-      label: '作业船名(中文船名)',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业船名(中文船名)',
-      },
-    },
-    {
-      fieldName: 'vesselVoyage',
-      label: '作业航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入作业航次',
-      },
-    },
-    {
-      fieldName: 'plannedOperationTime',
-      label: '预计作业时间',
-      component: 'DatePicker',
-      componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
-      },
-    },
-    {
-      fieldName: 'attachmentFile',
-      label: '附件',
-      component: 'FileUpload',
-    },
-    {
-      fieldName: 'handlingPerson',
-      label: '经办人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入经办人',
-      },
-    },
-    {
-      fieldName: 'handlerRemark',
-      label: '经办人备注',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入经办人备注',
-      },
-    },
-    {
-      fieldName: 'handlerConfirmation',
-      label: '经办人确认内容',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入经办人确认内容',
-      },
-    },
-    {
-      fieldName: 'handlerConfirmTime',
-      label: '经办人确认时间',
-      component: 'DatePicker',
-      componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
-      },
-    },
-    {
-      fieldName: 'isSystemRate',
-      label: '是否系统费率',
-      component: 'RadioGroup',
-      componentProps: {
-        options: getDictOptions(
-          DICT_TYPE.BPM_TASK_STATUS.toUpperCase(),
-          'boolean',
-        ),
-        buttonStyle: 'solid',
-        optionType: 'button',
-      },
-    },
-    {
-      fieldName: 'planStatus',
-      label: '受理状态【数据字典】',
-      component: 'RadioGroup',
-      componentProps: {
-        options: getDictOptions(
-          DICT_TYPE.BPM_TASK_STATUS.toUpperCase(),
-          'string',
-        ),
-        buttonStyle: 'solid',
-        optionType: 'button',
-      },
-    },
-    {
-      fieldName: 'dataSource',
-      label: '数据来源',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入数据来源',
-      },
-    },
-    {
       fieldName: 'applicantPlanType',
-      label: '受理计划类型【数据字典】',
-      component: 'Select',
+      label: '业务类型',
+      component: 'ApiSelect',
       componentProps: {
-        options: getDictOptions(
-          DICT_TYPE.BPM_TASK_STATUS.toUpperCase(),
-          'string',
-        ),
-        placeholder: '请选择受理计划类型【数据字典】',
+        placeholder: '请选计划类型',
+        allowClear: true,
+        api: async (params?: any) => {
+          return await getDictDataPage(params);
+        },
+        params: {
+          pageNo: 1,
+          pageSize: 100,
+          dictType: 'acceptance_plan_type',
+        },
+        showSearch: true,
+        filterOption: (input: string, option: any) => {
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        },
+        resultField: 'list',
+        labelField: 'label',
+        valueField: 'value',
       },
     },
+  ];
+}
+
+/** 改单详情字段 */
+export function acceptancePlanRecordSchema(): DescriptionItemSchema[] {
+  return [
+    // 基础信息
+    { field: 'acceptancePlanNo', label: '受理计划号' },
+    { field: 'acceptancePlanWebNo', label: '网上受理计划号' },
+    { field: 'applicantPlanType', label: '业务类型' },
+    { field: 'planStatus', label: '改单计划状态' },
+    { field: 'applicantCode', label: '申请人' },
+    { field: 'payer', label: '付款人' },
+    { field: 'createTime', label: '创建时间' },
+    { field: 'conclusionTime', label: '审核时间' },
+    { field: 'handlerRemark', label: '备注' },
+    { field: 'reviewInfo', label: '拒绝原因' },
+  ];
+}
+
+/** 修改记录对比 字段 */
+export function acceptancePlanChangeRecordSchema(): VxeTableGridOptions<AcceptancePlanApi.RecordBase>['columns'] {
+  return [
+    { type: 'seq', width: 50, align: 'center' },
     {
-      fieldName: 'applicantType',
-      label: '受理类型【数据字典】',
-      component: 'Select',
-      componentProps: {
-        options: getDictOptions(
-          DICT_TYPE.BPM_TASK_STATUS.toUpperCase(),
-          'string',
-        ),
-        placeholder: '请选择受理类型【数据字典】',
-      },
+      field: 'fieldName',
+      title: '字段名',
+      minWidth: 180,
     },
     {
-      fieldName: 'applicantPlanCount',
-      label: '计划数量',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入计划数量',
-      },
-    },
-    {
-      fieldName: 'applicantPlanStart',
-      label: '计划开始时间',
-      component: 'DatePicker',
-      componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
-      },
-    },
-    {
-      fieldName: 'applicantPlanEnd',
-      label: '计划结束时间',
-      component: 'DatePicker',
-      componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
-      },
-    },
-    {
-      fieldName: 'cargoOwnerCode',
-      label: '货主代码【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入货主代码【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'cargoAgentCode',
-      label: '货代代码【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入货代代码【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'invoiceTitle',
-      label: '开票抬头',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入开票抬头',
-      },
-    },
-    {
-      fieldName: 'conclusionTime',
-      label: '审结时间',
-      component: 'DatePicker',
-      componentProps: {
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-        valueFormat: 'x',
-      },
-    },
-    {
-      fieldName: 'handlingPhoneNumber',
-      label: '经办人联系电话',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入经办人联系电话',
-      },
-    },
-    {
-      fieldName: 'payerNameGate',
-      label: '陆侧缴费方名称【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入陆侧缴费方名称【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'payerNameSea',
-      label: '海侧缴费方名称【基础代码-客户代码】',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入海侧缴费方名称【基础代码-客户代码】',
-      },
-    },
-    {
-      fieldName: 'reviewInfo',
-      label: '审核说明',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入审核说明',
-      },
+      field: 'changeRecord',
+      title: '修改记录',
+      minWidth: 180,
     },
   ];
 }
@@ -620,11 +370,37 @@ export function useGridColumns(): VxeTableGridOptions<AcceptancePlanApi.Plan>['c
       field: 'tradeTypeIn',
       title: '内外贸（进口）',
       minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: createDictFilter('trade_type'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'trade_type',
+      },
     },
     {
       field: 'tradeTypeOut',
       title: '内外贸（出口）',
       minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: createDictFilter('trade_type'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'trade_type',
+      },
     },
     {
       field: 'isDirectPickLoadOut',
