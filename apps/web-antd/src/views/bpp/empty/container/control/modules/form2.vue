@@ -151,10 +151,11 @@ const deleteRow = async (row: any) => {
 const isoSearch = async (value: string) => {
   isoState.fetching = true;
   try {
+    const upperCaseValue = value.toUpperCase();
     const res = await getContainerIsoList({
       pageNo: 1,
       pageSize: 10,
-      containerIso: value,
+      containerIso: upperCaseValue,
       queryType: 'ISO',
     });
 
@@ -181,10 +182,11 @@ const initIsoData = async () => {
 const ownerSearch = async (value: string) => {
   ownerState.fetching = true;
   try {
+    const upperCaseValue = value.toUpperCase();
     const res = await getContainerOwnerList({
       pageNo: 1,
       pageSize: 10,
-      ownerCode: value,
+      ownerCode: upperCaseValue,
     });
 
     if (res) {
