@@ -199,9 +199,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editRules: {
       containerNo: [
         { required: true, message: '必须填写' },
-        { pattern: /^[A-Z]{4}\d{7}$/i, message: '请输入正确的箱号格式' },
+        {
+          pattern: /^[A-Z]{4}\d{7}$/i,
+          message: '箱号格式（前四位为英文，后七位数字）',
+        },
       ],
       containerSize: [{ required: true, message: '必须填写' }],
+      containerType: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -249,7 +253,7 @@ const addNewRow = async () => {
   const $grid = gridApi.grid;
   if ($grid) {
     const record = { containerNo: '' };
-    const { row: newRow } = await $grid.insertAt(record, -1);
+    const { row: newRow } = await $grid.insertAt(record, null);
     await nextTick();
     await $grid.setEditRow(newRow, true);
   }
@@ -322,11 +326,16 @@ const loadFormData = async () => {
         formData.billNo = data.acceptancePlanBillMessageRespVO.billNo;
         formData.cargoName = data.acceptancePlanBillMessageRespVO.cargoName;
       }
-
-      // 设置附件
-      fileList.value = JSON.parse(
+      // 解析 JSON
+      const fileListData = JSON.parse(
         data.acceptancePlanRespVO.attachmentFile || '[]',
       );
+
+      fileList.value = fileListData.map((item) => {
+        const parts = item.split('?');
+
+        return parts[0];
+      });
 
       // 设置船舶信息
       if (data.acceptancePlanRespVO.vesselName) {
@@ -379,6 +388,7 @@ const loadFormData = async () => {
       for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
         await $grid.insertAt(item, -1);
         containerDataList.push(item);
+        tempInputMap.value[item.id] = item.containerType;
       }
     }
 
@@ -504,7 +514,7 @@ const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
   if (!value) return;
-  if(value.length<2){
+  if (value.length < 2) {
     message.warning('请输入至少两个字符');
     return;
   }
@@ -606,6 +616,24 @@ const payerNameGateChange = async () => {
   await formApi.setFieldValue('payerCodeGate', '');
   await formApi.setFieldValue('payerNameGate', '');
 };
+const tempInputMap = ref<Record<number | string, string>>({});
+const handleContainerTypeInput = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id; // 取行唯一标识
+  delete tempInputMap.value[rowKey];
+  row.containerType = '';
+  if (val) {
+    tempInputMap.value[rowKey] = val.toUpperCase();
+  }
+  await $grid.validateField(row, 'containerType');
+};
+const containerTypeSelect = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id;
+  row.containerType = val ? val.toUpperCase() : '';
+  tempInputMap.value[rowKey] = row.containerType;
+  await $grid.validateField(row, 'containerType');
+};
 
 // 暴露方法给父组件（如果需要）
 defineExpose({
@@ -676,12 +704,9 @@ watch(
             <template #containerLengthEdit="{ row }">
               <Select
                 :options="isoLengthState.data"
-                mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
                 v-model:value="row.containerSize"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
-                :show-search="true"
-                :filter-option="true"
                 :list-height="100"
               />
             </template>
@@ -689,12 +714,14 @@ watch(
               <Select
                 :options="isoTypeState.data"
                 mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
-                v-model:value="row.containerType"
+                v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
                 :show-search="true"
                 :filter-option="true"
                 :list-height="100"
+                @search="(val) => handleContainerTypeInput(val, row)"
+                @select="(val) => containerTypeSelect(val, row)"
               />
             </template>
           </Grid>

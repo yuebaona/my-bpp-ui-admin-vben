@@ -1,6 +1,7 @@
 // 进箱信息组件
 <script setup lang="ts">
-import { Card } from "ant-design-vue";
+import { Button, Card } from 'ant-design-vue';
+
 import { useVbenForm } from '#/adapter/form';
 import { inboxInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 
@@ -19,6 +20,10 @@ const [Form, formApi] = useVbenForm({
 
 <template>
   <Card title="进箱信息">
-    <Form />
+    <Form>
+      <template #billNo>
+        <Button type="primary">提单信息管理</Button>
+      </template>
+    </Form>
   </Card>
 </template>

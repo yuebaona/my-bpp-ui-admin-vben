@@ -1,7 +1,11 @@
 <script lang="ts" setup>
-import { ref,computed } from 'vue';
+import { computed, ref } from 'vue';
+
 import { useVbenModal } from '@vben/common-ui';
+
+import { useDebounceFn } from '@vueuse/core';
 import { message } from 'ant-design-vue';
+
 import {
   createAcceptancePlanOverOperation,
   updateAcceptancePlanOverOperation,
@@ -14,29 +18,35 @@ const emit = defineEmits(['success']);
 const formRef = ref<InstanceType<typeof AcceptancePlanForm>>();
 const currentId = ref<string>(''); // 只需要管理id
 
+const validateForm = async () => {
+  if (!formRef.value) return false;
+  return await formRef.value.validate();
+};
+
+const confirm = async () => {
+  const isValid = await validateForm();
+  if (!isValid) return;
+  await debouncedSubmit();
+};
+const submitForm = async () => {
+  const saveData: any = formRef.value!.getSaveData();
+  try {
+    await (currentId.value
+      ? updateAcceptancePlanOverOperation(saveData)
+      : createAcceptancePlanOverOperation(saveData));
+
+    await modalApi.close();
+    emit('success');
+    message.success($t('ui.actionMessage.operationSuccess'));
+  } catch (error) {
+    message.error(`操作失败${error}`);
+  }
+};
+
+const debouncedSubmit = useDebounceFn(submitForm, 200);
+
 const [Modal, modalApi] = useVbenModal({
-  async onConfirm() {
-    if (!formRef.value) return;
-
-    // 直接调用表单组件的验证方法
-    const isValid = await formRef.value.validate();
-    if (!isValid) return;
-
-    // 获取保存数据并提交
-    const saveData = formRef.value.getSaveData();
-
-    try {
-      await (currentId.value
-        ? updateAcceptancePlanOverOperation(saveData)
-        : createAcceptancePlanOverOperation(saveData));
-
-      await modalApi.close();
-      emit('success');
-      message.success($t('ui.actionMessage.operationSuccess'));
-    } catch {
-      message.error('保存失败');
-    }
-  },
+  onConfirm: confirm,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
       currentId.value = '';
@@ -46,11 +56,7 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     const modalData = modalApi.getData();
 
-    if (modalData?.id) {
-      currentId.value = modalData.id;
-    } else {
-      currentId.value = '';
-    }
+    currentId.value = modalData?.id ?? '';
 
     modalApi.unlock();
   },
@@ -65,6 +71,10 @@ const modalTitle = computed(() => {
 
 <template>
   <Modal :title="modalTitle">
-    <AcceptancePlanForm :id="currentId" @success="emit('success')" ref="formRef" />
+    <AcceptancePlanForm
+      :id="currentId"
+      @success="emit('success')"
+      ref="formRef"
+    />
   </Modal>
 </template>

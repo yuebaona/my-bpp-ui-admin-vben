@@ -4,7 +4,7 @@ import type { VxeTableGridOptions } from "@vben/plugins/vxe-table";
 export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'applyCode',
+      fieldName: 'applicantName',
       component: 'Input',
       label: '申请人',
       componentProps: {
@@ -13,7 +13,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'applyPhone',
+      fieldName: 'applicantPhone',
       component: 'Input',
       label: '申请人联系电话',
       componentProps: {
@@ -22,7 +22,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'applyTime',
+      fieldName: 'cargoOwnerCode',
       component: 'DatePicker',
       label: '货主单位',
       componentProps: {
@@ -31,7 +31,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'applyTime',
+      fieldName: 'cargoAgentCode',
       component: 'DatePicker',
       label: '货代单位',
       componentProps: {
@@ -56,140 +56,110 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
 export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'originalApplicant',
+      fieldName: 'applicantName',
       component: 'Input',
       label: '申请人',
-      componentProps: {
-        placeholder: '请输入申请人',
-      },
+      componentProps: { placeholder: '请输入申请人' },
       rules: 'required',
     },
     {
-      fieldName: 'originalApplicantPhone',
+      fieldName: 'applicantPhone',
       component: 'Input',
       label: '申请人电话',
-      componentProps: {
-        placeholder: '请输入申请人电话',
-      },
+      componentProps: { placeholder: '请输入申请人电话' },
       rules: 'required',
     },
     {
-      fieldName: 'originalShipperUnit',
+      fieldName: 'cargoOwnerCode',
       component: 'Select',
       label: '货主单位',
       componentProps: {
         placeholder: '请选择货主单位',
-        options: [
-          { label: '广西中粮物流有限公司', value: '广西中粮物流有限公司' },
-        ],
+        options: [{ label: '广西中粮物流有限公司', value: '广西中粮物流有限公司' }],
       },
       rules: 'required',
     },
     {
-      fieldName: 'originalForwarderUnit',
+      fieldName: 'cargoAgentCode',
       component: 'Input',
       label: '货代单位',
-      componentProps: {
-        placeholder: '请选择货代单位',
-      },
+      componentProps: { placeholder: '请输入货代单位' },
       rules: 'required',
     },
     {
-      fieldName: 'originalPlanQuantity',
-      component: 'Input',
+      fieldName: 'applicantPlanCount',
+      component: 'InputNumber',
       label: '计划数量',
-      componentProps: {
-        placeholder: '请选择计划数量',
-      },
+      componentProps: { placeholder: '请输入计划数量' },
       rules: 'required',
     },
     {
-      fieldName: 'originalVehicleUnit',
+      fieldName: 'fleetCustomerCode',
       component: 'Input',
       label: '车队单位',
-      componentProps: {
-        placeholder: '请选择车队单位',
-      },
+      componentProps: { placeholder: '请输入车队单位' },
       rules: 'required',
     },
     {
-      fieldName: 'originalStartTime',
+      fieldName: 'originalApplicationPlanStart',
       component: 'DatePicker',
       label: '开始时间',
-      componentProps: {
-        placeholder: '请选择开始时间',
-        format: 'YYYY/MM/DD',
-      },
+      componentProps: { placeholder: '请选择开始时间', format: 'YYYY/MM/DD' },
       rules: 'required',
     },
     {
-      fieldName: 'originalEndTime',
+      fieldName: 'originalApplicationPlanEnd',
       component: 'DatePicker',
       label: '结束时间',
-      componentProps: {
-        placeholder: '请选择结束时间',
-        format: 'YYYY/MM/DD',
-      },
+      componentProps: { placeholder: '请选择结束时间', format: 'YYYY/MM/DD' },
       rules: 'required',
     },
     {
-      fieldName: 'originalPaymentUnit',
+      fieldName: 'payerCodeGate',
       component: 'Select',
       label: '付费单位',
       componentProps: {
         placeholder: '请选择付费单位',
-        options: [
-          { label: '广西中粮物流有限公司', value: '广西中粮物流有限公司' },
-        ],
+        options: [{ label: '广西中粮物流有限公司', value: '广西中粮物流有限公司' }],
       },
       rules: 'required',
     },
     {
-      fieldName: 'originalPaymentMethod',
+      fieldName: 'paymentTypeGate',
       component: 'Input',
       label: '付费方式',
-      componentProps: {
-        placeholder: '请选择付费方式',
-      },
+      componentProps: { placeholder: '请输入付费方式' },
       rules: 'required',
     },
     {
-      fieldName: 'originalInvoiceHead',
+      fieldName: 'invoiceTitle',
       component: 'Input',
       label: '发票抬头',
+      componentProps: { placeholder: '请输入发票抬头' },
+      rules: 'required',
+    },
+    {
+      fieldName: 'returnTerminalName',
+      component: 'Select',
+      label: '返场码头',
       componentProps: {
-        placeholder: '请选择发票抬头',
+        placeholder: '请选择返场码头',
+        options: [{ label: '自动化码头', value: '自动化码头' }],
       },
       rules: 'required',
     },
     {
-      fieldName: 'originalReturnWharf',
-      component: 'Input',
-      label: '返场码头',
-      componentProps: {
-        placeholder: '',
-        options: [
-          { label: '自动化码头', value: '自动化码头' },
-        ],
-      },
-    },
-    {
-      fieldName: 'originalGatewayTTO',
+      fieldName: 'relatedCustomerCode',
       component: 'Input',
       label: '关联TTO',
-      componentProps: {
-        placeholder: '',
-      },
+      componentProps: { placeholder: '请输入关联TTO' },
+      rules: 'required',
     },
     {
-      fieldName: 'originalRemark',
+      fieldName: 'remark',
       component: 'Textarea',
       label: '备注',
-      componentProps: {
-        placeholder: '请输入备注',
-        rows: 3,
-      },
-      formItemClass: 'w-full p-0 md:col-span-2',
+      componentProps: { placeholder: '请输入备注', rows: 3 },
     },
   ];
 }
@@ -198,28 +168,31 @@ export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
 export function changeOrderPaymentInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'changePayer',
+      fieldName: 'payerCodeGate',
       component: 'Input',
       label: '付费人',
       componentProps: {
-        placeholder: '',
+        placeholder: '请输入付费人',
       },
+      rules: 'required',
     },
     {
-      fieldName: 'changePaymentMethod',
+      fieldName: 'paymentTypeGate',
       component: 'Input',
       label: '付费方式',
       componentProps: {
-        placeholder: '',
+        placeholder: '请输入付费方式',
       },
+      rules: 'required',
     },
     {
-      fieldName: 'changeInvoiceHead',
+      fieldName: 'invoiceTitle',
       component: 'Input',
       label: '发票抬头',
       componentProps: {
-        placeholder: '',
+        placeholder: '请输入发票抬头',
       },
+      rules: 'required',
     },
   ];
 }
@@ -235,10 +208,9 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'billOfLadingNo',
-      component: 'Input',
+      fieldName: 'billNo',
+      component: 'none',
       label: '提单号',
-      componentProps: { placeholder: '请输入提单号' },
       rules: 'required',
     },
     {
@@ -258,7 +230,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第二行
     {
-      fieldName: 'containerHolder',
+      fieldName: 'HolderCode',
       component: 'Input',
       label: '持箱人',
       componentProps: { placeholder: '请输入持箱人' },
@@ -307,14 +279,14 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'frontOver',
+      fieldName: 'overLimitFront',
       component: 'Input',
       label: '前超',
       componentProps: { placeholder: '请输入前超' },
       rules: 'required',
     },
     {
-      fieldName: 'trainStation',
+      fieldName: 'railwayStation',
       component: 'Input',
       label: '火车站点',
       componentProps: { placeholder: '请输入火车站点' },
@@ -330,21 +302,21 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'unno',
+      fieldName: 'unNo',
       component: 'Input',
       label: 'UNNO',
       componentProps: { placeholder: '请输入UNNO' },
       rules: 'required',
     },
     {
-      fieldName: 'rearOver',
+      fieldName: 'overLimitBack',
       component: 'Input',
       label: '后超',
       componentProps: { placeholder: '请输入后超' },
       rules: 'required',
     },
     {
-      fieldName: 'isLandSeaTrade',
+      fieldName: 'isLandSeaTradeChannel',
       component: 'Input',
       label: '是否陆海贸易新通道',
       componentProps: { placeholder: '' },
@@ -360,21 +332,21 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'imdg',
+      fieldName: 'imdgCodeCode',
       component: 'Input',
-      label: 'IMDG',
-      componentProps: { placeholder: '请输入IMDG' },
+      label: 'imdgCode',
+      componentProps: { placeholder: '请输入imdgCode' },
       rules: 'required',
     },
     {
-      fieldName: 'leftOver',
+      fieldName: 'overLimitLeft',
       component: 'Input',
       label: '左超',
       componentProps: { placeholder: '请输入左超' },
       rules: 'required',
     },
     {
-      fieldName: 'sourceFlow',
+      fieldName: 'sourceDirection',
       component: 'Input',
       label: '来源/流向',
       componentProps: { placeholder: '请输入来源/流向' },
@@ -399,7 +371,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'rightOver',
+      fieldName: 'overLimitRight',
       component: 'Input',
       label: '右超',
       componentProps: { placeholder: '请输入右超' },
@@ -415,7 +387,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第七行
     {
-      fieldName: 'containerISO',
+      fieldName: 'containerIso',
       component: 'Input',
       label: '箱ISO',
       componentProps: { placeholder: '请输入箱ISO' },
@@ -429,14 +401,14 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'heightOver',
+      fieldName: 'OverLimitHeight',
       component: 'Input',
       label: '超高',
       componentProps: { placeholder: '请输入超高' },
       rules: 'required',
     },
     {
-      fieldName: 'containerWeight',
+      fieldName: 'containerWeightKg',
       component: 'Input',
       label: '箱重',
       componentProps: { placeholder: '请输入箱重' },
@@ -445,7 +417,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第八行
     {
-      fieldName: 'weightType',
+      fieldName: 'containerEmptyKg',
       component: 'Input',
       label: '空重',
       componentProps: { placeholder: '' },
@@ -459,16 +431,16 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isShallowDraft',
+      fieldName: 'isDamaged',
       component: 'RadioGroup',
-      label: '是否浅栽',
+      label: '是否残损',
       componentProps: {
         options: [{ label: '是', value: 'yes' }, { label: '否', value: 'no' }]
       },
       rules: 'required',
     },
     {
-      fieldName: 'isDirectLoading',
+      fieldName: 'isDirectPickLoad',
       component: 'RadioGroup',
       label: '是否直装',
       componentProps: {
@@ -479,7 +451,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第九行
     {
-      fieldName: 'isCommodityEmptyBox',
+      fieldName: 'isCommodityEmptyContainer',
       component: 'RadioGroup',
       label: '是否商品空箱',
       componentProps: {
@@ -492,14 +464,14 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'containerLevel',
+      fieldName: 'containerGrade',
       component: 'Input',
       label: '箱等级',
       componentProps: { placeholder: '请输入箱等级' },
       rules: 'required',
     },
     {
-      fieldName: 'damageLevel',
+      fieldName: 'damageGrade',
       component: 'Input',
       label: '残损等级',
       componentProps: { placeholder: '请输入残损等级' },
@@ -507,12 +479,12 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-// 提箱信息表单配置（匹配图片所示字段）
+// 提箱信息表单配置
 export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
   return [
     // 第一行
     {
-      fieldName: 'routeNavigation',
+      fieldName: 'vesselVoyage',
       component: 'Input',
       label: '船名航次',
       componentProps: {
@@ -521,7 +493,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'pickupOrderNo',
+      fieldName: 'billNo',
       component: 'Input',
       label: '提单号',
       componentProps: {
@@ -530,7 +502,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'emptyWeight',
+      fieldName: 'containerEmptyKg',
       component: 'Input',
       label: '空重',
       componentProps: {
@@ -539,7 +511,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isCommodityEmptyBox',
+      fieldName: 'isCommodityEmptyContainer',
       component: 'RadioGroup',
       label: '是否商品空箱',
       componentProps: {
@@ -581,7 +553,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'containerISO',
+      fieldName: 'containerIso',
       component: 'Input',
       label: '箱ISO',
       componentProps: {
@@ -592,7 +564,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
 
     // 第三行
     {
-      fieldName: 'containerHolder',
+      fieldName: 'HolderCode',
       component: 'Input',
       label: '持箱人',
       componentProps: {
@@ -614,16 +586,16 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'imdg',
+      fieldName: 'imdgCode',
       component: 'Input',
-      label: 'IMDG',
+      label: 'IMDGCode',
       componentProps: {
-        placeholder: '请输入IMDG',
+        placeholder: '请输入imdgCode',
       },
       rules: 'required',
     },
     {
-      fieldName: 'unno',
+      fieldName: 'unNo',
       component: 'Input',
       label: 'UNNO',
       componentProps: {
@@ -634,7 +606,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
 
     // 第四行
     {
-      fieldName: 'containerLevel',
+      fieldName: 'containerGrade',
       component: 'Input',
       label: '箱等级',
       componentProps: {
@@ -667,7 +639,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'damageLevel',
+      fieldName: 'damagedGrade',
       component: 'Input',
       label: '残损等级',
       componentProps: {
@@ -687,7 +659,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'trainStation',
+      fieldName: 'railwayStation',
       component: 'Input',
       label: '火车站点',
       componentProps: {
@@ -696,7 +668,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isLandSeaTradeNewChannel',
+      fieldName: 'isLandSeaTradeChannel',
       component: 'RadioGroup',
       label: '是否陆海贸易新通道',
       componentProps: {
@@ -708,7 +680,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'sourceFlow',
+      fieldName: 'sourceDirection',
       component: 'Input',
       label: '来源/流向',
       componentProps: {
@@ -728,7 +700,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isDesignated',
+      fieldName: 'isAssigned',
       component: 'RadioGroup',
       label: '是否指定',
       componentProps: {
@@ -740,7 +712,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'designatedReason',
+      fieldName: 'assignedReason',
       component: 'Input',
       label: '指定原因',
       componentProps: {
@@ -749,9 +721,9 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isDirectLoading',
+      fieldName: 'isDirectPickLoad',
       component: 'RadioGroup',
-      label: '是否直装',
+      label: '是否直提',
       componentProps: {
         options: [
           { label: '是', value: 'yes' },
@@ -779,17 +751,24 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
     // 复选框列
     { type: 'checkbox', width: 40, fixed: 'left' },
 
-    // 船名航次
+    // 序号列
     {
-      field: 'vesselVoyage',
-      title: '船名航次',
-      minWidth: 180,
-      sortable: true,
+      title: '序号',
+      width: 60,
+      align: 'center',
+      type: 'seq',
+    },
+
+    // 持箱人
+    {
+      field: 'HolderCode',
+      title: '持箱人',
+      minWidth: 150,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入船名航次',
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -801,17 +780,17 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
 
-    // 提单号
+    // 尺寸
     {
-      field: 'billOfLadingNo',
-      title: '提单号',
-      minWidth: 200,
+      field: 'size',
+      title: '尺寸',
+      minWidth: 80,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入提单号',
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -823,17 +802,280 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
 
-    // 卸货港
+    // 箱型
     {
-      field: 'dischargePort',
-      title: '卸货港',
+      field: 'containerType',
+      title: '箱型',
+      minWidth: 80,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 箱高
+    {
+      field: 'containerHeight',
+      title: '箱高',
+      minWidth: 80,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 箱ISO
+    {
+      field: 'containerIso',
+      title: '箱ISO',
+      minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 空重
+    {
+      field: 'containerEmptyKg',
+      title: '空重',
+      minWidth: 80,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 内外贸
+    {
+      field: 'tradeType',
+      title: '内外贸',
+      minWidth: 100,
+      filters: [
+        { data: 'domestic' },
+        { data: 'foreign' },
+      ],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: [
+            { label: '内贸', value: 'domestic' },
+            { label: '外贸', value: 'foreign' },
+          ],
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}` === option.data;
+        }
+        return true;
+      },
+      formatter: ({ cellValue }) => {
+        return cellValue === 'domestic' ? '内贸' : '外贸';
+      },
+    },
+
+    // 货名
+    {
+      field: 'cargoName',
+      title: '货名',
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 型号
+    {
+      field: 'model',
+      title: '型号',
       minWidth: 120,
-      sortable: true,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入卸货港',
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 当前位置
+    {
+      field: 'currentLocation',
+      title: '当前位置',
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 进口船名
+    {
+      field: 'importVesselName',
+      title: '进口船名',
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 进口航次
+    {
+      field: 'importVoyage',
+      title: '进口航次',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 出口船名
+    {
+      field: 'exportVesselName',
+      title: '出口船名',
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 出口航次
+    {
+      field: 'exportVoyage',
+      title: '出口航次',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 外贸港
+    {
+      field: 'foreignTradePort',
+      title: '外贸港',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -855,7 +1097,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入目的港',
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -867,16 +1109,37 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
 
-    // 持箱人
+    // 箱等级
     {
-      field: 'containerHolder',
-      title: '持箱人',
+      field: 'containerGrade',
+      title: '箱等级',
+      minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 柜封号
+    {
+      field: 'containerSealNo',
+      title: '柜封号',
       minWidth: 150,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入持箱人',
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -888,108 +1151,17 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
 
-    // 是否拼箱
+    // 箱重
     {
-      field: 'isLCL',
-      title: '是否拼箱',
-      minWidth: 100,
-      filters: [
-        { data: '是' },
-        { data: '否' },
-      ],
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '是', value: '是' },
-            { label: '否', value: '否' },
-          ],
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
-      },
-    },
-
-    // 是否超限
-    {
-      field: 'isOverLimit',
-      title: '是否超限',
-      minWidth: 100,
-      filters: [
-        { data: 'yes' },
-        { data: 'no' },
-      ],
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '是', value: 'yes' },
-            { label: '否', value: 'no' },
-          ],
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
-      },
-      // 格式化显示值
-      formatter: ({ cellValue }) => {
-        return cellValue === 'yes' ? '是' : '否';
-      },
-    },
-
-    // 内贸/外贸
-    {
-      field: 'tradeType',
-      title: '内贸/外贸',
-      minWidth: 100,
-      filters: [
-        { data: 'domestic' },
-        { data: 'foreign' },
-      ],
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '内贸', value: 'domestic' },
-            { label: '外贸', value: 'foreign' },
-          ],
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
-      },
-      formatter: ({ cellValue }) => {
-        return cellValue === 'domestic' ? '内贸' : '外贸';
-      },
-    },
-
-    // 尺寸
-    {
-      field: 'size',
-      title: '尺寸',
+      field: 'containerWeightKg',
+      title: '箱重',
       minWidth: 80,
       sortable: true,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入尺寸',
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -1001,16 +1173,16 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
 
-    // 箱型
+    // 海关编码
     {
-      field: 'containerType',
-      title: '箱型',
-      minWidth: 80,
+      field: 'customsCode',
+      title: '海关编码',
+      minWidth: 150,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          placeholder: '请输入箱型',
+          placeholder: '',
           allowClear: true,
         },
       },
@@ -1022,10 +1194,52 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
 
-    // 是否打冷
+    // 票货类型
+    {
+      field: 'ticketCargoType',
+      title: '票货类型',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 执法等级
+    {
+      field: 'lawEnforcementLevel',
+      title: '执法等级',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 是否冷箱
     {
       field: 'isRefrigerated',
-      title: '是否打冷',
+      title: '是否冷箱',
       minWidth: 100,
       filters: [
         { data: 'yes' },
@@ -1034,7 +1248,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       filterRender: {
         name: 'VxeSelect',
         props: {
-          placeholder: '请选择',
+          placeholder: '',
           allowClear: true,
           options: [
             { label: '是', value: 'yes' },
@@ -1050,6 +1264,289 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       },
       formatter: ({ cellValue }) => {
         return cellValue === 'yes' ? '是' : '否';
+      },
+    },
+
+    // 打冷温度
+    {
+      field: 'refrigerationTemp',
+      title: '打冷温度',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 通风口
+    {
+      field: 'ventilationPort',
+      title: '通风口',
+      minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 是否框架
+    {
+      field: 'isFramework',
+      title: '是否框架',
+      minWidth: 100,
+      filters: [
+        { data: 'yes' },
+        { data: 'no' },
+      ],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: [
+            { label: '是', value: 'yes' },
+            { label: '否', value: 'no' },
+          ],
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}` === option.data;
+        }
+        return true;
+      },
+      formatter: ({ cellValue }) => {
+        return cellValue === 'yes' ? '是' : '否';
+      },
+    },
+
+    // 左超
+    {
+      field: 'overLimitLeft',
+      title: '左超',
+      minWidth: 80,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 右超
+    {
+      field: 'overLimitRight',
+      title: '右超',
+      minWidth: 80,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 前超
+    {
+      field: 'overLimitFront',
+      title: '前超',
+      minWidth: 80,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 后超
+    {
+      field: 'overLimitRear',
+      title: '后超',
+      minWidth: 80,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 超高
+    {
+      field: 'overlimitHeight',
+      title: '超高',
+      minWidth: 80,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 进场时间
+    {
+      field: 'entryTime',
+      title: '进场时间',
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 出场时间
+    {
+      field: 'exitTime',
+      title: '出场时间',
+      minWidth: 150,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 车队
+    {
+      field: 'fleet',
+      title: '车队',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 进场方式
+    {
+      field: 'entryMethod',
+      title: '进场方式',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+
+    // 出场方式
+    {
+      field: 'exitMethod',
+      title: '出场方式',
+      minWidth: 120,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          allowClear: true,
+          placeholder: '',
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
       },
     },
 
@@ -1064,4 +1561,3 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-
