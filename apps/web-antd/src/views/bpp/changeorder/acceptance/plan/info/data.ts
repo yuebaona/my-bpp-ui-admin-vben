@@ -353,7 +353,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入受理计划号，支持多条',
+        placeholder: '请输入受理计划号，支持多条查询（仅支持逗号分隔）',
       },
     },
     {
@@ -362,7 +362,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入网上受理计划号，支持多条',
+        placeholder: '请输入网上受理计划号，支持多条查询（仅支持逗号分隔）',
       },
     },
     {
@@ -371,7 +371,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入提单号，支持多条',
+        placeholder: '请输入提单号，支持多条查询（仅支持逗号分隔）',
       },
     },
     {
