@@ -43,7 +43,7 @@ export const getVVd = ({
   inOutFlag?: string;
 }) => {
   return requestClient.get(
-    `/sgc/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
+    `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
 // 获取集装箱ISO信息
