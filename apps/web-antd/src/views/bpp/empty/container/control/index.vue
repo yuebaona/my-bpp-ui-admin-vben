@@ -47,17 +47,20 @@ const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
 const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
 const [LogQueryModal, logQueryModalApi] = useVbenModal({
   connectedComponent: LogQuery,
   destroyOnClose: true,
   footer: false,
+  closeOnClickModal: false,
 });
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
@@ -160,11 +163,13 @@ function handleRowCheckboxChange({
 const [FormModal2, formModalApi2] = useVbenModal({
   connectedComponent: Form2,
   destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
 const [DetailModal2, detailModalApi2] = useVbenModal({
   connectedComponent: Detail2,
   destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
 /**
