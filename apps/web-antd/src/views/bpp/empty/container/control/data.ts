@@ -531,6 +531,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
+      showOverflow: false,
     },
     {
       field: 'planQuantity',
@@ -664,6 +665,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
+      showOverflow: false,
     },
     {
       field: 'planQuantity',
@@ -827,12 +829,8 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       field: 'mainIsRelease',
       title: '是否放箱(Y/N)',
       minWidth: 120,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
+      formatter: ({ cellValue }) => {
+        return cellValue ? 'Y' : 'N';
       },
     },
     {
