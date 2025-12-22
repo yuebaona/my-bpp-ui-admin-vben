@@ -608,7 +608,11 @@ const fetchVesselUnloadDate = async (searchText) => {
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleMainPlanDelete.bind(null, row),
+                popConfirm: {
+                  title: '确定删除该条记录吗？',
+                  onConfirm: handleMainPlanDelete.bind(null, row),
+                  placement: 'topRight',
+                },
                 danger: true,
               },
             ]"
@@ -659,7 +663,11 @@ const fetchVesselUnloadDate = async (searchText) => {
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleSubDelete.bind(null, row),
+                popConfirm: {
+                  title: '确定删除该条记录吗？',
+                  onConfirm: handleSubDelete.bind(null, row),
+                  placement: 'topRight',
+                },
                 danger: true,
               },
             ]"
