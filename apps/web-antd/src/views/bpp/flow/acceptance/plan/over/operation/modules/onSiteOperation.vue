@@ -270,6 +270,9 @@ const vesselVoyageSelect = async (value: any) => {
 const vesselVoyageChange = async () => {
   await formApi.setFieldValue('vesselVoyage', '');
 };
+const handleVoyageSearch = async (value: string) => {
+  vesselVoyageState.value = value.toUpperCase();
+};
 watch(vesselNameState.value, () => {
   vesselNameState.data = [];
   vesselNameState.fetching = false;
@@ -312,6 +315,7 @@ const selectKey = ref(0);
           allow-clear
           @select="vesselVoyageSelect"
           @change="vesselVoyageChange"
+          @search="handleVoyageSearch"
           :key="selectKey"
         />
       </template>

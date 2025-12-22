@@ -918,10 +918,11 @@ const vesselNameChange = async () => {
   selectKey.value++;
 };
 const handleVoyageSearch = async (value: string) => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', value);
-}
+  vesselVoyageState.value = value.toUpperCase();
+  gridApi.formApi.form.setFieldValue('vesselVoyage', value.toUpperCase());
+};
 const vesselVoyageSelect = async (value: any) => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', value.label);
+  gridApi.formApi.form.setFieldValue('vesselVoyage', value.label.toUpperCase());
 };
 const vesselVoyageChange = async () => {
   gridApi.formApi.form.setFieldValue('vesselVoyage', '');
@@ -1199,3 +1200,4 @@ const vesselVoyageChange = async () => {
   </Page>
 </template>
 <style scoped lang="scss"></style>
+

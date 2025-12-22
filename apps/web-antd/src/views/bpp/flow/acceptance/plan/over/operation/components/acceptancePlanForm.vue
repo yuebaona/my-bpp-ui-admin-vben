@@ -645,6 +645,9 @@ const containerTypeSelect = async (val: string, row: any) => {
 const vesselVoyageChange = async () => {
   await formApi.setFieldValue('vesselVoyage', '');
 };
+const handleVoyageSearch = async (value: string) => {
+  vesselVoyageState.value = value.toUpperCase();
+};
 // 暴露方法给父组件（如果需要）
 defineExpose({
   validate,
@@ -803,6 +806,7 @@ watch(
         allow-clear
         @select="vesselVoyageSelect"
         @change="vesselVoyageChange"
+        @search="handleVoyageSearch"
         :key="selectKey"
       />
     </template>
