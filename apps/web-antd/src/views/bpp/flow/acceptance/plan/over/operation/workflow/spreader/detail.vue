@@ -32,7 +32,7 @@ const props = defineProps({
   },
   // 流程状态
   status: {
-    type: String,
+    type: Number,
   },
   // 当前任务对象
   todoTask: {
@@ -72,15 +72,8 @@ const containerFormData = ref({
 });
 // 获取待办任务,刷新菜单
 async function reGetTaskTodoPage(){
-  // 获取待办任务
-  const taskTodo = await getTaskTodoPage({
-    pageNo: 1,
-    pageSize: 100,
-  });
-  if (taskTodo) {
-    const globalTaskStore = useGlobalTaskStore();
-    globalTaskStore.setTaskTodoTotal(taskTodo.total);
-  }
+  const globalTaskStore = useGlobalTaskStore();
+  globalTaskStore.refreshTaskTodoTotal();
 }
 
 // 关闭窗口
@@ -362,7 +355,7 @@ onMounted(async () => {
               v-model:value="containerFormData.auditOpinion"
               placeholder="请输入审批意见"
               style="flex: 1; resize: none;"
-              rows="3"
+              :rows="3"
             />
           </a-form-item>
         </a-form>
@@ -407,7 +400,7 @@ onMounted(async () => {
                   <a-textarea
                     v-model:value="transferFormData.auditOpinion"
                     placeholder="请输入审核意见"
-                    rows="4"
+                    :rows="4"
                   />
                 </a-form-item>
                 <a-form-item>
