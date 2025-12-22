@@ -256,8 +256,23 @@ const [Form, formApi] = useVbenForm({
   schema: mainPlanFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
-  handleValuesChange: async (values) => {
+  handleValuesChange: async (values, changedValues) => {
     Object.assign(formData, values);
+    const isChangeContainerIso =
+      Array.isArray(changedValues) && changedValues[0] === 'containerIsoList';
+    const isChangeOwner =
+      Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
+    const isChangePickupPlanNo =
+      Array.isArray(changedValues) && changedValues[0] === 'pickupPlanNo';
+
+    if (isChangeContainerIso || isChangeOwner || isChangePickupPlanNo) {
+      containerAreaData.splice(0);
+      formData.bayRangeList = [];
+      const $grid = gridApi.grid;
+      if ($grid) {
+        $grid.reloadData([]);
+      }
+    }
   },
 });
 
