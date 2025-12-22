@@ -779,6 +779,13 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输箱号（多箱号搜索英文逗号,分隔）',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+          }, 10);
+        },
       },
     },
     {
