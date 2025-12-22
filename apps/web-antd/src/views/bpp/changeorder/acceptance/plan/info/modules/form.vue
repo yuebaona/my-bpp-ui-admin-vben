@@ -5,19 +5,12 @@ import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { message } from 'ant-design-vue';
-
 import { useVbenForm } from '#/adapter/form';
-import {
-  createPlan,
-  getPlan,
-  updatePlan,
-} from '#/api/bpp/changeorder/acceptance/plan/info';
 import { $t } from '#/locales';
+import { router } from '#/router';
 
 import { useFormSchema } from '../data';
 
-const emit = defineEmits(['success']);
 const formData = ref<AcceptancePlanApi.Plan>();
 const getTitle = computed(() => {
   return formData.value?.id
@@ -38,43 +31,16 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
-const [Modal, modalApi] = useVbenModal({
+const [Modal] = useVbenModal({
   async onConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) {
       return;
     }
-    modalApi.lock();
-    // 提交表单
-    const data = (await formApi.getValues()) as AcceptancePlanApi.Plan;
-    try {
-      await (formData.value?.id ? updatePlan(data) : createPlan(data));
-      // 关闭并提示
-      await modalApi.close();
-      emit('success');
-      message.success($t('ui.actionMessage.operationSuccess'));
-    } finally {
-      modalApi.unlock();
-    }
-  },
-  async onOpenChange(isOpen: boolean) {
-    if (!isOpen) {
-      formData.value = undefined;
-      return;
-    }
-    // 加载数据
-    const data = modalApi.getData<AcceptancePlanApi.Plan>();
-    if (!data || !data.id) {
-      return;
-    }
-    modalApi.lock();
-    try {
-      formData.value = await getPlan(data.id);
-      // 设置到 values
-      await formApi.setValues(formData.value);
-    } finally {
-      modalApi.unlock();
-    }
+    await router.push({
+      name: 'acceptancePlanUpdate',
+
+    });
   },
 });
 </script>
