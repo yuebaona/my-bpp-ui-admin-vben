@@ -10,6 +10,7 @@ import { Button, message } from 'ant-design-vue';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { ladingBillColumns } from '../data';
+import { IconifyIcon } from "@vben/icons";
 
 const emit = defineEmits(['success']);
 
@@ -103,6 +104,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       enabled: false,
     },
     data: ladingBillData,
+    showFooter: true,
+    mergeFooterItems: [
+      { row: 0, col: 0, rowspan: 1, colspan: 9 },
+    ],
+    footerData: [
+      {
+        checkbox: 'BUTTON',
+      },
+    ]
   } as VxeTableGridOptions<any>,
 });
 
@@ -131,9 +141,21 @@ const [Modal, modalApi] = useVbenModal({
           ]"
         />
       </template>
+      <template #checkbox="{ row }">
+        <Button
+          type="dashed"
+          @click="addNewRow"
+          class="w-full"
+        >
+          <template #icon>
+            <IconifyIcon icon="si:add-fill" style="font-size: 16px" />
+          </template>
+          新增一行
+        </Button>
+      </template>
     </Grid>
-    <div class="mt-2">
-      <Button type="dashed" block @click="addNewRow"> + 新增一行 </Button>
-    </div>
+<!--    <div class="mt-2">-->
+<!--      <Button type="dashed" block @click="addNewRow"> + 新增一行 </Button>-->
+<!--    </div>-->
   </Modal>
 </template>
