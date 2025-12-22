@@ -93,10 +93,13 @@ const selectContainerArea = async () => {
 // 将字符串转为数组
 const transformStringToArray = (value: any): string[] => {
   if (Array.isArray(value)) {
-    return value.map(item => item?.toString().trim()).filter(Boolean);
+    return value.map((item) => item?.toString().trim()).filter(Boolean);
   }
   if (typeof value === 'string') {
-    return value.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean);
+    return value
+      .split(/[,，]/)
+      .map((item: string) => item.trim())
+      .filter(Boolean);
   }
   return [];
 };
@@ -131,10 +134,11 @@ const handleContainerAreaConfirm = (positions: string[]) => {
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map(item => ({
+    formData.bayRangeList = containerAreaData.map((item) => ({
       yardBay: item.yardPosition,
-      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item
+      yardRaw:
+        item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item,
     }));
   }
 };
@@ -146,17 +150,20 @@ const deleteRow = async (row: any) => {
     const currentGridData = $grid.getTableData().fullData;
 
     containerAreaData.splice(0);
-    const dataIndex = currentGridData.findIndex(item => item.yardPosition === row.yardPosition);
+    const dataIndex = currentGridData.findIndex(
+      (item) => item.yardPosition === row.yardPosition,
+    );
     if (dataIndex !== -1) {
       currentGridData.splice(dataIndex, 1);
     }
 
     containerAreaData.push(...currentGridData);
     $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map(item => ({
+    formData.bayRangeList = containerAreaData.map((item) => ({
       yardBay: item.yardPosition,
-      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item
+      yardRaw:
+        item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item,
     }));
 
     $grid.clearFilter();
@@ -359,7 +366,8 @@ const [Modal, modalApi] = useVbenModal({
         formData.isRelease = data.mainPlanIsRelease !== true;
       }
       if (data.planType === 'SUB' && data.mainPlanTradeType) {
-        formData.tradeType = data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN' ;
+        formData.tradeType =
+          data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN';
       }
 
       initIsoData(formData.mainId);
@@ -466,7 +474,6 @@ const getStorageConditionSearch = async (row: any) => {
         tradeType: formData.tradeType,
         dischargeVesselSchedule: formData.dischargeVesselSchedule,
       },
-
     };
 
     const response = await getStorageQuantity(requestData);
@@ -478,7 +485,7 @@ const getStorageConditionSearch = async (row: any) => {
       message.warning(`无可用量`);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     message.warning('堆存查询失败或异常，请重试');
   }
 };

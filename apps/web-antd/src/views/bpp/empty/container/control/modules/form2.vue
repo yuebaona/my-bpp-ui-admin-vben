@@ -455,7 +455,6 @@ const getStorageConditionSearch = async (row: any) => {
         tradeType: formData.tradeType,
         dischargeVesselSchedule: formData.dischargeVesselSchedule,
       },
-
     };
 
     const response = await getStorageQuantity(requestData);
@@ -467,7 +466,7 @@ const getStorageConditionSearch = async (row: any) => {
       message.warning(`无可用量`);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     message.warning('堆存查询失败或异常，请重试');
   }
 };
@@ -493,6 +492,7 @@ const modalTitle = computed(() => {
           :options="isoState.data"
           @search="isoSearch"
           allow-clear
+          show-search
           @change="(value) => formApi.setFieldValue('containerIsoList', value)"
         />
       </template>
@@ -507,6 +507,7 @@ const modalTitle = computed(() => {
           :options="ownerState.data"
           @search="ownerSearch"
           allow-clear
+          show-search
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
         />
       </template>

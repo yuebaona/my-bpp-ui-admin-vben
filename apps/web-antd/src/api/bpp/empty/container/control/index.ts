@@ -2,8 +2,6 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-
-
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
   export interface mainPlanVO {
@@ -111,7 +109,6 @@ export namespace EmptyContainerControlApi {
     msg: string;
     data: string[];
   }
-
 
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
@@ -295,7 +292,7 @@ export const getStorageQuantity = (data: any) => {
 };
 
 // 强制完成
-export const forceComplete = (data: EmptyContainerControlApi.mainPlanVOVO) => {
+export const forceComplete = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.put(
     '/bpp/flow/empty/container-control-main/force/complete',
     data,
@@ -311,14 +308,14 @@ export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
 };
 
 // 新建子计划获取持箱人信息
-export const getSubPlanOwnerList = (mainId : string) => {
+export const getSubPlanOwnerList = (mainId: string) => {
   return requestClient.get<Array<EmptyContainerControlApi.ContainerOwnerVO>>(
     `/bpp/flow/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
   );
 };
 
 // 新建子计划获取ISO信息
-export const getSubPlanIsoList = (mainId : string) => {
+export const getSubPlanIsoList = (mainId: string) => {
   return requestClient.get<Array<EmptyContainerControlApi.isoVO>>(
     `/bpp/flow/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
   );

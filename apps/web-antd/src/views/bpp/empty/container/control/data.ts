@@ -1,9 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
+
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -490,7 +492,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        props:'empty_container_control_main_status',
+        props: 'empty_container_control_main_status',
       },
     },
     {
@@ -771,7 +773,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'owner',
       label: '持箱人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入持箱人',
         allowClear: true,
@@ -780,7 +782,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'iso',
       label: 'ISO',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入ISO',
         allowClear: true,

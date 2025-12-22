@@ -9,8 +9,11 @@ import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
+import { message, Select } from 'ant-design-vue';
+
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
 import {
@@ -20,6 +23,69 @@ import {
 } from '../data';
 
 const formValues = reactive({});
+
+// 持箱人搜索状态
+const ownerState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const isoState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+// 持箱人搜索函数
+const ownerSearch = async (value: string) => {
+  ownerState.fetching = true;
+  try {
+    const res = await getContainerOwnerList({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value.toUpperCase(),
+    });
+
+    if (res) {
+      ownerState.data = res.map((item: any) => ({
+        label: item.ownerCode,
+        value: item.ownerCode,
+        data: item,
+      }));
+    }
+  } catch {
+    message.error('获取持箱人数据失败');
+  } finally {
+    ownerState.fetching = false;
+  }
+};
+
+// ISO搜索函数
+const isoSearch = async (value: string) => {
+  isoState.fetching = true;
+  try {
+    const upperCaseValue = value.toUpperCase();
+    const res = await getContainerIsoList({
+      pageNo: 1,
+      pageSize: 10,
+      containerIso: upperCaseValue,
+      queryType: 'ISO',
+    });
+
+    if (res) {
+      isoState.data = res.map((item: any) => ({
+        label: item.containerIso,
+        value: item.containerIso,
+        data: item,
+      }));
+    }
+  } catch {
+    message.error('获取ISO数据失败');
+  } finally {
+    isoState.fetching = false;
+  }
+};
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -99,6 +165,10 @@ const [Modal, modalApi] = useVbenModal({
   fullscreen: false,
   class: 'w-[95vw] max-w-[1450px]',
   onOpened() {
+    ownerState.value = [];
+    isoState.value = [];
+    formApi.setFieldValue('owner', undefined);
+    formApi.setFieldValue('iso', undefined);
     handleQuery();
   },
   onConfirm: () => {
@@ -110,7 +180,36 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal>
     <div class="flex flex-col gap-4 p-4">
-      <Form />
+      <Form>
+        <template #owner>
+          <Select
+            v-model:value="ownerState.value"
+            placeholder="请输入持箱人"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="ownerState.fetching ? undefined : null"
+            :options="ownerState.data"
+            @search="ownerSearch"
+            allow-clear
+            show-search
+            @change="(value) => formApi.setFieldValue('owner', value)"
+          />
+        </template>
+        <template #iso>
+          <Select
+            v-model:value="isoState.value"
+            placeholder="请输入ISO"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="isoState.fetching ? undefined : null"
+            :options="isoState.data"
+            @search="isoSearch"
+            allow-clear
+            show-search
+            @change="(value) => formApi.setFieldValue('iso', value)"
+          />
+        </template>
+      </Form>
       <Grid />
     </div>
   </Modal>
