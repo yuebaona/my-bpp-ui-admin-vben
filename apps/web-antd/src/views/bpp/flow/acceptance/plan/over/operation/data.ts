@@ -733,6 +733,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         placeholder: '请输入作业船名',
         allowClear: true,
       },
+      solt: 'form-vesselName',
     },
     {
       fieldName: 'vesselVoyage',
@@ -742,6 +743,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         placeholder: '请输入作业航次',
         allowClear: true,
       },
+      solt: 'form-vesselVoyage',
     },
     {
       fieldName: 'billNo',
