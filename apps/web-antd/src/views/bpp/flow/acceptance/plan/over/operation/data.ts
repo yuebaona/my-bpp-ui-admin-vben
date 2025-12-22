@@ -171,9 +171,19 @@ export function onSiteOperationConfirmFormSchema(
       componentProps: {
         placeholder: '请输入箱号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
         disabled: shouldDisable('containerNo'),
       },
-      rules: 'required',
+      rules: z
+        .string()
+        .regex(/^[A-Z]{4}\d{7}$/i, '请输入正确的箱号（前四位为英文，后七位数字）'),
     },
     {
       fieldName: 'operationPosition',
