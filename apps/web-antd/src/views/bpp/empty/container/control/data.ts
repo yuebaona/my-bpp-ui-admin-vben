@@ -129,6 +129,14 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提箱受理计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
@@ -219,6 +227,14 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提箱受理计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
