@@ -78,10 +78,8 @@ function closeForm() {
   });
 }
 
-const globalTaskStore = useGlobalTaskStore();
 // 打开审批任务窗口
 function openTaskModal() {
-  globalTaskStore.setTaskTodoTotal(20)
   openTask.value = true;
   buttonKey.value++;
 }
@@ -96,15 +94,9 @@ function closeCallBack() {
 
 // 获取待办任务,刷新菜单
 async function reGetTaskTodoPage(){
-  // 获取待办任务
-  const taskTodo = await getTaskTodoPage({
-    pageNo: 1,
-    pageSize: 100,
-  });
-  if (taskTodo) {
-    const globalTaskStore = useGlobalTaskStore();
-    globalTaskStore.setTaskTodoTotal(taskTodo.total);
-  }
+  // 刷新待办任务
+  const globalTaskStore = useGlobalTaskStore();
+  globalTaskStore.refreshTaskTodoTotal();
 }
 
 // 提交回调

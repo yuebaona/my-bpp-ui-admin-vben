@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { getTaskTodoPage } from '#/api/bpm/task';
 
 // 定义全局仓库（id 唯一，建议语义化命名）
 export const useGlobalTaskStore = defineStore('globalTask', () => {
@@ -10,9 +11,21 @@ export const useGlobalTaskStore = defineStore('globalTask', () => {
   const setTaskTodoTotal = (newVal: number) => {
     taskTodoTotal.value = newVal;
   };
+  // 刷新任务数量
+  const refreshTaskTodoTotal = async () => {
+    // 获取待办任务
+    const taskTodo = await getTaskTodoPage({
+      pageNo: 1,
+      pageSize: 100,
+    });
+    if (taskTodo) {
+      taskTodoTotal.value = taskTodo.total;
+    }
+  };
   // 暴露变量和方法（组件中可访问/调用）
   return {
     taskTodoTotal,
     setTaskTodoTotal,
+    refreshTaskTodoTotal
   };
 });
