@@ -121,8 +121,8 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   vesselVoyage: '',
   payerNameSea: '',
   payerNameGate: '',
-  vieVoyType:'',
-  vesselVoyageIn:'',
+  vieVoyType: '',
+  vesselVoyageIn: '',
 });
 
 const acceptancePlanOverOperationRespVO = reactive({
@@ -360,7 +360,9 @@ const loadFormData = async () => {
         }
 
         vesselCode.value = data.acceptancePlanRespVO.vesselCode;
-        vieVoyType.value = data.acceptancePlanRespVO?.vesselVoyageIn?'IN':'OUT';
+        vieVoyType.value = data.acceptancePlanRespVO?.vesselVoyageIn
+          ? 'IN'
+          : 'OUT';
       }
 
       if (data.acceptancePlanRespVO.vesselVoyage) {
@@ -491,7 +493,7 @@ const getSaveData = () => {
     acceptancePlanSaveReqVO: {
       ...formData,
       vesselCode: vesselCode.value,
-      vieVoyType: vieVoyType.value
+      vieVoyType: vieVoyType.value,
     },
     acceptancePlanOverOperationSaveReqVO: {
       ...acceptancePlanOverOperationRespVO,
@@ -800,7 +802,7 @@ watch(
         :options="vesselVoyageState.data"
         allow-clear
         @select="vesselVoyageSelect"
-        @change = "vesselVoyageChange"
+        @change="vesselVoyageChange"
         :key="selectKey"
       />
     </template>
