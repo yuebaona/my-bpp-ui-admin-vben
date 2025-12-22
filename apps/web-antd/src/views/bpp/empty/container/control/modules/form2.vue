@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import {computed, reactive, ref} from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -13,8 +13,8 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import {
   createMainPlan,
-  updateMainPlan,
   getStorageQuantity,
+  updateMainPlan,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
@@ -38,11 +38,27 @@ const isoState = reactive({
   fetching: false,
 });
 
+// 处理ISO输入，将小写字母转换为大写
+const handleIsoInput = (e: Event) => {
+  setTimeout(() => {
+    const target = e.target as HTMLInputElement;
+    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  }, 10);
+};
+
 const ownerState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
+// 处理持箱人输入，将小写字母转换为大写
+const handleOwnerInput = (e: Event) => {
+  setTimeout(() => {
+    const target = e.target as HTMLInputElement;
+    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  }, 10);
+};
 
 const containerAreaData = reactive<any[]>([]);
 
@@ -65,10 +81,13 @@ const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
 // 将字符串转为数组
 const transformStringToArray = (value: any): string[] => {
   if (Array.isArray(value)) {
-    return value.map(item => item?.toString().trim()).filter(Boolean);
+    return value.map((item) => item?.toString().trim()).filter(Boolean);
   }
   if (typeof value === 'string') {
-    return value.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean);
+    return value
+      .split(/[,，]/)
+      .map((item: string) => item.trim())
+      .filter(Boolean);
   }
   return [];
 };
@@ -128,10 +147,11 @@ const handleContainerAreaConfirm = (positions: string[]) => {
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map(item => ({
+    formData.bayRangeList = containerAreaData.map((item) => ({
       yardBay: item.yardPosition,
-      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item
+      yardRaw:
+        item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item,
     }));
   }
 };
@@ -143,17 +163,20 @@ const deleteRow = async (row: any) => {
     const currentGridData = $grid.getTableData().fullData;
 
     containerAreaData.splice(0);
-    const dataIndex = currentGridData.findIndex(item => item.yardPosition === row.yardPosition);
+    const dataIndex = currentGridData.findIndex(
+      (item) => item.yardPosition === row.yardPosition,
+    );
     if (dataIndex !== -1) {
       currentGridData.splice(dataIndex, 1);
     }
 
     containerAreaData.push(...currentGridData);
     $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map(item => ({
+    formData.bayRangeList = containerAreaData.map((item) => ({
       yardBay: item.yardPosition,
-      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item
+      yardRaw:
+        item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item,
     }));
 
     $grid.clearFilter();
@@ -494,6 +517,7 @@ const modalTitle = computed(() => {
           allow-clear
           show-search
           @change="(value) => formApi.setFieldValue('containerIsoList', value)"
+          @input="handleIsoInput"
         />
       </template>
       <template #ownerCodeList>
@@ -509,6 +533,7 @@ const modalTitle = computed(() => {
           allow-clear
           show-search
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
+          @input="handleOwnerInput"
         />
       </template>
       <!-- 箱区范围表格部分 -->

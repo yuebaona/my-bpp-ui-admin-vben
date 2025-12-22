@@ -31,11 +31,27 @@ const ownerState = reactive({
   fetching: false,
 });
 
+// 处理持箱人输入，将小写字母转换为大写
+const handleOwnerInput = (e: Event) => {
+  setTimeout(() => {
+    const target = e.target as HTMLInputElement;
+    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  }, 10);
+};
+
 const isoState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
+// 处理ISO输入，将小写字母转换为大写
+const handleIsoInput = (e: Event) => {
+  setTimeout(() => {
+    const target = e.target as HTMLInputElement;
+    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  }, 10);
+};
 
 // 持箱人搜索函数
 const ownerSearch = async (value: string) => {
@@ -193,6 +209,7 @@ const [Modal, modalApi] = useVbenModal({
             allow-clear
             show-search
             @change="(value) => formApi.setFieldValue('owner', value)"
+            @input="handleOwnerInput"
           />
         </template>
         <template #iso>
@@ -207,6 +224,7 @@ const [Modal, modalApi] = useVbenModal({
             allow-clear
             show-search
             @change="(value) => formApi.setFieldValue('iso', value)"
+            @input="handleIsoInput"
           />
         </template>
       </Form>

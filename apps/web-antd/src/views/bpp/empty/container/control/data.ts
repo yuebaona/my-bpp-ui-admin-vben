@@ -135,11 +135,11 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Select',
-      renderComponentContent: () => {
-        return {
-          default: () => null,
-        };
-      },
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
@@ -157,11 +157,11 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Select',
-      renderComponentContent: () => {
-        return {
-          default: () => null,
-        };
-      },
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
@@ -234,11 +234,11 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Select',
-      renderComponentContent: () => {
-        return {
-          default: () => null,
-        };
-      },
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
@@ -257,11 +257,11 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       fieldName: 'containerIsoList',
       label: 'ISO',
       component: 'Select',
-      renderComponentContent: () => {
-        return {
-          default: () => null,
-        };
-      },
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {

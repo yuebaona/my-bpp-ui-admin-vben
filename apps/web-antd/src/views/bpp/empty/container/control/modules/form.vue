@@ -43,11 +43,27 @@ const isoState = reactive({
   fetching: false,
 });
 
+// 处理ISO输入，将小写字母转换为大写
+const handleIsoInput = (e: Event) => {
+  setTimeout(() => {
+    const target = e.target as HTMLInputElement;
+    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  }, 10);
+};
+
 const ownerState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
+
+// 处理持箱人输入，将小写字母转换为大写
+const handleOwnerInput = (e: Event) => {
+  setTimeout(() => {
+    const target = e.target as HTMLInputElement;
+    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  }, 10);
+};
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
@@ -509,9 +525,10 @@ const modalTitle = computed(() => {
           :filter-option="false"
           :not-found-content="isoState.fetching ? undefined : null"
           :options="isoState.data"
-          @search="isoSearch"
           allow-clear
+          show-search
           @change="(value) => formApi.setFieldValue('containerIsoList', value)"
+          @input="handleIsoInput"
         />
       </template>
       <template #ownerCodeList>
@@ -523,9 +540,10 @@ const modalTitle = computed(() => {
           :filter-option="false"
           :not-found-content="ownerState.fetching ? undefined : null"
           :options="ownerState.data"
-          @search="ownerSearch"
           allow-clear
+          show-search
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
+          @input="handleOwnerInput"
         />
       </template>
       <!-- 箱区范围表格部分 -->
