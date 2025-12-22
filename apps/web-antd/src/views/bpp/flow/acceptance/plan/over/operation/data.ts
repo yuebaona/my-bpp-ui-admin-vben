@@ -723,6 +723,14 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入申请编号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
