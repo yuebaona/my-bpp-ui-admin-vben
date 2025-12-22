@@ -760,6 +760,12 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提单号（多提单搜索英文逗号,分隔）',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase()
+          }, 10);
+        },
       },
     },
     {
@@ -782,8 +788,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         onInput: (e: Event) => {
           setTimeout(() => {
             const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
+            target.value = target.value.toUpperCase()
           }, 10);
         },
       },
