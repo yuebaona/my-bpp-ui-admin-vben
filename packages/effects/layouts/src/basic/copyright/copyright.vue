@@ -38,7 +38,7 @@ withDefaults(defineProps<Props>(), {
     <!-- Copyright Text -->
     <!-- Copyright © 2022-2025 广西钦州保税港区宏港码头有限公司. -->
     Copyright © 2022 -
-    {{ `${new Date().getFullYear()} ${$t('authentication.companyName')}` }}
+    {{ `${new Date().getFullYear()} ${$t('authentication.copyright')}` }}
 
     <!-- Company Link -->
 <!--    <a-->
