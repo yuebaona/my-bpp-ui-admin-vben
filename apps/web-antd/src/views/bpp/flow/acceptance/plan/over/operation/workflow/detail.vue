@@ -4,7 +4,7 @@ import {getAcceptancePlanOverOperation} from '#/api/bpp/flow/acceptance/plan/ove
 
 import {onMounted, ref} from 'vue';
 
-import {ContentWrap} from '@vben/common-ui';
+import { ContentWrap,useVbenModal } from '@vben/common-ui';
 
 import {Button, Card, Flex, Modal, Space} from 'ant-design-vue';
 import {router} from '#/router';
@@ -82,6 +82,7 @@ function closeForm() {
 function openTaskModal() {
   openTask.value = true;
   buttonKey.value++;
+  modalApi.open();
 }
 
 const taskKey = ref(0);
@@ -90,6 +91,7 @@ const taskKey = ref(0);
 function closeCallBack() {
   openTask.value = false;
   taskKey.value++;
+  modalApi.close();
 }
 
 // 获取待办任务,刷新菜单
@@ -123,7 +125,10 @@ function checkBusiness() {
   }
   return false;
 }
-
+const [Modal, modalApi] = useVbenModal({
+  showCancelButton: false,
+  showConfirmButton: false,
+});
 onMounted(() => {
   getDetailData();
 });
@@ -173,6 +178,7 @@ onMounted(() => {
   <Modal
     :open="openTask"
     :width="1200"
+    class="w-1/2"
     title="提交审核"
     :closable="false"
     :key="taskKey"
