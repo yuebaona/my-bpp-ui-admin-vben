@@ -120,7 +120,7 @@ const transformStringToArray = (value: any): string[] => {
   return [];
 };
 
-const handleContainerAreaConfirm = (positions: string[]) => {
+const handleContainerAreaConfirm = async (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
@@ -156,6 +156,9 @@ const handleContainerAreaConfirm = (positions: string[]) => {
         item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
       ...item,
     }));
+    for (const row of containerAreaData) {
+      await getStorageConditionSearch(row);
+    }
   }
 };
 
@@ -461,6 +464,7 @@ const [Modal, modalApi] = useVbenModal({
               }
             }
           }
+          await updateStorageCondition();
         } finally {
           modalApi.unlock();
         }
@@ -486,17 +490,12 @@ const getStorageConditionSearch = async (row: any) => {
       message.warning('请先填写堆场位置');
       return;
     }
-    if (!row.yardColumns || row.yardColumns.length === 0) {
-      message.warning('请至少选择一个堆场列');
-      return;
-    }
 
     // 构建接口请求参数
     const requestData = {
       yardBayList: [
         {
           yardBay: row.yardPosition,
-          yardRaw: row.yardColumns.join(','),
         },
       ],
       baseInfo: {
@@ -518,6 +517,16 @@ const getStorageConditionSearch = async (row: any) => {
   } catch (error) {
     console.log(error);
     message.warning('堆存查询失败或异常，请重试');
+  }
+};
+
+const updateStorageCondition = async () => {
+  const $grid = gridApi.grid;
+  if ($grid) {
+    const currentGridData = $grid.getTableData().fullData;
+    for (const row of currentGridData) {
+      await getStorageConditionSearch(row);
+    }
   }
 };
 
