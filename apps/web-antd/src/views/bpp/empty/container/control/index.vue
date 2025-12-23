@@ -283,6 +283,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       content: '查询',
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
+    submitOnEnter: true
   },
   gridOptions: {
     columns: mainPlanColumns(),
