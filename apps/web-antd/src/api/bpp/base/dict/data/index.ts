@@ -15,6 +15,7 @@ export namespace BaseDictDataApi {
     sort?: number;
     status: number;
     value: string;
+    classType: string;
   };
 }
 

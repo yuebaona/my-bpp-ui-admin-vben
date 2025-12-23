@@ -13,20 +13,6 @@ import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
-const loadDictData = async (dictTypes: string[]) => {
-  for (const dictType of dictTypes) {
-    bppBaseDict.setBppBaseDictCacheByData(
-      (
-        await getDictDataPage({
-          dictType,
-          pageNo: 1,
-          pageSize: 100,
-        })
-      ).list,
-      dictType,
-    );
-  }
-};
 function createDictFilter(dictType: string) {
   return ({ option, row, column }: { column: any; option: any; row: any }) => {
     if (option.data) {
@@ -49,9 +35,7 @@ function createDictFilter(dictType: string) {
   };
 }
 function renderTagDict(dictType: string, cellValue: string) {
-  const dictOptions = bppBaseDict.getBppBaseDictOptions(
-    dictType
-  );
+  const dictOptions = bppBaseDict.getBppBaseDictOptions(dictType);
   const data = dictOptions.map((option) => ({
     value: option.value,
     label: option.label,
@@ -187,9 +171,19 @@ export function onSiteOperationConfirmFormSchema(
       componentProps: {
         placeholder: '请输入箱号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
         disabled: shouldDisable('containerNo'),
       },
-      rules: 'required',
+      rules: z
+        .string()
+        .regex(/^[A-Z]{4}\d{7}$/i, '请输入正确的箱号（前四位为英文，后七位数字）'),
     },
     {
       fieldName: 'operationPosition',
@@ -258,6 +252,19 @@ export function onSiteOperationConfirmFormSchema(
         placeholder: '请选择换吊具结束时间',
         showTime: true,
       },
+      dependencies: {
+        rules(values) {
+          return z
+            .string({ message: '请选择换吊具结束时间' })
+            .refine((value) => {
+              if (!value || !values.startTime) {
+                return true;
+              }
+              return Number(value) > Number(values.startTime);
+            }, '更换吊具结束时间必须大于更换吊具开始时间');
+        },
+        triggerFields: ['endTime', 'startTime'],
+      },
       rules: 'required',
     },
     {
@@ -281,6 +288,19 @@ export function onSiteOperationConfirmFormSchema(
         valueFormat: 'x',
         placeholder: '请选择换吊具结束时间',
         showTime: true,
+      },
+      dependencies: {
+        rules(values) {
+          return z
+            .string({ message: '请选择换回原吊具结束时间' })
+            .refine((value) => {
+              if (!value || !values.startTimeBack) {
+                return true;
+              }
+              return Number(value) > Number(values.startTimeBack);
+            }, '换回原吊具结束时间必须大于换回原吊具开始时间');
+        },
+        triggerFields: ['endTimeBack', 'startTimeBack'],
       },
       rules: 'required',
     },
@@ -310,10 +330,31 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
       title: '箱号',
       field: 'containerNo',
       minWidth: 120,
-      editRender: { name: 'input' },
-      formatter({ cellValue }) {
-        // 小写字母转换成大写字母
-        return cellValue.toUpperCase();
+      editRender: {
+        name: 'input',
+        events: {
+          input: async (params: any) => {
+            const seq = params.seq;
+            const currentRow = params.data[seq - 1]; // 当前行数据
+
+            setTimeout(() => {
+              const cellEl = params.$grid.getCellElement(
+                currentRow,
+                'containerNo',
+              );
+              const inputEl = cellEl?.querySelector('.vxe-default-input');
+
+              if (inputEl) {
+                inputEl.value = inputEl.value.toUpperCase();
+              }
+            }, 10);
+          },
+        },
+        immediate: true,
+      },
+      editConfig: {
+        mode: 'row',
+        autoFocus: true,
       },
     },
     {
@@ -498,9 +539,12 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       // 更严格的手机号码校验
       rules: z
         .string()
-        .min(11, '手机号码必须是11位')
-        .max(11, '手机号码必须是11位')
-        .regex(/^1[3-9]\d{9}$/, '请输入正确的手机号码格式'),
+        .min(11, '手机号码必须是11位纯数字，不含空格及特殊符号')
+        .max(11, '手机号码必须是11位纯数字，不含空格及特殊符号')
+        .regex(
+          /^1[3-9]\d{9}$/,
+          '请输入正确的手机号码格式，必须是11位纯数字，不含空格及特殊符号',
+        ),
     },
     {
       fieldName: 'paymentTypeSea',
@@ -555,7 +599,10 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
         placeholder: '请输入作业航次',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z
+        .string()
+        .nonempty('作业航次为必填项')
+        .regex(/^[^\u4E00-\u9FA5]*$/, '作业航次不允许输入中文'),
     },
     {
       fieldName: 'plannedOperationTime',
@@ -588,16 +635,18 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提单号',
         allowClear: true,
-        onBlur: (e: Event) => {
-          const target = e.target as HTMLInputElement;
-          target.value = target.value
-            .toUpperCase()
-            .replaceAll(/[^A-Z0-9]/g, '');
-          // 手动触发 input 事件确保表单更新
-          target.dispatchEvent(new Event('input', { bubbles: true }));
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
         },
       },
-      rules: z.string().regex(/^[A-Z0-9]+$/, '请输入正确的提单号'),
+      rules: z
+        .string()
+        .regex(/^[A-Z0-9]+$/, '请输入正确的提单号（英文，数字）'),
     },
     {
       fieldName: 'cargoName',
@@ -621,8 +670,8 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       fieldName: 'attachmentFile',
       label: '附件',
       component: 'Upload',
-      formItemClass: 'mt-3',
       rules: 'required',
+      formItemClass: 'w-full p-0 md:col-span-2 mt-3',
     },
     {
       fieldName: 'divider',
@@ -684,6 +733,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         placeholder: '请输入作业船名',
         allowClear: true,
       },
+      solt: 'form-vesselName',
     },
     {
       fieldName: 'vesselVoyage',
@@ -693,31 +743,33 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
         placeholder: '请输入作业航次',
         allowClear: true,
       },
+      solt: 'form-vesselVoyage',
     },
     {
       fieldName: 'billNo',
       label: '提单号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入提单号',
+        placeholder: '请输入提单号（多提单搜索英文逗号,分隔）',
         allowClear: true,
       },
     },
     {
       fieldName: 'applicantCompanyName',
       label: '申请单位',
-      component: 'Input',
+      component: 'none',
       componentProps: {
         placeholder: '请输入申请单位',
         allowClear: true,
       },
+      slot: 'form-applicantCompanyName',
     },
     {
       fieldName: 'containerNo',
       label: '箱号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输箱号',
+        placeholder: '请输箱号（多箱号搜索英文逗号,分隔）',
         allowClear: true,
       },
     },
@@ -1078,7 +1130,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       filterMethod: createDictFilter('system_rate'),
       cellRender: {
         name: 'CellTagDict',
-        props:'system_rate',
+        props: 'system_rate',
       },
     },
     {

@@ -8,12 +8,12 @@ import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Image,message } from 'ant-design-vue';
+import { Image, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import { Base64 } from 'js-base64';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
+import { handlePreview } from '#/utils/filePreview';
 import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
 
 import {
@@ -65,11 +65,6 @@ const formattedContainerTypes = computed(() => {
   }
   return result.join('\n'); // 用换行符连接
 });
-const handlePreview = async (row: any) => {
-  window.open(
-    `http://10.15.78.1:8012/onlinePreview?url=${encodeURIComponent(Base64.encode(row.filePath))}`,
-  );
-};
 const handleDownload = async (row: any) => {
   // 判断如果是图片文件，则进行预览
   if (isImageFile(row.filePath)) {

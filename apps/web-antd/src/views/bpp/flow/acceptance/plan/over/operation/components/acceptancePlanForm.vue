@@ -35,6 +35,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits(['success', 'validate']);
 const vesselCode = ref<string>();
+const vieVoyType = ref<string>();
 
 const vesselNameState = reactive({
   data: [],
@@ -120,6 +121,8 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   vesselVoyage: '',
   payerNameSea: '',
   payerNameGate: '',
+  vieVoyType: '',
+  vesselVoyageIn: '',
 });
 
 const acceptancePlanOverOperationRespVO = reactive({
@@ -199,9 +202,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editRules: {
       containerNo: [
         { required: true, message: '必须填写' },
-        { pattern: /^[A-Z]{4}\d{7}$/i, message: '请输入正确的箱号格式' },
+        {
+          pattern: /^[A-Z]{4}\d{7}$/i,
+          message: '箱号格式（前四位为英文，后七位数字）',
+        },
       ],
       containerSize: [{ required: true, message: '必须填写' }],
+      containerType: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -249,7 +256,7 @@ const addNewRow = async () => {
   const $grid = gridApi.grid;
   if ($grid) {
     const record = { containerNo: '' };
-    const { row: newRow } = await $grid.insertAt(record, -1);
+    const { row: newRow } = await $grid.insertAt(record, null);
     await nextTick();
     await $grid.setEditRow(newRow, true);
   }
@@ -322,11 +329,16 @@ const loadFormData = async () => {
         formData.billNo = data.acceptancePlanBillMessageRespVO.billNo;
         formData.cargoName = data.acceptancePlanBillMessageRespVO.cargoName;
       }
-
-      // 设置附件
-      fileList.value = JSON.parse(
+      // 解析 JSON
+      const fileListData = JSON.parse(
         data.acceptancePlanRespVO.attachmentFile || '[]',
       );
+
+      fileList.value = fileListData.map((item) => {
+        const parts = item.split('?');
+
+        return parts[0];
+      });
 
       // 设置船舶信息
       if (data.acceptancePlanRespVO.vesselName) {
@@ -348,6 +360,9 @@ const loadFormData = async () => {
         }
 
         vesselCode.value = data.acceptancePlanRespVO.vesselCode;
+        vieVoyType.value = data.acceptancePlanRespVO?.vesselVoyageIn
+          ? 'IN'
+          : 'OUT';
       }
 
       if (data.acceptancePlanRespVO.vesselVoyage) {
@@ -379,6 +394,7 @@ const loadFormData = async () => {
       for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
         await $grid.insertAt(item, -1);
         containerDataList.push(item);
+        tempInputMap.value[item.id] = item.containerType;
       }
     }
 
@@ -477,6 +493,7 @@ const getSaveData = () => {
     acceptancePlanSaveReqVO: {
       ...formData,
       vesselCode: vesselCode.value,
+      vieVoyType: vieVoyType.value,
     },
     acceptancePlanOverOperationSaveReqVO: {
       ...acceptancePlanOverOperationRespVO,
@@ -504,16 +521,16 @@ const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
   if (!value) return;
-  if(value.length<2){
-    message.warning('请输入至少两个字符');
-    return;
-  }
+  // if (value.length < 2) {
+  //   message.warning('请输入至少两个字符');
+  //   return;
+  // }
   vesselNameState.fetching = true;
   const res = await getVVd({ condition: value });
   if (res) {
     vesselNameState.data = res.map((item: any) => ({
-      label: item.vieVslCName,
-      value: item.vieVslCName,
+      label: item.vieVslName,
+      value: item.vieVslName,
       data: item,
     }));
   }
@@ -523,6 +540,7 @@ const handleVesselSearch = async (value: string) => {
 const vesselNameSelect = async (value: any, option: any) => {
   await formApi.setFieldValue('vesselName', value.label);
   vesselCode.value = option?.data?.vieVslCd;
+  vieVoyType.value = option?.data?.vieVoyType;
 
   vesselVoyageState.fetching = true;
   const res = await getVVd({ condition: value.label, queryType: 'VOYAGE' });
@@ -606,7 +624,27 @@ const payerNameGateChange = async () => {
   await formApi.setFieldValue('payerCodeGate', '');
   await formApi.setFieldValue('payerNameGate', '');
 };
-
+const tempInputMap = ref<Record<number | string, string>>({});
+const handleContainerTypeInput = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id; // 取行唯一标识
+  delete tempInputMap.value[rowKey];
+  row.containerType = '';
+  if (val) {
+    tempInputMap.value[rowKey] = val.toUpperCase();
+  }
+  await $grid.validateField(row, 'containerType');
+};
+const containerTypeSelect = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id;
+  row.containerType = val ? val.toUpperCase() : '';
+  tempInputMap.value[rowKey] = row.containerType;
+  await $grid.validateField(row, 'containerType');
+};
+const vesselVoyageChange = async () => {
+  await formApi.setFieldValue('vesselVoyage', '');
+};
 // 暴露方法给父组件（如果需要）
 defineExpose({
   validate,
@@ -676,12 +714,9 @@ watch(
             <template #containerLengthEdit="{ row }">
               <Select
                 :options="isoLengthState.data"
-                mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
                 v-model:value="row.containerSize"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
-                :show-search="true"
-                :filter-option="true"
                 :list-height="100"
               />
             </template>
@@ -689,12 +724,14 @@ watch(
               <Select
                 :options="isoTypeState.data"
                 mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
-                v-model:value="row.containerType"
+                v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
                 :show-search="true"
                 :filter-option="true"
                 :list-height="100"
+                @search="(val) => handleContainerTypeInput(val, row)"
+                @select="(val) => containerTypeSelect(val, row)"
               />
             </template>
           </Grid>
@@ -765,6 +802,7 @@ watch(
         :options="vesselVoyageState.data"
         allow-clear
         @select="vesselVoyageSelect"
+        @change="vesselVoyageChange"
         :key="selectKey"
       />
     </template>
