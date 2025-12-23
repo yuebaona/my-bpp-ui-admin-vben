@@ -141,7 +141,7 @@ export namespace FlowOverLimitWorkApi {
     stopStartTime: number | string;
     stopEndTime: number | string;
     stopRemark: string;
-    overOperationContainerIds: string[]; // 用于现场操作新增
+    oogContIds: string[]; // 用于现场操作新增
     isOnSiteWork: string;
     plannedCheType: string;
   }

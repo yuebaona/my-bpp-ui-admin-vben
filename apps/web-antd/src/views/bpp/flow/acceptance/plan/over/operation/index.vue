@@ -41,13 +41,13 @@ import {
 } from './data';
 
 interface OnSideOperation {
-  overOperationContainerIds: string;
+  oogContIds: string;
   initiationType: string;
   cheWorkChangeType: string;
   acptPlnNo: string;
   contNo: string;
-  spreaderType: string;
-  vesselCode: string;
+  cheType: string;
+  vslCode: string;
   vslVoy: string;
   vslName: string;
 }
@@ -216,13 +216,13 @@ const handleMachineSpreaderDelete = async (
 /** 现场操作确认 */
 const handleOnSiteOperation = async () => {
   const data = ref<OnSideOperation>({
-    overOperationContainerIds: '',
+    oogContIds: '',
     initiationType: '',
     cheWorkChangeType: '',
     acptPlnNo: '',
     contNo: '',
-    spreaderType: '',
-    vesselCode: '',
+    cheType: '',
+    vslCode: '',
     vslVoy: '',
     vslName: '',
   });
@@ -256,8 +256,8 @@ const handleOnSiteOperation = async () => {
           return;
         }
       }
-      if (vesselCodes.value.length > 1) {
-        const uniqueNames = new Set(vesselCodes.value);
+      if (vslCodes.value.length > 1) {
+        const uniqueNames = new Set(vslCodes.value);
         if (uniqueNames.size > 1) {
           message.error('存在不同的船名，请检查');
           return;
@@ -283,20 +283,20 @@ const handleOnSiteOperation = async () => {
           message.error('存在不同的现在作业节点，请检查');
         }
       }
-      if (plannedSpreaderTypes.value.length > 1) {
-        const uniqueNodes = new Set(plannedSpreaderTypes.value);
+      if (plannedCheTypes.value.length > 1) {
+        const uniqueNodes = new Set(plannedCheTypes.value);
         if (uniqueNodes.size > 1) {
           message.error('存在不同的现场作业吊具，请检查');
         }
       }
       data.value = {
-        overOperationContainerIds: contIds,
+        oogContIds: contIds,
         initiationType: initiationTypeValue.value,
         cheWorkChangeType: cheWorkChangeTypes.value[0],
         acptPlnNo: boxAcptPlnNo.value[0],
         contNo: contNos.value.join(','),
-        spreaderType: plannedSpreaderTypes.value[0],
-        vesselCode: vesselCodes.value[0],
+        cheType: plannedCheTypes.value[0],
+        vslCode: vslCodes.value[0],
         vslVoy: vslVoys.value[0],
         vslName: vslNames.value[0],
       };
@@ -438,10 +438,10 @@ const contIds = ref<number[]>([]);
 const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
 const cheWorkChangeTypes = ref<string[]>([]);
 const contOperationNodes = ref<string[]>([]);
-const vesselCodes = ref<string[]>([]);
+const vslCodes = ref<string[]>([]);
 const vslVoys = ref<string[]>([]);
 const vslNames = ref<string[]>([]);
-const plannedSpreaderTypes = ref<string[]>([]);
+const plannedCheTypes = ref<string[]>([]);
 const boxList = ref<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[]
 >([]);
@@ -458,10 +458,10 @@ function boxHandleRowCheckboxChange({
     contIds,
     cheWorkChangeTypes,
     contOperationNodes,
-    vesselCodes,
+    vslCodes,
     vslVoys,
     vslNames,
-    plannedSpreaderTypes,
+    plannedCheTypes,
   };
   const fieldMappings = {
     boxCheckedIds: 'id',
@@ -470,10 +470,10 @@ function boxHandleRowCheckboxChange({
     contIds: 'id',
     cheWorkChangeTypes: 'cheWorkChangeType',
     contOperationNodes: 'contOperationNode',
-    vesselCodes: 'vesselCode',
+    vslCodes: 'vslCode',
     vslVoys: 'vslVoy',
     vslNames: 'vslName',
-    plannedSpreaderTypes: 'plannedSpreaderType',
+    plannedCheTypes: 'plannedCheType',
   };
   Object.entries(fieldMappings).forEach(([refName, field]) => {
     refMap[refName].value = records.map((item) => item[field]);
@@ -530,7 +530,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     filterConfig: {
       showIcon: false,
-      // remote: true,
+      remote: true,
     },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
@@ -575,7 +575,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         return obj;
       }, {});
       // 调用gridApi.query()刷新表格数据，实现实时筛选
-      // await gridApi.query();
+      await gridApi.query();
     }, 300),
   },
 });

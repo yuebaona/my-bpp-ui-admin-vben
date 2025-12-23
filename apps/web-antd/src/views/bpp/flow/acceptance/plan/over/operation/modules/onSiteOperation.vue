@@ -52,10 +52,10 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   operationNo: '',
   operationPosition: '',
   cheWorkChangeType: '',
-  machineSpreaderType: '',
-  machineType: '',
+  cheWorkType: '',
+  machType: '',
   machineNo: '',
-  spreaderType: '',
+  cheType: '',
   startTime: '',
   endTime: '',
   operationFile: '',
@@ -63,14 +63,14 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   creator: '',
   createTime: '',
   operationRecordStatus: '',
-  acceptancePlanNo: '',
+  acptPlnNo: '',
   operationContainerId: 0,
   stopCode: '',
   stopType: '',
   stopStartTime: '',
   stopEndTime: '',
   stopRemark: '',
-  overOperationContainerIds: [],
+  oogContIds: [],
 });
 
 const [Form, formApi] = useVbenForm({
@@ -91,11 +91,11 @@ const submitCoreLogic = async () => {
   modalApi.lock();
   try {
     // 提交表单
-    const acceptancePlanNo = formData.value?.acceptancePlanNo;
+    const acptPlnNo = formData.value?.acptPlnNo;
     const data =
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
-    formData.value.acceptancePlanNo = acceptancePlanNo;
+    formData.value.acptPlnNo = acptPlnNo;
     formData.value.vslCode = vslCode.value;
     formData.value.operationFile = JSON.stringify(data.operationFile);
 
@@ -134,7 +134,7 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     const data = modalApi.getData();
     Object.assign(formData.value, data);
-    formData.value.acceptancePlanNo = data.value?.acceptancePlanNo;
+    formData.value.acptPlnNo = data.value?.acptPlnNo;
     if (data?.id) {
       await formApi.setValues(data);
       await formApi.setFieldValue('endTime', data?.endTime?.toString()||null);
@@ -196,13 +196,13 @@ const [Modal, modalApi] = useVbenModal({
       data.value?.cheWorkChangeType || data?.cheWorkChangeType,
     );
     await setFieldAndDisable(
-      'overOperationContainerIds',
-      data.value?.overOperationContainerIds,
+      'oogContIds',
+      data.value?.oogContIds,
     );
-    if (data.value?.spreaderType || data?.spreaderType) {
+    if (data.value?.cheType || data?.cheType) {
       await formApi.setFieldValue(
-        'spreaderType',
-        data.value?.spreaderType || data?.spreaderType,
+        'cheType',
+        data.value?.cheType || data?.cheType,
       );
     }
     const newSchema = onSiteOperationConfirmFormSchema(disabledFields.value);
