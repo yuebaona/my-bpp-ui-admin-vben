@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Page } from '@vben/common-ui';
+
 import BillOfLadingInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/billOfLadingInfo.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/changeOrderPlanInfo.vue';

@@ -1,5 +1,6 @@
+import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
+
 import type { VbenFormSchema } from '#/adapter/form';
-import type { VxeTableGridOptions } from "@vben/plugins/vxe-table";
 
 export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
   return [
@@ -168,9 +169,7 @@ export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
       label: '返场码头',
       componentProps: {
         placeholder: '',
-        options: [
-          { label: '自动化码头', value: '自动化码头' },
-        ],
+        options: [{ label: '自动化码头', value: '自动化码头' }],
       },
     },
     {
@@ -276,7 +275,10 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       label: '是否超限',
       componentProps: {
-        options: [{ label: '是', value: 'yes' }, { label: '否', value: 'no' }]
+        options: [
+          { label: '是', value: 'yes' },
+          { label: '否', value: 'no' },
+        ],
       },
       rules: 'required',
     },
@@ -294,8 +296,11 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       label: '内贸/外贸',
       componentProps: {
-        options: [{ label: '内贸', value: 'domestic' }, { label: '外贸', value: 'foreign' }],
-        defaultValue: 'domestic'
+        options: [
+          { label: '内贸', value: 'domestic' },
+          { label: '外贸', value: 'foreign' },
+        ],
+        defaultValue: 'domestic',
       },
       rules: 'required',
     },
@@ -394,7 +399,10 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       label: '是否打冷',
       componentProps: {
-        options: [{ label: '是', value: 'yes' }, { label: '否', value: 'no' }]
+        options: [
+          { label: '是', value: 'yes' },
+          { label: '否', value: 'no' },
+        ],
       },
       rules: 'required',
     },
@@ -463,7 +471,10 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       label: '是否浅栽',
       componentProps: {
-        options: [{ label: '是', value: 'yes' }, { label: '否', value: 'no' }]
+        options: [
+          { label: '是', value: 'yes' },
+          { label: '否', value: 'no' },
+        ],
       },
       rules: 'required',
     },
@@ -472,7 +483,10 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       component: 'RadioGroup',
       label: '是否直装',
       componentProps: {
-        options: [{ label: '是', value: 'yes' }, { label: '否', value: 'no' }]
+        options: [
+          { label: '是', value: 'yes' },
+          { label: '否', value: 'no' },
+        ],
       },
       rules: 'required',
     },
@@ -487,7 +501,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
           { label: '是', value: 'yes' },
           { label: '否', value: 'no' },
         ],
-        defaultValue: 'no'
+        defaultValue: 'no',
       },
       rules: 'required',
     },
@@ -893,10 +907,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'isLCL',
       title: '是否拼箱',
       minWidth: 100,
-      filters: [
-        { data: '是' },
-        { data: '否' },
-      ],
+      filters: [{ data: '是' }, { data: '否' }],
       filterRender: {
         name: 'VxeSelect',
         props: {
@@ -921,10 +932,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'isOverLimit',
       title: '是否超限',
       minWidth: 100,
-      filters: [
-        { data: 'yes' },
-        { data: 'no' },
-      ],
+      filters: [{ data: 'yes' }, { data: 'no' }],
       filterRender: {
         name: 'VxeSelect',
         props: {
@@ -953,10 +961,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'tradeType',
       title: '内贸/外贸',
       minWidth: 100,
-      filters: [
-        { data: 'domestic' },
-        { data: 'foreign' },
-      ],
+      filters: [{ data: 'domestic' }, { data: 'foreign' }],
       filterRender: {
         name: 'VxeSelect',
         props: {
@@ -1027,10 +1032,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'isRefrigerated',
       title: '是否打冷',
       minWidth: 100,
-      filters: [
-        { data: 'yes' },
-        { data: 'no' },
-      ],
+      filters: [{ data: 'yes' }, { data: 'no' }],
       filterRender: {
         name: 'VxeSelect',
         props: {
@@ -1064,4 +1066,3 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
-

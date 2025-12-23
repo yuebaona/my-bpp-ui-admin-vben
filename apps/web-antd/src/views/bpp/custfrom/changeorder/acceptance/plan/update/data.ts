@@ -11,7 +11,12 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入订单编号',
       },
+      dependencies: {
+        triggerFields: [''],
+        show: () => false,
+      },
       rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'applyPhone',
@@ -20,7 +25,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入申请人联系电话',
       },
-      rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'applyTime',
@@ -30,6 +35,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
         placeholder: '请输入货主单位',
       },
       rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'applyTime',
@@ -39,6 +45,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
         placeholder: '请输入货代单位',
       },
       rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'remark',
@@ -49,6 +56,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       },
       formItemClass: 'w-full p-0 md:col-span-2 my-3',
       rules: 'required',
+      disabled: true,
     },
   ];
 }
