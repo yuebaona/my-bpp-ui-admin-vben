@@ -19,7 +19,7 @@ import {
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
-import ContainerArea from './containerArea.vue';
+import ContainerArea from './containerAreaSelect.vue';
 
 const emit = defineEmits(['success']);
 

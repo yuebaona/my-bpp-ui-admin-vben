@@ -22,7 +22,7 @@ import {
 import { $t } from '#/locales';
 
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
-import ContainerArea from './containerArea.vue';
+import ContainerArea from './containerAreaSelect.vue';
 
 const emit = defineEmits(['success']);
 
@@ -306,8 +306,6 @@ const [Modal, modalApi] = useVbenModal({
 
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
-      ownerCodeList,
-      containerIsoList,
       bayRangeList,
     } as EmptyContainerControlApi.subPlanVO;
 
