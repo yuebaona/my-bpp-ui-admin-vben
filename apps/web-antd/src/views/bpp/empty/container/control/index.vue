@@ -166,6 +166,16 @@ function handleRowCheckboxChange({
     subPlanNo.value = [];
     subGridApi.grid.setAllCheckboxRow(false);
   }
+  if (records.length > 0) {
+    // 获取最后一个勾选的主计划
+    const lastSelectedRecord = records[records.length - 1];
+    handleRowClick({ row: lastSelectedRecord });
+  } else {
+    // 如果没有勾选任何主计划，清空子计划查询
+    hasSelectedMainPlan.value = false;
+    selectedMainId.value = null;
+    subGridApi.query();
+  }
 }
 const [FormModal2, formModalApi2] = useVbenModal({
   connectedComponent: Form2,
