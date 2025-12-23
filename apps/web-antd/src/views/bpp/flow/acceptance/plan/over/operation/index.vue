@@ -8,10 +8,12 @@ import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
-import { message, Select } from "ant-design-vue";
+import { useDebounceFn } from '@vueuse/core';
+import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { getCustomerList, getVVd } from "#/api/bpp/common";
 import {
   acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
@@ -30,14 +32,13 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
-import { useDebounceFn } from '@vueuse/core';
+
 import {
   acceptancePlanOvrOprColumns,
   acceptancePlanOvrOprFormSchema,
   machineSpreaderChangeRecordGridColumns,
   useBoxGridColumns,
 } from './data';
-import { getCustomerList } from "#/api/bpp/common";
 
 interface OnSideOperation {
   overOperationContainerIds: string;
@@ -54,6 +55,19 @@ interface batchQueryConditionsVO {
   acceptancePlanNo: string;
   containerNo: string;
 }
+
+const vesselNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+
+const vesselVoyageState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
+const selectKey = ref(0);
 // 使用字典 store
 const bppBaseDict = bppBaseDictStore();
 const loadDictData = async (dictTypes: string[]) => {
@@ -554,7 +568,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
   },
-
 });
 
 // 箱列表表格配置
@@ -847,8 +860,7 @@ const applicantCompanyNameState = reactive({
   value: [],
   fetching: false,
 });
-const applicantCompanyNameSearch =useDebounceFn(async (value: string) => {
-  console.log('applicantCompanyNameSearch', value)
+const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
   gridApi.formApi.form.setFieldValue('applicantCompanyName', value);
   if (!value) return;
   applicantCompanyNameState.fetching = true;
@@ -865,8 +877,56 @@ const applicantCompanyNameSearch =useDebounceFn(async (value: string) => {
     }));
   }
   applicantCompanyNameState.fetching = false;
-},100);
+}, 100);
+const handleVesselSearch = async (value: string) => {
+  gridApi.formApi.form.setFieldValue('vesselName', value);
+  if (!value) return;
+  vesselNameState.fetching = true;
+  const res = await getVVd({ condition: value });
+  if (res) {
+    vesselNameState.data = res.map((item: any) => ({
+      label: item.vieVslName,
+      value: item.vieVslName,
+      data: item,
+    }));
+  }
+  vesselNameState.fetching = false;
+};
 
+const vesselNameSelect = async (value: any) => {
+  gridApi.formApi.form.setFieldValue('vesselName', value.label);
+
+  vesselVoyageState.fetching = true;
+  const res = await getVVd({ condition: value.label, queryType: 'VOYAGE' });
+
+  if (res) {
+    vesselVoyageState.data = res.map((item: any) => ({
+      label: item.vieVoy,
+      value: item.vieVoy,
+    }));
+  }
+
+  vesselVoyageState.value = [];
+  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
+  vesselVoyageState.fetching = false;
+};
+
+const vesselNameChange = async () => {
+  gridApi.formApi.form.setFieldValue('vesselName', '');
+  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
+  vesselVoyageState.value = [];
+  vesselVoyageState.data = [];
+  selectKey.value++;
+};
+const handleVoyageSearch = async (value: string) => {
+  gridApi.formApi.form.setFieldValue('vesselVoyage', value);
+}
+const vesselVoyageSelect = async (value: any) => {
+  gridApi.formApi.form.setFieldValue('vesselVoyage', value.label);
+};
+const vesselVoyageChange = async () => {
+  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
+};
 </script>
 
 <template>
@@ -895,10 +955,46 @@ const applicantCompanyNameSearch =useDebounceFn(async (value: string) => {
             placeholder="请输入申请单位"
             style="width: 100%"
             :filter-option="false"
-            :not-found-content="applicantCompanyNameState.fetching ? undefined : null"
+            :not-found-content="
+              applicantCompanyNameState.fetching ? undefined : null
+            "
             :options="applicantCompanyNameState.data"
             @search="applicantCompanyNameSearch"
             allow-clear
+          />
+        </template>
+        <template #form-vesselName>
+          <Select
+            v-model:value="vesselNameState.value"
+            mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+            label-in-value
+            placeholder="请输入作业船名"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="vesselNameState.fetching ? undefined : null"
+            :options="vesselNameState.data"
+            @search="handleVesselSearch"
+            allow-clear
+            @select="vesselNameSelect"
+            @change="vesselNameChange"
+          />
+        </template>
+
+        <template #form-vesselVoyage>
+          <Select
+            v-model:value="vesselVoyageState.value"
+            mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+            label-in-value
+            placeholder="请输入船名航次"
+            style="width: 100%"
+            :filter-option="true"
+            :not-found-content="vesselVoyageState.fetching ? undefined : null"
+            :options="vesselVoyageState.data"
+            allow-clear
+            @select="vesselVoyageSelect"
+            @change="vesselVoyageChange"
+            @search="handleVoyageSearch"
+            :key="selectKey"
           />
         </template>
         <template #form-expand-before>
@@ -940,32 +1036,34 @@ const applicantCompanyNameSearch =useDebounceFn(async (value: string) => {
         <template #actions="{ row }">
           <TableAction
             :actions="[
-      row.reviewFlag
-        ? {
-            label: $t('cxmo.action.audit'),
-            type: 'link',
-            icon: ACTION_ICON.AUDIT,
-            onClick: handleViewDetail.bind(null, row),
-          }
-        : '',
-      // 判断 planStatus 是否在指定状态中
-      ['INITIALIZATION', 'REVIEWING', 'CANCELED', 'REJECTED'].includes(row.planStatus)
-        ? {
-            label: $t('cxmo.action.edit'),
-            type: 'link',
-            icon: ACTION_ICON.EDIT,
-            auth: ['bpp:flow-acceptance-plan-over-operation:update'],
-            onClick: handleEdit.bind(null, row),
-          }
-        : '',
-      {
-        label: $t('cxmo.action.detail'),
-        type: 'link',
-        icon: ACTION_ICON.VIEW,
-        auth: ['bpp:flow-acceptance-plan-over-operation:query'],
-        onClick: handleDetail.bind(null, row),
-      },
-    ]"
+              row.reviewFlag
+                ? {
+                    label: $t('cxmo.action.audit'),
+                    type: 'link',
+                    icon: ACTION_ICON.AUDIT,
+                    onClick: handleViewDetail.bind(null, row),
+                  }
+                : '',
+              // 判断 planStatus 是否在指定状态中
+              ['INITIALIZATION', 'REVIEWING', 'CANCELED', 'REJECTED'].includes(
+                row.planStatus,
+              )
+                ? {
+                    label: $t('cxmo.action.edit'),
+                    type: 'link',
+                    icon: ACTION_ICON.EDIT,
+                    auth: ['bpp:flow-acceptance-plan-over-operation:update'],
+                    onClick: handleEdit.bind(null, row),
+                  }
+                : '',
+              {
+                label: $t('cxmo.action.detail'),
+                type: 'link',
+                icon: ACTION_ICON.VIEW,
+                auth: ['bpp:flow-acceptance-plan-over-operation:query'],
+                onClick: handleDetail.bind(null, row),
+              },
+            ]"
           />
         </template>
       </Grid>
@@ -1101,5 +1199,4 @@ const applicantCompanyNameSearch =useDebounceFn(async (value: string) => {
     </div>
   </Page>
 </template>
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

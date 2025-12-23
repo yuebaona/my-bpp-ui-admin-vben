@@ -221,8 +221,8 @@ const handleVesselSearch = async (value: any) => {
   });
   if (res) {
     vesselNameState.data = res.map((item: any) => ({
-      label: item.vieVslCName,
-      value: item.vieVslCName,
+      label: item.vieVslName,
+      value: item.vieVslName,
       data: item,
     }));
     vesselNameState.fetching = false;
@@ -267,6 +267,9 @@ const vesselNameChange = async () => {
 const vesselVoyageSelect = async (value: any) => {
   await formApi.setFieldValue('vesselVoyage', value.label);
 };
+const vesselVoyageChange = async () => {
+  await formApi.setFieldValue('vesselVoyage', '');
+};
 watch(vesselNameState.value, () => {
   vesselNameState.data = [];
   vesselNameState.fetching = false;
@@ -308,6 +311,7 @@ const selectKey = ref(0);
           :options="vesselVoyageState.data"
           allow-clear
           @select="vesselVoyageSelect"
+          @change="vesselVoyageChange"
           :key="selectKey"
         />
       </template>

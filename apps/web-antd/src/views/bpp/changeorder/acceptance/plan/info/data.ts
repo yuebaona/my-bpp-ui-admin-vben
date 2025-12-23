@@ -1,11 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { AcceptancePlanApi } from '#/api/bpp/changeorder/acceptance/plan/info';
+import type { DescriptionItemSchema } from '#/components/description';
 
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
-import type {DescriptionItemSchema} from "#/components/description";
 
 const bppBaseDict = bppBaseDictStore();
 

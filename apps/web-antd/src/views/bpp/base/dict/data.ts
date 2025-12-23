@@ -218,6 +218,14 @@ export function useDataFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
+      fieldName: 'classType',
+      label: '分类标签',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入分类标签',
+      },
+    },
+    {
       fieldName: 'sort',
       label: '显示排序',
       component: 'InputNumber',
@@ -309,6 +317,11 @@ export function useDataGridColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'value',
       title: '字典键值',
+      minWidth: 100,
+    },
+    {
+      field: 'classType',
+      title: '分类标签',
       minWidth: 100,
     },
     {
