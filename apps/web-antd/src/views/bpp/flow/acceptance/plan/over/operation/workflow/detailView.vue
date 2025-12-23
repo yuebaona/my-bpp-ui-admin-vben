@@ -19,7 +19,7 @@ import { handlePreview } from '#/utils/filePreview';
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
-  containerInfoDetailColumns,
+  contInfoDetailColumns,
 } from '../data.ts';
 
 /**
@@ -124,7 +124,7 @@ const [Descriptions] = useDescription({
 });
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
-    columns: containerInfoDetailColumns(),
+    columns: contInfoDetailColumns(),
     height: '250px',
     keepSource: true,
     border: true,

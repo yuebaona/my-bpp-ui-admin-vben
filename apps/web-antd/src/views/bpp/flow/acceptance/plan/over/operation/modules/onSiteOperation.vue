@@ -19,13 +19,13 @@ import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flow/acceptance/pl
 
 const emit = defineEmits(['success']);
 const disabledFields = ref<string[]>([]);
-const vesselCode = ref<string>();
-const vesselNameState = reactive({
+const vslCode = ref<string>();
+const vslNameState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
-const vesselVoyageState = reactive({
+const vslVoyState = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -47,11 +47,11 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   operationType: '',
   operationSource: '',
   changeReason: '',
-  vesselCode: '',
-  vesselVoyage: '',
+  vslCode: '',
+  vslVoy: '',
   operationNo: '',
   operationPosition: '',
-  machineSpreaderChangeType: '',
+  cheWorkChangeType: '',
   machineSpreaderType: '',
   machineType: '',
   machineNo: '',
@@ -96,7 +96,7 @@ const submitCoreLogic = async () => {
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
     formData.value.acceptancePlanNo = acceptancePlanNo;
-    formData.value.vesselCode = vesselCode.value;
+    formData.value.vslCode = vslCode.value;
     formData.value.operationFile = JSON.stringify(data.operationFile);
 
     // 调用接口提交
@@ -143,57 +143,57 @@ const [Modal, modalApi] = useVbenModal({
         data?.endTimeBack?.toString() || null,
       );
     }
-    if (data?.vesselName || data.value?.vesselName) {
-      vesselNameState.value = {
-        label: data?.vesselName || data.value?.vesselName,
-        value: data?.vesselName || data.value?.vesselName,
+    if (data?.vslName || data.value?.vslName) {
+      vslNameState.value = {
+        label: data?.vslName || data.value?.vslName,
+        value: data?.vslName || data.value?.vslName,
       };
 
       // 同时查询对应的航次列表
       const voyageRes = await getVVd({
-        condition: data?.vesselName || data.value?.vesselName,
+        condition: data?.vslName || data.value?.vslName,
         queryType: 'VOYAGE',
       });
       if (voyageRes) {
-        vesselVoyageState.data = voyageRes.map((item: any) => ({
+        vslVoyState.data = voyageRes.map((item: any) => ({
           label: item.vieVoy,
           value: item.vieVoy,
         }));
       }
       await formApi.setFieldValue(
-        'vesselCode',
-        data.value?.vesselCode || data?.vesselCode,
+        'vslCode',
+        data.value?.vslCode || data?.vslCode,
       );
       await formApi.setFieldValue(
-        'vesselName',
-        data.value?.vesselName || data?.vesselName,
+        'vslName',
+        data.value?.vslName || data?.vslName,
       );
     }
-    if (data?.vesselVoyage || data.value?.vesselVoyage) {
-      vesselVoyageState.value = {
-        label: data?.vesselVoyage || data.value?.vesselVoyage,
-        value: data?.vesselVoyage || data.value?.vesselVoyage,
+    if (data?.vslVoy || data.value?.vslVoy) {
+      vslVoyState.value = {
+        label: data?.vslVoy || data.value?.vslVoy,
+        value: data?.vslVoy || data.value?.vslVoy,
       };
       await formApi.setFieldValue(
-        'vesselVoyage',
-        data.value?.vesselVoyage || data?.vesselVoyage,
+        'vslVoy',
+        data.value?.vslVoy || data?.vslVoy,
       );
     }
-    if (data?.vesselCode || data.value?.vesselCode) {
-      vesselCode.value = data?.vesselCode || data.value?.vesselCode;
+    if (data?.vslCode || data.value?.vslCode) {
+      vslCode.value = data?.vslCode || data.value?.vslCode;
     }
     // 数据回显
     await setFieldAndDisable(
-      'containerNo',
-      data.value?.containerNo || data?.containerNo,
+      'contNo',
+      data.value?.contNo || data?.contNo,
     );
     await setFieldAndDisable(
       'operationSource',
       data.value?.initiationType || data?.operationSource,
     );
     await setFieldAndDisable(
-      'machineSpreaderChangeType',
-      data.value?.machineSpreaderChangeType || data?.machineSpreaderChangeType,
+      'cheWorkChangeType',
+      data.value?.cheWorkChangeType || data?.cheWorkChangeType,
     );
     await setFieldAndDisable(
       'overOperationContainerIds',
@@ -214,26 +214,26 @@ const [Modal, modalApi] = useVbenModal({
 const modalTitle = ref<string>('现场操作确认');
 const handleVesselSearch = async (value: any) => {
   if (!value) return;
-  vesselNameState.data = [];
-  vesselNameState.fetching = true;
+  vslNameState.data = [];
+  vslNameState.fetching = true;
   const res = await getVVd({
     condition: value,
   });
   if (res) {
-    vesselNameState.data = res.map((item: any) => ({
+    vslNameState.data = res.map((item: any) => ({
       label: item.vieVslName,
       value: item.vieVslName,
       data: item,
     }));
-    vesselNameState.fetching = false;
+    vslNameState.fetching = false;
   }
 };
-const vesselNameSelect = async (value: any, option: any) => {
+const vslNameSelect = async (value: any, option: any) => {
   // 赋值到表单
-  await formApi.setFieldValue('vesselName', value.label);
-  vesselCode.value = option?.data?.vieVslCd;
+  await formApi.setFieldValue('vslName', value.label);
+  vslCode.value = option?.data?.vieVslCd;
 
-  vesselVoyageState.fetching = true;
+  vslVoyState.fetching = true;
 
   // 查航次列表
   const res = await getVVd({
@@ -242,79 +242,79 @@ const vesselNameSelect = async (value: any, option: any) => {
   });
 
   if (res) {
-    vesselVoyageState.data = res.map((item: any) => ({
+    vslVoyState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
     }));
-    vesselVoyageState.fetching = false;
+    vslVoyState.fetching = false;
 
     // 重要：在数据加载完成后再清空当前选择的航次值
-    vesselVoyageState.value = [];
-    await formApi.setFieldValue('vesselVoyage', '');
+    vslVoyState.value = [];
+    await formApi.setFieldValue('vslVoy', '');
   }
 };
 
-const vesselNameChange = async () => {
-  await formApi.setFieldValue('vesselName', '');
-  await formApi.setFieldValue('vesselVoyage', '');
+const vslNameChange = async () => {
+  await formApi.setFieldValue('vslName', '');
+  await formApi.setFieldValue('vslVoy', '');
 
   // 清空航次数据
-  vesselVoyageState.value = [];
-  vesselVoyageState.data = [];
+  vslVoyState.value = [];
+  vslVoyState.data = [];
   selectKey.value++;
 };
 // 赋值到表单
-const vesselVoyageSelect = async (value: any) => {
-  await formApi.setFieldValue('vesselVoyage', value.label);
+const vslVoySelect = async (value: any) => {
+  await formApi.setFieldValue('vslVoy', value.label);
 };
-const vesselVoyageChange = async () => {
-  await formApi.setFieldValue('vesselVoyage', '');
+const vslVoyChange = async () => {
+  await formApi.setFieldValue('vslVoy', '');
 };
 const handleVoyageSearch = async (value: string) => {
-  vesselVoyageState.value = value.toUpperCase();
+  vslVoyState.value = value.toUpperCase();
 };
-watch(vesselNameState.value, () => {
-  vesselNameState.data = [];
-  vesselNameState.fetching = false;
+watch(vslNameState.value, () => {
+  vslNameState.data = [];
+  vslNameState.fetching = false;
 });
-watch(vesselVoyageState.value, () => {
-  vesselVoyageState.data = [];
-  vesselVoyageState.fetching = false;
+watch(vslVoyState.value, () => {
+  vslVoyState.data = [];
+  vslVoyState.fetching = false;
 });
 const selectKey = ref(0);
 </script>
 <template>
   <Modal :title="modalTitle">
     <Form>
-      <template #vesselName>
+      <template #vslName>
         <Select
-          v-model:value="vesselNameState.value"
+          v-model:value="vslNameState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
           placeholder="请输入作业船名"
           style="width: 100%"
           :filter-option="false"
-          :not-found-content="vesselNameState.fetching ? undefined : null"
-          :options="vesselNameState.data"
+          :not-found-content="vslNameState.fetching ? undefined : null"
+          :options="vslNameState.data"
           @search="handleVesselSearch"
           allow-clear
-          @select="vesselNameSelect"
-          @change="vesselNameChange"
+          @select="vslNameSelect"
+          @change="vslNameChange"
         />
       </template>
-      <template #vesselVoyage>
+      <template #vslVoy>
         <Select
-          v-model:value="vesselVoyageState.value"
+          v-model:value="vslVoyState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
           placeholder="请输入船名航次"
           style="width: 100%"
           :filter-option="true"
-          :not-found-content="vesselVoyageState.fetching ? undefined : null"
-          :options="vesselVoyageState.data"
+          :not-found-content="vslVoyState.fetching ? undefined : null"
+          :options="vslVoyState.data"
           allow-clear
-          @select="vesselVoyageSelect"
-          @change="vesselVoyageChange"
+          @select="vslVoySelect"
+          @change="vslVoyChange"
           @search="handleVoyageSearch"
           :key="selectKey"
         />

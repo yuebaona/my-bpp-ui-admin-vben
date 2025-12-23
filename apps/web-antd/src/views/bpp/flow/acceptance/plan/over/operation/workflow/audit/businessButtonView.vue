@@ -62,8 +62,8 @@ const containerFormData = ref({
   auditOpinion: undefined,
   containerFormDataArray:[{
     id: undefined,
-    acceptancePlanNo: undefined,
-    containerNo: undefined,
+    acptPlnNo: undefined,
+    contNo: undefined,
     isSystemRateSea: undefined,
     isSystemRateGate: undefined,
     priceSea: undefined,
@@ -230,7 +230,7 @@ const columns = reactive([
   },
   {
     title: '箱号',
-    dataIndex: 'containerNo',
+    dataIndex: 'contNo',
     width: 120,
     align: 'center',
   },
@@ -276,8 +276,8 @@ watch(() => props.containerDataArray, async () => {
   props.containerDataArray.forEach((item, index) => {
     containerFormDataList.push({
       id: item.id,
-      acceptancePlanNo: item.acceptancePlanNo,
-      containerNo: item.containerNo,
+      acptPlnNo: item.acptPlnNo,
+      contNo: item.contNo,
       isSystemRateSea: item.isSystemRateSea,
       priceSea: item.priceSea,
       isSystemRateGate: item.isSystemRateGate,
