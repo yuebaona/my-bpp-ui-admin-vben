@@ -46,9 +46,9 @@ const props = defineProps({
 });
 const transferVisible = ref(false);
 const buttonLoading = ref(false);
-const plannedSpreaderTypeArray = ref([]);
-const initPlannedMachineryTypeArray = ref([]);
-const plannedMachineryTypeArray = ref([]);
+const plannedCheTypeArray = ref([]);
+const initplannedMachryTypeArray = ref([]);
+const plannedMachryTypeArray = ref([]);
 const formRef = ref(null);
 
 // 下一步审批节点
@@ -66,15 +66,15 @@ const nextNodeNameArray = ref([
 const formData = ref<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
   id: undefined,
   isAllowedStacking: undefined,
-  plannedMachineryType: undefined,
-  acceptancePlanNo: undefined,
+  plannedMachryType: undefined,
+  acptPlnNo: undefined,
   processInstanceId: undefined,
   auditOpinion: undefined,
   nodeName: undefined,
   acceptancePlanOverOperationOtherProcessReqVOS: [{
     id: undefined,
     containerNo: undefined,
-    plannedSpreaderType: undefined,
+    plannedCheType: undefined,
   }],
 });
 const transferFormRef = ref(null);
@@ -98,8 +98,8 @@ async function getDetailData() {
   const overFormData = businessData.acceptancePlanOverOperationRespVO;
   formData.value.id = overFormData.id;
   formData.value.isAllowedStacking = overFormData.isAllowedStacking;
-  formData.value.plannedMachineryType = overFormData.plannedMachineryType||'QC';
-  formData.value.acceptancePlanNo = overFormData.acceptancePlanNo;
+  formData.value.plannedMachryType = overFormData.plannedMachryType||'QC';
+  formData.value.acptPlnNo = overFormData.acptPlnNo;
   formData.value.processInstanceId = overFormData.processInstanceId;
   formData.value.acceptancePlanOverOperationOtherProcessReqVOS = businessData.acceptancePlanOverOperationContainerRespVOS;
 }
@@ -271,12 +271,12 @@ const columns = reactive([
   {
     align: 'center',
     title: '箱号',
-    dataIndex: 'containerNo',
+    dataIndex: 'contNo',
     width: 120,
   },
   {
     title: '作业吊具',
-    dataIndex: 'plannedSpreaderType',
+    dataIndex: 'plannedCheType',
     width: 160,
     align: 'center',
   },
@@ -286,15 +286,15 @@ function changeRadio(e) {
   const value = e.target.value;
   if (value) {
     // 选择"是"时，过滤出'RMG_QC'选项并设为默认值
-    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'RMG_QC');
-    if (plannedMachineryTypeArray.value.length > 0) {
-      formData.value.plannedMachineryType = plannedMachineryTypeArray.value[0].value;
+    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(x => x.value === 'RMG_QC');
+    if (plannedMachryTypeArray.value.length > 0) {
+      formData.value.plannedMachryType = plannedMachryTypeArray.value[0].value;
     }
   } else {
     // 选择"否"时，过滤出'QC'选项并设为默认值
-    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'QC');
-    if (plannedMachineryTypeArray.value.length > 0) {
-      formData.value.plannedMachineryType = plannedMachineryTypeArray.value[0].value;
+    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(x => x.value === 'QC');
+    if (plannedMachryTypeArray.value.length > 0) {
+      formData.value.plannedMachryType = plannedMachryTypeArray.value[0].value;
     }
   }
 }
@@ -305,10 +305,10 @@ async function getDictData(dictType: string) {
 }
 const formRules = ref({
   isAllowedStacking: { required: true, message: '请输入箱子是否需要落堆' },
-  plannedMachineryType: { required: true, message: '请输入机械类型' },
+  plannedMachryType: { required: true, message: '请输入机械类型' },
   auditOpinion: { required: true, message: '请输入审批意见' },
   // 吊具类型校验规则
-  plannedSpreaderTypeRules: [
+  plannedCheTypeRules: [
     {
       required: true,
       message: '请选择吊具类型',
@@ -319,15 +319,13 @@ const formRules = ref({
 // 初始化字典数据
 async function initDictData() {
   const dictData = await getDictData('spreader_type');
-  plannedSpreaderTypeArray.value = dictData;
+  plannedCheTypeArray.value = dictData;
   const mechanical = await getDictData('mechanical_type');
-  initPlannedMachineryTypeArray.value = mechanical;
+  initplannedMachryTypeArray.value = mechanical;
+  plannedMachryTypeArray.value = mechanical;
   if(!formData.isAllowedStacking){
-    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'QC')
+    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(x => x.value === 'QC')
   }
-  // if (props.activityNodes && props.activityNodes.length > 0) {
-  //   nextNodeNameArray.value = props.activityNodes.filter(x => x.status === -1 && x.id != "EndEvent");
-  // }
 }
 
 /** 初始化用户数据 */
@@ -394,7 +392,10 @@ onMounted(async () => {
           allow-clear
           placeholder="请选择机械类型"
         >
-          <a-select-option :value="item.value" v-for="item in plannedMachineryTypeArray"
+          <a-select-option :value="item.value" v-for="item in plannedMachryTypeArray"
+      <a-form-item label="机械类型" name="plannedMachryType">
+          v-model:value="formData.plannedMachryType"
+          <a-select-option :value="item.value" v-for="item in plannedMachryTypeArray"
                            :key="item.value">
             {{ item.label }}
           </a-select-option>
@@ -414,21 +415,18 @@ onMounted(async () => {
           >
             <!-- 作业吊具列：下拉选择器 -->
             <template #bodyCell="{ column, record,index }">
-              <template v-if="column.dataIndex === 'plannedSpreaderType'">
+              <template v-if="column.dataIndex === 'plannedCheType'">
                 <a-form-item
-                  :name="['acceptancePlanOverOperationOtherProcessReqVOS', index, 'plannedSpreaderType']"
-                  :rules="formRules.plannedSpreaderTypeRules"
+                  :name="['acceptancePlanOverOperationOtherProcessReqVOS', index, 'plannedCheType']"
+                  :rules="formRules.plannedCheTypeRules"
                 >
                   <a-select
-                    v-model:value="record.plannedSpreaderType"
+                    v-model:value="record.plannedCheType"
                     style="width: 180px"
                     allow-clear
                   >
-                    <a-select-option
-                       :value="item.value"
-                       v-for="item in plannedSpreaderTypeArray"
-                       :key="item.value">
-                      {{ item.label }}
+                    <a-select-option :value="item.value" v-for="item in plannedCheTypeArray"
+                                     :key="item.value">{{ item.label }}
                     </a-select-option>
                   </a-select>
                 </a-form-item>

@@ -43,26 +43,26 @@ import {
 interface OnSideOperation {
   overOperationContainerIds: string;
   initiationType: string;
-  machineSpreaderChangeType: string;
-  acceptancePlanNo: string;
-  containerNo: string;
+  cheWorkChangeType: string;
+  acptPlnNo: string;
+  contNo: string;
   spreaderType: string;
   vesselCode: string;
-  vesselVoyage: string;
-  vesselName: string;
+  vslVoy: string;
+  vslName: string;
 }
 interface batchQueryConditionsVO {
-  acceptancePlanNo: string;
-  containerNo: string;
+  acptPlnNo: string;
+  contNo: string;
 }
 
-const vesselNameState = reactive({
+const vslNameState = reactive({
   data: [],
   value: [],
   fetching: false,
 });
 
-const vesselVoyageState = reactive({
+const vslVoyState = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -114,7 +114,7 @@ function handleCreate() {
 }
 /** 撤销  */
 function handleRevoke() {
-  if (acceptancePlanNo.value.length === 0) {
+  if (acptPlnNo.value.length === 0) {
     message.error($t('cxmo.message.revokeMessage'));
     return;
   }
@@ -132,7 +132,7 @@ function handleRevoke() {
     return;
   }
   confirm({
-    content: `您确定撤销以下${acceptancePlanNo.value.toString()}申请编号的数据吗？`,
+    content: `您确定撤销以下${acptPlnNo.value.toString()}申请编号的数据吗？`,
     icon: 'info',
   })
     .then(async () => {
@@ -219,13 +219,13 @@ const handleOnSiteOperation = async () => {
   const data = ref<OnSideOperation>({
     overOperationContainerIds: '',
     initiationType: '',
-    machineSpreaderChangeType: '',
-    acceptancePlanNo: '',
-    containerNo: '',
+    cheWorkChangeType: '',
+    acptPlnNo: '',
+    contNo: '',
     spreaderType: '',
     vesselCode: '',
-    vesselVoyage: '',
-    vesselName: '',
+    vslVoy: '',
+    vslName: '',
   });
   if (!initiationTypeValue.value) {
     // 提示要选择发起类型
@@ -237,12 +237,12 @@ const handleOnSiteOperation = async () => {
       .label
   ) {
     case '客户发起': {
-      if (containerNos.value.length === 0) {
+      if (contNos.value.length === 0) {
         message.error($t('cxmo.message.boxMessage'));
         return;
       }
       const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-      const hasInvalidNode = containerOperationNodes.value.some((node) =>
+      const hasInvalidNode = contOperationNodes.value.some((node) =>
         invalidNodes.has(node),
       );
       if (hasInvalidNode) {
@@ -250,8 +250,8 @@ const handleOnSiteOperation = async () => {
         return;
       }
 
-      if (boxAcceptancePlanNo.value.length > 1) {
-        const uniqueNos = new Set(boxAcceptancePlanNo.value);
+      if (boxAcptPlnNo.value.length > 1) {
+        const uniqueNos = new Set(boxAcptPlnNo.value);
         if (uniqueNos.size > 1) {
           message.error('存在不同的受理编号，请检查');
           return;
@@ -264,22 +264,22 @@ const handleOnSiteOperation = async () => {
           return;
         }
       }
-      if (vesselVoyages.value.length > 1) {
-        const uniqueVoyages = new Set(vesselVoyages.value);
+      if (vslVoys.value.length > 1) {
+        const uniqueVoyages = new Set(vslVoys.value);
         if (uniqueVoyages.size > 1) {
           message.error('存在不同的航次，请检查');
           return;
         }
       }
-      if (machineSpreaderChangeTypes.value.length > 1) {
-        const uniqueTypes = new Set(machineSpreaderChangeTypes.value);
+      if (cheWorkChangeTypes.value.length > 1) {
+        const uniqueTypes = new Set(cheWorkChangeTypes.value);
         if (uniqueTypes.size > 1) {
           message.error('存在不同的吊具类型，请检查');
           return;
         }
       }
-      if (containerOperationNodes.value.length > 1) {
-        const uniqueNodes = new Set(containerOperationNodes.value);
+      if (contOperationNodes.value.length > 1) {
+        const uniqueNodes = new Set(contOperationNodes.value);
         if (uniqueNodes.size > 1) {
           message.error('存在不同的现在作业节点，请检查');
         }
@@ -291,15 +291,15 @@ const handleOnSiteOperation = async () => {
         }
       }
       data.value = {
-        overOperationContainerIds: containerIds,
+        overOperationContainerIds: contIds,
         initiationType: initiationTypeValue.value,
-        machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
-        acceptancePlanNo: boxAcceptancePlanNo.value[0],
-        containerNo: containerNos.value.join(','),
+        cheWorkChangeType: cheWorkChangeTypes.value[0],
+        acptPlnNo: boxAcptPlnNo.value[0],
+        contNo: contNos.value.join(','),
         spreaderType: plannedSpreaderTypes.value[0],
         vesselCode: vesselCodes.value[0],
-        vesselVoyage: vesselVoyages.value[0],
-        vesselName: vesselNames.value[0],
+        vslVoy: vslVoys.value[0],
+        vslName: vslNames.value[0],
       };
       break;
     }
@@ -311,7 +311,7 @@ const handleOnSiteOperation = async () => {
     }
     case '舱盖板': {
       data.value = {
-        containerNo: 'HATCH',
+        contNo: 'HATCH',
         initiationType: initiationTypeValue.value,
       };
       break;
@@ -320,14 +320,14 @@ const handleOnSiteOperation = async () => {
   OnSideOperationModalApi.setData(data).open();
 };
 /** 实际未发生 */
-const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
+const handleAcceptancePlanOverOperationcontNoOperation = async () => {
   // 判断是否选中箱
-  if (containerIds.value.length === 0) {
+  if (contIds.value.length === 0) {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
   const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+  const hasInvalidNode = contOperationNodes.value.some((node) =>
     invalidNodes.has(node),
   );
   if (hasInvalidNode) {
@@ -335,7 +335,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     return;
   }
   confirm({
-    content: `${containerNos.value.toString()}箱实际没有在本码头入港作业。`,
+    content: `${contNos.value.toString()}箱实际没有在本码头入港作业。`,
     icon: 'info',
   })
     .then(async () => {
@@ -345,7 +345,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
       });
       try {
         await acceptancePlanOverOperationContainerNoOperation(
-          containerIds.value,
+          contIds.value,
         );
         message.success($t('cxmo.action.success'));
         handleRefresh();
@@ -356,14 +356,14 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
     .catch(() => {});
 };
 /** 停止后续作业  */
-const handleAcceptancePlanOverOperationContainerComplete = async () => {
+const handleAcceptancePlanOverOperationcontComplete = async () => {
   // 判断是否选中箱
-  if (containerIds.value.length === 0) {
+  if (contIds.value.length === 0) {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
   const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+  const hasInvalidNode = contOperationNodes.value.some((node) =>
     invalidNodes.has(node),
   );
   if (hasInvalidNode) {
@@ -371,7 +371,7 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
     return;
   }
   confirm({
-    content: `${containerNos.value.toString()}箱是否确认现场操作已全部完成？`,
+    content: `${contNos.value.toString()}箱是否确认现场操作已全部完成？`,
     icon: 'info',
   })
     .then(async () => {
@@ -380,7 +380,7 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
         duration: 0,
       });
       try {
-        await acceptancePlanOverOperationContainerComplete(containerIds.value);
+        await acceptancePlanOverOperationContainerComplete(contIds.value);
         message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
@@ -419,7 +419,7 @@ const handleMachineSpreaderRecordDeleteList = async () => {
 };
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
-const acceptancePlanNo = ref<string[]>([]);
+const acptPlnNo = ref<string[]>([]);
 const planStatusArr = ref<string[]>([]);
 function handleRowCheckboxChange({
   records,
@@ -427,61 +427,61 @@ function handleRowCheckboxChange({
   records: FlowOverLimitWorkApi.AcceptancePlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
-  acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+  acptPlnNo.value = records.map((item) => item.acptPlnNo);
   planStatusArr.value = records.map((item) => item.planStatus);
   boxGridApi.query();
 }
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
-const boxAcceptancePlanNo = ref<string[]>([]);
-const containerNos = ref<string[]>([]);
-const containerIds = ref<number[]>([]);
+const boxAcptPlnNo = ref<string[]>([]);
+const contNos = ref<string[]>([]);
+const contIds = ref<number[]>([]);
 const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
-const machineSpreaderChangeTypes = ref<string[]>([]);
-const containerOperationNodes = ref<string[]>([]);
+const cheWorkChangeTypes = ref<string[]>([]);
+const contOperationNodes = ref<string[]>([]);
 const vesselCodes = ref<string[]>([]);
-const vesselVoyages = ref<string[]>([]);
-const vesselNames = ref<string[]>([]);
+const vslVoys = ref<string[]>([]);
+const vslNames = ref<string[]>([]);
 const plannedSpreaderTypes = ref<string[]>([]);
 const boxList = ref<
-  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
+  FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[]
 >([]);
 function boxHandleRowCheckboxChange({
   records,
 }: {
-  records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+  records: FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[];
 }) {
   boxList.value = records;
   const refMap = {
     boxCheckedIds,
-    boxAcceptancePlanNo,
-    containerNos,
-    containerIds,
-    machineSpreaderChangeTypes,
-    containerOperationNodes,
+    boxAcptPlnNo,
+    contNos,
+    contIds,
+    cheWorkChangeTypes,
+    contOperationNodes,
     vesselCodes,
-    vesselVoyages,
-    vesselNames,
+    vslVoys,
+    vslNames,
     plannedSpreaderTypes,
   };
   const fieldMappings = {
     boxCheckedIds: 'id',
-    boxAcceptancePlanNo: 'acceptancePlanNo',
-    containerNos: 'containerNo',
-    containerIds: 'id',
-    machineSpreaderChangeTypes: 'machineSpreaderChangeType',
-    containerOperationNodes: 'containerOperationNode',
+    boxAcptPlnNo: 'acptPlnNo',
+    contNos: 'contNo',
+    contIds: 'id',
+    cheWorkChangeTypes: 'cheWorkChangeType',
+    contOperationNodes: 'contOperationNode',
     vesselCodes: 'vesselCode',
-    vesselVoyages: 'vesselVoyage',
-    vesselNames: 'vesselName',
+    vslVoys: 'vslVoy',
+    vslNames: 'vslName',
     plannedSpreaderTypes: 'plannedSpreaderType',
   };
   Object.entries(fieldMappings).forEach(([refName, field]) => {
     refMap[refName].value = records.map((item) => item[field]);
   });
   batchQueryConditions.value = records.map((item) => ({
-    acceptancePlanNo: item.acceptancePlanNo,
-    containerNo: item.containerNo,
+    acptPlnNo: item.acptPlnNo,
+    contNo: item.contNo,
   }));
 
   machineSpreaderChangeRecordGridApi.query();
@@ -531,6 +531,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     filterConfig: {
       showIcon: false,
+      // remote: true,
     },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
@@ -567,6 +568,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
+    filterChange: useDebounceFn(async ({ filterList }) => {
+      const searchCont = filterList.reduce((obj, item) => {
+        if (item.datas && item.datas.length > 0) {
+          obj[item.field] = item.datas[0];
+        }
+        return obj;
+      }, {});
+      // 调用gridApi.query()刷新表格数据，实现实时筛选
+      // await gridApi.query();
+    }, 300),
   },
 });
 
@@ -599,10 +610,10 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
       manual: true,
       ajax: {
         query: async ({ page }, formValues) => {
-          if (acceptancePlanNo.value.length > 0) {
-            formValues.acceptancePlanNos = acceptancePlanNo.value;
+          if (acptPlnNo.value.length > 0) {
+            formValues.acptPlnNos = acptPlnNo.value;
           }
-          if (formValues?.acceptancePlanNos?.length > 0) {
+          if (formValues?.acptPlnNos?.length > 0) {
             return await getAcceptancePlanOverOperationContainerPage({
               pageNo: page.currentPage,
               pageSize: page.pageSize,
@@ -614,7 +625,7 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
+  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO>,
   gridEvents: {
     checkboxAll: boxHandleRowCheckboxChange,
     checkboxChange: boxHandleRowCheckboxChange,
@@ -822,13 +833,13 @@ const handleSaveTemplate = (templateName: string) => {
 };
 // 监听超限作业申请选中的受理编号变化
 watch(
-  () => acceptancePlanNo.value,
-  (newAcceptancePlanNos, oldAcceptancePlanNos) => {
+  () => acptPlnNo.value,
+  (newAcptPlnNos, oldAcptPlnNos) => {
     const addedPlanNos = new Set(
-      oldAcceptancePlanNos.filter((no) => !newAcceptancePlanNos.includes(no)),
+      oldAcptPlnNos.filter((no) => !newAcptPlnNos.includes(no)),
     );
     boxList.value.forEach((item) => {
-      if (addedPlanNos.has(item.acceptancePlanNo)) {
+      if (addedPlanNos.has(item.acptPlnNo)) {
         boxGridApi.grid.setCheckboxRow(item, false);
       }
     });
@@ -879,53 +890,54 @@ const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
   applicantCompanyNameState.fetching = false;
 }, 100);
 const handleVesselSearch = async (value: string) => {
-  gridApi.formApi.form.setFieldValue('vesselName', value);
+  gridApi.formApi.form.setFieldValue('vslName', value);
   if (!value) return;
-  vesselNameState.fetching = true;
+  vslNameState.fetching = true;
   const res = await getVVd({ condition: value });
   if (res) {
-    vesselNameState.data = res.map((item: any) => ({
+    vslNameState.data = res.map((item: any) => ({
       label: item.vieVslName,
       value: item.vieVslName,
       data: item,
     }));
   }
-  vesselNameState.fetching = false;
+  vslNameState.fetching = false;
 };
 
-const vesselNameSelect = async (value: any) => {
-  gridApi.formApi.form.setFieldValue('vesselName', value.label);
+const vslNameSelect = async (value: any) => {
+  gridApi.formApi.form.setFieldValue('vslName', value.label);
 
-  vesselVoyageState.fetching = true;
+  vslVoyState.fetching = true;
   const res = await getVVd({ condition: value.label, queryType: 'VOYAGE' });
 
   if (res) {
-    vesselVoyageState.data = res.map((item: any) => ({
+    vslVoyState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
     }));
   }
 
-  vesselVoyageState.value = [];
-  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
-  vesselVoyageState.fetching = false;
+  vslVoyState.value = [];
+  gridApi.formApi.form.setFieldValue('vslVoy', '');
+  vslVoyState.fetching = false;
 };
 
-const vesselNameChange = async () => {
-  gridApi.formApi.form.setFieldValue('vesselName', '');
-  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
-  vesselVoyageState.value = [];
-  vesselVoyageState.data = [];
+const vslNameChange = async () => {
+  gridApi.formApi.form.setFieldValue('vslName', '');
+  gridApi.formApi.form.setFieldValue('vslVoy', '');
+  vslVoyState.value = [];
+  vslVoyState.data = [];
   selectKey.value++;
 };
 const handleVoyageSearch = async (value: string) => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', value);
-}
-const vesselVoyageSelect = async (value: any) => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', value.label);
+  vslVoyState.value = value.toUpperCase();
+  gridApi.formApi.form.setFieldValue('vslVoy', value.toUpperCase());
 };
-const vesselVoyageChange = async () => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
+const vslVoySelect = async (value: any) => {
+  gridApi.formApi.form.setFieldValue('vslVoy', value.label.toUpperCase());
+};
+const vslVoyChange = async () => {
+  gridApi.formApi.form.setFieldValue('vslVoy', '');
 };
 </script>
 
@@ -963,36 +975,36 @@ const vesselVoyageChange = async () => {
             allow-clear
           />
         </template>
-        <template #form-vesselName>
+        <template #form-vslName>
           <Select
-            v-model:value="vesselNameState.value"
+            v-model:value="vslNameState.value"
             mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
             label-in-value
             placeholder="请输入作业船名"
             style="width: 100%"
             :filter-option="false"
-            :not-found-content="vesselNameState.fetching ? undefined : null"
-            :options="vesselNameState.data"
+            :not-found-content="vslNameState.fetching ? undefined : null"
+            :options="vslNameState.data"
             @search="handleVesselSearch"
             allow-clear
-            @select="vesselNameSelect"
-            @change="vesselNameChange"
+            @select="vslNameSelect"
+            @change="vslNameChange"
           />
         </template>
 
-        <template #form-vesselVoyage>
+        <template #form-vslVoy>
           <Select
-            v-model:value="vesselVoyageState.value"
+            v-model:value="vslVoyState.value"
             mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
             label-in-value
             placeholder="请输入船名航次"
             style="width: 100%"
             :filter-option="true"
-            :not-found-content="vesselVoyageState.fetching ? undefined : null"
-            :options="vesselVoyageState.data"
+            :not-found-content="vslVoyState.fetching ? undefined : null"
+            :options="vslVoyState.data"
             allow-clear
-            @select="vesselVoyageSelect"
-            @change="vesselVoyageChange"
+            @select="vslVoySelect"
+            @change="vslVoyChange"
             @search="handleVoyageSearch"
             :key="selectKey"
           />
@@ -1100,12 +1112,12 @@ const vesselVoyageChange = async () => {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
                   onClick:
-                    handleAcceptancePlanOverOperationContainerNoOperation,
+                    handleAcceptancePlanOverOperationcontNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
-                  onClick: handleAcceptancePlanOverOperationContainerComplete,
+                  onClick: handleAcceptancePlanOverOperationcontComplete,
                 },
               ]"
             />
@@ -1200,3 +1212,5 @@ const vesselVoyageChange = async () => {
   </Page>
 </template>
 <style scoped lang="scss"></style>
+
+

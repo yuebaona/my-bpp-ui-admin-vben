@@ -19,7 +19,7 @@ import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflo
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
-  containerInfoDetailColumns,
+  contInfoDetailColumns,
 } from '../data';
 // 箱信息数据
 const containerData = reactive<
@@ -30,7 +30,7 @@ const fileList = ref<fileVo>([]);
 const acceptancePlanBillMessageVO =
   reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
     id: 0,
-    acceptancePlanNo: '',
+    acptPlnNo: '',
     billNo: '',
     cargoType: '',
     cargoName: '',
@@ -100,7 +100,7 @@ const acceptancePlanOverOperationRespVO = ref(null);
 const containerDataArray = ref(null);
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
-    columns: containerInfoDetailColumns(),
+    columns: contInfoDetailColumns(),
     height: '250px',
     keepSource: true,
     border: true,
