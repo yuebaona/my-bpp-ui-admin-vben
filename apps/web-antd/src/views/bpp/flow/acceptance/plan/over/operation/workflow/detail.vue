@@ -4,7 +4,7 @@ import {getAcceptancePlanOverOperation} from '#/api/bpp/flow/acceptance/plan/ove
 
 import {onMounted, ref} from 'vue';
 
-import {ContentWrap} from '@vben/common-ui';
+import { ContentWrap,useVbenModal } from '@vben/common-ui';
 
 import {Button, Card, Flex, Modal, Space} from 'ant-design-vue';
 import {router} from '#/router';
@@ -78,12 +78,11 @@ function closeForm() {
   });
 }
 
-const globalTaskStore = useGlobalTaskStore();
 // 打开审批任务窗口
 function openTaskModal() {
-  globalTaskStore.setTaskTodoTotal(20)
   openTask.value = true;
   buttonKey.value++;
+  modalApi.open();
 }
 
 const taskKey = ref(0);
@@ -92,19 +91,14 @@ const taskKey = ref(0);
 function closeCallBack() {
   openTask.value = false;
   taskKey.value++;
+  modalApi.close();
 }
 
 // 获取待办任务,刷新菜单
 async function reGetTaskTodoPage(){
-  // 获取待办任务
-  const taskTodo = await getTaskTodoPage({
-    pageNo: 1,
-    pageSize: 100,
-  });
-  if (taskTodo) {
-    const globalTaskStore = useGlobalTaskStore();
-    globalTaskStore.setTaskTodoTotal(taskTodo.total);
-  }
+  // 刷新待办任务
+  const globalTaskStore = useGlobalTaskStore();
+  globalTaskStore.refreshTaskTodoTotal();
 }
 
 // 提交回调
@@ -131,7 +125,10 @@ function checkBusiness() {
   }
   return false;
 }
-
+const [Modal, modalApi] = useVbenModal({
+  showCancelButton: false,
+  showConfirmButton: false,
+});
 onMounted(() => {
   getDetailData();
 });
@@ -181,6 +178,7 @@ onMounted(() => {
   <Modal
     :open="openTask"
     :width="1200"
+    class="w-1/2"
     title="提交审核"
     :closable="false"
     :key="taskKey"
