@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+
+import {$t} from "@vben/locales";
+
 interface Props {
   companyName?: string;
   companySiteLink?: string;
@@ -33,16 +36,17 @@ withDefaults(defineProps<Props>(), {
     </a>
 
     <!-- Copyright Text -->
-    Copyright © {{ date }}
+    <!-- Copyright © 2022-2025 广西钦州保税港区宏港码头有限公司. -->
+    Copyright © 2022 -
+    {{ `${new Date().getFullYear()} ${$t('authentication.companyName')}` }}
 
     <!-- Company Link -->
-    <a
-      v-if="companyName"
-      :href="companySiteLink || 'javascript:void(0)'"
-      class="hover:text-primary-hover mx-1"
-      target="_blank"
-    >
-      {{ companyName }}
-    </a>
+<!--    <a-->
+<!--      v-if="companyName"-->
+    <!--      :href="companySiteLink || 'javascript:void(0)'"-->
+    <!--      class="hover:text-primary-hover mx-1"-->
+<!--      target="_blank"-->
+<!--    >-->
+<!--    </a>-->
   </div>
 </template>
