@@ -402,10 +402,10 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'planNo',
-      label: '主计划号',
+      label: '计划号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入主计划号',
+        placeholder: '请输入计划号',
         allowClear: true,
       },
     },
@@ -903,4 +903,33 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       },
     },
   ];
+}
+
+export function gatePlanColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {type: 'seq', width: 50, align: 'center'},
+    {
+      field: 'planNo',
+      title: '计划号',
+      minWidth: 100,
+    },
+    {
+      field: 'isRelease',
+      title: '是否放箱',
+      minWidth: 100,
+      formatter: (value) => {
+        return `${value ? '是' : '否'}`;
+      }
+    },
+    {
+      field: 'bayRanges',
+      title: '箱区范围',
+      minWidth: 120
+    },
+    {
+      field: 'availableQuantity',
+      title: '可放总箱量',
+      minWidth: 100
+    },
+  ]
 }

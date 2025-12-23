@@ -28,6 +28,7 @@ import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
 import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
 import Form from '#/views/bpp/empty/container/control/modules/form.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
+import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue'
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
@@ -62,6 +63,12 @@ const [LogQueryModal, logQueryModalApi] = useVbenModal({
   footer: false,
   closeOnClickModal: false,
 });
+
+const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
+  connectedComponent: ChooseContainer,
+  destroyOnClose: true,
+  closeOnClickModal: false,
+})
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -332,6 +339,11 @@ function handleRefresh() {
 function handleCreateMainPlan() {
   formModalApi2.setData(null).open();
 }
+
+/** 闸口模拟选箱 */
+function handleChooseContainer() {
+  chooseContainerModalApi.setData(null).open();
+}
 /** 新建子计划 */
 function handleCreateSubPlan() {
   if (checkedIds.value.length === 0) {
@@ -515,13 +527,14 @@ const fetchVesselUnloadDate = async (searchText) => {
 <template>
   <Page auto-content-height>
     <FormModal class="w-3/5" @success="handleRefresh" />
-    <FormModal2 class="w-1/2" @success="handleRefresh" />
+    <FormModal2 class="w-3/5" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal class="w-3/5" />
+    <DetailModal class="w-1/2" />
     <DetailModal2 />
     <LogQueryModal />
+    <ChooseContainerModal class="w-3/5" @success="handleRefresh" />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <Grid2 table-title="主计划">
@@ -582,6 +595,12 @@ const fetchVesselUnloadDate = async (searchText) => {
                 type: 'primary',
                 icon: ACTION_ICON.AUDIT,
                 onClick: handleForceComplete,
+              },
+              {
+                label: '闸口模拟选箱',
+                type: 'primary',
+                icon: ACTION_ICON.GRID,
+                onClick: handleChooseContainer,
               },
               {
                 label: '日志查询',
