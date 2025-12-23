@@ -66,7 +66,7 @@ export function onSiteOperationConfirmFormSchema(
   };
   return [
     {
-      fieldName: 'machineSpreaderChangeType',
+      fieldName: 'cheWorkChangeType',
       label: '现场作业类别',
       component: 'ApiSelect',
       componentProps: {
@@ -87,7 +87,7 @@ export function onSiteOperationConfirmFormSchema(
         resultField: 'list',
         labelField: 'label',
         valueField: 'value',
-        disabled: shouldDisable('machineSpreaderChangeType'),
+        disabled: shouldDisable('cheWorkChangeType'),
       },
       rules: 'required',
     },
@@ -153,19 +153,19 @@ export function onSiteOperationConfirmFormSchema(
       },
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'vslName',
       label: '作业船名',
       component: 'Select',
       rules: 'required',
     },
     {
-      fieldName: 'vesselVoyage',
+      fieldName: 'vslVoy',
       label: '作业航次',
       component: 'Select',
       rules: 'required',
     },
     {
-      fieldName: 'containerNo',
+      fieldName: 'contNo',
       label: '箱号',
       component: 'Input',
       componentProps: {
@@ -179,11 +179,14 @@ export function onSiteOperationConfirmFormSchema(
               .replaceAll(/[^A-Z0-9]/g, '');
           }, 10);
         },
-        disabled: shouldDisable('containerNo'),
+        disabled: shouldDisable('contNo'),
       },
       rules: z
         .string()
-        .regex(/^[A-Z]{4}\d{7}$/i, '请输入正确的箱号（前四位为英文，后七位数字）'),
+        .regex(
+          /^[A-Z]{4}\d{7}$/i,
+          '请输入正确的箱号（前四位为英文，后七位数字）',
+        ),
     },
     {
       fieldName: 'operationPosition',
@@ -196,7 +199,7 @@ export function onSiteOperationConfirmFormSchema(
       rules: 'required',
     },
     {
-      fieldName: 'machineNo',
+      fieldName: 'machNo',
       label: '作业机械号',
       component: 'Input',
       componentProps: {
@@ -206,7 +209,7 @@ export function onSiteOperationConfirmFormSchema(
       rules: 'required',
     },
     {
-      fieldName: 'spreaderType',
+      fieldName: 'cheType',
       label: '实际吊具类型',
       component: 'ApiSelect',
       componentProps: {
@@ -317,7 +320,7 @@ export function onSiteOperationConfirmFormSchema(
   ];
 }
 // 箱信息表格数据列表
-export function containerInfoColumns(): VxeTableGridOptions['columns'] {
+export function contInfoColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       title: '序号',
@@ -328,7 +331,7 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '箱号',
-      field: 'containerNo',
+      field: 'contNo',
       minWidth: 120,
       editRender: {
         name: 'input',
@@ -340,7 +343,7 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
             setTimeout(() => {
               const cellEl = params.$grid.getCellElement(
                 currentRow,
-                'containerNo',
+                'contNo',
               );
               const inputEl = cellEl?.querySelector('.vxe-default-input');
 
@@ -359,49 +362,47 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '尺寸',
-      field: 'containerSize',
+      field: 'contSize',
       minWidth: 200,
       editRender: {
         name: 'select',
       },
       slots: {
-        // 编辑状态下的插槽
-        edit: 'containerLengthEdit',
+        edit: 'contSizeEdit',
       },
     },
     {
       title: '箱型',
-      field: 'containerType',
+      field: 'contType',
       minWidth: 200,
       editRender: {
         name: 'select',
       },
       slots: {
-        // 编辑状态下的插槽
-        edit: 'containerTypeEdit',
+        edit: 'contTypeEdit',
       },
     },
     {
       title: '货重KG',
-      field: 'containerCargoWeight',
+      field: 'contCargoWeight',
       minWidth: 100,
       editRender: { name: 'input' },
     },
     {
       title: '箱货总重KG',
-      field: 'containerTotalWeight',
+      field: 'contTotalWeight',
       minWidth: 120,
       editRender: { name: 'input' },
     },
     {
       title: '货物尺寸CM',
-      field: 'containerCargoSize',
+      field: 'contCargoSize',
       minWidth: 120,
       editRender: { name: 'input' },
     },
     {
       title: '超限明细CM',
-      field: 'containerOverlimitDetails',
+      field: 'contOogDetails',
       minWidth: 120,
       editRender: { name: 'input' },
     },
@@ -414,7 +415,7 @@ export function containerInfoColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 // 箱信息详情表格数据列表
-export function containerInfoDetailColumns(): VxeTableGridOptions['columns'] {
+export function contInfoDetailColumns(): VxeTableGridOptions['columns'] {
   return [
     {
       title: '序号',
@@ -425,37 +426,37 @@ export function containerInfoDetailColumns(): VxeTableGridOptions['columns'] {
     },
     {
       title: '箱号',
-      field: 'containerNo',
+      field: 'contNo',
       minWidth: 120,
     },
     {
       title: '尺寸',
-      field: 'containerSize',
+      field: 'contSize',
       minWidth: 80,
     },
     {
       title: '箱型',
-      field: 'containerType',
+      field: 'contType',
       minWidth: 80,
     },
     {
       title: '货重KG',
-      field: 'containerCargoWeight',
+      field: 'contCargoWeight',
       minWidth: 100,
     },
     {
       title: '箱货总重KG',
-      field: 'containerTotalWeight',
+      field: 'contTotalWeight',
       minWidth: 120,
     },
     {
       title: '货物尺寸CM',
-      field: 'containerCargoSize',
+      field: 'contCargoSize',
       minWidth: 120,
     },
     {
       title: '超限明细CM',
-      field: 'containerOverlimitDetails',
+      field: 'contOogDetails',
       minWidth: 120,
     },
   ];
@@ -499,7 +500,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       formItemClass: 'md:col-span-2',
     },
     {
-      fieldName: 'acceptancePlanWebNo',
+      fieldName: 'acptPlnNo',
       label: '申请编号',
       component: 'Input',
       componentProps: {
@@ -586,13 +587,13 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'vslName',
       label: '作业船名（中文名称）',
       component: 'Select',
       rules: 'required',
     },
     {
-      fieldName: 'vesselVoyage',
+      fieldName: 'vslVoy',
       label: '作业航次',
       component: 'Select',
       componentProps: {
@@ -659,7 +660,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'containerInfo',
+      fieldName: 'contInfo',
       component: 'none',
       label: '箱信息',
       formItemClass: 'w-full p-0 md:col-span-2',
@@ -717,33 +718,41 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
 export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'acceptancePlanNo',
+      fieldName: 'acptPlnNo',
       label: '申请编号',
       component: 'Input',
       componentProps: {
         placeholder: '请输入申请编号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'vslName',
       label: '作业船名',
       component: 'Input',
       componentProps: {
         placeholder: '请输入作业船名',
         allowClear: true,
       },
-      solt: 'form-vesselName',
+      solt: 'form-vslName',
     },
     {
-      fieldName: 'vesselVoyage',
+      fieldName: 'vslVoy',
       label: '作业航次',
       component: 'Input',
       componentProps: {
         placeholder: '请输入作业航次',
         allowClear: true,
       },
-      solt: 'form-vesselVoyage',
+      solt: 'form-vslVoy',
     },
     {
       fieldName: 'billNo',
@@ -752,6 +761,12 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提单号（多提单搜索英文逗号,分隔）',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
     },
     {
@@ -765,12 +780,18 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
       slot: 'form-applicantCompanyName',
     },
     {
-      fieldName: 'containerNo',
+      fieldName: 'contNo',
       label: '箱号',
       component: 'Input',
       componentProps: {
         placeholder: '请输箱号（多箱号搜索英文逗号,分隔）',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
     },
     {
@@ -799,7 +820,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'checkbox', width: 40, fixed: 'left' },
     {
-      field: 'acceptancePlanNo',
+      field: 'acptPlnNo',
       title: '申请编号',
       minWidth: 120,
       sortable: true,
@@ -809,6 +830,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -830,6 +858,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('acceptance_plan_status'),
       cellRender: {
@@ -849,6 +884,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -858,7 +900,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'acceptancePlanWebNo',
+      field: 'acptPlnWebNo',
       title: '网上编号',
       minWidth: 150,
       sortable: true,
@@ -868,6 +910,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -889,6 +938,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -908,6 +964,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -918,7 +981,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       sortable: true,
     },
     {
-      field: 'vesselName',
+      field: 'vslName',
       title: '作业船名',
       minWidth: 150,
       sortable: true,
@@ -929,6 +992,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -938,7 +1008,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'vesselVoyage',
+      field: 'vslVoy',
       title: '作业航次',
       minWidth: 150,
       sortable: true,
@@ -948,6 +1018,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -969,6 +1046,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('import_export_type'),
       cellRender: {
@@ -977,7 +1061,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'vesselCode',
+      field: 'vslCode',
       title: '作业船名代码',
       minWidth: 150,
       sortable: true,
@@ -987,6 +1071,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1008,6 +1099,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1027,6 +1125,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1048,6 +1153,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1068,6 +1180,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('payment_method'),
       cellRender: {
@@ -1086,6 +1205,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1107,6 +1233,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('payment_method'),
       cellRender: {
@@ -1125,6 +1258,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: createDictFilter('system_rate'),
@@ -1146,6 +1286,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1166,7 +1313,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
 export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
   return [
     // 基础信息
-    { field: 'acceptancePlanNo', label: '申请编号' },
+    { field: 'acptPlnNo', label: '申请编号' },
     { field: 'applicantCompanyName', label: '申请公司名称' },
     { field: 'handlingPerson', label: '经办人' },
     { field: 'handlingPhoneNumber', label: '经办人联系电话' },
@@ -1193,8 +1340,8 @@ export function acceptancePlanOvrOprDetailSchema(): DescriptionItemSchema[] {
         return renderTagDict('import_export_type', cellValue);
       },
     },
-    { field: 'vesselName', label: '作业船名（中文名称）' },
-    { field: 'vesselVoyage', label: '作业航次' },
+    { field: 'vslName', label: '作业船名（中文名称）' },
+    { field: 'vslVoy', label: '作业航次' },
     { field: 'plannedOperationTime', label: '预计作业时间' },
   ];
 }
@@ -1208,7 +1355,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       fixed: 'left',
     },
     {
-      field: 'containerOperationNode',
+      field: 'contOperationNode',
       title: '现场作业节点',
       minWidth: 150,
       sortable: true,
@@ -1219,6 +1366,13 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('on_site_operation_node'),
       cellRender: {
@@ -1227,7 +1381,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerNo',
+      field: 'contNo',
       title: '箱号',
       minWidth: 150,
       sortable: true,
@@ -1238,6 +1392,13 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1247,7 +1408,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerSize',
+      field: 'contSize',
       title: '尺寸',
       minWidth: 150,
       sortable: true,
@@ -1258,6 +1419,13 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1267,7 +1435,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerType',
+      field: 'contType',
       title: '箱型',
       minWidth: 150,
       sortable: true,
@@ -1278,6 +1446,13 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1287,7 +1462,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerCargoWeight',
+      field: 'contCargoWeight',
       title: '货物重KG',
       minWidth: 150,
       sortable: true,
@@ -1298,6 +1473,13 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1307,7 +1489,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerTotalWeight',
+      field: 'contTotalWeight',
       title: '箱货总重KG',
       minWidth: 150,
       sortable: true,
@@ -1318,25 +1500,12 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           placeholder: '',
           allowClear: true,
         },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'containerCargoSize',
-      title: '货物尺寸CM',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1347,7 +1516,34 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerOverlimitDetails',
+      field: 'contCargoSize',
+      title: '货物尺寸CM',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
+      field: 'contOogDetails',
       title: '超限明细CM',
       minWidth: 150,
       sortable: true,
@@ -1357,6 +1553,13 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1377,7 +1580,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       fixed: 'left',
     },
     {
-      field: 'machineSpreaderChangeType',
+      field: 'cheWorkChangeType',
       title: '现场作业类别',
       minWidth: 200,
       sortable: true,
@@ -1388,6 +1591,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('on_site_operation_category'),
       cellRender: {
@@ -1396,7 +1606,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       },
     },
     {
-      field: 'vesselName',
+      field: 'vslName',
       title: '作业船名',
       minWidth: 200,
       sortable: true,
@@ -1407,25 +1617,12 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-    {
-      field: 'vesselVoyage',
-      title: '作业航次',
-      minWidth: 200,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1436,7 +1633,34 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       },
     },
     {
-      field: 'containerNo',
+      field: 'vslVoy',
+      title: '作业航次',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+    },
+    {
+      field: 'contNo',
       title: '箱号',
       minWidth: 200,
       sortable: true,
@@ -1446,6 +1670,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1467,6 +1698,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('driving_source'),
       cellRender: {
@@ -1486,6 +1724,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('change_reason'),
       cellRender: {
@@ -1494,7 +1739,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       },
     },
     {
-      field: 'machineSpreaderType',
+      field: 'cheWorkType',
       title: '作业机械类别',
       minWidth: 200,
       sortable: true,
@@ -1505,6 +1750,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1514,7 +1766,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       },
     },
     {
-      field: 'machineNo',
+      field: 'machNo',
       title: '作业机械号',
       minWidth: 200,
       sortable: true,
@@ -1524,6 +1776,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1545,6 +1804,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: createDictFilter('actual_operation'),
       cellRender: {
@@ -1564,6 +1830,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1573,7 +1846,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       },
     },
     {
-      field: 'spreaderType',
+      field: 'cheType',
       title: '作业吊具类型',
       minWidth: 200,
       sortable: true,
@@ -1583,6 +1856,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: createDictFilter('spreader_type'),
@@ -1603,6 +1883,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1625,6 +1912,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1644,6 +1938,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
@@ -1665,6 +1966,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           placeholder: '',
           allowClear: true,
         },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
@@ -1685,6 +1993,13 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         props: {
           placeholder: '',
           allowClear: true,
+        },
+        events: {
+          input: (params: any, value: string) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
         },
       },
       filterMethod: ({ option, row, column }) => {
