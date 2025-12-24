@@ -344,7 +344,7 @@ const containerIsoList = reactive({
 });
 
 const dischargeVesselSchedule = reactive({
-  data: '',
+  data: [],
   value: '',
   fetching: false,
 });
@@ -430,6 +430,7 @@ const fetchContainerIsoList = async (searchText) => {
             :show-search="true"
             :filter-option="true"
             :list-height="100"
+            allow-clear
             @search="fetchOwnerCodeList"
           />
         </template>
@@ -443,6 +444,7 @@ const fetchContainerIsoList = async (searchText) => {
             :show-search="true"
             :filter-option="true"
             :list-height="100"
+            allow-clear
             @search="fetchContainerIsoList"
           />
         </template>
@@ -455,6 +457,7 @@ const fetchContainerIsoList = async (searchText) => {
             :show-search="true"
             :filter-option="true"
             :list-height="100"
+            allow-clear
             @search="fetchdischargeVesselSchedule"
           />
         </template>
