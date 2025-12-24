@@ -70,6 +70,11 @@ const isoLengthState = reactive({
   value: [],
   fetching: false,
 });
+const applicantCompanyNameState = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
 
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
 const fileList = ref<string[]>([]);
@@ -384,6 +389,13 @@ const loadFormData = async () => {
           value: data.acceptancePlanRespVO.payerNameGate,
         };
       }
+      // 设置申请公司名称
+      if (data.acceptancePlanRespVO.applicantCompanyName) {
+        applicantCompanyNameState.value = {
+          label: data.acceptancePlanRespVO.applicantCompanyName,
+          value: data.acceptancePlanRespVO.applicantCompanyName,
+        };
+      }
     }
     // 设置箱信息
     if (data.acceptancePlanOverOperationContainerRespVOS) {
@@ -615,6 +627,32 @@ const payerNameGateChange = async () => {
   await formApi.setFieldValue('payerCodeGate', '');
   await formApi.setFieldValue('payerNameGate', '');
 };
+
+const applicantCompanyNameSearch = async (value: string) => {
+  if (!value) return;
+  applicantCompanyNameState.fetching = true;
+  const res = await getCustomerList({
+    pageNo: 1,
+    pageSize: 100,
+    customerName: value,
+  });
+  if (res) {
+    applicantCompanyNameState.data = res.map((item: any) => ({
+      label: item.customerName,
+      value: item.customerName,
+      data: item,
+    }));
+  }
+  applicantCompanyNameState.fetching = false;
+};
+
+const applicantCompanyNameSelect = async (value: any) => {
+  await formApi.setFieldValue('applicantCompanyName', value.label);
+};
+
+const applicantCompanyNameChange = async () => {
+  await formApi.setFieldValue('applicantCompanyName', '');
+};
 const tempInputMap = ref<Record<number | string, string>>({});
 const handleContTypeInput = async (val: string, row: any) => {
   const $grid = gridApi.grid;
@@ -731,6 +769,25 @@ watch(
           </Grid>
         </div>
       </div>
+    </template>
+
+    <template #applicantCompanyName>
+      <Select
+        v-model:value="applicantCompanyNameState.value"
+        mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+        label-in-value
+        placeholder="请输入申请公司名称"
+        style="width: 100%"
+        :filter-option="false"
+        :not-found-content="
+          applicantCompanyNameState.fetching ? undefined : null
+        "
+        :options="applicantCompanyNameState.data"
+        @search="applicantCompanyNameSearch"
+        allow-clear
+        @select="applicantCompanyNameSelect"
+        @change="applicantCompanyNameChange"
+      />
     </template>
 
     <template #payerNameSea>
