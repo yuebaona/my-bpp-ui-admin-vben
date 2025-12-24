@@ -23,12 +23,10 @@ import {
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
-import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
+import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
 import Form from '#/views/bpp/empty/container/control/modules/form.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
-import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue'
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
@@ -51,12 +49,6 @@ const [FormModal, formModalApi] = useVbenModal({
   closeOnClickModal: false,
 });
 
-const [DetailModal, detailModalApi] = useVbenModal({
-  connectedComponent: Detail,
-  destroyOnClose: true,
-  closeOnClickModal: false,
-});
-
 const [LogQueryModal, logQueryModalApi] = useVbenModal({
   connectedComponent: LogQuery,
   destroyOnClose: true,
@@ -68,7 +60,7 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
   connectedComponent: ChooseContainer,
   destroyOnClose: true,
   closeOnClickModal: false,
-})
+});
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -89,9 +81,6 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    // editRules: {
-    //
-    // },
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -100,8 +89,7 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
           }
           const transformedParams = transformFormToRequest(formValues);
           if (selectedMainId.value) {
-            transformedParams.planType = 'SUB';
-            transformedParams.mainId = selectedMainId.value;
+            formValues.mainId = selectedMainId.value;
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
@@ -183,11 +171,6 @@ const [FormModal2, formModalApi2] = useVbenModal({
   closeOnClickModal: false,
 });
 
-const [DetailModal2, detailModalApi2] = useVbenModal({
-  connectedComponent: Detail2,
-  destroyOnClose: true,
-  closeOnClickModal: false,
-});
 
 /**
  * 转换表单值为接口请求参数格式
@@ -408,20 +391,6 @@ const handleForceComplete = async () => {
   }
 };
 
-/** 查看主计划详情 */
-const handleMainPlanDetail = async (
-  row: EmptyContainerControlApi.mainPlanVO,
-) => {
-  const res = await getMainPlan(row.id);
-  detailModalApi2.setData(res).open();
-};
-
-/** 查看子计划详情 */
-const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
-  const res = await getSubPlan(row.id);
-  detailModalApi.setData(res).open();
-};
-
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
   const res = await getMainPlan(row.id);
@@ -542,8 +511,6 @@ const fetchVesselUnloadDate = async (searchText) => {
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal class="w-1/2" />
-    <DetailModal2 />
     <LogQueryModal />
     <ChooseContainerModal class="w-3/5" @success="handleRefresh" />
     <!-- 主计划列表 -->
