@@ -24,9 +24,9 @@ import {
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
-import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
-import Form from '#/views/bpp/empty/container/control/modules/form.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
+import Form2 from '#/views/bpp/empty/container/control/modules/mainForm.vue';
+import Form from '#/views/bpp/empty/container/control/modules/subForm.vue';
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
@@ -87,14 +87,13 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
           if (!hasSelectedMainPlan.value) {
             return { total: 0, list: [] };
           }
-          const transformedParams = transformFormToRequest(formValues);
           if (selectedMainId.value) {
             formValues.mainId = selectedMainId.value;
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...transformedParams,
+            ...formValues,
           });
           return result;
         },
@@ -171,104 +170,6 @@ const [FormModal2, formModalApi2] = useVbenModal({
   closeOnClickModal: false,
 });
 
-
-/**
- * 转换表单值为接口请求参数格式
- */
-const transformFormToRequest = (
-  formValues: Record<string, any>,
-): Record<string, any> => {
-  const params = JSON.parse(JSON.stringify(formValues || {}));
-  delete params.pageNo;
-  delete params.pageSize;
-
-  if (params.bayRangeList) {
-    const [yardBay, yardRaw] = params.bayRangeList
-      .split('-')
-      .map((item: string) => item.trim());
-    params.bayRangeList = [
-      {
-        yardBay: yardBay || '',
-        yardRaw: yardRaw || '',
-      },
-    ];
-  } else {
-    delete params.bayRangeList;
-  }
-
-  if (params.ownerCodeList) {
-    params.ownerCodeList = params.ownerCodeList
-      .split(',')
-      .map((item: string) => item.trim())
-      .filter(Boolean);
-  } else {
-    delete params.ownerCodeList;
-  }
-
-  if (params.containerIsoList) {
-    params.containerIsoList = params.containerIsoList
-      .split(',')
-      .map((item: string) => item.trim())
-      .filter(Boolean);
-  } else {
-    delete params.containerIsoList;
-  }
-
-  if (params.createTime) {
-    if (params.createTime.length === 0) {
-      delete params.createTime;
-    }
-  } else {
-    delete params.createTime;
-  }
-
-  // 主计划号 planNo：空值删除
-  if (
-    params.planNo === '' ||
-    params.planNo === undefined ||
-    params.planNo === null
-  ) {
-    delete params.planNo;
-  }
-
-  // 进口航次 importVoyageNo：空值删除
-  if (
-    params.importVoyageNo === '' ||
-    params.importVoyageNo === undefined ||
-    params.importVoyageNo === null
-  ) {
-    delete params.importVoyageNo;
-  }
-
-  // 贸易类型 tradeType：空值删除
-  if (
-    params.tradeType === '' ||
-    params.tradeType === undefined ||
-    params.tradeType === null
-  ) {
-    delete params.tradeType;
-  }
-
-  // 受理提箱计划号 pickupPlanNo：空值删除
-  if (
-    params.pickupPlanNo === '' ||
-    params.pickupPlanNo === undefined ||
-    params.pickupPlanNo === null
-  ) {
-    delete params.pickupPlanNo;
-  }
-
-  params.planType = 'MAIN';
-  Object.keys(params).forEach((key) => {
-    const value = params[key];
-    if (value === '' || value === undefined || value === null) {
-      delete params[key];
-    }
-  });
-  const finalParams = JSON.parse(JSON.stringify(params));
-  return finalParams;
-};
-
 const [Grid2, gridApi2] = useVbenVxeGrid({
   formOptions: {
     schema: PlanSearchFormSchema(),
@@ -276,7 +177,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       content: '查询',
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
-    submitOnEnter: true
+    submitOnEnter: true,
   },
   gridOptions: {
     columns: mainPlanColumns(),
@@ -304,11 +205,13 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          const transformedParams = transformFormToRequest(formValues);
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...transformedParams,
+            ...formValues,
+            ownerCodeList: ownerCodeList.value,
+            containerIsoList: containerIsoList.value,
+            dischargeVesselSchedule: dischargeVesselSchedule.value,
           });
           return result;
         },
@@ -440,11 +343,27 @@ const containerIsoList = reactive({
   fetching: false,
 });
 
-const vesselUnloadDate = reactive({
-  data: [],
-  value: [],
+const dischargeVesselSchedule = reactive({
+  data: '',
+  value: '',
   fetching: false,
 });
+
+// 获取卸船船期
+const fetchdischargeVesselSchedule = async (searchText) => {
+  try {
+    dischargeVesselSchedule.fetching = true;
+    const result = await getVesselAndVoyage({ condition: searchText });
+    dischargeVesselSchedule.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    dischargeVesselSchedule.data = [];
+  } finally {
+    dischargeVesselSchedule.fetching = false;
+  }
+};
 
 // 获取持箱者列表
 const fetchOwnerCodeList = async (searchText) => {
@@ -487,21 +406,6 @@ const fetchContainerIsoList = async (searchText) => {
   }
 };
 
-// 获取卸船船期
-const fetchVesselUnloadDate = async (searchText) => {
-  try {
-    vesselUnloadDate.fetching = true;
-    const result = await getVesselAndVoyage({ condition: searchText });
-    vesselUnloadDate.data = result.map((item) => ({
-      label: item,
-      value: item,
-    }));
-  } catch {
-    vesselUnloadDate.data = [];
-  } finally {
-    vesselUnloadDate.fetching = false;
-  }
-};
 </script>
 
 <template>
@@ -542,17 +446,16 @@ const fetchVesselUnloadDate = async (searchText) => {
             @search="fetchContainerIsoList"
           />
         </template>
-        <template #form-vesselUnloadDate>
+        <template #form-dischargeVesselSchedule>
           <Select
-            :options="vesselUnloadDate.data"
-            mode="multiple"
-            v-model:value="vesselUnloadDate.value"
+            :options="dischargeVesselSchedule.data"
+            v-model:value="dischargeVesselSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
             :filter-option="true"
             :list-height="100"
-            @search="fetchVesselUnloadDate"
+            @search="fetchdischargeVesselSchedule"
           />
         </template>
         <template #form-expand-before>

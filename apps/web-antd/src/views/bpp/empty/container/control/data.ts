@@ -477,7 +477,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
         placeholder: '请输入船名或航次号',
         allowClear: true,
       },
-      slot: 'form-vesselUnloadDate',
+      slot: 'form-dischargeVesselSchedule',
     },
     {
       fieldName: 'pickupPlanNo',
