@@ -810,6 +810,14 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入主计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
@@ -931,7 +939,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
 
 export function gatePlanColumns(): VxeTableGridOptions['columns'] {
   return [
-    {type: 'seq', width: 50, align: 'center'},
+    { type: 'seq', width: 50, align: 'center' },
     {
       field: 'planNo',
       title: '计划号',
@@ -943,17 +951,17 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       formatter: (value) => {
         return `${value ? '是' : '否'}`;
-      }
+      },
     },
     {
       field: 'bayRanges',
       title: '箱区范围',
-      minWidth: 120
+      minWidth: 120,
     },
     {
       field: 'availableQuantity',
       title: '可放总箱量',
-      minWidth: 100
+      minWidth: 100,
     },
-  ]
+  ];
 }
