@@ -202,6 +202,12 @@ export function onSiteOperationConfirmFormSchema(
       componentProps: {
         placeholder: '请输入作业位置',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
       rules: 'required',
     },
@@ -212,6 +218,12 @@ export function onSiteOperationConfirmFormSchema(
       componentProps: {
         placeholder: '请输入作业机械号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
       rules: 'required',
     },
@@ -663,6 +675,12 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入货名',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
       rules: 'required',
     },
@@ -699,6 +717,12 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入经办人备注',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
       formItemClass: 'w-full p-0 md:col-span-2 my-3',
       rules: 'required',
@@ -710,6 +734,12 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入经办人确认',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.toUpperCase();
+          }, 10);
+        },
       },
       formItemClass: 'w-full p-0 md:col-span-2 my-3',
       rules: 'required',
@@ -1136,7 +1166,6 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         events: {
           input: (params: any, value: string) => {
             const { $grid, column } = params;
-
             $grid.saveFilterByEvent('input', column.field);
           },
         },
@@ -1601,7 +1630,6 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         events: {
           input: (params: any, value: string) => {
             const { $grid, column } = params;
-
             $grid.saveFilterByEvent('input', column.field);
           },
         },

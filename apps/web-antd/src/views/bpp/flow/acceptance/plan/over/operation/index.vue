@@ -914,6 +914,7 @@ const applicantCompanyNameState = reactive({
   fetching: false,
 });
 const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
+  applicantCompanyNameState.value = value.toUpperCase();
   gridApi.formApi.form.setFieldValue('applicantCompanyName', value);
   if (!value) return;
   applicantCompanyNameState.fetching = true;
@@ -932,6 +933,7 @@ const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
   applicantCompanyNameState.fetching = false;
 }, 100);
 const handleVesselSearch = async (value: string) => {
+  vslNameState.value = value.toUpperCase();
   gridApi.formApi.form.setFieldValue('vslName', value);
   if (!value) return;
   vslNameState.fetching = true;

@@ -213,6 +213,7 @@ const [Modal, modalApi] = useVbenModal({
 
 const modalTitle = ref<string>('现场操作确认');
 const handleVesselSearch = async (value: any) => {
+  vslNameState.value = value.toUpperCase();
   if (!value) return;
   vslNameState.data = [];
   vslNameState.fetching = true;

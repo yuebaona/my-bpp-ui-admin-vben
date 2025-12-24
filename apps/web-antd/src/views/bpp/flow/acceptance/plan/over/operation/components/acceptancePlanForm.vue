@@ -527,6 +527,7 @@ const getSaveData = () => {
 const getPopupcont = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
+  vslNameState.value = value.toUpperCase();
   if (!value) return;
   vslNameState.fetching = true;
   const res = await getVVd({ condition: value });
@@ -573,6 +574,7 @@ const vslVoySelect = async (value: any) => {
 };
 
 const payerNameSeaSearch = async (value: string) => {
+  payerNameSeaState.value = value.toUpperCase();
   if (!value) return;
   payerNameSeaState.fetching = true;
   const res = await getCustomerList({
@@ -601,6 +603,7 @@ const payerNameSeaChange = async () => {
 };
 
 const payerNameGateSearch = async (value: string) => {
+  payerNameGateState.value = value.toUpperCase();
   if (!value) return;
   payerNameGateState.fetching = true;
   const res = await getCustomerList({
@@ -629,6 +632,7 @@ const payerNameGateChange = async () => {
 };
 
 const applicantCompanyNameSearch = async (value: string) => {
+  applicantCompanyNameState.value = value.toUpperCase();
   if (!value) return;
   applicantCompanyNameState.fetching = true;
   const res = await getCustomerList({
@@ -675,6 +679,7 @@ const vslVoyChange = async () => {
   await formApi.setFieldValue('vslVoy', '');
 };
 const handleVoyageSearch = async (value: string) => {
+  vslVoyState.value = value.toUpperCase();
   vslVoyState.value = value.toUpperCase();
 };
 // 暴露方法给父组件（如果需要）
