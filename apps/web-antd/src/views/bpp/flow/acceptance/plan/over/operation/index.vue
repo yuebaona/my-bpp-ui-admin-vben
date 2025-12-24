@@ -13,7 +13,7 @@ import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
-import { getCustomerList, getVVd } from "#/api/bpp/common";
+import { getCustomerList, getVVd } from '#/api/bpp/common';
 import {
   acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
@@ -215,6 +215,7 @@ const handleMachineSpreaderDelete = async (
 };
 /** 现场操作确认 */
 const handleOnSiteOperation = async () => {
+  const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
   const data = ref<OnSideOperation>({
     oogContIds: '',
     initiationType: '',
@@ -226,22 +227,27 @@ const handleOnSiteOperation = async () => {
     vslVoy: '',
     vslName: '',
   });
+
   if (!initiationTypeValue.value) {
-    // 提示要选择发起类型
     message.error('请选择发起类型');
     return;
   }
+
   switch (
     bppBaseDict.getBppBaseDictData('initiation_type', initiationTypeValue.value)
       .label
   ) {
     case '客户发起': {
-      if (contNos.value.length === 0) {
+      if (currentSelected.length === 0) {
         message.error($t('cxmo.message.boxMessage'));
         return;
       }
+
+      const contOperationNodes = currentSelected.map(
+        (item) => item.contOperationNode,
+      );
       const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-      const hasInvalidNode = contOperationNodes.value.some((node) =>
+      const hasInvalidNode = contOperationNodes.some((node) =>
         invalidNodes.has(node),
       );
       if (hasInvalidNode) {
@@ -249,56 +255,82 @@ const handleOnSiteOperation = async () => {
         return;
       }
 
-      if (boxAcptPlnNo.value.length > 1) {
-        const uniqueNos = new Set(boxAcptPlnNo.value);
-        if (uniqueNos.size > 1) {
-          message.error('存在不同的受理编号，请检查');
-          return;
+      // 检查是否选择了不同的受理编号
+      if (currentSelected.length > 0) {
+        const boxAcptPlnNos = currentSelected.map((item) => item.acptPlnNo);
+        if (boxAcptPlnNos.length > 1) {
+          const uniqueNos = new Set(boxAcptPlnNos);
+          if (uniqueNos.size > 1) {
+            message.error('存在不同的受理编号，请检查');
+            return;
+          }
+        }
+
+        const vslCodes = currentSelected.map((item) => item.vslCode);
+        if (vslCodes.length > 1) {
+          const uniqueCodes = new Set(vslCodes);
+          if (uniqueCodes.size > 1) {
+            message.error('存在不同的船代码，请检查');
+            return;
+          }
+        }
+
+        const vslVoys = currentSelected.map((item) => item.vslVoy);
+        if (vslVoys.length > 1) {
+          const uniqueVoyages = new Set(vslVoys);
+          if (uniqueVoyages.size > 1) {
+            message.error('存在不同的航次，请检查');
+            return;
+          }
+        }
+
+        const cheWorkChangeTypes = currentSelected.map(
+          (item) => item.cheWorkChangeType,
+        );
+        if (cheWorkChangeTypes.length > 1) {
+          const uniqueTypes = new Set(cheWorkChangeTypes);
+          if (uniqueTypes.size > 1) {
+            message.error('存在不同的吊具类型，请检查');
+            return;
+          }
+        }
+
+        const contOperationNodes = currentSelected.map(
+          (item) => item.contOperationNode,
+        );
+        if (contOperationNodes.length > 1) {
+          const uniqueNodes = new Set(contOperationNodes);
+          if (uniqueNodes.size > 1) {
+            message.error('存在不同的现场作业节点，请检查');
+            return;
+          }
+        }
+
+        const plannedCheTypes = currentSelected.map(
+          (item) => item.plannedCheType,
+        );
+        if (plannedCheTypes.length > 1) {
+          const uniqueTypes = new Set(plannedCheTypes);
+          if (uniqueTypes.size > 1) {
+            message.error('存在不同的现场作业吊具，请检查');
+            return;
+          }
         }
       }
-      if (vslCodes.value.length > 1) {
-        const uniqueNames = new Set(vslCodes.value);
-        if (uniqueNames.size > 1) {
-          message.error('存在不同的船名，请检查');
-          return;
-        }
-      }
-      if (vslVoys.value.length > 1) {
-        const uniqueVoyages = new Set(vslVoys.value);
-        if (uniqueVoyages.size > 1) {
-          message.error('存在不同的航次，请检查');
-          return;
-        }
-      }
-      if (cheWorkChangeTypes.value.length > 1) {
-        const uniqueTypes = new Set(cheWorkChangeTypes.value);
-        if (uniqueTypes.size > 1) {
-          message.error('存在不同的吊具类型，请检查');
-          return;
-        }
-      }
-      if (contOperationNodes.value.length > 1) {
-        const uniqueNodes = new Set(contOperationNodes.value);
-        if (uniqueNodes.size > 1) {
-          message.error('存在不同的现在作业节点，请检查');
-        }
-      }
-      if (plannedCheTypes.value.length > 1) {
-        const uniqueNodes = new Set(plannedCheTypes.value);
-        if (uniqueNodes.size > 1) {
-          message.error('存在不同的现场作业吊具，请检查');
-        }
-      }
+
+      const contNos = currentSelected.map((item) => item.contNo);
+      const contIds = currentSelected.map((item) => item.id);
+
       data.value = {
-        oogContIds: contIds,
+        oogContIds: contIds.join(','),
         initiationType: initiationTypeValue.value,
-        cheWorkChangeType: cheWorkChangeTypes.value[0],
-        acptPlnNo: boxAcptPlnNo.value[0],
-        contNo: contNos.value.join(','),
-        cheType: plannedCheTypes.value[0],
-        vslCode: vslCodes.value[0],
-        vslVoy: vslVoys.value[0],
-        vslName: vslNames.value[0],
+        cheWorkChangeType: currentSelected[0]?.cheWorkChangeType || '',
+        acptPlnNo: currentSelected[0]?.acptPlnNo || '',
+        contNo: contNos.join(','),
+        cheType: currentSelected[0]?.plannedCheType || '',
+        vslCode: currentSelected[0]?.vslCode || '',
+        vslVoy: currentSelected[0]?.vslVoy || '',
+        vslName: currentSelected[0]?.vslName || '',
       };
       break;
     }
@@ -319,22 +351,34 @@ const handleOnSiteOperation = async () => {
   OnSideOperationModalApi.setData(data).open();
 };
 /** 实际未发生 */
-const handleAcceptancePlanOverOperationcontNoOperation = async () => {
-  // 判断是否选中箱
-  if (contIds.value.length === 0) {
+const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
+  // 获取当前选中的行
+  const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
+
+  if (currentSelected.length === 0) {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
+
+  // 实时获取选中行的 contOperationNode
+  const currentOperationNodes = currentSelected.map(
+    (item) => item.contOperationNode,
+  );
   const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-  const hasInvalidNode = contOperationNodes.value.some((node) =>
+  const hasInvalidNode = currentOperationNodes.some((node) =>
     invalidNodes.has(node),
   );
+
   if (hasInvalidNode) {
     message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
+
+  const contNos = currentSelected.map((item) => item.contNo);
+  const contIds = currentSelected.map((item) => item.id);
+
   confirm({
-    content: `${contNos.value.toString()}箱实际没有在本码头入港作业。`,
+    content: `${contNos.toString()}箱实际没有在本码头入港作业。`,
     icon: 'info',
   })
     .then(async () => {
@@ -343,9 +387,7 @@ const handleAcceptancePlanOverOperationcontNoOperation = async () => {
         duration: 0,
       });
       try {
-        await acceptancePlanOverOperationContainerNoOperation(
-          contIds.value,
-        );
+        await acceptancePlanOverOperationContainerNoOperation(contIds);
         message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
@@ -355,22 +397,32 @@ const handleAcceptancePlanOverOperationcontNoOperation = async () => {
     .catch(() => {});
 };
 /** 停止后续作业  */
-const handleAcceptancePlanOverOperationcontComplete = async () => {
+const handleAcceptancePlanOverOperationContainerComplete = async () => {
+  // 获取当前选中的箱数据
+  const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
+
   // 判断是否选中箱
-  if (contIds.value.length === 0) {
+  if (currentSelected.length === 0) {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
+
+  // 获取当前选中箱的 contOperationNode
+  const currentOperationNodes = currentSelected.map(
+    (item) => item.contOperationNode,
+  );
   const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-  const hasInvalidNode = contOperationNodes.value.some((node) =>
+  const hasInvalidNode = currentOperationNodes.some((node) =>
     invalidNodes.has(node),
   );
   if (hasInvalidNode) {
     message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
+  const contNos = currentSelected.map((item) => item.contNo);
+  const contIds = currentSelected.map((item) => item.id);
   confirm({
-    content: `${contNos.value.toString()}箱是否确认现场操作已全部完成？`,
+    content: `${contNos.toString()}箱是否确认现场操作已全部完成？`,
     icon: 'info',
   })
     .then(async () => {
@@ -379,7 +431,7 @@ const handleAcceptancePlanOverOperationcontComplete = async () => {
         duration: 0,
       });
       try {
-        await acceptancePlanOverOperationContainerComplete(contIds.value);
+        await acceptancePlanOverOperationContainerComplete(contIds);
         message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
@@ -433,8 +485,6 @@ function handleRowCheckboxChange({
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
 const boxAcptPlnNo = ref<string[]>([]);
-const contNos = ref<string[]>([]);
-const contIds = ref<number[]>([]);
 const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
 const cheWorkChangeTypes = ref<string[]>([]);
 const contOperationNodes = ref<string[]>([]);
@@ -442,9 +492,9 @@ const vslCodes = ref<string[]>([]);
 const vslVoys = ref<string[]>([]);
 const vslNames = ref<string[]>([]);
 const plannedCheTypes = ref<string[]>([]);
-const boxList = ref<
-  FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[]
->([]);
+const boxList = ref<FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[]>(
+  [],
+);
 function boxHandleRowCheckboxChange({
   records,
 }: {
@@ -454,8 +504,6 @@ function boxHandleRowCheckboxChange({
   const refMap = {
     boxCheckedIds,
     boxAcptPlnNo,
-    contNos,
-    contIds,
     cheWorkChangeTypes,
     contOperationNodes,
     vslCodes,
@@ -466,8 +514,6 @@ function boxHandleRowCheckboxChange({
   const fieldMappings = {
     boxCheckedIds: 'id',
     boxAcptPlnNo: 'acptPlnNo',
-    contNos: 'contNo',
-    contIds: 'id',
     cheWorkChangeTypes: 'cheWorkChangeType',
     contOperationNodes: 'contOperationNode',
     vslCodes: 'vslCode',
@@ -816,19 +862,16 @@ const queryResult = ref<any>(null);
 
 // 处理查询事件
 const handleQuery = (params: any) => {
-  console.log('查询参数:', params);
   queryResult.value = params;
 };
 
 // 处理重置事件
 const handleReset = () => {
-  console.log('重置查询条件');
   queryResult.value = null;
 };
 
 // 处理保存模板事件
 const handleSaveTemplate = (templateName: string) => {
-  console.log('保存模板:', templateName);
 };
 // 监听超限作业申请选中的受理编号变化
 watch(
@@ -1111,12 +1154,12 @@ const vslVoyChange = async () => {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
                   onClick:
-                    handleAcceptancePlanOverOperationcontNoOperation,
+                    handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
-                  onClick: handleAcceptancePlanOverOperationcontComplete,
+                  onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
             />
@@ -1211,5 +1254,3 @@ const vslVoyChange = async () => {
   </Page>
 </template>
 <style scoped lang="scss"></style>
-
-
