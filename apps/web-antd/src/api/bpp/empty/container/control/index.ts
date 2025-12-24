@@ -1,8 +1,5 @@
 import type { PageParam, PageResult } from '@vben/request';
-
 import { requestClient } from '#/api/request';
-
-
 
 export namespace EmptyContainerControlApi {
   // 主计划信息VO
@@ -112,6 +109,24 @@ export namespace EmptyContainerControlApi {
     data: string[];
   }
 
+ // 卸船船期响应
+  export interface VesselAndVoyageResponse {
+    code: number;
+    msg: string;
+    data: string[];
+  }
+
+  // 箱区范围展示信息
+  export interface containerAreaDisplayVO {
+    ownerCodeList: Array<string>;
+    containerIsoList: Array<string>;
+    bayRangeList: Array<{
+      emptyContainerControlId: number | string;
+      id: number | string;
+      yardBay: string;
+      yardRaw: string;
+    }>;
+  }
 
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
