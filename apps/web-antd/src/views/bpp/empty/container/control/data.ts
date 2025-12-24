@@ -407,6 +407,14 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
@@ -425,6 +433,14 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '格式：箱区-排，例如：B1-02',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
@@ -486,6 +502,14 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入受理计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
   ];

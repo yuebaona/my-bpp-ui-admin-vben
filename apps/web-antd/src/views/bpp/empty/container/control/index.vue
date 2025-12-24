@@ -9,14 +9,13 @@ import { Page, useVbenModal } from '@vben/common-ui';
 import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import {
   deleteMainPlan,
   deleteSubPlan,
   forceComplete,
-  getIsoList,
   getMainPlan,
   getMainPlanPage,
-  getOwnerList,
   getSubPlan,
   getSubPlanPage,
   getVesselAndVoyage,
@@ -335,13 +334,56 @@ const ownerCodeList = reactive({
   data: [],
   value: [],
   fetching: false,
+  isComposing: false,
 });
+
+const handleOwnerInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (ownerCodeList.isComposing) return;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchOwnerCodeList(target.value);
+};
+
+// 处理持箱人中文输入法组合开始
+const handleOwnerCompositionStart = () => {
+  ownerCodeList.isComposing = true;
+};
+
+// 处理持箱人中文输入法组合结束
+const handleOwnerCompositionEnd = (e: CompositionEvent) => {
+  ownerCodeList.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchOwnerCodeList(target.value);
+};
 
 const containerIsoList = reactive({
   data: [],
   value: [],
   fetching: false,
+  isComposing: false,
 });
+
+// 处理ISO输入，将小写字母转换为大写
+const handleIsoInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (containerIsoList.isComposing) return;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchContainerIsoList(target.value);
+};
+
+// 处理ISO中文输入法组合开始
+const handleIsoCompositionStart = () => {
+  containerIsoList.isComposing = true;
+};
+
+// 处理ISO中文输入法组合结束
+const handleIsoCompositionEnd = (e: CompositionEvent) => {
+  containerIsoList.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchContainerIsoList(target.value);
+};
 
 const dischargeVesselSchedule = reactive({
   data: [],
@@ -366,18 +408,22 @@ const fetchdischargeVesselSchedule = async (searchText) => {
 };
 
 // 获取持箱者列表
-const fetchOwnerCodeList = async (searchText) => {
+const fetchOwnerCodeList = async (searchText: string) => {
+  ownerCodeList.fetching = true;
   try {
-    ownerCodeList.fetching = true;
-    const result = await getOwnerList({
-      ownerCode: searchText,
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getContainerOwnerList({
+      ownerCode: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
     });
-    ownerCodeList.data = result.map((item) => ({
-      label: item.ownerCode,
-      value: item.ownerCode,
-    }));
+    if (result) {
+      ownerCodeList.data = result.map((item) => ({
+        label: item.ownerCode,
+        value: item.ownerCode,
+        data: item,
+      }));
+    }
   } catch {
     ownerCodeList.data = [];
   } finally {
@@ -386,26 +432,30 @@ const fetchOwnerCodeList = async (searchText) => {
 };
 
 // 获取ISO列表
-const fetchContainerIsoList = async (searchText) => {
+const fetchContainerIsoList = async (searchText: string) => {
+  containerIsoList.fetching = true;
   try {
-    containerIsoList.fetching = true;
-    const result = await getIsoList({
-      containerIso: searchText,
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getContainerIsoList({
+      containerIso: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
       queryType: 'VESSEL',
     });
-    containerIsoList.data = result.map((item) => ({
-      label: item.containerIso,
-      value: item.containerIso,
-    }));
+
+    if (result) {
+      containerIsoList.data = result.map((item) => ({
+        label: item.containerIso,
+        value: item.containerIso,
+        data: item,
+      }));
+    }
   } catch {
     containerIsoList.data = [];
   } finally {
     containerIsoList.fetching = false;
   }
 };
-
 </script>
 
 <template>
@@ -428,10 +478,13 @@ const fetchContainerIsoList = async (searchText) => {
             style="width: 100%"
             placeholder="请输入持箱人"
             :show-search="true"
-            :filter-option="true"
-            :list-height="100"
+            :filter-option="false"
+            :list-height="150"
             allow-clear
             @search="fetchOwnerCodeList"
+            @input="handleOwnerInput"
+            @compositionstart="handleOwnerCompositionStart"
+            @compositionend="handleOwnerCompositionEnd"
           />
         </template>
         <template #form-containerIsoList>
@@ -442,10 +495,13 @@ const fetchContainerIsoList = async (searchText) => {
             style="width: 100%"
             placeholder="请输入ISO"
             :show-search="true"
-            :filter-option="true"
-            :list-height="100"
+            :filter-option="false"
+            :list-height="150"
             allow-clear
             @search="fetchContainerIsoList"
+            @input="handleIsoInput"
+            @compositionstart="handleIsoCompositionStart"
+            @compositionend="handleIsoCompositionEnd"
           />
         </template>
         <template #form-dischargeVesselSchedule>
@@ -456,7 +512,7 @@ const fetchContainerIsoList = async (searchText) => {
             placeholder="请输入船名或航次"
             :show-search="true"
             :filter-option="true"
-            :list-height="100"
+            :list-height="150"
             allow-clear
             @search="fetchdischargeVesselSchedule"
           />
@@ -505,12 +561,6 @@ const fetchContainerIsoList = async (searchText) => {
                 auth: ['system:user:update'],
                 onClick: handleMainPlanEdit.bind(null, row),
               },
-              // {
-              //   label: '详情',
-              //   type: 'link',
-              //   icon: ACTION_ICON.VIEW,
-              //   onClick: handleMainPlanDetail.bind(null, row),
-              // },
               {
                 label: '删除',
                 type: 'link',
@@ -560,12 +610,6 @@ const fetchContainerIsoList = async (searchText) => {
                 auth: ['system:user:update'],
                 onClick: handleSubEdit.bind(null, row),
               },
-              // {
-              //   label: '详情',
-              //   type: 'link',
-              //   icon: ACTION_ICON.VIEW,
-              //   onClick: handleSubDetail.bind(null, row),
-              // },
               {
                 label: '删除',
                 type: 'link',
