@@ -66,6 +66,8 @@ export namespace FlowOverLimitWorkApi {
     billNo?: string;
     cargoName: string;
     submissionTime: string;
+    vieVoyType: string;
+    vesselVoyageIn: string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {

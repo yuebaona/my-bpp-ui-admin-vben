@@ -340,9 +340,9 @@ onMounted(async () => {
               <template v-if="column.dataIndex === 'priceSea'">
                 <a-form-item
                   :name="['containerFormDataArray', index, 'priceSea']"
-                  :rules="[{required: true,message: '请填写海侧报价', trigger: 'change'}]"
+                  :rules="[{required: !record.isSystemRateSea,message: '请填写海侧报价', trigger: 'change'}]"
                   >
-                  <a-input v-model:value="record.priceSea" style="width: 120px;" placeholder="请输入" />
+                  <a-input v-model:value="record.priceSea" style="width: 120px;" placeholder="请输入" :disabled="record.isSystemRateSea"/>
                   <span style="margin-left: 4px;">元</span>
                 </a-form-item>
               </template>
@@ -362,9 +362,9 @@ onMounted(async () => {
               <template v-if="column.dataIndex === 'priceGate'">
                 <a-form-item
                   :name="['containerFormDataArray', index, 'priceGate']"
-                  :rules="[{required: true,message: '请填写陆侧报价', trigger: 'change'}]"
+                  :rules="[{required: !record.isSystemRateGate,message: '请填写陆侧报价', trigger: 'change'}]"
                 >
-                  <a-input v-model:value="record.priceGate" style="width: 120px;" placeholder="请输入" />
+                  <a-input v-model:value="record.priceGate" style="width: 120px;" placeholder="请输入" :disabled="record.isSystemRateGate"/>
                   <span style="margin-left: 4px;">元</span>
                 </a-form-item>
               </template>
