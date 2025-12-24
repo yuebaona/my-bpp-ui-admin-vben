@@ -55,17 +55,37 @@ interface batchQueryConditionsVO {
   acptPlnNo: string;
   contNo: string;
 }
-
-const vslNameState = reactive({
-  data: [],
-  value: [],
+interface LabelInValueType {
+  value: number | string;
+  label: string;
+}
+const vslNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const vslVoyState = reactive({
-  data: [],
-  value: [],
+const vslVoyState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
+});
+const applicantCompanyNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
+  fetching: false,
+  data: [],
 });
 const selectKey = ref(0);
 // 使用字典 store
@@ -567,6 +587,23 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitButtonOptions: {
       content: $t('cxmo.action.search'),
     },
+    resetButtonOptions: {
+      onClick: () => {
+        // 清空自定义插槽绑定的状态
+        vslNameState.value = {
+          value: '',
+          label: '',
+        };
+        vslVoyState.value = {
+          value: '',
+          label: '',
+        };
+        applicantCompanyNameState.value = {
+          value: '',
+          label: '',
+        };
+      },
+    },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
   },
@@ -576,7 +613,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     filterConfig: {
       showIcon: false,
-      remote: true,
+      // remote: true,
     },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
@@ -596,7 +633,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    // 禁用代理模式，确保不发送远程请求
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -621,7 +657,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         return obj;
       }, {});
       // 调用gridApi.query()刷新表格数据，实现实时筛选
-      await gridApi.query();
+      // await gridApi.query();
     }, 300),
   },
 });
@@ -670,7 +706,7 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO>,
+  } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
   gridEvents: {
     checkboxAll: boxHandleRowCheckboxChange,
     checkboxChange: boxHandleRowCheckboxChange,
@@ -871,8 +907,7 @@ const handleReset = () => {
 };
 
 // 处理保存模板事件
-const handleSaveTemplate = (templateName: string) => {
-};
+const handleSaveTemplate = (templateName: string) => {};
 // 监听超限作业申请选中的受理编号变化
 watch(
   () => acptPlnNo.value,
@@ -908,13 +943,11 @@ const toggleSearchInput = () => {
 const handleSearch = () => {
   machineSpreaderChangeRecordGridApi.query();
 };
-const applicantCompanyNameState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-});
 const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
-  applicantCompanyNameState.value = value.toUpperCase();
+  applicantCompanyNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   gridApi.formApi.form.setFieldValue('applicantCompanyName', value);
   if (!value) return;
   applicantCompanyNameState.fetching = true;
@@ -933,7 +966,10 @@ const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
   applicantCompanyNameState.fetching = false;
 }, 100);
 const handleVesselSearch = async (value: string) => {
-  vslNameState.value = value.toUpperCase();
+  vslNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   gridApi.formApi.form.setFieldValue('vslName', value);
   if (!value) return;
   vslNameState.fetching = true;
@@ -961,7 +997,10 @@ const vslNameSelect = async (value: any) => {
     }));
   }
 
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   gridApi.formApi.form.setFieldValue('vslVoy', '');
   vslVoyState.fetching = false;
 };
@@ -969,12 +1008,18 @@ const vslNameSelect = async (value: any) => {
 const vslNameChange = async () => {
   gridApi.formApi.form.setFieldValue('vslName', '');
   gridApi.formApi.form.setFieldValue('vslVoy', '');
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   vslVoyState.data = [];
   selectKey.value++;
 };
 const handleVoyageSearch = async (value: string) => {
-  vslVoyState.value = value.toUpperCase();
+  vslVoyState.value = {
+    value: value.toUpperCase(),
+    label: value.toUpperCase(),
+  };
   gridApi.formApi.form.setFieldValue('vslVoy', value.toUpperCase());
 };
 const vslVoySelect = async (value: any) => {

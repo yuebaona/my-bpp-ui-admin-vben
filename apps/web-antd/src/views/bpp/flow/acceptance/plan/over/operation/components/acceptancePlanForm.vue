@@ -36,44 +36,75 @@ const props = defineProps<Props>();
 const emit = defineEmits(['success', 'validate']);
 const vslCode = ref<string>();
 const vieVoyType = ref<string>();
-
-const vslNameState = reactive({
-  data: [],
-  value: [],
+interface LabelInValueType {
+  value: number | string;
+  label: string;
+}
+const vslNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const vslVoyState = reactive({
-  data: [],
-  value: [],
+const vslVoyState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const payerNameSeaState = reactive({
-  data: [],
-  value: [],
+const payerNameSeaState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const payerNameGateState = reactive({
-  data: [],
-  value: [],
+const payerNameGateState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const isoTypeState = reactive({
-  data: [],
-  value: [],
+const isoTypeState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const isoLengthState = reactive({
-  data: [],
-  value: [],
+const isoLengthState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const applicantCompanyNameState = reactive({
-  data: [],
-  value: [],
+const applicantCompanyNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
@@ -238,9 +269,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         contSize: '',
         contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
       {
         serialNumber: '箱量 x 箱型',
@@ -248,9 +279,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         contSize: formattedContainerTypes,
         contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
@@ -508,13 +539,15 @@ const getSaveData = () => {
       ...acceptancePlanOverOperationRespVO,
       isUpdate: fieldsChanges.value.length > 0,
     },
-    acceptancePlanOverOperationContainerSaveReqVOs: contDataArray.map((item) => ({
-      ...item,
-      id:
-        item.id && String(item.id).startsWith('row_')
-          ? String(item.id).replace('row_', '')
-          : item.id,
-    })),
+    acceptancePlanOverOperationContainerSaveReqVOs: contDataArray.map(
+      (item) => ({
+        ...item,
+        id:
+          item.id && String(item.id).startsWith('row_')
+            ? String(item.id).replace('row_', '')
+            : item.id,
+      }),
+    ),
     acceptancePlanBillMessageSaveReqVO: {
       ...acceptancePlanBillMessageVO,
       billNo: formData?.billNo,
@@ -524,10 +557,13 @@ const getSaveData = () => {
 };
 
 // 选择器相关方法
-const getPopupcont = (triggerNode: any) => triggerNode.parentNode;
+const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
-  vslNameState.value = value.toUpperCase();
+  vslNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   vslNameState.fetching = true;
   const res = await getVVd({ condition: value });
@@ -556,7 +592,10 @@ const vslNameSelect = async (value: any, option: any) => {
     }));
   }
 
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   await formApi.setFieldValue('vslVoy', '');
   vslVoyState.fetching = false;
 };
@@ -564,7 +603,10 @@ const vslNameSelect = async (value: any, option: any) => {
 const vslNameChange = async () => {
   await formApi.setFieldValue('vslName', '');
   await formApi.setFieldValue('vslVoy', '');
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   vslVoyState.data = [];
   selectKey.value++;
 };
@@ -574,7 +616,10 @@ const vslVoySelect = async (value: any) => {
 };
 
 const payerNameSeaSearch = async (value: string) => {
-  payerNameSeaState.value = value.toUpperCase();
+  payerNameSeaState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   payerNameSeaState.fetching = true;
   const res = await getCustomerList({
@@ -603,7 +648,10 @@ const payerNameSeaChange = async () => {
 };
 
 const payerNameGateSearch = async (value: string) => {
-  payerNameGateState.value = value.toUpperCase();
+  payerNameGateState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   payerNameGateState.fetching = true;
   const res = await getCustomerList({
@@ -632,7 +680,10 @@ const payerNameGateChange = async () => {
 };
 
 const applicantCompanyNameSearch = async (value: string) => {
-  applicantCompanyNameState.value = value.toUpperCase();
+  applicantCompanyNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   applicantCompanyNameState.fetching = true;
   const res = await getCustomerList({
@@ -679,8 +730,14 @@ const vslVoyChange = async () => {
   await formApi.setFieldValue('vslVoy', '');
 };
 const handleVoyageSearch = async (value: string) => {
-  vslVoyState.value = value.toUpperCase();
-  vslVoyState.value = value.toUpperCase();
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
 };
 // 暴露方法给父组件（如果需要）
 defineExpose({
@@ -753,7 +810,7 @@ watch(
                 :options="isoLengthState.data"
                 v-model:value="row.contSize"
                 style="width: 100%"
-                :get-popup-container="getPopupcont"
+                :get-popup-container="getPopupContainer"
                 :list-height="100"
               />
             </template>
@@ -763,7 +820,7 @@ watch(
                 mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
                 v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
-                :get-popup-container="getPopupcont"
+                :get-popup-container="getPopupContainer"
                 :show-search="true"
                 :filter-option="true"
                 :list-height="100"

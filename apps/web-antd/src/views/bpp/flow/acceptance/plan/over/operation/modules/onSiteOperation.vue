@@ -7,8 +7,8 @@ import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
-
 import { message, Select } from 'ant-design-vue';
+
 import { useVbenForm } from '#/adapter/form';
 import { getVVd } from '#/api/bpp/common';
 import {
@@ -20,15 +20,27 @@ import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flow/acceptance/pl
 const emit = defineEmits(['success']);
 const disabledFields = ref<string[]>([]);
 const vslCode = ref<string>();
-const vslNameState = reactive({
-  data: [],
-  value: [],
+interface LabelInValueType {
+  value: number | string;
+  label: string;
+}
+const vslNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const vslVoyState = reactive({
-  data: [],
-  value: [],
+const vslVoyState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
 async function setFieldAndDisable(fieldName: string, value: any) {
@@ -41,6 +53,8 @@ async function setFieldAndDisable(fieldName: string, value: any) {
 }
 
 const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
+  plannedCheType: '',
+  spreaderType: '',
   isOnSiteWork: '',
   endTimeBack: 0,
   id: '',
@@ -53,8 +67,7 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   operationPosition: '',
   cheWorkChangeType: '',
   cheWorkType: '',
-  machType: '',
-  machineNo: '',
+  machNo: '',
   cheType: '',
   startTime: '',
   endTime: '',
@@ -96,7 +109,7 @@ const submitCoreLogic = async () => {
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
     formData.value.acptPlnNo = acptPlnNo;
-    formData.value.vslCode = vslCode.value;
+    formData.value.vslCode = vslCode?.value || '';
     formData.value.operationFile = JSON.stringify(data.operationFile);
 
     // 调用接口提交
@@ -137,7 +150,7 @@ const [Modal, modalApi] = useVbenModal({
     formData.value.acptPlnNo = data.value?.acptPlnNo;
     if (data?.id) {
       await formApi.setValues(data);
-      await formApi.setFieldValue('endTime', data?.endTime?.toString()||null);
+      await formApi.setFieldValue('endTime', data?.endTime?.toString() || null);
       await formApi.setFieldValue(
         'endTimeBack',
         data?.endTimeBack?.toString() || null,
@@ -174,19 +187,13 @@ const [Modal, modalApi] = useVbenModal({
         label: data?.vslVoy || data.value?.vslVoy,
         value: data?.vslVoy || data.value?.vslVoy,
       };
-      await formApi.setFieldValue(
-        'vslVoy',
-        data.value?.vslVoy || data?.vslVoy,
-      );
+      await formApi.setFieldValue('vslVoy', data.value?.vslVoy || data?.vslVoy);
     }
     if (data?.vslCode || data.value?.vslCode) {
       vslCode.value = data?.vslCode || data.value?.vslCode;
     }
     // 数据回显
-    await setFieldAndDisable(
-      'contNo',
-      data.value?.contNo || data?.contNo,
-    );
+    await setFieldAndDisable('contNo', data.value?.contNo || data?.contNo);
     await setFieldAndDisable(
       'operationSource',
       data.value?.initiationType || data?.operationSource,
@@ -195,10 +202,7 @@ const [Modal, modalApi] = useVbenModal({
       'cheWorkChangeType',
       data.value?.cheWorkChangeType || data?.cheWorkChangeType,
     );
-    await setFieldAndDisable(
-      'oogContIds',
-      data.value?.oogContIds,
-    );
+    await setFieldAndDisable('oogContIds', data.value?.oogContIds);
     if (data.value?.cheType || data?.cheType) {
       await formApi.setFieldValue(
         'cheType',
@@ -213,7 +217,10 @@ const [Modal, modalApi] = useVbenModal({
 
 const modalTitle = ref<string>('现场操作确认');
 const handleVesselSearch = async (value: any) => {
-  vslNameState.value = value.toUpperCase();
+  vslNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   vslNameState.data = [];
   vslNameState.fetching = true;
@@ -250,7 +257,10 @@ const vslNameSelect = async (value: any, option: any) => {
     vslVoyState.fetching = false;
 
     // 重要：在数据加载完成后再清空当前选择的航次值
-    vslVoyState.value = [];
+    vslVoyState.value = {
+      label: '',
+      value: '',
+    };
     await formApi.setFieldValue('vslVoy', '');
   }
 };
@@ -260,7 +270,10 @@ const vslNameChange = async () => {
   await formApi.setFieldValue('vslVoy', '');
 
   // 清空航次数据
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   vslVoyState.data = [];
   selectKey.value++;
 };
@@ -272,7 +285,10 @@ const vslVoyChange = async () => {
   await formApi.setFieldValue('vslVoy', '');
 };
 const handleVoyageSearch = async (value: string) => {
-  vslVoyState.value = value.toUpperCase();
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
 };
 watch(vslNameState.value, () => {
   vslNameState.data = [];
