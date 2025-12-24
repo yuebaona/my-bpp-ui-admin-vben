@@ -41,28 +41,61 @@ const isoState = reactive({
   data: [],
   value: [],
   fetching: false,
+  isComposing: false, // 标记是否在中文输入法组合状态
 });
 
 // 处理ISO输入，将小写字母转换为大写
 const handleIsoInput = (e: Event) => {
-  setTimeout(() => {
-    const target = e.target as HTMLInputElement;
-    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  }, 10);
+  const target = e.target as HTMLInputElement;
+
+  if (isoState.isComposing) {
+    return;
+  }
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  isoSearch(target.value);
+};
+
+// 处理ISO中文输入法组合开始
+const handleIsoCompositionStart = () => {
+  isoState.isComposing = true;
+};
+
+// 处理ISO中文输入法组合结束（回车或选择候选词）
+const handleIsoCompositionEnd = (e: CompositionEvent) => {
+  isoState.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  isoSearch(target.value);
 };
 
 const ownerState = reactive({
   data: [],
   value: [],
   fetching: false,
+  isComposing: false, // 标记是否在中文输入法组合状态
 });
 
 // 处理持箱人输入，将小写字母转换为大写
 const handleOwnerInput = (e: Event) => {
-  setTimeout(() => {
-    const target = e.target as HTMLInputElement;
-    target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  }, 10);
+  const target = e.target as HTMLInputElement;
+  if (ownerState.isComposing) {
+    return;
+  }
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  ownerSearch(target.value);
+};
+
+// 处理持箱人中文输入法组合开始
+const handleOwnerCompositionStart = () => {
+  ownerState.isComposing = true;
+};
+
+// 处理持箱人中文输入法组合结束（回车或选择候选词）
+const handleOwnerCompositionEnd = (e: CompositionEvent) => {
+  ownerState.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  ownerSearch(target.value);
 };
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
@@ -553,6 +586,8 @@ const modalTitle = computed(() => {
           show-search
           @change="(value) => formApi.setFieldValue('containerIsoList', value)"
           @input="handleIsoInput"
+          @compositionstart="handleIsoCompositionStart"
+          @compositionend="handleIsoCompositionEnd"
         />
       </template>
       <template #ownerCodeList>
@@ -568,6 +603,8 @@ const modalTitle = computed(() => {
           show-search
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
           @input="handleOwnerInput"
+          @compositionstart="handleOwnerCompositionStart"
+          @compositionend="handleOwnerCompositionEnd"
         />
       </template>
       <!-- 箱区范围表格部分 -->
