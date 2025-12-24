@@ -110,52 +110,11 @@ export namespace EmptyContainerControlApi {
     data: string[];
   }
 
-  // 超限受理计划信息
-  export interface AcceptancePlanOverOperationVO {
-    id: number;
-    isAllowedStacking: boolean;
-    plannedMachineryType: string;
-    acceptancePlanNo: string;
-    processInstanceId: string;
-  }
-  // 超限受理计划箱信息
-  export interface AcceptancePlanOverOperationContainerVO {
-    id: number;
-    containerNo: string;
-    containerSize: string;
-    containerType: string;
-    containerCargoWeight: number;
-    containerTotalWeight: number;
-    containerCargoSize: string;
-    containerOverlimitDetails: string;
-    containerPhysicalStatus: string;
-    containerOperationNode: string;
-    acceptancePlanNo: string;
-    overOperationContainerNo: string;
-    processInstanceId: string;
-    priceSea: number;
-    priceGate: number;
-    machineSpreaderChangeType: string;
-    machineSpreaderType: string;
-    plannedSpreaderType: string;
-  }
-  // 提单信息表
-  export interface AcceptancePlanBillMessageVO {
-    id: number;
-    acceptancePlanNo: string;
-    billNo: string;
-    cargoType: string;
-    cargoName: string;
-    cargoCount: number;
-    billType: string;
-  }
-  // 总数据
-  export interface EmptyContainerControlSaveReqVO {
-    mainPlanSaveReqVO: mainPlanVO;
-    subPlanSaveReqVO: subPlanVO;
-    acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
-    acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
-    acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
+  // 卸船船期响应
+  export interface VesselAndVoyageResponse {
+    code: number;
+    msg: string;
+    data: string[];
   }
 }
 export interface LogQueryParams extends PageParam {
@@ -164,6 +123,24 @@ export interface LogQueryParams extends PageParam {
   iso?: string; // ISO
   yardBay?: string; // 箱区
   createTime?: [string, string]; // 创建时间范围
+}
+
+interface pageVO {
+  pageNo?: number;
+  pageSize?: number;
+  planNo?: string;
+  dischargeVesselSchedule?: string;
+  bayRangeList?: Array<{
+    yardBay?: string;
+    yardRaw?: string;
+  }>;
+  tradeType?: string;
+  ownerCodeList?: Array<string>;
+  containerIsoList?: Array<string>;
+  createTime?: Array<string>;
+  pickupPlanNo?: string;
+  planType?: string;
+  mainId?: string;
 }
 // 创建主计划信息
 export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
@@ -187,11 +164,11 @@ export const getMainPlan = (id: number) => {
 };
 
 // 主计划分页查询
-export const getMainPlanPage = (data: any) => {
-  return requestClient.post(
-    '/bpp/flow/empty/container-control-main/page',
-    data,
-  );
+export const getMainPlanPage = (data: pageVO) => {
+  return requestClient.post('/bpp/flow/empty/container-control-main/page', {
+    ...data,
+    planType: 'MAIN',
+  });
 };
 
 // 删除主计划
@@ -224,11 +201,11 @@ export const getSubPlan = (id: number) => {
   );
 };
 // 子计划分页查询
-export const getSubPlanPage = (data: EmptyContainerControlApi.subPlanVO) => {
-  return requestClient.post(
-    '/bpp/flow/empty/container-control-main/page',
-    data,
-  );
+export const getSubPlanPage = (data: pageVO) => {
+  return requestClient.post('/bpp/flow/empty/container-control-main/page', {
+    ...data,
+    planType: 'SUB',
+  });
 };
 
 export const deleteSubPlan = (id: number) => {
