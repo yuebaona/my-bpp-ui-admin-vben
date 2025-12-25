@@ -631,8 +631,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       zoom: true,
     },
     pagerConfig: {
-      pageSize: 10,
+      pageSize: 100,
       enabled: true,
+      pageSizes: [100, 200, 300, 400, 500, 10_000],
     },
     proxyConfig: {
       ajax: {
@@ -684,8 +685,9 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
       search: false,
     },
     pagerConfig: {
-      pageSize: 10,
+      pageSize: 100,
       enabled: true,
+      pageSizes: [100, 200, 300, 400, 500, 10_000],
     },
     proxyConfig: {
       autoLoad: false,
@@ -737,8 +739,9 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         export: true,
       },
       pagerConfig: {
-        pageSize: 10,
+        pageSize: 100,
         enabled: true,
+        pageSizes: [100, 200, 300, 400, 500, 10_000],
       },
       proxyConfig: {
         // autoLoad: false,
@@ -1238,7 +1241,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
           <Input
             v-model:value="option.data"
             clearable
-            @change="changeNameFilter(option, column,1)"
+            @change="changeNameFilter(option, column, 1)"
           />
         </template>
       </Grid>
@@ -1293,7 +1296,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
             <Input
               v-model:value="option.data"
               clearable
-              @change="changeNameFilter(option, column,2)"
+              @change="changeNameFilter(option, column, 2)"
             />
           </template>
         </BoxGrid>
