@@ -4,6 +4,8 @@ import type { DescriptionItemSchema } from '#/components/description';
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+import _default from "ant-design-vue/es/vc-slick/inner-slider";
+import clickHandler = _default.methods.clickHandler;
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -40,7 +42,7 @@ function getPlanStatusOptions(type: string) {
   }));
 }
 
-/** 箱区范围字段 */
+/** 箱区范围选择字段 */
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -92,6 +94,52 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       slots: { default: 'actions' },
       fixed: 'right',
+    },
+  ];
+}
+
+/** 箱区范围浮窗展示字段 */
+export function containerAreaDisplayColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '堆场贝位',
+      field: 'yardBay',
+      minWidth: 80,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '堆场列',
+      field: 'yardRaw',
+      minWidth: 60,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '总数（当前可用量）',
+      field: 'totalCount',
+      minWidth: 100,
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+    {
+      title: '最低准存天数',
+      field: 'minDays',
+      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+    {
+      title: '最高准存天数',
+      field: 'maxDays',
+      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      editRender: { name: 'input', attrs: { type: 'number' } },
     },
   ];
 }
@@ -405,7 +453,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '格式：箱区-排，例如：B1-02',
+        placeholder: '例如：B01-02',
         allowClear: true,
       },
     },
@@ -452,7 +500,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       slot: 'form-containerIsoList',
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'vesselUnloadDate',
       label: '卸船船期',
       component: 'Select',
       componentProps: {
@@ -533,6 +581,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
+      slots: { default: 'bayRanges',actions:'bayRanges' },
     },
     {
       field: 'planQuantity',

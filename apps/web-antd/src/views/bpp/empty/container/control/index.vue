@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
+import type {
+  EmptyContainerControlApi
+} from '#/api/bpp/empty/container/control';
 
 import { reactive, ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenModal} from '@vben/common-ui';
 
 import { message, Select } from 'ant-design-vue';
 
@@ -23,13 +25,14 @@ import {
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
-import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
-import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
-import Form from '#/views/bpp/empty/container/control/modules/form.vue';
+import Detail2 from '#/views/bpp/empty/container/control/modules/mainDetail.vue';
+import Detail from '#/views/bpp/empty/container/control/modules/subDetail.vue';
+import Form2 from '#/views/bpp/empty/container/control/modules/mainForm.vue';
+import Form from '#/views/bpp/empty/container/control/modules/subForm.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
-
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
+import ContainerAreaDisplay
+  from "#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue";
 
 const checkedIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
@@ -38,6 +41,9 @@ const hasSelectedMainPlan = ref(false);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
 const mainIdList = ref<string[]>([]);
+const loading = ref(false);
+const containerAreaClickRow = ref<EmptyContainerControlApi.mainPlanVO | null>(null);
+const popoverVisible = ref({});
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
@@ -79,9 +85,6 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    // editRules: {
-    //
-    // },
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -165,6 +168,58 @@ const [FormModal2, formModalApi2] = useVbenModal({
 const [DetailModal2, detailModalApi2] = useVbenModal({
   connectedComponent: Detail2,
   destroyOnClose: true,
+});
+
+const [Grid2, gridApi2] = useVbenVxeGrid({
+  formOptions: {
+    schema: PlanSearchFormSchema(),
+    submitButtonOptions: {
+      content: '查询',
+    },
+    wrapperClass: 'grid-cols-4 md:grid-cols-4',
+  },
+  gridOptions: {
+    columns: mainPlanColumns(),
+    height: 'auto',
+    keepSource: false,
+    rowConfig: {
+      keyField: 'id',
+      isHover: true,
+    },
+    toolbarConfig: {
+      search: false,
+      custom: true,
+      export: true,
+      // import: true,
+      refresh: true,
+      zoom: true,
+    },
+    pagerConfig: {
+      pageSize: 10,
+      enabled: true,
+    },
+    editRules: {
+      applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues) => {
+          const result = await getMainPlanPage({
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+            planType: 'MAIN',
+            ...formValues,
+          });
+          return result;
+        },
+      },
+    },
+  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
+  gridEvents: {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+    cellClick: handleRowClick,
+  },
 });
 
 /**
@@ -264,58 +319,6 @@ const transformFormToRequest = (
   return finalParams;
 };
 
-const [Grid2, gridApi2] = useVbenVxeGrid({
-  formOptions: {
-    schema: PlanSearchFormSchema(),
-    submitButtonOptions: {
-      content: '查询',
-    },
-    wrapperClass: 'grid-cols-4 md:grid-cols-4',
-  },
-  gridOptions: {
-    columns: mainPlanColumns(),
-    height: 'auto',
-    keepSource: false,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    toolbarConfig: {
-      search: false,
-      custom: true,
-      export: true,
-      // import: true,
-      refresh: true,
-      zoom: true,
-    },
-    pagerConfig: {
-      pageSize: 10,
-      enabled: true,
-    },
-    editRules: {
-      applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
-    },
-    proxyConfig: {
-      ajax: {
-        query: async ({ page }, formValues) => {
-          const transformedParams = transformFormToRequest(formValues);
-          const result = await getMainPlanPage({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...transformedParams,
-          });
-          return result;
-        },
-      },
-    },
-  } as VxeTableGridOptions<EmptyContainerControlApi.mainPlanVO>,
-  gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-    cellClick: handleRowClick,
-  },
-});
-
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
@@ -363,12 +366,13 @@ const handleForceComplete = async () => {
     const res = await forceComplete({ mainIdList: mainIdList.value });
     if (res) {
       message.success('成功强制完成！');
+      await gridApi2.query();
       mainIdList.value = [];
       checkedIds.value = [];
 
       if (gridApi2?.grid) {
         // 取消所有行勾选
-        gridApi2.grid.setAllCheckboxRow(false);
+        await gridApi2.grid.setAllCheckboxRow(false);
       }
     } else {
       const errorMsg = res?.msg || '强制完成失败，请重试';
@@ -443,7 +447,7 @@ const containerIsoList = reactive({
   fetching: false,
 });
 
-const vesselUnloadDate = reactive({
+const dischargeVesselSchedule = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -491,19 +495,25 @@ const fetchContainerIsoList = async (searchText) => {
 };
 
 // 获取卸船船期
-const fetchVesselUnloadDate = async (searchText) => {
+const fetchDischargeVesselSchedule = async (searchText) => {
   try {
-    vesselUnloadDate.fetching = true;
+    dischargeVesselSchedule.fetching = true;
     const result = await getVesselAndVoyage({ condition: searchText });
-    vesselUnloadDate.data = result.map((item) => ({
+    dischargeVesselSchedule.data = result.map((item) => ({
       label: item,
       value: item,
     }));
   } catch {
-    vesselUnloadDate.data = [];
+    dischargeVesselSchedule.data = [];
   } finally {
-    vesselUnloadDate.fetching = false;
+    dischargeVesselSchedule.fetching = false;
   }
+};
+
+// 控制箱区范围浮窗显隐藏
+const openContainerAreaWindow = (row: EmptyContainerControlApi.containerAreaDisplayVO) => {
+  containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
+  popoverVisible.value[row.id] = true;
 };
 </script>
 
@@ -548,16 +558,40 @@ const fetchVesselUnloadDate = async (searchText) => {
         </template>
         <template #form-vesselUnloadDate>
           <Select
-            :options="vesselUnloadDate.data"
+            :options="dischargeVesselSchedule.data"
             mode="multiple"
-            v-model:value="vesselUnloadDate.value"
+            v-model:value="dischargeVesselSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
             :filter-option="true"
             :list-height="100"
-            @search="fetchVesselUnloadDate"
+            @search="fetchDischargeVesselSchedule"
           />
+        </template>
+        <template #bayRanges="{row}">
+          <a-popover v-model:open="popoverVisible[row.id]" trigger="click" :key="row.id">
+            <template #content>
+              <ContainerAreaDisplay
+                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
+                :container-iso-list="containerAreaClickRow?.containerIsoList || []"
+                :bay-range-list="containerAreaClickRow?.bayRangeList || []"
+                :bay-ranges="containerAreaClickRow?.bayRanges || ''"
+                @click="() => {
+                  popoverVisible[row.id] = false;
+                  containerAreaClickRow.value = null;
+                }"
+              >
+                Close
+              </ContainerAreaDisplay>
+            </template>
+            <a-text
+              @click="openContainerAreaWindow(row)"
+              style="color: #1890ff; cursor: pointer;"
+            >
+              {{ row.bayRanges }}
+            </a-text>
+          </a-popover>
         </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
