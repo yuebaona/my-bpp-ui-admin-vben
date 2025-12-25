@@ -377,16 +377,18 @@ const loadFormData = async () => {
     // 设置主表单数据
     if (data.acceptancePlanRespVO) {
       Object.assign(formData, data.acceptancePlanRespVO);
-      await formApi.setValues(data.acceptancePlanRespVO);
-
+      formData.plannedOperationTime = data.acceptancePlanRespVO.plannedOperationTime.toString();
+      await formApi.setValues(formData);
       originalData.value = {
         form: data.acceptancePlanRespVO,
         containers: data.acceptancePlanOverOperationContainerRespVOS,
       };
-      originalData.value.form.billNo = data?.acceptancePlanBillMessageRespVO?.billNo;
+      originalData.value.form.billNo =
+        data?.acceptancePlanBillMessageRespVO?.billNo;
       originalData.value.form.cargoName =
         data?.acceptancePlanBillMessageRespVO?.cargoName;
-      originalData.value.containers = data.acceptancePlanOverOperationContainerRespVOS;
+      originalData.value.containers =
+        data.acceptancePlanOverOperationContainerRespVOS;
 
       // 设置提单号和货名
       if (data.acceptancePlanBillMessageRespVO) {
