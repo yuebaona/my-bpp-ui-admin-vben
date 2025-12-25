@@ -1033,6 +1033,7 @@ const vslVoyChange = async () => {
   gridApi.formApi.form.setFieldValue('vslVoy', '');
 };
 const changeNameFilter = (option: any, column: any, index: number) => {
+  option.data = option.data.toUpperCase();
   let $grid;
   if (index === 1) {
     $grid = gridApi.grid;
