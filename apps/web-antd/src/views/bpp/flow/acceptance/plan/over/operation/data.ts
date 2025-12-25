@@ -511,7 +511,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     // 基本信息
     {
       fieldName: 'basic',
-      component: 'none',
+      component: 'Space',
       label: '基础信息',
       formItemClass: 'md:col-span-2',
     },
@@ -641,7 +641,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     // 箱信息
     {
       fieldName: 'basic',
-      component: 'none',
+      component: 'Space',
       label: '箱货信息',
       formItemClass: 'md:col-span-2',
     },
@@ -683,7 +683,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'contInfo',
-      component: 'none',
+      component: 'Space',
       label: '箱信息',
       formItemClass: 'w-full p-0 md:col-span-2',
       rules: 'required',
@@ -703,7 +703,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'handlerConfirmInfo',
-      component: 'none',
+      component: 'Space',
       label: '经办人确认信息',
       formItemClass: 'w-full p-0 md:col-span-2',
     },
@@ -744,7 +744,7 @@ export function acceptancePlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'handlingPersonLast',
       label: '经办人：',
-      component: 'text',
+      component: 'Space',
     },
   ];
 }
@@ -806,7 +806,7 @@ export function acceptancePlanOvrOprFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'applicantCompanyName',
       label: '申请单位',
-      component: 'none',
+      component: 'Space',
       componentProps: {
         placeholder: '请输入申请单位',
         allowClear: true,
