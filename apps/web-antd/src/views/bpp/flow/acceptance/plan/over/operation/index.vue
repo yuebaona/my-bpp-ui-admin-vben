@@ -9,7 +9,7 @@ import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
-import { message, Select } from 'ant-design-vue';
+import { Input, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -1028,6 +1028,68 @@ const vslVoySelect = async (value: any) => {
 const vslVoyChange = async () => {
   gridApi.formApi.form.setFieldValue('vslVoy', '');
 };
+const changeNameFilter = (option: any, column: any, index: number) => {
+  let $grid;
+  if (index === 1) {
+    $grid = gridApi.grid;
+  } else if (index === 2) {
+    $grid = boxGridApi.grid;
+  } else {
+    $grid = machineSpreaderChangeRecordGridApi.grid;
+  }
+  if ($grid) {
+    $grid.updateFilterOptionStatus(option, !!option.data);
+    $grid.saveFilter(column);
+  }
+};
+const boxFloatingFilterColumns = ref<string[]>([
+  'contOperationNode',
+  'contNo',
+  'contSize',
+  'contType',
+  'contCargoWeight',
+  'contTotalWeight',
+  'contCargoSize',
+  'contOogDetails',
+]);
+const oogFloatingFilterColumns = ref<string[]>([
+  'cheWorkChangeType',
+  'vslName',
+  'vslVoy',
+  'contNo',
+  'operationSource',
+  'changeReason',
+  'cheWorkType',
+  'machNo',
+  'isOnSiteWork',
+  'operationPosition',
+  'cheType',
+  'startTime',
+  'endTime',
+  'remark',
+  'creatorName',
+  'createTime',
+]);
+const acceptanceFloatingFilterColumns = ref<string[]>([
+  'acptPlnNo',
+  'planStatus',
+  'approvalWorkflowCurrentNode',
+  'acptPlnWebNo',
+  'applicantCompanyName',
+  'handlingPerson',
+  'vslName',
+  'vslVoy',
+  'category',
+  'vslCode',
+  'billNo',
+  'cargoName',
+  'payerNameSea',
+  'paymentTypeSea',
+  'payerNameGate',
+  'paymentTypeGate',
+  'isSystemRate',
+  'conclusionTime',
+]);
 </script>
 
 <template>
@@ -1167,6 +1229,17 @@ const vslVoyChange = async () => {
             ]"
           />
         </template>
+        <template
+          v-for="col in acceptanceFloatingFilterColumns"
+          #[`${col}`]="{ option, column }"
+          :key="col"
+        >
+          <Input
+            v-model:value="option.data"
+            clearable
+            @change="changeNameFilter(option, column,1)"
+          />
+        </template>
       </Grid>
     </div>
     <div class="my-3 flex h-2/5 w-full">
@@ -1209,6 +1282,17 @@ const vslVoyChange = async () => {
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
+            />
+          </template>
+          <template
+            v-for="col in boxFloatingFilterColumns"
+            #[`${col}`]="{ option, column }"
+            :key="col"
+          >
+            <Input
+              v-model:value="option.data"
+              clearable
+              @change="changeNameFilter(option, column,2)"
             />
           </template>
         </BoxGrid>
@@ -1293,6 +1377,17 @@ const vslVoyChange = async () => {
                   },
                 },
               ]"
+            />
+          </template>
+          <template
+            v-for="col in oogFloatingFilterColumns"
+            #[`${col}`]="{ option, column }"
+            :key="col"
+          >
+            <Input
+              v-model:value="option.data"
+              clearable
+              @change="changeNameFilter(option, column, 3)"
             />
           </template>
         </MachineSpreaderChangeRecordGrid>

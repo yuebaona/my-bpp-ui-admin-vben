@@ -360,10 +360,7 @@ export function contInfoColumns(): VxeTableGridOptions['columns'] {
             const currentRow = params.data[seq - 1]; // 当前行数据
 
             setTimeout(() => {
-              const cellEl = params.$grid.getCellElement(
-                currentRow,
-                'contNo',
-              );
+              const cellEl = params.$grid.getCellElement(currentRow, 'contNo');
               const inputEl = cellEl?.querySelector('.vxe-default-input');
 
               if (inputEl) {
@@ -869,7 +866,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -881,6 +878,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'acptPlnNo',
       },
     },
     {
@@ -896,7 +896,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -907,6 +907,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'acceptance_plan_status',
+      },
+      slots: {
+        floatingFilter: 'planStatus',
       },
     },
     {
@@ -922,7 +925,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -934,6 +937,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'approvalWorkflowCurrentNode',
       },
     },
     {
@@ -949,7 +955,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -961,6 +967,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'acptPlnWebNo',
       },
     },
     {
@@ -976,7 +985,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -988,6 +997,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'applicantCompanyName',
       },
     },
     {
@@ -1002,7 +1014,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1016,6 +1028,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       sortable: true,
+      slots: {
+        floatingFilter: 'handlingPerson',
+      },
     },
     {
       field: 'vslName',
@@ -1030,7 +1045,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1042,6 +1057,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'vslName',
       },
     },
     {
@@ -1057,7 +1075,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1069,6 +1087,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'vslVoy',
       },
     },
     {
@@ -1084,7 +1105,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1095,6 +1116,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'import_export_type',
+      },
+      slots: {
+        floatingFilter: 'category',
       },
     },
     {
@@ -1110,7 +1134,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1122,6 +1146,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'vslCode',
       },
     },
     {
@@ -1137,7 +1164,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1149,6 +1176,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'billNo',
       },
     },
     {
@@ -1164,7 +1194,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
             $grid.saveFilterByEvent('input', column.field);
           },
@@ -1175,6 +1205,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'cargoName',
       },
     },
     {
@@ -1190,7 +1223,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1202,6 +1235,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'payerNameSea',
       },
     },
     {
@@ -1217,7 +1253,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1228,6 +1264,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'payment_method',
+      },
+      slots: {
+        floatingFilter: 'paymentTypeSea',
       },
     },
     {
@@ -1243,7 +1282,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1255,6 +1294,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'payerNameGate',
       },
     },
     {
@@ -1270,7 +1312,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1281,6 +1323,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'payment_method',
+      },
+      slots: {
+        floatingFilter: 'paymentTypeGate',
       },
     },
     {
@@ -1296,7 +1341,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1307,6 +1352,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'system_rate',
+      },
+      slots: {
+        floatingFilter: 'isSystemRate',
       },
     },
     {
@@ -1323,7 +1371,7 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1335,6 +1383,9 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'conclusionTime',
       },
     },
     {
@@ -1403,7 +1454,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1414,6 +1465,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'on_site_operation_node',
+      },
+      slots: {
+        floatingFilter: 'contOperationNode',
       },
     },
     {
@@ -1429,7 +1483,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1441,6 +1495,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contNo',
       },
     },
     {
@@ -1456,7 +1513,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1468,6 +1525,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contSize',
       },
     },
     {
@@ -1483,7 +1543,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1495,6 +1555,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contType',
       },
     },
     {
@@ -1510,7 +1573,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1522,6 +1585,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contCargoWeight',
       },
     },
     {
@@ -1537,7 +1603,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1549,6 +1615,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contTotalWeight',
       },
     },
     {
@@ -1564,7 +1633,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1576,6 +1645,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contCargoSize',
       },
     },
     {
@@ -1591,7 +1663,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1603,6 +1675,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contOogDetails',
       },
     },
   ];
@@ -1628,7 +1703,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
             $grid.saveFilterByEvent('input', column.field);
           },
@@ -1638,6 +1713,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       cellRender: {
         name: 'CellTagDict',
         props: 'on_site_operation_category',
+      },
+      slots: {
+        floatingFilter: 'cheWorkChangeType',
       },
     },
     {
@@ -1653,7 +1731,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1665,6 +1743,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'vslName',
       },
     },
     {
@@ -1680,7 +1761,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1692,6 +1773,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'vslVoy',
       },
     },
     {
@@ -1707,7 +1791,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1719,6 +1803,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'contNo',
       },
     },
     {
@@ -1734,7 +1821,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1745,6 +1832,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       cellRender: {
         name: 'CellTagDict',
         props: 'driving_source',
+      },
+      slots: {
+        floatingFilter: 'operationSource',
       },
     },
     {
@@ -1760,7 +1850,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1771,6 +1861,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       cellRender: {
         name: 'CellTagDict',
         props: 'change_reason',
+      },
+      slots: {
+        floatingFilter: 'changeReason',
       },
     },
     {
@@ -1786,7 +1879,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1798,6 +1891,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'cheWorkType',
       },
     },
     {
@@ -1813,7 +1909,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1825,6 +1921,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'machNo',
       },
     },
     {
@@ -1840,7 +1939,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1851,6 +1950,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       cellRender: {
         name: 'CellTagDict',
         props: 'actual_operation',
+      },
+      slots: {
+        floatingFilter: 'isOnSiteWork',
       },
     },
     {
@@ -1866,7 +1968,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1878,6 +1980,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'operationPosition',
       },
     },
     {
@@ -1893,7 +1998,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1904,6 +2009,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
       cellRender: {
         name: 'CellTagDict',
         props: 'spreader_type',
+      },
+      slots: {
+        floatingFilter: 'cheType',
       },
     },
     {
@@ -1920,7 +2028,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1932,6 +2040,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'startTime',
       },
     },
     {
@@ -1948,7 +2059,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1960,6 +2071,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'endTime',
       },
     },
     {
@@ -1975,7 +2089,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -1987,6 +2101,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'remark',
       },
     },
     {
@@ -2002,7 +2119,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -2014,6 +2131,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'creatorName',
       },
     },
     {
@@ -2030,7 +2150,7 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           allowClear: true,
         },
         events: {
-          input: (params: any, value: string) => {
+          input: (params: any) => {
             const { $grid, column } = params;
 
             $grid.saveFilterByEvent('input', column.field);
@@ -2042,6 +2162,9 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
           return `${row[column.field]}`.includes(option.data);
         }
         return true;
+      },
+      slots: {
+        floatingFilter: 'createTime',
       },
     },
     {
