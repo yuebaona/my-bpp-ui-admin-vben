@@ -3,6 +3,7 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { BpmTaskApi } from '#/api/bpm/task';
 
 import { Page } from '@vben/common-ui';
+import { onMounted } from 'vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getTaskTodoPage } from '#/api/bpm/task';
@@ -19,11 +20,12 @@ function handleAudit(row: BpmTaskApi.Task) {
     query: {
       id: row.processInstance!.id,
       taskId: row.id,
+      formPagePath: '/bpm/task/todo',
     },
   });
 }
 
-const [Grid] = useVbenVxeGrid({
+const [Grid,GridApi] = useVbenVxeGrid({
   formOptions: {
     schema: useGridFormSchema(),
   },
@@ -51,6 +53,10 @@ const [Grid] = useVbenVxeGrid({
       search: true,
     },
   } as VxeTableGridOptions<BpmTaskApi.Task>,
+});
+onMounted(() => {
+  // 刷新表格数据
+  GridApi.reload();
 });
 </script>
 

@@ -1,0 +1,14 @@
+{
+  "dingTalk": {
+    "sync": {
+      "success": "同步成功",
+      "doing": "同步中，请稍候...",
+      "user": "是否执行用户数据同步？",
+      "department": "是否执行部门数据同步？"
+    },
+    "button": {
+      "department" : "同步钉钉架构",
+      "user": "同步钉钉用户信息"
+    }
+  }
+}

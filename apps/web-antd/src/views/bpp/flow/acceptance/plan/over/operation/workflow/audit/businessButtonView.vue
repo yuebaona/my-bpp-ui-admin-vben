@@ -18,7 +18,7 @@ import {getSimpleUserList} from '#/api/system/user';
 
 defineOptions({name: 'BusinessButtonView'});
 
-const emit = defineEmits(['close-form']);
+const emit = defineEmits(['close-form','submit-form']);
 /**
  * 参数
  */
@@ -70,12 +70,14 @@ const containerFormData = ref({
     priceGate: undefined,
   }]
 });
-//  关闭任务处理弹窗
-function closeTask(type: '' | string) {
-  emit('close-form', type);
+// 取消任务，关闭弹窗
+function closeTask() {
+  emit('close-form');
 }
-function cancelTask(){
-  closeTask('');
+// 提交任务，关闭弹窗
+function submitFormCallBack() {
+  emit('close-form');
+  emit('submit-form');
 }
 //  审批通过
 async function passTask() {
@@ -95,11 +97,11 @@ async function passTask() {
     } as any;
     // 任务审批
     await approveTask(data);
-    //  修改单据数据
+    // 修改单据数据
     await businessProgressAcceptancePlanOverOperation(containerFormData.value.containerFormDataArray)
     message.success('审批通过成功');
     setTimeout(() => {
-      closeTask('');
+      submitFormCallBack();
     }, 500);
   }catch (e){
     const res = JSON.stringify(e);
@@ -139,7 +141,7 @@ function noPassTask() {
       await acceptancePlanOverRejectProgress({ id: props.businessKey });
       message.success('拒绝成功,流程已结束！');
       setTimeout(() => {
-        closeTask('');
+        submitFormCallBack();
       }, 500);
     }catch (e) {
       message.error('拒绝失败' + JSON.stringify(e));
@@ -182,7 +184,7 @@ async function doReturnTask() {
     buttonLoading.value = false;
     returnVisible.value = false;
     setTimeout(() => {
-      closeTask('');
+      submitFormCallBack();
     }, 500);
   } catch (e) {
     message.error(`退回失败 + ${JSON.stringify(e)}`);
@@ -210,7 +212,7 @@ async function doTransferTask(){
     buttonLoading.value = false;
     transferVisible.value = false;
     setTimeout(() => {
-      closeTask('');
+      submitFormCallBack();
     }, 500);
   }catch (e) {
     message.error('转办失败' + JSON.stringify(e));
@@ -383,7 +385,7 @@ onMounted(async () => {
     </div>
     <Flex justify="end">
       <Space>
-        <Button @click="cancelTask">取消</Button>
+        <Button @click="closeTask">取消</Button>
         <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
         <!--退回-->
         <a-popover v-model:open="returnVisible" title="退回" trigger="manual">

@@ -45,6 +45,7 @@ const props = defineProps<{
   activityId?: string; // 流程活动编号，用于抄送查看
   id: string; // 流程实例的编号
   taskId?: string; // 任务编号
+  formPagePath?: string; // 来自哪个页面的路地址
 }>();
 const flowStatus = ref(null); // 流程状态
 const todoTask = ref(null);
@@ -326,6 +327,7 @@ onMounted(async () => {
                       :business-key="processInstance?.businessKey"
                       :todo-task="todoTask"
                       :status="flowStatus"
+                      :form-page-path="formPagePath"
                       :activity-nodes="activityNodes"
                       :process-instance="processInstance"
                     />
