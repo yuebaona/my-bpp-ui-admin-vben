@@ -115,8 +115,36 @@ const contData = reactive<
 const contDataList = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
+const originalData = ref<{
+  containers: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+  form: FlowOverLimitWorkApi.AcceptancePlanFormVO | null;
+}>({
+  // 实现FlowOverLimitWorkApi.AcceptancePlanFormVO
+  form: {
+    id: '',
+    acptPlnNo: '',
+    acptPlnWebNo: '',
+    applicantCompanyName: '',
+    handlingPerson: '',
+    handlingPhoneNumber: '',
+    paymentTypeSea: '',
+    payerCodeSea: '',
+    paymentTypeGate: '',
+    payerCodeGate: '',
+    category: '',
+    vslName: '',
+    vslVoy: '',
+    plannedOperationTime: '',
+    billNo: '',
+    cargoName: '',
+    attachmentFile: '',
+    handlerRemark: '',
+    handlerConfirmation: '',
+  },
+  containers: [],
+});
 const fieldsChang = ref([]);
-const fieldsChanges = ref<string[]>([]);
+const fieldsChanges = ref([]);
 const selectKey = ref(0);
 
 // 主表单数据
@@ -213,7 +241,6 @@ const [Form, formApi] = useVbenForm({
   handleValuesChange: async (values: any, fieldsChanged: any) => {
     Object.assign(formData, values);
     fieldsChang.value = fieldsChanged;
-    handleFieldsChange(fieldsChanged);
   },
 });
 
@@ -352,6 +379,15 @@ const loadFormData = async () => {
       Object.assign(formData, data.acceptancePlanRespVO);
       await formApi.setValues(data.acceptancePlanRespVO);
 
+      originalData.value = {
+        form: data.acceptancePlanRespVO,
+        containers: data.acceptancePlanOverOperationContainerRespVOS,
+      };
+      originalData.value.form.billNo = data?.acceptancePlanBillMessageRespVO?.billNo;
+      originalData.value.form.cargoName =
+        data?.acceptancePlanBillMessageRespVO?.cargoName;
+      originalData.value.containers = data.acceptancePlanOverOperationContainerRespVOS;
+
       // 设置提单号和货名
       if (data.acceptancePlanBillMessageRespVO) {
         await formApi.setFieldValue(
@@ -485,11 +521,6 @@ const isoTypeSearch = async () => {
   }
 };
 
-const handleFieldsChange = (fieldsChanged: any) => {
-  // 这里可以处理字段变化逻辑，如果需要的话
-  fieldsChanges.value = fieldsChanged;
-};
-
 // 表单验证方法
 const validate = async (): Promise<boolean> => {
   // 验证箱信息表格是否有数据
@@ -528,7 +559,6 @@ const getSaveData = () => {
   const contDataArray = [...gridApi.grid.getInsertRecords()].map((record) =>
     toRaw(record),
   );
-
   return {
     acceptancePlanSaveReqVO: {
       ...formData,
@@ -765,6 +795,41 @@ watch(
       loadProfile(); // 重新加载用户信息用于新建
     }
   },
+);
+watch(
+  () => ({ ...formData }), // 创建新对象触发深度监听
+  (newVal) => {
+    if (originalData.value.form && formData.id) {
+      if (
+        originalData.value.form[fieldsChang.value[0]] ===
+        newVal[fieldsChang.value[0]]
+      ) {
+        fieldsChanges.value = fieldsChanges.value.filter(
+          (item) => item !== fieldsChang.value[0],
+        );
+      } else {
+        if (fieldsChang.value[0] === 'contInfo') {
+          const newArr = [];
+          [...gridApi.grid.getInsertRecords()].map((record) => {
+            const rawRecord = toRaw(record) as any;
+            const { serialNumber, ...recordWithoutSerial } = rawRecord;
+            return newArr.push(recordWithoutSerial);
+          });
+          if (
+            JSON.stringify(newArr) !==
+            JSON.stringify(originalData.value.containers)
+          ) {
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        } else {
+          if (!fieldsChanges.value.includes(fieldsChang.value[0])) {
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }
+      }
+    }
+  },
+  { deep: true, immediate: false },
 );
 </script>
 
