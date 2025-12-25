@@ -959,7 +959,7 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'availableQuantity',
+      field: 'mainGateReleaseQuantity',
       title: '可放总箱量',
       minWidth: 100,
     },

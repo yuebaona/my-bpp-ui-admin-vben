@@ -109,7 +109,7 @@ export namespace EmptyContainerControlApi {
     data: string[];
   }
 
- // 卸船船期响应
+  // 卸船船期响应
   export interface VesselAndVoyageResponse {
     code: number;
     msg: string;
@@ -233,34 +233,6 @@ export const getLogQueryPage = (params: LogQueryParams) => {
   );
 };
 
-// 查询持箱人
-export const getOwnerList = (params: {
-  ownerCode: string;
-  pageNo: number;
-  pageSize: number;
-}) => {
-  return requestClient.get<EmptyContainerControlApi.ownerCodeList>(
-    '/bpp/flow/common/get-container-owner-list',
-    {
-      params,
-    },
-  );
-};
-
-// 查询ISO
-export const getIsoList = (params: {
-  containerIso: string;
-  pageNo: number;
-  pageSize: number;
-}) => {
-  return requestClient.get<EmptyContainerControlApi.containerIsoList>(
-    '/bpp/flow/common/get-container-iso-list',
-    {
-      params,
-    },
-  );
-};
-
 // 查询卸船船期
 export const getVesselAndVoyage = (params: { condition: string }) => {
   return requestClient.get<EmptyContainerControlApi.VesselAndVoyageResponse>(
@@ -306,5 +278,13 @@ export const getSubPlanOwnerList = (mainId: string) => {
 export const getSubPlanIsoList = (mainId: string) => {
   return requestClient.get<Array<EmptyContainerControlApi.isoVO>>(
     `/bpp/flow/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
+  );
+};
+
+// 获取模拟选箱数据
+export const getSimulationSelectContainer = (data: any) => {
+  return requestClient.post(
+    '/bpp/flow/empty/container-control-main/simulate/container',
+    data,
   );
 };

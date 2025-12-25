@@ -237,9 +237,21 @@ function handleCreateMainPlan() {
 }
 
 /** 闸口模拟选箱 */
-function handleChooseContainer() {
-  chooseContainerModalApi.setData(null).open();
+async function handleChooseContainer() {
+  try {
+    const formValues = await gridApi2.formApi.getValues();
+    const searchParams = {
+      ...formValues,
+      ownerCodeList: ownerCodeList.value,
+      containerIsoList: containerIsoList.value,
+      dischargeVesselSchedule: dischargeVesselSchedule.value,
+    };
+    chooseContainerModalApi.setData(searchParams).open();
+  } catch (error) {
+    console.error('获取表单值失败:', error);
+  }
 }
+
 /** 新建子计划 */
 function handleCreateSubPlan() {
   if (checkedIds.value.length === 0) {
