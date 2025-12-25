@@ -275,6 +275,19 @@ const [Modal, modalApi] = useVbenModal({
     //   return;
     // }
 
+    //根据是否放箱状态决定计划箱量的验证规则
+    if (formData.isRelease) {
+      if (!formData.planQuantity) {
+        message.warning('若“是否放箱”选择“是”，计划箱量为必填项',3);
+        return;
+      }
+      const quantity = Number(formData.planQuantity);
+      if (isNaN(quantity) || quantity <= 0) {
+        message.warning('计划箱量必须大于0');
+        return;
+      }
+    }
+
     const { valid } = await formApi.validate();
     const gridValid: boolean = await gridApi.grid.validate(true);
 
@@ -355,8 +368,9 @@ const [Modal, modalApi] = useVbenModal({
       if (data.mainId) {
         formData.mainId = data.mainId;
       }
-      if (data.planType === 'SUB' && data.mainPlanIsRelease) {
-        formData.isRelease = data.mainPlanIsRelease !== true;
+      if (data.planType === 'SUB') {
+        formData.isRelease = ''
+        formData.isRelease = !data.mainPlanIsRelease;
       }
       if (data.planType === 'SUB' && data.mainPlanTradeType) {
         formData.tradeType = data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN' ;
