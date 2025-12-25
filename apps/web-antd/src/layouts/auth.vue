@@ -9,17 +9,17 @@ import { $t } from '#/locales';
 const appName = computed(() => preferences.app.name);
 const logo = computed(() => preferences.logo.source);
 const logoDark = computed(() => preferences.logo.sourceDark);
-const companyLogo = '/companyLogo.png';
+const sloganImage = '/logo.png';
 </script>
 
 <template>
   <AuthPageLayout
     :app-name="appName"
-    :logo="companyLogo"
+    :logo="logo"
     :logo-dark="logoDark"
     :page-description="$t('authentication.companyDesc')"
     :page-title="$t('authentication.companyName')"
-    slogan-image="/logo.png"
+    :slogan-image="sloganImage"
   >
     <!-- 自定义工具栏 -->
     <!-- <template #toolbar></template> -->
