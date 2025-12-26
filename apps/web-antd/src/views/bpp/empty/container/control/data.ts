@@ -756,6 +756,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
+      slots: { default: 'bayRanges', actions: 'bayRanges' },
     },
     {
       field: 'planQuantity',
