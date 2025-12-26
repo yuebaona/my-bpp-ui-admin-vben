@@ -742,6 +742,9 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         search: true,
         export: true,
       },
+      exportConfig: {
+        filename: '变更吊具记录',
+      },
       pagerConfig: {
         pageSize: 100,
         enabled: true,
