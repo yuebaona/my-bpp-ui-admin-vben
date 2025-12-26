@@ -87,7 +87,7 @@ export namespace EmptyContainerControlApi {
 
   export interface isoVO {
     id?: number;
-    ContIso?: string;
+    contIso?: string;
     isSpecial?: string;
     containerType?: string;
     containerTypeName?: string;

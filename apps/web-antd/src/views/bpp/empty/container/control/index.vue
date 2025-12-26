@@ -23,27 +23,35 @@ import {
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
+import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 import Form2 from '#/views/bpp/empty/container/control/modules/mainForm.vue';
 import Form from '#/views/bpp/empty/container/control/modules/subForm.vue';
+import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
+import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
-const checkedIds = ref<number[]>([]);
+const checkedMainIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
 const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
+const mainIdList = ref<string[]>([]);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
-const mainIdList = ref<string[]>([]);
+const loading = ref(false);
+const containerAreaClickRow = ref<EmptyContainerControlApi.mainPlanVO | null>(
+  null,
+);
+const popoverVisible = ref({});
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
 });
 
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: Form,
+const [SubFormModal, subFormModalApi] = useVbenModal({
+  connectedComponent: SubForm,
   destroyOnClose: true,
   closeOnClickModal: false,
 });
@@ -121,10 +129,10 @@ function handleSubRowCheckboxChange({
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   // 检查是否已勾选主计划
-  if (checkedIds.value.length > 0) {
+  if (checkedMainIds.value.length > 0) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
-    gridApi2.grid.setAllCheckboxRow(false);
+    mainGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
     return false;
   }
@@ -144,10 +152,10 @@ function handleRowCheckboxChange({
     subGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
   }
-  checkedIds.value = records.map((item) => item.id);
-  mainIdList.value = [...checkedIds.value];
+  checkedMainIds.value = records.map((item) => item.id);
+  mainIdList.value = [...checkedMainIds.value];
   planNo.value = records.map((item) => item.planNo);
-  if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
+  if (checkedMainIds.value.length > 0 && hasSelectedMainPlan.value) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
     subGridApi.grid.setAllCheckboxRow(false);
@@ -163,13 +171,13 @@ function handleRowCheckboxChange({
     subGridApi.query();
   }
 }
-const [FormModal2, formModalApi2] = useVbenModal({
-  connectedComponent: Form2,
+const [MainFormModal, mainFormModalApi] = useVbenModal({
+  connectedComponent: MainForm,
   destroyOnClose: true,
   closeOnClickModal: false,
 });
 
-const [Grid2, gridApi2] = useVbenVxeGrid({
+const [MainGrid, mainGridApi] = useVbenVxeGrid({
   formOptions: {
     schema: PlanSearchFormSchema(),
     submitButtonOptions: {
@@ -227,13 +235,13 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi2.query();
+  mainGridApi.query();
   subGridApi.query();
 }
 
 /** 创建主计划新申请 */
 function handleCreateMainPlan() {
-  formModalApi2.setData(null).open();
+  mainFormModalApi.setData(null).open();
 }
 
 /** 闸口模拟选箱 */
@@ -254,17 +262,17 @@ async function handleChooseContainer() {
 
 /** 新建子计划 */
 function handleCreateSubPlan() {
-  if (checkedIds.value.length === 0) {
+  if (checkedMainIds.value.length === 0) {
     message.warning('请勾选一个主计划');
     return;
-  } else if (checkedIds.value.length > 1) {
+  } else if (checkedMainIds.value.length > 1) {
     message.warning('已勾选多个主计划，请只勾选一个主计划');
     return;
   }
-  const selectedMainPlans = gridApi2.grid.getCheckboxRecords();
+  const selectedMainPlans = mainGridApi.grid.getCheckboxRecords();
   if (selectedMainPlans.length > 0) {
     const mainPlan = selectedMainPlans[0];
-    formModalApi
+    subFormModalApi
       .setData({
         mainId: mainPlan.id,
         planType: 'SUB',
@@ -288,12 +296,13 @@ const handleForceComplete = async () => {
     const res = await forceComplete({ mainIdList: mainIdList.value });
     if (res) {
       message.success('成功强制完成！');
+      await mainGridApi.query();
       mainIdList.value = [];
-      checkedIds.value = [];
+      checkedMainIds.value = [];
 
-      if (gridApi2?.grid) {
+      if (mainGridApi?.grid) {
         // 取消所有行勾选
-        gridApi2.grid.setAllCheckboxRow(false);
+        await mainGridApi.grid.setAllCheckboxRow(false);
       }
     } else {
       const errorMsg = res?.msg || '强制完成失败，请重试';
@@ -308,13 +317,13 @@ const handleForceComplete = async () => {
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
   const res = await getMainPlan(row.id);
-  formModalApi2.setData(res).open();
+  mainFormModalApi.setData(res).open();
 };
 
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  subFormModalApi.setData(res).open();
 };
 
 /** 删除主计划 */
@@ -468,12 +477,20 @@ const fetchContIsoList = async (searchText: string) => {
     contIsoList.fetching = false;
   }
 };
+
+// 控制箱区范围浮窗显隐藏
+const openContainerAreaWindow = (
+  row: EmptyContainerControlApi.containerAreaDisplayVO,
+) => {
+  containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
+  popoverVisible.value[row.id] = true;
+};
 </script>
 
 <template>
   <Page auto-content-height>
-    <FormModal class="w-3/5" @success="handleRefresh" />
-    <FormModal2 class="w-3/5" @success="handleRefresh" />
+    <SubFormModal class="w-3/5" @success="handleRefresh" />
+    <MainFormModal class="w-3/5" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
@@ -481,7 +498,7 @@ const fetchContIsoList = async (searchText: string) => {
     <ChooseContainerModal class="w-3/5" @success="handleRefresh" />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
-      <Grid2 table-title="主计划">
+      <MainGrid table-title="主计划">
         <template #form-ownerCodeList>
           <Select
             :options="ownerCodeList.data"
@@ -528,6 +545,38 @@ const fetchContIsoList = async (searchText: string) => {
             allow-clear
             @search="fetchdischargeVslSchedule"
           />
+        </template>
+        <template #bayRanges="{ row }">
+          <a-popover
+            v-model:open="popoverVisible[row.id]"
+            trigger="click"
+            :key="row.id"
+          >
+            <template #content>
+              <ContainerAreaDisplay
+                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
+                :container-iso-list="
+                  containerAreaClickRow?.contIsoList || []
+                "
+                :bay-range-list="containerAreaClickRow?.bayRangeList || []"
+                :bay-ranges="containerAreaClickRow?.bayRanges || ''"
+                @click="
+                  () => {
+                    popoverVisible[row.id] = false;
+                    containerAreaClickRow.value = null;
+                  }
+                "
+              >
+                Close
+              </ContainerAreaDisplay>
+            </template>
+            <a-text
+              @click="openContainerAreaWindow(row)"
+              style="color: #1890ff; cursor: pointer"
+            >
+              {{ row.bayRanges }}
+            </a-text>
+          </a-popover>
         </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
@@ -588,7 +637,7 @@ const fetchContIsoList = async (searchText: string) => {
             ]"
           />
         </template>
-      </Grid2>
+      </MainGrid>
     </div>
     <!-- 子计划列表 -->
     <div class="h-2/5 w-full">

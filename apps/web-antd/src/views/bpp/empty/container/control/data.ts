@@ -1,7 +1,6 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
-
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -42,7 +41,7 @@ function getPlanStatusOptions(type: string) {
   }));
 }
 
-/** 箱区范围字段 */
+/** 箱区范围选择字段 */
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -94,6 +93,52 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       slots: { default: 'actions' },
       fixed: 'right',
+    },
+  ];
+}
+
+/** 箱区范围浮窗展示字段 */
+export function containerAreaDisplayColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '堆场贝位',
+      field: 'yardBay',
+      minWidth: 80,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '堆场列',
+      field: 'yardRaw',
+      minWidth: 60,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '总数（当前可用量）',
+      field: 'totalCount',
+      minWidth: 100,
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+    {
+      title: '最低准存天数',
+      field: 'minDays',
+      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+    {
+      title: '最高准存天数',
+      field: 'maxDays',
+      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      editRender: { name: 'input', attrs: { type: 'number' } },
     },
   ];
 }
@@ -431,7 +476,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '格式：箱区-排，例如：B1-02',
+        placeholder: '例如：B01-02',
         allowClear: true,
         onInput: (e: Event) => {
           setTimeout(() => {
@@ -463,6 +508,8 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
       },
     },
     {
@@ -533,6 +580,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'empty_container_control_main_status',
+        // options: getPlanStatusOptions('empty_container_control_main_status'),
       },
     },
     {
@@ -560,6 +608,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'trade_type',
+        //options: getPlanStatusOptions('trade_type'),
       },
     },
     {
@@ -571,7 +620,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
-      showOverflow: false,
+      slots: { default: 'bayRanges', actions: 'bayRanges' },
     },
     {
       field: 'planQuantity',
@@ -662,6 +711,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'empty_container_control_sub_status',
+        //options: getPlanStatusOptions('empty_container_control_sub_status'),
       },
     },
     {
@@ -689,6 +739,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'trade_type',
+        // options: getPlanStatusOptions('trade_type'),
       },
     },
     {
@@ -705,7 +756,6 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
-      showOverflow: false,
     },
     {
       field: 'planQuantity',
@@ -898,6 +948,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'trade_type',
+        // options: getPlanStatusOptions('trade_type'),
       },
     },
     {
@@ -933,6 +984,9 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'empty_container_control_main_operation_type',
+        // options: getPlanStatusOptions(
+        //           'empty_container_control_main_operation_type',
+        //         ),
       },
     },
   ];
