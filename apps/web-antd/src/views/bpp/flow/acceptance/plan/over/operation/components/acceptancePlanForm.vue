@@ -507,15 +507,15 @@ const isoTypeSearch = async () => {
 
     if (lengthRes) {
       isoLengthState.data = lengthRes.map((item: any) => ({
-        label: item.containerLength,
-        value: item.containerLength,
+        label: item.contLength,
+        value: item.contLength,
       }));
     }
 
     if (typeRes) {
       isoTypeState.data = typeRes.map((item: any) => ({
-        label: item.containerType,
-        value: item.containerType,
+        label: item.contType,
+        value: item.contType,
       }));
     }
   } finally {
