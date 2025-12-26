@@ -673,6 +673,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       // 调用gridApi.query()刷新表格数据，实现实时筛选
       // await gridApi.query();
     }, 300),
+    checkboxRangeSelect: ({ rangeRecords }) => {
+      handleRowCheckboxChange({ records: rangeRecords });
+    },
   },
 });
 
@@ -1290,20 +1293,26 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                 {
                   label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
-                   auth: ['bpp:flow-acceptance-plan-over-operation-container:confirm'],
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:confirm',
+                  ],
                   onClick: handleOnSiteOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
-                   auth: ['bpp:flow-acceptance-plan-over-operation-container:no-operation'],
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:no-operation',
+                  ],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
-                   auth: ['bpp:flow-acceptance-plan-over-operation-container:complete'],
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:complete',
+                  ],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
