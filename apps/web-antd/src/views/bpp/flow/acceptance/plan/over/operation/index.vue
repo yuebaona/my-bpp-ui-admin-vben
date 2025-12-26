@@ -613,6 +613,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitOnEnter: true,
   },
   gridOptions: {
+    resizableConfig: {
+      isDblclickAutoWidth: true, // 启用双击自适应列宽
+    },
+    checkboxConfig: {
+      highlight: true,
+      range: true,
+      isShiftKey: true,
+    },
     floatingFilterConfig: {
       enabled: true,
     },
