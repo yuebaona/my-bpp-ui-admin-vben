@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { useVbenVxeGrid, type VxeTableGridOptions } from '#/adapter/vxe-table';
-import {
-  containerAreaDisplayColumns,
-} from "#/views/bpp/empty/container/control/data";
-import {
-  type EmptyContainerControlApi
-} from "#/api/bpp/empty/container/control";
-import { watch } from "vue";
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
+
+import { watch } from 'vue';
+
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { containerAreaDisplayColumns } from '#/views/bpp/empty/container/control/data';
 
 interface Props {
   tableBaseData?: EmptyContainerControlApi.containerAreaDisplayVO[];
   ownerCodeList?: [];
-  containerIsoList?: [];
+  contIsoList?: [];
   bayRangeList?: [];
   bayRanges?: string;
 }
@@ -19,7 +18,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   tableBaseData: () => [],
   ownerCodeList: () => [],
-  containerIsoList: () => [],
+  contIsoList: () => [],
   bayRangeList: () => [],
   bayRanges: '',
 });
@@ -45,24 +44,20 @@ const [Grid, gridApi] = useVbenVxeGrid({
       pageSize: 100,
       enabled: true,
     },
-    data: props.bayRangeList?.map(item => ({
-      yardBay: item.yardBay,
-      yardRaw: item.yardRaw,
-      totalCount: item.totalCount,
-      minDays: item.minDays,
-      maxDays: item.maxDays,
-    })) || []
+    data:
+      props.bayRangeList?.map((item) => ({
+        yardBay: item.yardBay,
+        yardRaw: item.yardRaw,
+        totalCount: item.totalCount,
+        minDays: item.minDays,
+        maxDays: item.maxDays,
+      })) || [],
   } as VxeTableGridOptions<EmptyContainerControlApi.containerAreaDisplayVO>,
 });
 
-watch(
-  () => props,
-  { deep: true ,immediate: true }
-);
-
+watch(() => props, { deep: true, immediate: true });
 </script>
 
 <template>
-  <Grid style="height: 300px; width: 600px">
-  </Grid>
+  <Grid style="height: 300px; width: 600px" />
 </template>

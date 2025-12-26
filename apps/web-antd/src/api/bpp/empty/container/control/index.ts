@@ -6,7 +6,7 @@ export namespace EmptyContainerControlApi {
   export interface mainPlanVO {
     id: null | number;
     ownerCodeList: Array<string>;
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
@@ -27,7 +27,7 @@ export namespace EmptyContainerControlApi {
   export interface subPlanVO {
     id: number;
     ownerCodeList: Array<string>;
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
@@ -65,7 +65,7 @@ export namespace EmptyContainerControlApi {
   }
 
   export interface yardRangeVO {
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     ownerCodeList: Array<string>;
     tradeType: string;
   }
@@ -96,7 +96,7 @@ export namespace EmptyContainerControlApi {
   }
 
   // 箱列表列表
-  export interface containerIsoList {
+  export interface contIsoList {
     code: number;
     msg: string;
     data: string[];
@@ -119,7 +119,7 @@ export namespace EmptyContainerControlApi {
   // 箱区范围展示信息
   export interface containerAreaDisplayVO {
     ownerCodeList: Array<string>;
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     bayRangeList: Array<{
       eccId: number | string;
       id: number | string;
@@ -235,7 +235,7 @@ export const getIsoList = (params: {
   pageNo: number;
   pageSize: number;
 }) => {
-  return requestClient.get<EmptyContainerControlApi.containerIsoList>(
+  return requestClient.get<EmptyContainerControlApi.contIsoList>(
     '/bpp/flow/common/get-container-iso-list',
     {
       params,

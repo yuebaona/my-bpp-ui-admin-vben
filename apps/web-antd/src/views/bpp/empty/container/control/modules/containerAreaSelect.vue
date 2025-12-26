@@ -12,7 +12,7 @@ import { getYardRange } from '#/api/bpp/empty/container/control';
 interface Props {
   visible: boolean;
   ownerCodeList?: [];
-  containerIsoList?: [];
+  contIsoList?: [];
   tradeType?: string;
   selectedPositions?: string[];
 }
@@ -24,7 +24,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   ownerCodeList: () => [],
-  containerIsoList: () => [],
+  contIsoList: () => [],
   tradeType: '',
   selectedPositions: () => [],
 });
@@ -53,15 +53,11 @@ watch(
       selectedYardPositions.value = [...newValue];
     }
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 watch(
-  [
-    () => props.ownerCodeList,
-    () => props.containerIsoList,
-    () => props.tradeType,
-  ],
+  [() => props.ownerCodeList, () => props.contIsoList, () => props.tradeType],
   () => {
     if (props.visible) {
       fetchYardRange();
@@ -76,7 +72,7 @@ const fetchYardRange = async () => {
   try {
     const params: EmptyContainerControlApi.yardRangeVO = {
       ownerCodeList: props.ownerCodeList || [],
-      containerIsoList: props.containerIsoList || [],
+      contIsoList: props.contIsoList || [],
       tradeType: props.tradeType || '',
     };
     const response = await getYardRange(params);

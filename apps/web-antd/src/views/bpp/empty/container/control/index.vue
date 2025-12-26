@@ -270,13 +270,13 @@ const transformFormToRequest = (
     delete params.ownerCodeList;
   }
 
-  if (params.containerIsoList) {
-    params.containerIsoList = params.containerIsoList
+  if (params.contIsoList) {
+    params.contIsoList = params.contIsoList
       .split(',')
       .map((item: string) => item.trim())
       .filter(Boolean);
   } else {
-    delete params.containerIsoList;
+    delete params.contIsoList;
   }
 
   if (params.createTime) {
@@ -456,7 +456,7 @@ const ownerCodeList = reactive({
   fetching: false,
 });
 
-const containerIsoList = reactive({
+const contIsoList = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -489,23 +489,23 @@ const fetchOwnerCodeList = async (searchText) => {
 };
 
 // 获取ISO列表
-const fetchContainerIsoList = async (searchText) => {
+const fetchcontIsoList = async (searchText) => {
   try {
-    containerIsoList.fetching = true;
+    contIsoList.fetching = true;
     const result = await getIsoList({
       contIso: searchText,
       pageNo: 1,
       pageSize: 100,
       queryType: 'VESSEL',
     });
-    containerIsoList.data = result.map((item) => ({
+    contIsoList.data = result.map((item) => ({
       label: item.contIso,
       value: item.contIso,
     }));
   } catch {
-    containerIsoList.data = [];
+    contIsoList.data = [];
   } finally {
-    containerIsoList.fetching = false;
+    contIsoList.fetching = false;
   }
 };
 
@@ -560,17 +560,17 @@ const openContainerAreaWindow = (
             @search="fetchOwnerCodeList"
           />
         </template>
-        <template #form-containerIsoList>
+        <template #form-contIsoList>
           <Select
-            :options="containerIsoList.data"
+            :options="contIsoList.data"
             mode="multiple"
-            v-model:value="containerIsoList.value"
+            v-model:value="contIsoList.value"
             style="width: 100%"
             placeholder="请输入ISO"
             :show-search="true"
             :filter-option="true"
             :list-height="100"
-            @search="fetchContainerIsoList"
+            @search="fetchcontIsoList"
           />
         </template>
         <template #form-vesselUnloadDate>
@@ -596,7 +596,7 @@ const openContainerAreaWindow = (
               <ContainerAreaDisplay
                 :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
                 :container-iso-list="
-                  containerAreaClickRow?.containerIsoList || []
+                  containerAreaClickRow?.contIsoList || []
                 "
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"

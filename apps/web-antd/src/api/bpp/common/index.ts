@@ -65,8 +65,8 @@ export const getVVd = ({
   );
 };
 // 获取集装箱ISO信息
-export const getContainerIsoList = (params: {
-  containerIso: string;
+export const getContIsoList = (params: {
+  contIso: string;
   pageNo: number;
   pageSize: number;
   queryType: string;
@@ -77,7 +77,7 @@ export const getContainerIsoList = (params: {
   );
 };
 // 获取集装箱持箱人信息
-export const getContainerOwnerList = (params: {
+export const getContOwnerList = (params: {
   ownerCode: string;
   pageNo: number;
   pageSize: number;

@@ -58,7 +58,7 @@ const containerAreaData = reactive<any[]>([
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
   ownerCodeList: [],
-  containerIsoList: [],
+  contIsoList: [],
   isRelease: false,
   pickupPlanNo: '',
   tradeType: '',
@@ -167,7 +167,7 @@ const [Modal, modalApi] = useVbenModal({
       Object.assign(formData, {
         id: '',
         ownerCodeList: [],
-        containerIsoList: [],
+        contIsoList: [],
         isRelease: false,
         pickupPlanNo: '',
         tradeType: '',

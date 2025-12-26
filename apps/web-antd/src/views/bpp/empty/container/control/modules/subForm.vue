@@ -30,7 +30,7 @@ const containerAreaModalVisible = ref(false);
 
 const containerAreaParams = reactive({
   ownerCodeList: [],
-  containerIsoList: [],
+  contIsoList: [],
   tradeType: '',
   selectedPositions: [],
 });
@@ -52,7 +52,7 @@ const ownerState = reactive({
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
   ownerCodeList: [],
-  containerIsoList: [],
+  contIsoList: [],
   isRelease: null,
   pickupPlanNo: '',
   dischargeVslSchedule: '',
@@ -80,11 +80,11 @@ const selectContainerArea = async () => {
   containerAreaParams.ownerCodeList = Array.isArray(formValues.ownerCodeList)
     ? formValues.ownerCodeList
     : [formValues.ownerCodeList];
-  containerAreaParams.containerIsoList = Array.isArray(
-    formValues.containerIsoList,
+  containerAreaParams.contIsoList = Array.isArray(
+    formValues.contIsoList,
   )
-    ? formValues.containerIsoList
-    : [formValues.containerIsoList];
+    ? formValues.contIsoList
+    : [formValues.contIsoList];
   containerAreaParams.tradeType = formValues.tradeType || '';
   containerAreaParams.selectedPositions = selectedPositions;
   containerAreaModalVisible.value = true;
@@ -313,8 +313,8 @@ const [Modal, modalApi] = useVbenModal({
     if (!Array.isArray(formData.ownerCodeList)) {
       formData.ownerCodeList = [formData.ownerCodeList];
     }
-    if (!Array.isArray(formData.containerIsoList)) {
-      formData.containerIsoList = [formData.containerIsoList];
+    if (!Array.isArray(formData.contIsoList)) {
+      formData.contIsoList = [formData.contIsoList];
     }
 
     const $grid = gridApi.grid;
@@ -340,7 +340,7 @@ const [Modal, modalApi] = useVbenModal({
       Object.assign(formData, {
         id: '',
         ownerCodeList: [],
-        containerIsoList: [],
+        contIsoList: [],
         isRelease: false,
         pickupPlanNo: '',
         tradeType: '',
@@ -396,8 +396,8 @@ const [Modal, modalApi] = useVbenModal({
           }
 
           // 设置ISO选择值
-          if (subPlanData.containerIsoList) {
-            isoState.value = subPlanData.containerIsoList;
+          if (subPlanData.contIsoList) {
+            isoState.value = subPlanData.contIsoList;
           }
           const $grid = gridApi.grid;
           if ($grid) {
@@ -483,7 +483,7 @@ const getStorageConditionSearch = async (row: any) => {
         },
       ],
       baseInfo: {
-        containerIsoList: transformStringToArray(formData.containerIsoList),
+        contIsoList: transformStringToArray(formData.contIsoList),
         ownerCodeList: transformStringToArray(formData.ownerCodeList),
         tradeType: formData.tradeType,
         dischargeVslSchedule: formData.dischargeVslSchedule,
@@ -514,7 +514,7 @@ const modalTitle = computed(() => {
 <template>
   <Modal :title="modalTitle">
     <Form>
-      <template #containerIsoList>
+      <template #contIsoList>
         <Select
           v-model:value="isoState.value"
           mode="multiple"
@@ -525,7 +525,7 @@ const modalTitle = computed(() => {
           :options="isoState.data"
           @search="isoSearch"
           allow-clear
-          @change="(value) => formApi.setFieldValue('containerIsoList', value)"
+          @change="(value) => formApi.setFieldValue('contIsoList', value)"
         />
       </template>
       <template #ownerCodeList>
@@ -598,7 +598,7 @@ const modalTitle = computed(() => {
     <ContainerArea
       v-model:visible="containerAreaModalVisible"
       :owner-code-list="containerAreaParams.ownerCodeList"
-      :container-iso-list="containerAreaParams.containerIsoList"
+      :cont-iso-list="containerAreaParams.contIsoList"
       :trade-type="containerAreaParams.tradeType"
       :selected-positions="containerAreaParams.selectedPositions"
       @confirm="handleContainerAreaConfirm"

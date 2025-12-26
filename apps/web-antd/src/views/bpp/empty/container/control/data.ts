@@ -1,9 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
+
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -198,7 +200,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Select',
       renderComponentContent: () => {
@@ -298,7 +300,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       disabled: true,
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Select',
       renderComponentContent: () => {
@@ -394,7 +396,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -490,14 +492,14 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       slot: 'form-ownerCodeList',
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Select',
       componentProps: {
         placeholder: '请选择ISO号',
         allowClear: true,
       },
-      slot: 'form-containerIsoList',
+      slot: 'form-contIsoList',
     },
     {
       fieldName: 'vesselUnloadDate',
@@ -573,7 +575,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerIsoList',
+      field: 'contIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -581,7 +583,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'bayRanges',
       title: '箱区范围',
       minWidth: 200,
-      slots: { default: 'bayRanges',actions:'bayRanges' },
+      slots: { default: 'bayRanges', actions: 'bayRanges' },
     },
     {
       field: 'planQuantity',
@@ -711,7 +713,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'containerIsoList',
+      field: 'contIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -800,7 +802,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
         return value === 'FOREIGN' ? '外贸' : '内贸';
       },
     },
-    { field: 'containerIsoList', label: 'ISO' },
+    { field: 'contIsoList', label: 'ISO' },
     { field: 'bayRanges', label: '箱区范围' },
     { field: 'planQuantity', label: '计划箱量' },
     { field: 'completedReleaseQuantity', label: '已放箱量' },
