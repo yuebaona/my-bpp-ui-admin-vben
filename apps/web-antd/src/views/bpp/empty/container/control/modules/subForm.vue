@@ -543,6 +543,7 @@ const getStorageConditionSearch = async (row: any) => {
       yardBayList: [
         {
           yardBay: row.yardPosition,
+          yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
         },
       ],
       baseInfo: {

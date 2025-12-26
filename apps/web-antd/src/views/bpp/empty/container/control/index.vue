@@ -25,8 +25,6 @@ import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
-import Form2 from '#/views/bpp/empty/container/control/modules/mainForm.vue';
-import Form from '#/views/bpp/empty/container/control/modules/subForm.vue';
 import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
 import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
 
@@ -247,7 +245,7 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
-    const formValues = await gridApi2.formApi.getValues();
+    const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,
       ownerCodeList: ownerCodeList.value,

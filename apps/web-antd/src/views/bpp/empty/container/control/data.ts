@@ -1,6 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
+
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -608,7 +609,6 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'trade_type',
-        //options: getPlanStatusOptions('trade_type'),
       },
     },
     {
@@ -711,7 +711,6 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'empty_container_control_sub_status',
-        //options: getPlanStatusOptions('empty_container_control_sub_status'),
       },
     },
     {
