@@ -1,4 +1,5 @@
 import type { PageParam, PageResult } from '@vben/request';
+
 import { requestClient } from '#/api/request';
 
 export namespace EmptyContainerControlApi {
@@ -6,14 +7,14 @@ export namespace EmptyContainerControlApi {
   export interface mainPlanVO {
     id: null | number;
     ownerCodeList: Array<string>;
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
     planQuantity: string;
     completedReleaseQuantity: string;
     bayRangeList: Array<{
-      emptyContainerControlId: number | string;
+      eccId: number | string;
       id: number | string;
       yardBay: string;
       yardRaw: string;
@@ -21,20 +22,20 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
-    dischargeVesselSchedule: string;
+    dischargeVslSchedule: string;
   }
   // 子计划VO
   export interface subPlanVO {
     id: number;
     ownerCodeList: Array<string>;
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     isRelease: boolean;
     pickupPlanNo: string;
     tradeType: string;
     planQuantity: string;
     completedReleaseQuantity: string;
     bayRangeList: Array<{
-      emptyContainerControlId: null | string;
+      eccId: null | string;
       id: null | number;
       yardBay: string;
       yardRaw: string;
@@ -42,7 +43,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
-    dischargeVesselSchedule: string;
+    dischargeVslSchedule: string;
   }
 
   export interface mainLogVO {
@@ -65,7 +66,7 @@ export namespace EmptyContainerControlApi {
   }
 
   export interface yardRangeVO {
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     ownerCodeList: Array<string>;
     tradeType: string;
   }
@@ -86,7 +87,7 @@ export namespace EmptyContainerControlApi {
 
   export interface isoVO {
     id?: number;
-    containerIso?: string;
+    ContIso?: string;
     isSpecial?: string;
     containerType?: string;
     containerTypeName?: string;
@@ -96,7 +97,7 @@ export namespace EmptyContainerControlApi {
   }
 
   // 箱列表列表
-  export interface containerIsoList {
+  export interface contIsoList {
     code: number;
     msg: string;
     data: string[];
@@ -116,12 +117,28 @@ export namespace EmptyContainerControlApi {
     data: string[];
   }
 
+  // 获取模拟选箱数据
+  export interface simulateContainerVO {
+    planNo?: string;
+    bisRelease?: boolean;
+    bayRanges?: string;
+    bayRangeList: Array<{
+      createTime: string;
+      maxDays: string;
+      minDays: string;
+      totalCount: string;
+      yardBay: string;
+      yardRaw: string;
+    }>;
+    releaseQuantity?: string;
+  }
+
   // 箱区范围展示信息
   export interface containerAreaDisplayVO {
     ownerCodeList: Array<string>;
-    containerIsoList: Array<string>;
+    contIsoList: Array<string>;
     bayRangeList: Array<{
-      emptyContainerControlId: number | string;
+      eccId: number | string;
       id: number | string;
       yardBay: string;
       yardRaw: string;
@@ -140,14 +157,14 @@ interface pageVO {
   pageNo?: number;
   pageSize?: number;
   planNo?: string;
-  dischargeVesselSchedule?: string;
+  dischargeVslSchedule?: string;
   bayRangeList?: Array<{
     yardBay?: string;
     yardRaw?: string;
   }>;
   tradeType?: string;
   ownerCodeList?: Array<string>;
-  containerIsoList?: Array<string>;
+  contIsoList?: Array<string>;
   createTime?: Array<string>;
   pickupPlanNo?: string;
   planType?: string;

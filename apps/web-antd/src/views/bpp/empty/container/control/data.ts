@@ -162,7 +162,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Select',
       // renderComponentContent: () => {
@@ -238,7 +238,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -270,7 +270,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       disabled: true,
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Select',
       // renderComponentContent: () => {
@@ -336,7 +336,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -366,7 +366,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -476,24 +476,24 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       slot: 'form-ownerCodeList',
     },
     {
-      fieldName: 'containerIsoList',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Select',
       componentProps: {
         placeholder: '请选择ISO号',
         allowClear: true,
       },
-      slot: 'form-containerIsoList',
+      slot: 'form-contIsoList',
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Select',
       componentProps: {
         placeholder: '请输入船名或航次号',
         allowClear: true,
       },
-      slot: 'form-dischargeVesselSchedule',
+      slot: 'form-dischargeVslSchedule',
     },
     {
       fieldName: 'pickupPlanNo',
@@ -563,7 +563,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'containerIsoList',
+      field: 'contIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -678,7 +678,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'dischargeVesselSchedule',
+      field: 'dischargeVslSchedule',
       title: '卸船船期',
       minWidth: 120,
     },
@@ -697,7 +697,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'containerIsoList',
+      field: 'contIsoList',
       title: 'ISO',
       minWidth: 120,
     },
@@ -787,7 +787,7 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
         return value === 'FOREIGN' ? '外贸' : '内贸';
       },
     },
-    { field: 'containerIsoList', label: 'ISO' },
+    { field: 'contIsoList', label: 'ISO' },
     { field: 'bayRanges', label: '箱区范围' },
     { field: 'planQuantity', label: '计划箱量' },
     { field: 'completedReleaseQuantity', label: '已放箱量' },
@@ -849,7 +849,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'createTime',
-      label: '创建时间',
+      label: '操作时间',
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
@@ -922,8 +922,9 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
     },
     {
       field: 'operationTimestamp',
-      title: '修改时间',
+      title: '操作时间',
       minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
       field: 'operationType',
@@ -950,7 +951,7 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       title: '是否放箱',
       minWidth: 100,
       formatter: (value) => {
-        return `${value ? '是' : '否'}`;
+        return `${value ? 'Y' : 'N'}`;
       },
     },
     {

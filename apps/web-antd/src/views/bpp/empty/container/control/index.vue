@@ -209,8 +209,8 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
             pageSize: page.pageSize,
             ...formValues,
             ownerCodeList: ownerCodeList.value,
-            containerIsoList: containerIsoList.value,
-            dischargeVesselSchedule: dischargeVesselSchedule.value,
+            contIsoList: contIsoList.value,
+            dischargeVslSchedule: dischargeVslSchedule.value,
           });
           return result;
         },
@@ -243,8 +243,8 @@ async function handleChooseContainer() {
     const searchParams = {
       ...formValues,
       ownerCodeList: ownerCodeList.value,
-      containerIsoList: containerIsoList.value,
-      dischargeVesselSchedule: dischargeVesselSchedule.value,
+      contIsoList: contIsoList.value,
+      dischargeVslSchedule: dischargeVslSchedule.value,
     };
     chooseContainerModalApi.setData(searchParams).open();
   } catch (error) {
@@ -369,7 +369,7 @@ const handleOwnerCompositionEnd = (e: CompositionEvent) => {
   fetchOwnerCodeList(target.value);
 };
 
-const containerIsoList = reactive({
+const contIsoList = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -379,43 +379,43 @@ const containerIsoList = reactive({
 // 处理ISO输入，将小写字母转换为大写
 const handleIsoInput = (e: Event) => {
   const target = e.target as HTMLInputElement;
-  if (containerIsoList.isComposing) return;
+  if (contIsoList.isComposing) return;
   target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  fetchContainerIsoList(target.value);
+  fetchContIsoList(target.value);
 };
 
 // 处理ISO中文输入法组合开始
 const handleIsoCompositionStart = () => {
-  containerIsoList.isComposing = true;
+  contIsoList.isComposing = true;
 };
 
 // 处理ISO中文输入法组合结束
 const handleIsoCompositionEnd = (e: CompositionEvent) => {
-  containerIsoList.isComposing = false;
+  contIsoList.isComposing = false;
   const target = e.target as HTMLInputElement;
   target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  fetchContainerIsoList(target.value);
+  fetchContIsoList(target.value);
 };
 
-const dischargeVesselSchedule = reactive({
+const dischargeVslSchedule = reactive({
   data: [],
   value: '',
   fetching: false,
 });
 
 // 获取卸船船期
-const fetchdischargeVesselSchedule = async (searchText) => {
+const fetchdischargeVslSchedule = async (searchText) => {
   try {
-    dischargeVesselSchedule.fetching = true;
+    dischargeVslSchedule.fetching = true;
     const result = await getVesselAndVoyage({ condition: searchText });
-    dischargeVesselSchedule.data = result.map((item) => ({
+    dischargeVslSchedule.data = result.map((item) => ({
       label: item,
       value: item,
     }));
   } catch {
-    dischargeVesselSchedule.data = [];
+    dischargeVslSchedule.data = [];
   } finally {
-    dischargeVesselSchedule.fetching = false;
+    dischargeVslSchedule.fetching = false;
   }
 };
 
@@ -444,28 +444,28 @@ const fetchOwnerCodeList = async (searchText: string) => {
 };
 
 // 获取ISO列表
-const fetchContainerIsoList = async (searchText: string) => {
-  containerIsoList.fetching = true;
+const fetchContIsoList = async (searchText: string) => {
+  contIsoList.fetching = true;
   try {
     const upperCaseValue = searchText.toUpperCase();
     const result = await getContainerIsoList({
-      containerIso: upperCaseValue,
+      contIso: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
       queryType: 'VESSEL',
     });
 
     if (result) {
-      containerIsoList.data = result.map((item) => ({
-        label: item.containerIso,
-        value: item.containerIso,
+      contIsoList.data = result.map((item) => ({
+        label: item.contIso,
+        value: item.contIso,
         data: item,
       }));
     }
   } catch {
-    containerIsoList.data = [];
+    contIsoList.data = [];
   } finally {
-    containerIsoList.fetching = false;
+    contIsoList.fetching = false;
   }
 };
 </script>
@@ -499,34 +499,34 @@ const fetchContainerIsoList = async (searchText: string) => {
             @compositionend="handleOwnerCompositionEnd"
           />
         </template>
-        <template #form-containerIsoList>
+        <template #form-contIsoList>
           <Select
-            :options="containerIsoList.data"
+            :options="contIsoList.data"
             mode="multiple"
-            v-model:value="containerIsoList.value"
+            v-model:value="contIsoList.value"
             style="width: 100%"
             placeholder="请输入ISO"
             :show-search="true"
             :filter-option="false"
             :list-height="150"
             allow-clear
-            @search="fetchContainerIsoList"
+            @search="fetchContIsoList"
             @input="handleIsoInput"
             @compositionstart="handleIsoCompositionStart"
             @compositionend="handleIsoCompositionEnd"
           />
         </template>
-        <template #form-dischargeVesselSchedule>
+        <template #form-dischargeVslSchedule>
           <Select
-            :options="dischargeVesselSchedule.data"
-            v-model:value="dischargeVesselSchedule.value"
+            :options="dischargeVslSchedule.data"
+            v-model:value="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
             :filter-option="true"
             :list-height="150"
             allow-clear
-            @search="fetchdischargeVesselSchedule"
+            @search="fetchdischargeVslSchedule"
           />
         </template>
         <template #form-expand-before>

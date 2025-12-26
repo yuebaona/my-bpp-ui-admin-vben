@@ -27,7 +27,7 @@ const containerAreaModalVisible = ref(false);
 
 const containerAreaParams = reactive({
   ownerCodeList: [],
-  containerIsoList: [],
+  contIsoList: [],
   tradeType: '',
   selectedPositions: [],
 });
@@ -98,10 +98,10 @@ const containerAreaData = reactive<any[]>([]);
 const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
   ownerCodeList: [],
-  containerIsoList: [],
+  contIsoList: [],
   isRelease: undefined,
   pickupPlanNo: '',
-  dischargeVesselSchedule: '',
+  dischargeVslSchedule: '',
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
@@ -140,11 +140,9 @@ const selectContainerArea = async () => {
   containerAreaParams.ownerCodeList = Array.isArray(formValues.ownerCodeList)
     ? formValues.ownerCodeList
     : [formValues.ownerCodeList];
-  containerAreaParams.containerIsoList = Array.isArray(
-    formValues.containerIsoList,
-  )
-    ? formValues.containerIsoList
-    : [formValues.containerIsoList];
+  containerAreaParams.contIsoList = Array.isArray(formValues.contIsoList)
+    ? formValues.contIsoList
+    : [formValues.contIsoList];
   containerAreaParams.tradeType = formValues.tradeType || '';
   containerAreaParams.selectedPositions = selectedPositions;
   containerAreaModalVisible.value = true;
@@ -227,14 +225,14 @@ const isoSearch = async (value: string) => {
     const res = await getContainerIsoList({
       pageNo: 1,
       pageSize: 10,
-      containerIso: upperCaseValue,
+      contIso: upperCaseValue,
       queryType: 'ISO',
     });
 
     if (res) {
       isoState.data = res.map((item: any) => ({
-        label: item.containerIso,
-        value: item.containerIso,
+        label: item.contIso,
+        value: item.contIso,
         data: item,
       }));
     }
@@ -294,14 +292,14 @@ const [Form, formApi] = useVbenForm({
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values, changedValues) => {
     Object.assign(formData, values);
-    const isChangeContainerIso =
-      Array.isArray(changedValues) && changedValues[0] === 'containerIsoList';
+    const isChangeContIso =
+      Array.isArray(changedValues) && changedValues[0] === 'contIsoList';
     const isChangeOwner =
       Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
     const isChangePickupPlanNo =
       Array.isArray(changedValues) && changedValues[0] === 'pickupPlanNo';
 
-    if (isChangeContainerIso || isChangeOwner || isChangePickupPlanNo) {
+    if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       const $grid = gridApi.grid;
@@ -371,8 +369,8 @@ const [Modal, modalApi] = useVbenModal({
     if (!Array.isArray(formData.ownerCodeList)) {
       formData.ownerCodeList = [formData.ownerCodeList];
     }
-    if (!Array.isArray(formData.containerIsoList)) {
-      formData.containerIsoList = [formData.containerIsoList];
+    if (!Array.isArray(formData.contIsoList)) {
+      formData.contIsoList = [formData.contIsoList];
     }
 
     const $grid = gridApi.grid;
@@ -398,13 +396,13 @@ const [Modal, modalApi] = useVbenModal({
       Object.assign(formData, {
         id: '',
         ownerCodeList: [],
-        containerIsoList: [],
+        contIsoList: [],
         isRelease: undefined,
         pickupPlanNo: '',
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
-        dischargeVesselSchedule: '',
+        dischargeVslSchedule: '',
         bayRangeList: [],
         planType: '',
         mainId: '',
@@ -439,8 +437,8 @@ const [Modal, modalApi] = useVbenModal({
           }
 
           // 设置ISO选择值
-          if (mainPlanData.containerIsoList) {
-            isoState.value = mainPlanData.containerIsoList;
+          if (mainPlanData.contIsoList) {
+            isoState.value = mainPlanData.contIsoList;
           }
           const $grid = gridApi.grid;
           if ($grid) {
@@ -519,10 +517,10 @@ const getStorageConditionSearch = async (row: any) => {
         },
       ],
       baseInfo: {
-        containerIsoList: transformStringToArray(formData.containerIsoList),
+        contIsoList: transformStringToArray(formData.contIsoList),
         ownerCodeList: transformStringToArray(formData.ownerCodeList),
         tradeType: formData.tradeType,
-        dischargeVesselSchedule: formData.dischargeVesselSchedule,
+        dischargeVslSchedule: formData.dischargeVslSchedule,
       },
     };
 
@@ -560,7 +558,7 @@ const modalTitle = computed(() => {
 <template>
   <Modal :title="modalTitle">
     <Form>
-      <template #containerIsoList>
+      <template #contIsoList>
         <Select
           v-model:value="isoState.value"
           mode="multiple"
@@ -572,7 +570,7 @@ const modalTitle = computed(() => {
           @search="isoSearch"
           allow-clear
           show-search
-          @change="(value) => formApi.setFieldValue('containerIsoList', value)"
+          @change="(value) => formApi.setFieldValue('contIsoList', value)"
           @input="handleIsoInput"
           @compositionstart="handleIsoCompositionStart"
           @compositionend="handleIsoCompositionEnd"
@@ -651,7 +649,7 @@ const modalTitle = computed(() => {
     <ContainerArea
       v-model:visible="containerAreaModalVisible"
       :owner-code-list="containerAreaParams.ownerCodeList"
-      :container-iso-list="containerAreaParams.containerIsoList"
+      :cont-iso-list="containerAreaParams.contIsoList"
       :trade-type="containerAreaParams.tradeType"
       :selected-positions="containerAreaParams.selectedPositions"
       @confirm="handleContainerAreaConfirm"

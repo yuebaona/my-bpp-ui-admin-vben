@@ -18,9 +18,9 @@ import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
 import {
   logQueryColumns,
-  logQueryFormSchema,
+  logQueryFormSchema, PlanSearchFormSchema
   // STATIC_MASTER_PLAN_QUERY_DATA,
-} from '../data';
+} from "../data";
 
 const formValues = reactive({});
 
@@ -118,14 +118,14 @@ const isoSearch = async (value: string) => {
     const res = await getContainerIsoList({
       pageNo: 1,
       pageSize: 10,
-      containerIso: upperCaseValue,
+      contIso: upperCaseValue,
       queryType: 'ISO',
     });
 
     if (res) {
       isoState.data = res.map((item: any) => ({
-        label: item.containerIso,
-        value: item.containerIso,
+        label: item.contIso,
+        value: item.contIso,
         data: item,
       }));
     }

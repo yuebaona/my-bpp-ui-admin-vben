@@ -36,7 +36,7 @@ export namespace CommonApi {
 
   export interface isoVO {
     id?: number;
-    containerIso?: string;
+    contIso?: string;
     isSpecial?: string;
     containerType?: string;
     containerTypeName?: string;
@@ -66,7 +66,7 @@ export const getVVd = ({
 };
 // 获取集装箱ISO信息
 export const getContainerIsoList = (params: {
-  containerIso: string;
+  contIso: string;
   pageNo: number;
   pageSize: number;
   queryType: string;
