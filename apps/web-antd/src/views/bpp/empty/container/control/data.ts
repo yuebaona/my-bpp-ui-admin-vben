@@ -473,7 +473,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'createTime',
       label: '创建时间',
-      component: 'TimeRangePicker',
+      component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
