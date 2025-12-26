@@ -595,9 +595,7 @@ const openContainerAreaWindow = (
             <template #content>
               <ContainerAreaDisplay
                 :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :container-iso-list="
-                  containerAreaClickRow?.contIsoList || []
-                "
+                :container-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
                 @click="
@@ -678,6 +676,38 @@ const openContainerAreaWindow = (
     <!-- 子计划列表 -->
     <div class="h-2/5 w-full">
       <SubGrid table-title="子计划">
+        <template #bayRanges="{ row }">
+          <a-popover
+            v-model:open="popoverVisible[row.id]"
+            trigger="click"
+            :key="row.id"
+          >
+            <template #content>
+              <ContainerAreaDisplay
+                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
+                :container-iso-list="
+                  containerAreaClickRow?.containerIsoList || []
+                "
+                :bay-range-list="containerAreaClickRow?.bayRangeList || []"
+                :bay-ranges="containerAreaClickRow?.bayRanges || ''"
+                @click="
+                  () => {
+                    popoverVisible[row.id] = false;
+                    containerAreaClickRow.value = null;
+                  }
+                "
+              >
+                Close
+              </ContainerAreaDisplay>
+            </template>
+            <a-text
+              @click="openContainerAreaWindow(row)"
+              style="color: #1890ff; cursor: pointer"
+            >
+              {{ row.bayRanges }}
+            </a-text>
+          </a-popover>
+        </template>
         <template #toolbar-tools>
           <TableAction
             :actions="[
