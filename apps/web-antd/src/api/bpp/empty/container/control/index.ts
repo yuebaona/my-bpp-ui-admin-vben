@@ -13,7 +13,7 @@ export namespace EmptyContainerControlApi {
     planQuantity: string;
     completedReleaseQuantity: string;
     bayRangeList: Array<{
-      emptyContainerControlId: number | string;
+      eccId: number | string;
       id: number | string;
       yardBay: string;
       yardRaw: string;
@@ -21,7 +21,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
-    dischargeVesselSchedule: string;
+    dischargeVslSchedule: string;
   }
   // 子计划VO
   export interface subPlanVO {
@@ -34,7 +34,7 @@ export namespace EmptyContainerControlApi {
     planQuantity: string;
     completedReleaseQuantity: string;
     bayRangeList: Array<{
-      emptyContainerControlId: null | string;
+      eccId: null | string;
       id: null | number;
       yardBay: string;
       yardRaw: string;
@@ -42,7 +42,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
-    dischargeVesselSchedule: string;
+    dischargeVslSchedule: string;
   }
 
   export interface mainLogVO {
@@ -86,7 +86,7 @@ export namespace EmptyContainerControlApi {
 
   export interface isoVO {
     id?: number;
-    containerIso?: string;
+    ContIso?: string;
     isSpecial?: string;
     containerType?: string;
     containerTypeName?: string;
@@ -121,59 +121,11 @@ export namespace EmptyContainerControlApi {
     ownerCodeList: Array<string>;
     containerIsoList: Array<string>;
     bayRangeList: Array<{
-      emptyContainerControlId: number | string;
+      eccId: number | string;
       id: number | string;
       yardBay: string;
       yardRaw: string;
     }>;
-  }
-
-  // 超限受理计划信息
-  export interface AcceptancePlanOverOperationVO {
-    id: number;
-    isAllowedStacking: boolean;
-    plannedMachineryType: string;
-    acceptancePlanNo: string;
-    processInstanceId: string;
-  }
-  // 超限受理计划箱信息
-  export interface AcceptancePlanOverOperationContainerVO {
-    id: number;
-    containerNo: string;
-    containerSize: string;
-    containerType: string;
-    containerCargoWeight: number;
-    containerTotalWeight: number;
-    containerCargoSize: string;
-    containerOverlimitDetails: string;
-    containerPhysicalStatus: string;
-    containerOperationNode: string;
-    acceptancePlanNo: string;
-    overOperationContainerNo: string;
-    processInstanceId: string;
-    priceSea: number;
-    priceGate: number;
-    machineSpreaderChangeType: string;
-    machineSpreaderType: string;
-    plannedSpreaderType: string;
-  }
-  // 提单信息表
-  export interface AcceptancePlanBillMessageVO {
-    id: number;
-    acceptancePlanNo: string;
-    billNo: string;
-    cargoType: string;
-    cargoName: string;
-    cargoCount: number;
-    billType: string;
-  }
-  // 总数据
-  export interface EmptyContainerControlSaveReqVO {
-    mainPlanSaveReqVO: mainPlanVO;
-    subPlanSaveReqVO: subPlanVO;
-    acceptancePlanOverOperationSaveReqVO: AcceptancePlanOverOperationVO;
-    acceptancePlanOverOperationContainerSaveReqVOs: AcceptancePlanOverOperationContainerVO[];
-    acceptancePlanBillMessageSaveReqVO: AcceptancePlanBillMessageVO;
   }
 }
 export interface LogQueryParams extends PageParam {
@@ -279,7 +231,7 @@ export const getOwnerList = (params: {
 
 // 查询ISO
 export const getIsoList = (params: {
-  containerIso: string;
+  ContIso: string;
   pageNo: number;
   pageSize: number;
 }) => {
@@ -310,7 +262,7 @@ export const getStorageQuantity = (data: any) => {
 };
 
 // 强制完成
-export const forceComplete = (data: EmptyContainerControlApi.mainPlanVOVO) => {
+export const forceComplete = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.put(
     '/bpp/flow/empty/container-control-main/force/complete',
     data,

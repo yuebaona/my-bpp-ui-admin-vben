@@ -65,7 +65,7 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   planQuantity: '',
   completedReleaseQuantity: '',
   bayRangeList: {
-    emptyContainerControlId: 0,
+    eccId: 0,
     id: 0,
     yardBay: '',
     yardRaw: '',
@@ -174,7 +174,7 @@ const [Modal, modalApi] = useVbenModal({
         planQuantity: '',
         completedReleaseQuantity: '',
         // bayRangeList: {
-        //   emptyContainerControlId: 0,
+        //   eccId: 0,
         //   yardBay: '',
         //   yardRaw: '',
         // },

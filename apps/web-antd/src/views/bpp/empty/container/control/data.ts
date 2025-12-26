@@ -4,8 +4,6 @@ import type { DescriptionItemSchema } from '#/components/description';
 import { getDictDataPage } from '#/api/system/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
-import _default from "ant-design-vue/es/vc-slick/inner-slider";
-import clickHandler = _default.methods.clickHandler;
 const bppBaseDict = bppBaseDictStore();
 
 // 预加载需要的字典数据
@@ -268,7 +266,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -366,7 +364,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -477,6 +475,8 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
       },
     },
     {
@@ -692,7 +692,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'dischargeVesselSchedule',
+      field: 'dischargeVslSchedule',
       title: '卸船船期',
       minWidth: 120,
     },

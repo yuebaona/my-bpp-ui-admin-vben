@@ -13,11 +13,11 @@ import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import {
   createMainPlan,
-  updateMainPlan,
   getStorageQuantity,
+  updateMainPlan,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
-
+import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
 import { containerAreaRangeColumns, mainPlanFormSchema } from '../data';
 import ContainerArea from './containerAreaSelect.vue';
 
@@ -52,7 +52,7 @@ const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   containerIsoList: [],
   isRelease: undefined,
   pickupPlanNo: '',
-  dischargeVesselSchedule: '',
+  dischargeVslSchedule: '',
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
@@ -167,14 +167,14 @@ const isoSearch = async (value: string) => {
     const res = await getContainerIsoList({
       pageNo: 1,
       pageSize: 10,
-      containerIso: value,
+      ContIso: value,
       queryType: 'ISO',
     });
 
     if (res) {
       isoState.data = res.map((item: any) => ({
-        label: item.containerIso,
-        value: item.containerIso,
+        label: item.ContIso,
+        value: item.ContIso,
         data: item,
       }));
     }
@@ -342,7 +342,7 @@ const [Modal, modalApi] = useVbenModal({
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
-        dischargeVesselSchedule: '',
+        dischargeVslSchedule: '',
         bayRangeList: [],
         planType: '',
         mainId: '',
@@ -465,7 +465,7 @@ const getStorageConditionSearch = async (row: any) => {
         containerIsoList: transformStringToArray(formData.containerIsoList),
         ownerCodeList: transformStringToArray(formData.ownerCodeList),
         tradeType: formData.tradeType,
-        dischargeVesselSchedule: formData.dischargeVesselSchedule,
+        dischargeVslSchedule: formData.dischargeVslSchedule,
       },
 
     };

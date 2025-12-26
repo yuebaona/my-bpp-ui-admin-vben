@@ -14,10 +14,10 @@ import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createSubPlan,
-  updateSubPlan,
-  getSubPlanOwnerList,
-  getSubPlanIsoList,
   getStorageQuantity,
+  getSubPlanIsoList,
+  getSubPlanOwnerList,
+  updateSubPlan,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
 
@@ -55,7 +55,7 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   containerIsoList: [],
   isRelease: null,
   pickupPlanNo: '',
-  dischargeVesselSchedule: '',
+  dischargeVslSchedule: '',
   tradeType: '',
   planQuantity: '',
   completedReleaseQuantity: '',
@@ -93,10 +93,13 @@ const selectContainerArea = async () => {
 // 将字符串转为数组
 const transformStringToArray = (value: any): string[] => {
   if (Array.isArray(value)) {
-    return value.map(item => item?.toString().trim()).filter(Boolean);
+    return value.map((item) => item?.toString().trim()).filter(Boolean);
   }
   if (typeof value === 'string') {
-    return value.split(/[,，]/).map((item: string) => item.trim()).filter(Boolean);
+    return value
+      .split(/[,，]/)
+      .map((item: string) => item.trim())
+      .filter(Boolean);
   }
   return [];
 };
@@ -131,10 +134,11 @@ const handleContainerAreaConfirm = (positions: string[]) => {
 
     containerAreaData.push(...newRows);
     $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map(item => ({
+    formData.bayRangeList = containerAreaData.map((item) => ({
       yardBay: item.yardPosition,
-      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item
+      yardRaw:
+        item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item,
     }));
   }
 };
@@ -146,17 +150,20 @@ const deleteRow = async (row: any) => {
     const currentGridData = $grid.getTableData().fullData;
 
     containerAreaData.splice(0);
-    const dataIndex = currentGridData.findIndex(item => item.yardPosition === row.yardPosition);
+    const dataIndex = currentGridData.findIndex(
+      (item) => item.yardPosition === row.yardPosition,
+    );
     if (dataIndex !== -1) {
       currentGridData.splice(dataIndex, 1);
     }
 
     containerAreaData.push(...currentGridData);
     $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map(item => ({
+    formData.bayRangeList = containerAreaData.map((item) => ({
       yardBay: item.yardPosition,
-      yardRaw: item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item
+      yardRaw:
+        item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
+      ...item,
     }));
 
     $grid.clearFilter();
@@ -170,8 +177,8 @@ const isoSearch = async (mainId: string) => {
     const res = await getSubPlanIsoList(mainId);
     if (res) {
       isoState.data = res.map((item: any) => ({
-        label: item.containerIso,
-        value: item.containerIso,
+        label: item.ContIso,
+        value: item.ContIso,
         data: item,
       }));
     }
@@ -275,10 +282,10 @@ const [Modal, modalApi] = useVbenModal({
     //   return;
     // }
 
-    //根据是否放箱状态决定计划箱量的验证规则
+    // 根据是否放箱状态决定计划箱量的验证规则
     if (formData.isRelease) {
       if (!formData.planQuantity) {
-        message.warning('若“是否放箱”选择“是”，计划箱量为必填项',3);
+        message.warning('若“是否放箱”选择“是”，计划箱量为必填项', 3);
         return;
       }
       const quantity = Number(formData.planQuantity);
@@ -339,7 +346,7 @@ const [Modal, modalApi] = useVbenModal({
         tradeType: '',
         planQuantity: '',
         completedReleaseQuantity: '',
-        dischargeVesselSchedule: '',
+        dischargeVslSchedule: '',
         bayRangeList: [],
         planType: '',
         mainId: '',
@@ -369,11 +376,12 @@ const [Modal, modalApi] = useVbenModal({
         formData.mainId = data.mainId;
       }
       if (data.planType === 'SUB') {
-        formData.isRelease = ''
+        formData.isRelease = '';
         formData.isRelease = !data.mainPlanIsRelease;
       }
       if (data.planType === 'SUB' && data.mainPlanTradeType) {
-        formData.tradeType = data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN' ;
+        formData.tradeType =
+          data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN';
       }
 
       initIsoData(formData.mainId);
@@ -478,9 +486,8 @@ const getStorageConditionSearch = async (row: any) => {
         containerIsoList: transformStringToArray(formData.containerIsoList),
         ownerCodeList: transformStringToArray(formData.ownerCodeList),
         tradeType: formData.tradeType,
-        dischargeVesselSchedule: formData.dischargeVesselSchedule,
+        dischargeVslSchedule: formData.dischargeVslSchedule,
       },
-
     };
 
     const response = await getStorageQuantity(requestData);
@@ -492,7 +499,7 @@ const getStorageConditionSearch = async (row: any) => {
       message.warning(`无可用量`);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     message.warning('堆存查询失败或异常，请重试');
   }
 };
