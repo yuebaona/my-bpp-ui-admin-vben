@@ -1186,6 +1186,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                 label: $t('cxmo.action.revoke'),
                 type: 'default',
                 icon: ACTION_ICON.UNDO,
+                auth: ['bpp:flow-acceptance-plan-over-operation:cancel'],
                 onClick: handleRevoke,
               },
               //
@@ -1213,6 +1214,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                     label: $t('cxmo.action.audit'),
                     type: 'link',
                     icon: ACTION_ICON.AUDIT,
+                    auth: ['bpp:flow-acceptance-plan-over-operation:process'],
                     onClick: handleViewDetail.bind(null, row),
                   }
                 : '',
@@ -1277,17 +1279,20 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                 {
                   label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
+                   auth: ['bpp:flow-acceptance-plan-over-operation-container:confirm'],
                   onClick: handleOnSiteOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
+                   auth: ['bpp:flow-acceptance-plan-over-operation-container:no-operation'],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
+                   auth: ['bpp:flow-acceptance-plan-over-operation-container:complete'],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
@@ -1335,7 +1340,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                 {
                   label: $t('cxmo.overOperation.noChangeOperations'),
                   type: 'primary',
-                  auth: ['system:user:create'],
+                  auth: ['bpp:flow-machine-spreader-record:delete'],
                   onClick: handleMachineSpreaderRecordDeleteList,
                 },
               ]"
@@ -1371,7 +1376,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                   label: $t('common.edit'),
                   type: 'link',
                   icon: ACTION_ICON.EDIT,
-                  auth: ['system:user:update'],
+                  auth: ['bpp:flow-machine-spreader-record:update'],
                   onClick: handleOnSiteEditOperation.bind(null, row),
                 },
                 {
@@ -1379,7 +1384,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
                   type: 'link',
                   danger: true,
                   icon: ACTION_ICON.DELETE,
-                  auth: ['system:user:delete'],
+                  auth: ['bpp:flow-machine-spreader-record:delete'],
                   popConfirm: {
                     title: $t('ui.actionMessage.deleteConfirm'),
                     confirm: handleMachineSpreaderDelete.bind(null, row),
