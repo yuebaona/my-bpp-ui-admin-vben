@@ -17,6 +17,7 @@ import {
   getStorageQuantity,
   getSubPlanIsoList,
   getSubPlanOwnerList,
+  getVesselAndVoyage,
   updateSubPlan,
 } from '#/api/bpp/empty/container/control';
 import { $t } from '#/locales';
@@ -37,6 +38,12 @@ const containerAreaParams = reactive({
 });
 
 const containerAreaData = reactive<any[]>([]);
+
+const dischargeVslSchedule = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+});
 
 const isoState = reactive({
   data: [],
@@ -264,10 +271,25 @@ const ownerSearch = async (mainId: string) => {
     ownerState.fetching = false;
   }
 };
-
 // 初始化持箱人数据
 const initOwnerData = async (mainId: string) => {
   await ownerSearch(mainId);
+};
+
+// 获取卸船船期
+const fetchdischargeVslSchedule = async (searchText) => {
+  try {
+    dischargeVslSchedule.fetching = true;
+    const result = await getVesselAndVoyage({ condition: searchText });
+    dischargeVslSchedule.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    dischargeVslSchedule.data = [];
+  } finally {
+    dischargeVslSchedule.fetching = false;
+  }
 };
 
 const [Form, formApi] = useVbenForm({
@@ -466,6 +488,11 @@ const [Modal, modalApi] = useVbenModal({
           if (subPlanData.contIsoList) {
             isoState.value = subPlanData.contIsoList;
           }
+
+          if (subPlanData.dischargeVslSchedule) {
+            dischargeVslSchedule.value = subPlanData.dischargeVslSchedule;
+          }
+
           const $grid = gridApi.grid;
           if ($grid) {
             // 设置箱区范围数据
@@ -620,6 +647,22 @@ const modalTitle = computed(() => {
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"
           @compositionend="handleOwnerCompositionEnd"
+        />
+      </template>
+      <template #dischargeVslSchedule>
+        <Select
+          :options="dischargeVslSchedule.data"
+          v-model:value="dischargeVslSchedule.value"
+          style="width: 100%"
+          placeholder="请输入船名或航次"
+          :show-search="true"
+          :filter-option="true"
+          :list-height="150"
+          allow-clear
+          @search="fetchdischargeVslSchedule"
+          @change="
+            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+          "
         />
       </template>
       <!-- 箱区范围表格部分 -->
