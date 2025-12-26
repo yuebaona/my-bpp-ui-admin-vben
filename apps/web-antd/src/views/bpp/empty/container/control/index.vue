@@ -25,8 +25,6 @@ import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
-import Form2 from '#/views/bpp/empty/container/control/modules/mainForm.vue';
-import Form from '#/views/bpp/empty/container/control/modules/subForm.vue';
 import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
 import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
 
@@ -212,13 +210,29 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          const queryParams = { ...formValues };
+
+          // 将时间范围转换为时间戳
+          if (queryParams.createTime) {
+            if (queryParams.createTime.length > 0) {
+              queryParams.createTime = queryParams.createTime
+                .map((time: string) => {
+                  return time ? new Date(time).getTime() : null;
+                })
+                .filter(Boolean);
+            } else {
+              delete queryParams.createTime;
+            }
+          }
+
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
             ownerCodeList: ownerCodeList.value,
             contIsoList: contIsoList.value,
             dischargeVslSchedule: dischargeVslSchedule.value,
+            planType: 'MAIN',
+            ...queryParams,
           });
           return result;
         },
@@ -555,7 +569,7 @@ const openContainerAreaWindow = (
             <template #content>
               <ContainerAreaDisplay
                 :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :container-iso-list="containerAreaClickRow?.contIsoList || []"
+                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
                 @click="
