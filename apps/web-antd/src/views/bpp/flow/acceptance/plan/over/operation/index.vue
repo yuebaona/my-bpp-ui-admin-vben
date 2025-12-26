@@ -107,19 +107,23 @@ const loadDictData = async (dictTypes: string[]) => {
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
+  draggable: true,
 });
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
+  draggable: true,
 });
 const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
+  draggable: true,
 });
 // 现场操作确认弹框
 const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
   connectedComponent: OnSiteOperation,
   destroyOnClose: true,
+  draggable: true,
 });
 /** 刷新表格 */
 function handleRefresh() {
