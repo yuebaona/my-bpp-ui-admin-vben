@@ -387,7 +387,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第七行
     {
-      fieldName: 'ContIso',
+      fieldName: 'contIso',
       component: 'Input',
       label: '箱ISO',
       componentProps: { placeholder: '请输入箱ISO' },
@@ -553,7 +553,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'ContIso',
+      fieldName: 'contIso',
       component: 'Input',
       label: '箱ISO',
       componentProps: {
@@ -847,7 +847,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 箱ISO
     {
-      field: 'ContIso',
+      field: 'contIso',
       title: '箱ISO',
       minWidth: 100,
       filters: [{ data: '' }],

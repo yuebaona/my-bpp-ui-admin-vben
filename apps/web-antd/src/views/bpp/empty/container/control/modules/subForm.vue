@@ -177,8 +177,8 @@ const isoSearch = async (mainId: string) => {
     const res = await getSubPlanIsoList(mainId);
     if (res) {
       isoState.data = res.map((item: any) => ({
-        label: item.ContIso,
-        value: item.ContIso,
+        label: item.contIso,
+        value: item.contIso,
         data: item,
       }));
     }

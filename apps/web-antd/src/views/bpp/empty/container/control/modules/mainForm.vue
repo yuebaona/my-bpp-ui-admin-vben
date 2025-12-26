@@ -167,14 +167,14 @@ const isoSearch = async (value: string) => {
     const res = await getContainerIsoList({
       pageNo: 1,
       pageSize: 10,
-      ContIso: value,
+      contIso: value,
       queryType: 'ISO',
     });
 
     if (res) {
       isoState.data = res.map((item: any) => ({
-        label: item.ContIso,
-        value: item.ContIso,
+        label: item.contIso,
+        value: item.contIso,
         data: item,
       }));
     }

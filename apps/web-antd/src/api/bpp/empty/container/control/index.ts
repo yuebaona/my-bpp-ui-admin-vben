@@ -86,7 +86,7 @@ export namespace EmptyContainerControlApi {
 
   export interface isoVO {
     id?: number;
-    ContIso?: string;
+    contIso?: string;
     isSpecial?: string;
     containerType?: string;
     containerTypeName?: string;
@@ -231,7 +231,7 @@ export const getOwnerList = (params: {
 
 // 查询ISO
 export const getIsoList = (params: {
-  ContIso: string;
+  contIso: string;
   pageNo: number;
   pageSize: number;
 }) => {
