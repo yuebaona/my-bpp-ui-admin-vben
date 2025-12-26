@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type {
-  EmptyContainerControlApi
-} from '#/api/bpp/empty/container/control';
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { reactive, ref } from 'vue';
 
-import { Page, useVbenModal} from '@vben/common-ui';
+import { Page, useVbenModal } from '@vben/common-ui';
 
 import { message, Select } from 'ant-design-vue';
 
@@ -25,24 +23,26 @@ import {
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import Detail2 from '#/views/bpp/empty/container/control/modules/mainDetail.vue';
-import Detail from '#/views/bpp/empty/container/control/modules/subDetail.vue';
-import Form2 from '#/views/bpp/empty/container/control/modules/mainForm.vue';
-import Form from '#/views/bpp/empty/container/control/modules/subForm.vue';
+import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
-import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
-import ContainerAreaDisplay
-  from "#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue";
+import MainDetail from '#/views/bpp/empty/container/control/modules/mainDetail.vue';
+import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
+import SubDetail from '#/views/bpp/empty/container/control/modules/subDetail.vue';
+import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
 
-const checkedIds = ref<number[]>([]);
+import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
+
+const checkedMainIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
 const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
+const mainIdList = ref<string[]>([]);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
-const mainIdList = ref<string[]>([]);
 const loading = ref(false);
-const containerAreaClickRow = ref<EmptyContainerControlApi.mainPlanVO | null>(null);
+const containerAreaClickRow = ref<EmptyContainerControlApi.mainPlanVO | null>(
+  null,
+);
 const popoverVisible = ref({});
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
@@ -50,13 +50,13 @@ const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showConfirmButton: false,
 });
 
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: Form,
+const [SubFormModal, subFormModalApi] = useVbenModal({
+  connectedComponent: SubForm,
   destroyOnClose: true,
 });
 
-const [DetailModal, detailModalApi] = useVbenModal({
-  connectedComponent: Detail,
+const [SubDetailModal, subDetailModalApi] = useVbenModal({
+  connectedComponent: SubDetail,
   destroyOnClose: true,
 });
 
@@ -128,10 +128,10 @@ function handleSubRowCheckboxChange({
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   // 检查是否已勾选主计划
-  if (checkedIds.value.length > 0) {
+  if (checkedMainIds.value.length > 0) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
-    gridApi2.grid.setAllCheckboxRow(false);
+    mainGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
     return false;
   }
@@ -151,26 +151,26 @@ function handleRowCheckboxChange({
     subGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
   }
-  checkedIds.value = records.map((item) => item.id);
-  mainIdList.value = [...checkedIds.value];
+  checkedMainIds.value = records.map((item) => item.id);
+  mainIdList.value = [...checkedMainIds.value];
   planNo.value = records.map((item) => item.planNo);
-  if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
+  if (checkedMainIds.value.length > 0 && hasSelectedMainPlan.value) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
     subGridApi.grid.setAllCheckboxRow(false);
   }
 }
-const [FormModal2, formModalApi2] = useVbenModal({
-  connectedComponent: Form2,
+const [MainFormModal, mainFormModalApi] = useVbenModal({
+  connectedComponent: MainForm,
   destroyOnClose: true,
 });
 
-const [DetailModal2, detailModalApi2] = useVbenModal({
-  connectedComponent: Detail2,
+const [MainDetailModal, mainDetailModalApi] = useVbenModal({
+  connectedComponent: MainDetail,
   destroyOnClose: true,
 });
 
-const [Grid2, gridApi2] = useVbenVxeGrid({
+const [MainGrid, mainGridApi] = useVbenVxeGrid({
   formOptions: {
     schema: PlanSearchFormSchema(),
     submitButtonOptions: {
@@ -204,11 +204,26 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          const queryParams = { ...formValues };
+
+          // 将时间范围转换为时间戳
+          if (queryParams.createTime) {
+            if (queryParams.createTime.length > 0) {
+              queryParams.createTime = queryParams.createTime
+                .map((time: string) => {
+                  return time ? new Date(time).getTime() : null;
+                })
+                .filter(Boolean);
+            } else {
+              delete queryParams.createTime;
+            }
+          }
+
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             planType: 'MAIN',
-            ...formValues,
+            ...queryParams,
           });
           return result;
         },
@@ -322,27 +337,27 @@ const transformFormToRequest = (
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi2.query();
+  mainGridApi.query();
   subGridApi.query();
 }
 
 /** 创建主计划新申请 */
 function handleCreateMainPlan() {
-  formModalApi2.setData(null).open();
+  mainFormModalApi.setData(null).open();
 }
 /** 新建子计划 */
 function handleCreateSubPlan() {
-  if (checkedIds.value.length === 0) {
+  if (checkedMainIds.value.length === 0) {
     message.warning('请勾选一个主计划');
     return;
-  } else if (checkedIds.value.length > 1) {
+  } else if (checkedMainIds.value.length > 1) {
     message.warning('已勾选多个主计划，请只勾选一个主计划');
     return;
   }
-  const selectedMainPlans = gridApi2.grid.getCheckboxRecords();
+  const selectedMainPlans = mainGridApi.grid.getCheckboxRecords();
   if (selectedMainPlans.length > 0) {
     const mainPlan = selectedMainPlans[0];
-    formModalApi
+    subFormModalApi
       .setData({
         mainId: selectedMainId.value,
         planType: 'SUB',
@@ -366,13 +381,13 @@ const handleForceComplete = async () => {
     const res = await forceComplete({ mainIdList: mainIdList.value });
     if (res) {
       message.success('成功强制完成！');
-      await gridApi2.query();
+      await mainGridApi.query();
       mainIdList.value = [];
-      checkedIds.value = [];
+      checkedMainIds.value = [];
 
-      if (gridApi2?.grid) {
+      if (mainGridApi?.grid) {
         // 取消所有行勾选
-        await gridApi2.grid.setAllCheckboxRow(false);
+        await mainGridApi.grid.setAllCheckboxRow(false);
       }
     } else {
       const errorMsg = res?.msg || '强制完成失败，请重试';
@@ -389,25 +404,25 @@ const handleMainPlanDetail = async (
   row: EmptyContainerControlApi.mainPlanVO,
 ) => {
   const res = await getMainPlan(row.id);
-  detailModalApi2.setData(res).open();
+  mainDetailModalApi.setData(res).open();
 };
 
 /** 查看子计划详情 */
 const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  detailModalApi.setData(res).open();
+  subDetailModalApi.setData(res).open();
 };
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
   const res = await getMainPlan(row.id);
-  formModalApi2.setData(res).open();
+  mainFormModalApi.setData(res).open();
 };
 
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  subFormModalApi.setData(res).open();
 };
 
 /** 删除主计划 */
@@ -447,7 +462,7 @@ const containerIsoList = reactive({
   fetching: false,
 });
 
-const dischargeVesselSchedule = reactive({
+const dischargeVslSchedule = reactive({
   data: [],
   value: [],
   fetching: false,
@@ -478,14 +493,14 @@ const fetchContainerIsoList = async (searchText) => {
   try {
     containerIsoList.fetching = true;
     const result = await getIsoList({
-      containerIso: searchText,
+      contIso: searchText,
       pageNo: 1,
       pageSize: 100,
       queryType: 'VESSEL',
     });
     containerIsoList.data = result.map((item) => ({
-      label: item.containerIso,
-      value: item.containerIso,
+      label: item.contIso,
+      value: item.contIso,
     }));
   } catch {
     containerIsoList.data = [];
@@ -495,23 +510,25 @@ const fetchContainerIsoList = async (searchText) => {
 };
 
 // 获取卸船船期
-const fetchDischargeVesselSchedule = async (searchText) => {
+const fetchDischargeVslSchedule = async (searchText) => {
   try {
-    dischargeVesselSchedule.fetching = true;
+    dischargeVslSchedule.fetching = true;
     const result = await getVesselAndVoyage({ condition: searchText });
-    dischargeVesselSchedule.data = result.map((item) => ({
+    dischargeVslSchedule.data = result.map((item) => ({
       label: item,
       value: item,
     }));
   } catch {
-    dischargeVesselSchedule.data = [];
+    dischargeVslSchedule.data = [];
   } finally {
-    dischargeVesselSchedule.fetching = false;
+    dischargeVslSchedule.fetching = false;
   }
 };
 
 // 控制箱区范围浮窗显隐藏
-const openContainerAreaWindow = (row: EmptyContainerControlApi.containerAreaDisplayVO) => {
+const openContainerAreaWindow = (
+  row: EmptyContainerControlApi.containerAreaDisplayVO,
+) => {
   containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
   popoverVisible.value[row.id] = true;
 };
@@ -519,17 +536,17 @@ const openContainerAreaWindow = (row: EmptyContainerControlApi.containerAreaDisp
 
 <template>
   <Page auto-content-height>
-    <FormModal class="w-3/5" @success="handleRefresh" />
-    <FormModal2 class="w-1/2" @success="handleRefresh" />
+    <SubFormModal class="w-3/5" @success="handleRefresh" />
+    <MainFormModal class="w-1/2" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal class="w-3/5" />
-    <DetailModal2 />
+    <SubDetailModal class="w-3/5" />
+    <MainDetailModal />
     <LogQueryModal />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
-      <Grid2 table-title="主计划">
+      <MainGrid table-title="主计划">
         <template #form-ownerCodeList>
           <Select
             :options="ownerCodeList.data"
@@ -558,36 +575,44 @@ const openContainerAreaWindow = (row: EmptyContainerControlApi.containerAreaDisp
         </template>
         <template #form-vesselUnloadDate>
           <Select
-            :options="dischargeVesselSchedule.data"
+            :options="dischargeVslSchedule.data"
             mode="multiple"
-            v-model:value="dischargeVesselSchedule.value"
+            v-model:value="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
             :filter-option="true"
             :list-height="100"
-            @search="fetchDischargeVesselSchedule"
+            @search="fetchDischargeVslSchedule"
           />
         </template>
-        <template #bayRanges="{row}">
-          <a-popover v-model:open="popoverVisible[row.id]" trigger="click" :key="row.id">
+        <template #bayRanges="{ row }">
+          <a-popover
+            v-model:open="popoverVisible[row.id]"
+            trigger="click"
+            :key="row.id"
+          >
             <template #content>
               <ContainerAreaDisplay
                 :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :container-iso-list="containerAreaClickRow?.containerIsoList || []"
+                :container-iso-list="
+                  containerAreaClickRow?.containerIsoList || []
+                "
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
-                @click="() => {
-                  popoverVisible[row.id] = false;
-                  containerAreaClickRow.value = null;
-                }"
+                @click="
+                  () => {
+                    popoverVisible[row.id] = false;
+                    containerAreaClickRow.value = null;
+                  }
+                "
               >
                 Close
               </ContainerAreaDisplay>
             </template>
             <a-text
               @click="openContainerAreaWindow(row)"
-              style="color: #1890ff; cursor: pointer;"
+              style="color: #1890ff; cursor: pointer"
             >
               {{ row.bayRanges }}
             </a-text>
@@ -616,7 +641,7 @@ const openContainerAreaWindow = (row: EmptyContainerControlApi.containerAreaDisp
                 label: '日志查询',
                 type: 'primary',
                 icon: ACTION_ICON.VIEW,
-                onClick: handleLogQuery,
+                onClick: handleMainExport,
               },
             ]"
           />
@@ -648,7 +673,7 @@ const openContainerAreaWindow = (row: EmptyContainerControlApi.containerAreaDisp
             ]"
           />
         </template>
-      </Grid2>
+      </MainGrid>
     </div>
     <!-- 子计划列表 -->
     <div class="h-2/5 w-full">
