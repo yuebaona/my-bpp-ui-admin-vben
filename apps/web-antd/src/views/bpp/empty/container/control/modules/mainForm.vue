@@ -94,7 +94,7 @@ const handleOwnerCompositionEnd = (e: CompositionEvent) => {
   ownerSearch(target.value);
 };
 
-const containerAreaData = reactive<any[]>([]);
+let containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
@@ -163,17 +163,16 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
     containerAreaData.splice(0);
     const newRows = positions.map((pos) => {
       const yardPosition = `${pos}`;
-
       if (existingRowsMap.has(yardPosition)) {
         return existingRowsMap.get(yardPosition);
       }
-      // 新行数据
       return {
         yardPosition,
         yardColumns: [],
         totalCount: '',
-        minStorageDays: '',
-        maxStorageDays: '',
+        minDays: '',
+        maxDays: '',
+        isNew: true,
       };
     });
 
@@ -185,8 +184,12 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
         item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
       ...item,
     }));
+
+    // 只查询新添加的行的堆存数据
     for (const row of containerAreaData) {
-      await getStorageConditionSearch(row);
+      if (row.isNew) {
+        await getStorageConditionSearch(row);
+      }
     }
   }
 };
@@ -426,8 +429,8 @@ const [Modal, modalApi] = useVbenModal({
         planNo: '',
       });
       containerAreaData.splice(0);
-      initIsoData();
-      initOwnerData();
+      // initIsoData();
+      // initOwnerData();
     }
     const data = await modalApi.getData<any>();
 
@@ -452,57 +455,25 @@ const [Modal, modalApi] = useVbenModal({
           if (mainPlanData.ownerCodeList) {
             ownerState.value = mainPlanData.ownerCodeList;
           }
-
-          // 设置ISO选择值
           if (mainPlanData.contIsoList) {
             isoState.value = mainPlanData.contIsoList;
           }
           const $grid = gridApi.grid;
           if ($grid) {
-            // 设置箱区范围数据
-            if (data.yardPositionResp) {
-              for (const item of data.yardPositionResp) {
-                await $grid.insertAt(
-                  {
-                    ...item,
-                  },
-                  -1,
-                );
-              }
-            } else if (mainPlanData.bayRangeList) {
-              // 如果是数组格式
-              if (Array.isArray(mainPlanData.bayRangeList)) {
-                for (const bayRange of mainPlanData.bayRangeList) {
-                  await $grid.insertAt(
-                    {
-                      yardPosition: bayRange.yardBay || '',
-                      yardColumns: bayRange.yardRaw
-                        ? bayRange.yardRaw.split(',')
-                        : [],
-                      totalCount: '',
-                      minStorageDays: '',
-                      maxStorageDays: '',
-                    },
-                    -1,
-                  );
-                }
-              } else {
-                await $grid.insertAt(
-                  {
-                    yardPosition: mainPlanData.bayRangeList.yardBay || '',
-                    yardColumns: mainPlanData.bayRangeList.yardRaw
-                      ? mainPlanData.bayRangeList.yardRaw.split(',')
-                      : [],
-                    totalCount: '',
-                    minStorageDays: '',
-                    maxStorageDays: '',
-                  },
-                  -1,
-                );
-              }
+            if (mainPlanData.bayRangeList && Array.isArray(mainPlanData.bayRangeList)) {
+              const tableData = mainPlanData.bayRangeList.map((bayRange: any) => ({
+                yardPosition: bayRange.yardBay || '',
+                yardColumns: bayRange.yardRaw ? bayRange.yardRaw.split(',') : [],
+                totalCount: bayRange.totalCount || '',
+                minDays: bayRange.minDays || '',
+                maxDays: bayRange.maxDays || '',
+                isNew: false,
+              }));
+              $grid.reloadData(tableData);
+              // containerAreaData.push(...tableData);
+              // $grid.reloadData(containerAreaData);
             }
           }
-          await updateStorageCondition();
         } finally {
           modalApi.unlock();
         }
@@ -553,16 +524,6 @@ const getStorageConditionSearch = async (row: any) => {
   } catch (error) {
     console.log(error);
     message.warning('堆存查询失败或异常，请重试');
-  }
-};
-
-const updateStorageCondition = async () => {
-  const $grid = gridApi.grid;
-  if ($grid) {
-    const currentGridData = $grid.getTableData().fullData;
-    for (const row of currentGridData) {
-      await getStorageConditionSearch(row);
-    }
   }
 };
 
