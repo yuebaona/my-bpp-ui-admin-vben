@@ -143,6 +143,7 @@ export namespace EmptyContainerControlApi {
       yardBay: string;
       yardRaw: string;
     }>;
+    bayRanges: string;
   }
 }
 export interface LogQueryParams extends PageParam {

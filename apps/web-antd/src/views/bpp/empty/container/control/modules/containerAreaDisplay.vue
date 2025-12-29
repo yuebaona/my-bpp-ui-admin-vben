@@ -41,8 +41,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       zoom: false,
     },
     pagerConfig: {
-      pageSize: 100,
-      enabled: true,
+      enabled: false,
     },
     data:
       props.bayRangeList?.map((item) => ({

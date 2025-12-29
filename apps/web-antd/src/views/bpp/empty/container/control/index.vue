@@ -37,10 +37,8 @@ const hasSelectedMainPlan = ref(false);
 const mainIdList = ref<string[]>([]);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
-const loading = ref(false);
-const containerAreaClickRow = ref<EmptyContainerControlApi.mainPlanVO | null>(
-  null,
-);
+const containerAreaClickRow =
+  ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
 const popoverVisible = ref({});
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
@@ -665,9 +663,7 @@ const openContainerAreaWindow = (
             <template #content>
               <ContainerAreaDisplay
                 :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :container-iso-list="
-                  containerAreaClickRow?.containerIsoList || []
-                "
+                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
                 @click="
