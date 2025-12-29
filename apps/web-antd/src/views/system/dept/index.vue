@@ -150,7 +150,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         <TableAction
           :actions="[
             {
-              label: $t('tptc.dingTalk.sync.department'),
+              label: $t('tptc.dingTalk.button.department'),
               type: 'primary',
               icon: ACTION_ICON.ADD,
               auth: ['ding:dept:create'],
