@@ -24,7 +24,7 @@ import { $t } from '#/locales';
 import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
 
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
-import ContainerArea from './containerAreaSelect.vue';
+import ContainerArea from './containerSubAreaSelect.vue';
 
 const emit = defineEmits(['success']);
 
@@ -724,6 +724,7 @@ const modalTitle = computed(() => {
       :cont-iso-list="containerAreaParams.contIsoList"
       :trade-type="containerAreaParams.tradeType"
       :selected-positions="containerAreaParams.selectedPositions"
+      :main-id="formData.mainId"
       @confirm="handleContainerAreaConfirm"
     />
   </Modal>

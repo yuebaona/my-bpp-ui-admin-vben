@@ -181,6 +181,13 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
+    handleReset: () => {
+      contIsoList.value = [];
+      ownerCodeList.value = [];
+      dischargeVslSchedule.value = '';
+      mainGridApi.formApi.resetForm();
+      mainGridApi.query();
+    },
   },
   gridOptions: {
     columns: mainPlanColumns(),
