@@ -215,6 +215,11 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          checkedSubIds.value = [];
+          subPlanNo.value = [];
+          hasSelectedMainPlan.value = false;
+          selectedMainId.value = null;
+          subGridApi.query();
           const queryParams = { ...formValues };
 
           // 将时间范围转换为时间戳
