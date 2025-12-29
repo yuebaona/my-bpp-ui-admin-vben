@@ -6,8 +6,8 @@ export namespace AcceptancePlanApi {
   /** 受理计划信息信息 */
   export interface Plan {
     id: number; // 主键ID
-    acceptancePlanNo?: string; // 受理计划号（唯一业务标识）
-    acceptancePlanWebNo: string; // 线上申请编号
+    acptPlnNo?: string; // 受理计划号（唯一业务标识）
+    acptPlnWebNo: string; // 线上申请编号
     applicantPlanType: string; // 受理计划类型
     planStatus: string; // 受理状态
     planTwentyFtVolume: number; // 20尺计划箱量
@@ -19,12 +19,12 @@ export namespace AcceptancePlanApi {
     remainingTwentyFtVolume: number; // 20尺剩余箱量
     remainingFortyFtVolume: number; // 40尺剩余箱量
     remainingFortyFiveFtVolume: number; // 45尺剩余箱量
-    vesselNameIn: string; // 进口船名（英文）
-    vesselVoyageIn: string; // 进口航次
-    vesselNameOut: string; // 出口船名（英文）
-    vesselVoyageOut: string; // 出口航次
-    vesselZhNameIn: string; // 进口船名（中文）
-    vesselZhNameOut: string; // 出口船名（中文）
+    vslNameIn: string; // 进口船名（英文）
+    vslVoyIn: string; // 进口航次
+    vslNameOut: string; // 出口船名（英文）
+    vslVoyOut: string; // 出口航次
+    vslZhNameIn: string; // 进口船名（中文）
+    vslZhNameOut: string; // 出口船名（中文）
     billNo: string; // 提单号
     cargoName: string; // 货名
     tradeTypeIn: string; // 内外贸（进口）
@@ -56,8 +56,8 @@ export namespace AcceptancePlanApi {
     handlerRemark: string; // 经办人备注
   }
   export interface RecordBase {
-    acceptancePlanNo: string; // 受理计划号
-    acceptancePlanWebNo: string; // 网上受理计划号
+    acptPlnNo: string; // 受理计划号
+    acptPlnWebNo: string; // 网上受理计划号
     applicantPlanType: string; // 业务类型
     planStatus: string; // 改单计划状态
     applicantCode: string; // 申请人
@@ -109,7 +109,4 @@ export function deletePlanList(ids: number[]) {
 /** 导出受理计划信息 */
 export function exportPlan(params: any) {
   return requestClient.download('/bpp/flow/acceptance-plan/export-excel', { params });
-}
-
-export class RecordBase {
 }
