@@ -633,19 +633,23 @@ const openContainerAreaWindow = (
                 onClick: handleMainPlanEdit.bind(null, row),
                 disabled: row.planStatus === 'COMPLETED',
               },
-              {
-                label: '删除',
-                type: 'link',
-                icon: ACTION_ICON.DELETE,
-                auth: ['system:user:delete'],
-                popConfirm: {
-                  title: '确定删除该条记录吗？',
-                  onConfirm: handleMainPlanDelete.bind(null, row),
-                  placement: 'topRight',
-                },
-                danger: true,
-                disabled: row.planStatus === 'COMPLETED',
-              },
+              // 当状态不是'已完成'时才显示删除按钮
+              ...(row.planStatus !== 'COMPLETED'
+                ? [
+                    {
+                      label: '删除',
+                      type: 'link',
+                      icon: ACTION_ICON.DELETE,
+                      auth: ['system:user:delete'],
+                      popConfirm: {
+                        title: '确定删除该条记录吗？',
+                        onConfirm: handleMainPlanDelete.bind(null, row),
+                        placement: 'topRight',
+                      },
+                      danger: true,
+                    },
+                  ]
+                : []),
             ]"
           />
         </template>
@@ -714,19 +718,22 @@ const openContainerAreaWindow = (
                 onClick: handleSubEdit.bind(null, row),
                 disabled: row.planStatus === 'COMPLETED',
               },
-              {
-                label: '删除',
-                type: 'link',
-                icon: ACTION_ICON.DELETE,
-                auth: ['system:user:delete'],
-                popConfirm: {
-                  title: '确定删除该条记录吗？',
-                  onConfirm: handleSubDelete.bind(null, row),
-                  placement: 'topRight',
-                },
-                danger: true,
-                disabled: row.planStatus === 'COMPLETED',
-              },
+              ...(row.planStatus !== 'COMPLETED'
+                ? [
+                    {
+                      label: '删除',
+                      type: 'link',
+                      icon: ACTION_ICON.DELETE,
+                      auth: ['system:user:delete'],
+                      popConfirm: {
+                        title: '确定删除该条记录吗？',
+                        onConfirm: handleSubDelete.bind(null, row),
+                        placement: 'topRight',
+                      },
+                      danger: true,
+                    },
+                  ]
+                : []),
             ]"
           />
         </template>
