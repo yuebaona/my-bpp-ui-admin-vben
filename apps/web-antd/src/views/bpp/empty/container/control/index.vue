@@ -580,12 +580,12 @@ const openContainerAreaWindow = (
                 Close
               </ContainerAreaDisplay>
             </template>
-            <a-text
+            <text
               @click="openContainerAreaWindow(row)"
               style="color: #1890ff; cursor: pointer"
             >
               {{ row.bayRanges }}
-            </a-text>
+            </text>
           </a-popover>
         </template>
         <template #form-expand-before>
@@ -631,6 +631,7 @@ const openContainerAreaWindow = (
                 icon: ACTION_ICON.EDIT,
                 auth: ['system:user:update'],
                 onClick: handleMainPlanEdit.bind(null, row),
+                disabled: row.planStatus === 'COMPLETED',
               },
               {
                 label: '删除',
@@ -643,6 +644,7 @@ const openContainerAreaWindow = (
                   placement: 'topRight',
                 },
                 danger: true,
+                disabled: row.planStatus === 'COMPLETED',
               },
             ]"
           />
@@ -674,12 +676,12 @@ const openContainerAreaWindow = (
                 Close
               </ContainerAreaDisplay>
             </template>
-            <a-text
+            <text
               @click="openContainerAreaWindow(row)"
               style="color: #1890ff; cursor: pointer"
             >
               {{ row.bayRanges }}
-            </a-text>
+            </text>
           </a-popover>
         </template>
         <template #toolbar-tools>
@@ -710,6 +712,7 @@ const openContainerAreaWindow = (
                 icon: ACTION_ICON.EDIT,
                 auth: ['system:user:update'],
                 onClick: handleSubEdit.bind(null, row),
+                disabled: row.planStatus === 'COMPLETED',
               },
               {
                 label: '删除',
@@ -722,6 +725,7 @@ const openContainerAreaWindow = (
                   placement: 'topRight',
                 },
                 danger: true,
+                disabled: row.planStatus === 'COMPLETED',
               },
             ]"
           />
