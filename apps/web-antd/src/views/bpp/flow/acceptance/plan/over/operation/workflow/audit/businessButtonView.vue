@@ -18,7 +18,7 @@ import {getSimpleUserList} from '#/api/system/user';
 
 defineOptions({name: 'BusinessButtonView'});
 
-const emit = defineEmits(['close-form']);
+const emit = defineEmits(['close-form','submit-form']);
 /**
  * 参数
  */
@@ -62,20 +62,22 @@ const containerFormData = ref({
   auditOpinion: undefined,
   containerFormDataArray:[{
     id: undefined,
-    acceptancePlanNo: undefined,
-    containerNo: undefined,
+    acptPlnNo: undefined,
+    contNo: undefined,
     isSystemRateSea: undefined,
     isSystemRateGate: undefined,
     priceSea: undefined,
     priceGate: undefined,
   }]
 });
-//  关闭任务处理弹窗
-function closeTask(type: '' | string) {
-  emit('close-form', type);
+// 取消任务，关闭弹窗
+function closeTask() {
+  emit('close-form');
 }
-function cancelTask(){
-  closeTask('');
+// 提交任务，关闭弹窗
+function submitFormCallBack() {
+  emit('close-form');
+  emit('submit-form');
 }
 //  审批通过
 async function passTask() {
@@ -95,11 +97,11 @@ async function passTask() {
     } as any;
     // 任务审批
     await approveTask(data);
-    //  修改单据数据
+    // 修改单据数据
     await businessProgressAcceptancePlanOverOperation(containerFormData.value.containerFormDataArray)
     message.success('审批通过成功');
     setTimeout(() => {
-      closeTask('');
+      submitFormCallBack();
     }, 500);
   }catch (e){
     const res = JSON.stringify(e);
@@ -139,7 +141,7 @@ function noPassTask() {
       await acceptancePlanOverRejectProgress({ id: props.businessKey });
       message.success('拒绝成功,流程已结束！');
       setTimeout(() => {
-        closeTask('');
+        submitFormCallBack();
       }, 500);
     }catch (e) {
       message.error('拒绝失败' + JSON.stringify(e));
@@ -182,7 +184,7 @@ async function doReturnTask() {
     buttonLoading.value = false;
     returnVisible.value = false;
     setTimeout(() => {
-      closeTask('');
+      submitFormCallBack();
     }, 500);
   } catch (e) {
     message.error(`退回失败 + ${JSON.stringify(e)}`);
@@ -210,7 +212,7 @@ async function doTransferTask(){
     buttonLoading.value = false;
     transferVisible.value = false;
     setTimeout(() => {
-      closeTask('');
+      submitFormCallBack();
     }, 500);
   }catch (e) {
     message.error('转办失败' + JSON.stringify(e));
@@ -230,7 +232,7 @@ const columns = reactive([
   },
   {
     title: '箱号',
-    dataIndex: 'containerNo',
+    dataIndex: 'contNo',
     width: 120,
     align: 'center',
   },
@@ -276,8 +278,8 @@ watch(() => props.containerDataArray, async () => {
   props.containerDataArray.forEach((item, index) => {
     containerFormDataList.push({
       id: item.id,
-      acceptancePlanNo: item.acceptancePlanNo,
-      containerNo: item.containerNo,
+      acptPlnNo: item.acptPlnNo,
+      contNo: item.contNo,
       isSystemRateSea: item.isSystemRateSea,
       priceSea: item.priceSea,
       isSystemRateGate: item.isSystemRateGate,
@@ -338,9 +340,9 @@ onMounted(async () => {
               <template v-if="column.dataIndex === 'priceSea'">
                 <a-form-item
                   :name="['containerFormDataArray', index, 'priceSea']"
-                  :rules="[{required: true,message: '请填写海侧报价', trigger: 'change'}]"
+                  :rules="[{required: !record.isSystemRateSea,message: '请填写海侧报价', trigger: 'change'}]"
                   >
-                  <a-input v-model:value="record.priceSea" style="width: 120px;" placeholder="请输入" />
+                  <a-input v-model:value="record.priceSea" style="width: 120px;" placeholder="请输入" :disabled="record.isSystemRateSea"/>
                   <span style="margin-left: 4px;">元</span>
                 </a-form-item>
               </template>
@@ -360,9 +362,9 @@ onMounted(async () => {
               <template v-if="column.dataIndex === 'priceGate'">
                 <a-form-item
                   :name="['containerFormDataArray', index, 'priceGate']"
-                  :rules="[{required: true,message: '请填写陆侧报价', trigger: 'change'}]"
+                  :rules="[{required: !record.isSystemRateGate,message: '请填写陆侧报价', trigger: 'change'}]"
                 >
-                  <a-input v-model:value="record.priceGate" style="width: 120px;" placeholder="请输入" />
+                  <a-input v-model:value="record.priceGate" style="width: 120px;" placeholder="请输入" :disabled="record.isSystemRateGate"/>
                   <span style="margin-left: 4px;">元</span>
                 </a-form-item>
               </template>
@@ -383,7 +385,7 @@ onMounted(async () => {
     </div>
     <Flex justify="end">
       <Space>
-        <Button @click="cancelTask">取消</Button>
+        <Button @click="closeTask">取消</Button>
         <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
         <!--退回-->
         <a-popover v-model:open="returnVisible" title="退回" trigger="manual">

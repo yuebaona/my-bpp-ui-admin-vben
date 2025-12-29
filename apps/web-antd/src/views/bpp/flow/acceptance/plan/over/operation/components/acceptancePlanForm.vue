@@ -25,7 +25,7 @@ import { getAcceptancePlanOverOperation } from '#/api/bpp/flow/acceptance/plan/o
 import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';
 
-import { acceptancePlanFormSchema, containerInfoColumns } from '../data';
+import { acceptancePlanFormSchema, contInfoColumns } from '../data';
 
 interface Props {
   id?: string; // 只需要传递id
@@ -34,52 +34,117 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits(['success', 'validate']);
-const vesselCode = ref<string>();
-
-const vesselNameState = reactive({
-  data: [],
-  value: [],
+const vslCode = ref<string>();
+const vieVoyType = ref<string>();
+interface LabelInValueType {
+  value: number | string;
+  label: string;
+}
+const vslNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const vesselVoyageState = reactive({
-  data: [],
-  value: [],
+const vslVoyState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const payerNameSeaState = reactive({
-  data: [],
-  value: [],
+const payerNameSeaState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const payerNameGateState = reactive({
-  data: [],
-  value: [],
+const payerNameGateState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const isoTypeState = reactive({
-  data: [],
-  value: [],
+const isoTypeState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const isoLengthState = reactive({
-  data: [],
-  value: [],
+const isoLengthState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
+});
+const applicantCompanyNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
+  fetching: false,
+  data: [],
 });
 
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
 const fileList = ref<string[]>([]);
-const containerData = reactive<
+const contData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
-const containerDataList = reactive<
+const contDataList = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
+const originalData = ref<{
+  containers: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+  form: FlowOverLimitWorkApi.AcceptancePlanFormVO | null;
+}>({
+  // 实现FlowOverLimitWorkApi.AcceptancePlanFormVO
+  form: {
+    id: '',
+    acptPlnNo: '',
+    acptPlnWebNo: '',
+    applicantCompanyName: '',
+    handlingPerson: '',
+    handlingPhoneNumber: '',
+    paymentTypeSea: '',
+    payerCodeSea: '',
+    paymentTypeGate: '',
+    payerCodeGate: '',
+    category: '',
+    vslName: '',
+    vslVoy: '',
+    plannedOperationTime: '',
+    billNo: '',
+    cargoName: '',
+    attachmentFile: '',
+    handlerRemark: '',
+    handlerConfirmation: '',
+  },
+  containers: [],
+});
 const fieldsChang = ref([]);
-const fieldsChanges = ref<string[]>([]);
+const fieldsChanges = ref([]);
 const selectKey = ref(0);
 
 // 主表单数据
@@ -87,8 +152,8 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   cargoName: '',
   handlingPhoneNumber: '',
   id: '',
-  acceptancePlanNo: '',
-  acceptancePlanWebNo: '',
+  acptPlnNo: '',
+  acptPlnWebNo: '',
   applicantCode: '',
   applicantCompanyName: '',
   applicantPlanCount: 0,
@@ -115,11 +180,13 @@ const formData = reactive<FlowOverLimitWorkApi.AcceptancePlanVO>({
   planStatus: '',
   plannedOperationTime: '',
   submissionTime: '',
-  vesselCode: '',
-  vesselName: '',
-  vesselVoyage: '',
+  vslCode: '',
+  vslName: '',
+  vslVoy: '',
   payerNameSea: '',
   payerNameGate: '',
+  vieVoyType: '',
+  vslVoyIn: '',
 });
 
 const acceptancePlanOverOperationRespVO = reactive({
@@ -127,13 +194,13 @@ const acceptancePlanOverOperationRespVO = reactive({
   isAllowedStacking: false,
   plannedMachineryType: '',
   plannedSpreaderType: '',
-  acceptancePlanNo: '',
+  acptPlnNo: '',
   processInstanceId: '',
 });
 
 const acceptancePlanBillMessageVO = reactive({
   id: 0,
-  acceptancePlanNo: '',
+  acptPlnNo: '',
   billNo: '',
   cargoType: '',
   cargoName: '',
@@ -144,10 +211,10 @@ const acceptancePlanBillMessageVO = reactive({
 // 计算属性
 const formattedContainerTypes = computed(() => {
   const typeCountMap = new Map();
-  containerDataList.forEach((item) => {
-    if (item.containerType) {
-      const count = typeCountMap.get(item.containerType) || 0;
-      typeCountMap.set(item.containerType, count + 1);
+  contDataList.forEach((item) => {
+    if (item.contType) {
+      const count = typeCountMap.get(item.contType) || 0;
+      typeCountMap.set(item.contType, count + 1);
     }
   });
 
@@ -174,14 +241,13 @@ const [Form, formApi] = useVbenForm({
   handleValuesChange: async (values: any, fieldsChanged: any) => {
     Object.assign(formData, values);
     fieldsChang.value = fieldsChanged;
-    handleFieldsChange(fieldsChanged);
   },
 });
 
 // 表格初始化
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
-    columns: containerInfoColumns(),
+    columns: contInfoColumns(),
     height: '300px',
     keepSource: true,
     border: true,
@@ -197,11 +263,15 @@ const [Grid, gridApi] = useVbenVxeGrid({
       trigger: 'click',
     },
     editRules: {
-      containerNo: [
+      contNo: [
         { required: true, message: '必须填写' },
-        { pattern: /^[A-Z]{4}\d{7}$/i, message: '请输入正确的箱号格式' },
+        {
+          pattern: /^[A-Z]{4}\d{7}$/i,
+          message: '箱号格式（前四位为英文，后七位数字）',
+        },
       ],
-      containerSize: [{ required: true, message: '必须填写' }],
+      contSize: [{ required: true, message: '必须填写' }],
+      contType: [{ required: true, message: '必须填写' }],
     },
     toolbarConfig: {
       refresh: false,
@@ -212,7 +282,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       enabled: false,
     },
-    data: containerData,
+    data: contData,
     showFooter: true,
     mergeFooterItems: [
       { row: 0, col: 0, rowspan: 1, colspan: 9 },
@@ -222,23 +292,23 @@ const [Grid, gridApi] = useVbenVxeGrid({
     footerData: [
       {
         serialNumber: 'BUTTON',
-        containerNo: '',
-        containerSize: '',
-        containerType: '',
+        contNo: '',
+        contSize: '',
+        contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
       {
         serialNumber: '箱量 x 箱型',
-        containerNo: '',
-        containerSize: formattedContainerTypes,
-        containerType: '',
+        contNo: '',
+        contSize: formattedContainerTypes,
+        contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
@@ -248,8 +318,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 const addNewRow = async () => {
   const $grid = gridApi.grid;
   if ($grid) {
-    const record = { containerNo: '' };
-    const { row: newRow } = await $grid.insertAt(record, -1);
+    const record = { contNo: '' };
+    const { row: newRow } = await $grid.insertAt(record, null);
     await nextTick();
     await $grid.setEditRow(newRow, true);
   }
@@ -260,7 +330,7 @@ const deleteRow = async (
 ) => {
   const $grid = gridApi.grid;
   await $grid.remove(row);
-  updateContainerDataList();
+  updatecontDataList();
 };
 
 const saveRow = async (
@@ -275,18 +345,18 @@ const saveRow = async (
   } else {
     await $grid.clearEdit(row);
     await $grid.reloadRow(row, {});
-    updateContainerDataList();
-    await formApi.setFieldValue('containerInfo', 1);
+    updatecontDataList();
+    await formApi.setFieldValue('contInfo', 1);
     await formApi.validate();
     message.success('数据保存成功');
   }
 };
 
-const updateContainerDataList = () => {
-  containerDataList.splice(0);
+const updatecontDataList = () => {
+  contDataList.splice(0);
   // eslint-disable-next-line array-callback-return
   [...gridApi.grid.getInsertRecords()].map((record) => {
-    containerDataList.push(toRaw(record));
+    contDataList.push(toRaw(record));
   });
 };
 
@@ -307,7 +377,18 @@ const loadFormData = async () => {
     // 设置主表单数据
     if (data.acceptancePlanRespVO) {
       Object.assign(formData, data.acceptancePlanRespVO);
-      await formApi.setValues(data.acceptancePlanRespVO);
+      formData.plannedOperationTime = data.acceptancePlanRespVO.plannedOperationTime.toString();
+      await formApi.setValues(formData);
+      originalData.value = {
+        form: data.acceptancePlanRespVO,
+        containers: data.acceptancePlanOverOperationContainerRespVOS,
+      };
+      originalData.value.form.billNo =
+        data?.acceptancePlanBillMessageRespVO?.billNo;
+      originalData.value.form.cargoName =
+        data?.acceptancePlanBillMessageRespVO?.cargoName;
+      originalData.value.containers =
+        data.acceptancePlanOverOperationContainerRespVOS;
 
       // 设置提单号和货名
       if (data.acceptancePlanBillMessageRespVO) {
@@ -322,38 +403,44 @@ const loadFormData = async () => {
         formData.billNo = data.acceptancePlanBillMessageRespVO.billNo;
         formData.cargoName = data.acceptancePlanBillMessageRespVO.cargoName;
       }
-
-      // 设置附件
-      fileList.value = JSON.parse(
+      // 解析 JSON
+      const fileListData = JSON.parse(
         data.acceptancePlanRespVO.attachmentFile || '[]',
       );
 
+      fileList.value = fileListData.map((item) => {
+        const parts = item.split('?');
+
+        return parts[0];
+      });
+
       // 设置船舶信息
-      if (data.acceptancePlanRespVO.vesselName) {
-        vesselNameState.value = {
-          label: data.acceptancePlanRespVO.vesselName,
-          value: data.acceptancePlanRespVO.vesselName,
+      if (data.acceptancePlanRespVO.vslName) {
+        vslNameState.value = {
+          label: data.acceptancePlanRespVO.vslName,
+          value: data.acceptancePlanRespVO.vslName,
         };
 
         const voyageRes = await getVVd({
-          condition: data.acceptancePlanRespVO.vesselName,
+          condition: data.acceptancePlanRespVO.vslName,
           queryType: 'VOYAGE',
         });
 
         if (voyageRes) {
-          vesselVoyageState.data = voyageRes.map((item: any) => ({
+          vslVoyState.data = voyageRes.map((item: any) => ({
             label: item.vieVoy,
             value: item.vieVoy,
           }));
         }
 
-        vesselCode.value = data.acceptancePlanRespVO.vesselCode;
+        vslCode.value = data.acceptancePlanRespVO.vslCode;
+        vieVoyType.value = data.acceptancePlanRespVO?.vslVoyIn ? 'IN' : 'OUT';
       }
 
-      if (data.acceptancePlanRespVO.vesselVoyage) {
-        vesselVoyageState.value = {
-          label: data.acceptancePlanRespVO.vesselVoyage,
-          value: data.acceptancePlanRespVO.vesselVoyage,
+      if (data.acceptancePlanRespVO.vslVoy) {
+        vslVoyState.value = {
+          label: data.acceptancePlanRespVO.vslVoy,
+          value: data.acceptancePlanRespVO.vslVoy,
         };
       }
 
@@ -371,14 +458,21 @@ const loadFormData = async () => {
           value: data.acceptancePlanRespVO.payerNameGate,
         };
       }
+      // 设置申请公司名称
+      if (data.acceptancePlanRespVO.applicantCompanyName) {
+        applicantCompanyNameState.value = {
+          label: data.acceptancePlanRespVO.applicantCompanyName,
+          value: data.acceptancePlanRespVO.applicantCompanyName,
+        };
+      }
     }
-
     // 设置箱信息
     if (data.acceptancePlanOverOperationContainerRespVOS) {
       const $grid = gridApi.grid;
       for (const item of data.acceptancePlanOverOperationContainerRespVOS) {
         await $grid.insertAt(item, -1);
-        containerDataList.push(item);
+        contDataList.push(item);
+        tempInputMap.value[item.id] = item.contType;
       }
     }
 
@@ -413,15 +507,15 @@ const isoTypeSearch = async () => {
 
     if (lengthRes) {
       isoLengthState.data = lengthRes.map((item: any) => ({
-        label: item.containerLength,
-        value: item.containerLength,
+        label: item.contLength,
+        value: item.contLength,
       }));
     }
 
     if (typeRes) {
       isoTypeState.data = typeRes.map((item: any) => ({
-        label: item.containerType,
-        value: item.containerType,
+        label: item.contType,
+        value: item.contType,
       }));
     }
   } finally {
@@ -429,24 +523,19 @@ const isoTypeSearch = async () => {
   }
 };
 
-const handleFieldsChange = (fieldsChanged: any) => {
-  // 这里可以处理字段变化逻辑，如果需要的话
-  fieldsChanges.value = fieldsChanged;
-};
-
 // 表单验证方法
 const validate = async (): Promise<boolean> => {
   // 验证箱信息表格是否有数据
-  const containerDataArray = [...gridApi.grid.getInsertRecords()].map(
-    (record) => toRaw(record),
+  const contDataArray = [...gridApi.grid.getInsertRecords()].map((record) =>
+    toRaw(record),
   );
 
-  if (containerDataArray.length === 0) {
-    await formApi.setFieldValue('containerInfo', '');
+  if (contDataArray.length === 0) {
+    await formApi.setFieldValue('contInfo', '');
     await formApi.validate();
     return false;
   } else {
-    await formApi.setFieldValue('containerInfo', 1);
+    await formApi.setFieldValue('contInfo', 1);
   }
 
   // 验证表单
@@ -469,20 +558,20 @@ const validate = async (): Promise<boolean> => {
 
 // 获取保存数据
 const getSaveData = () => {
-  const containerDataArray = [...gridApi.grid.getInsertRecords()].map(
-    (record) => toRaw(record),
+  const contDataArray = [...gridApi.grid.getInsertRecords()].map((record) =>
+    toRaw(record),
   );
-
   return {
     acceptancePlanSaveReqVO: {
       ...formData,
-      vesselCode: vesselCode.value,
+      vslCode: vslCode.value,
+      vieVoyType: vieVoyType.value,
     },
     acceptancePlanOverOperationSaveReqVO: {
       ...acceptancePlanOverOperationRespVO,
       isUpdate: fieldsChanges.value.length > 0,
     },
-    acceptancePlanOverOperationContainerSaveReqVOs: containerDataArray.map(
+    acceptancePlanOverOperationContainerSaveReqVOs: contDataArray.map(
       (item) => ({
         ...item,
         id:
@@ -503,55 +592,66 @@ const getSaveData = () => {
 const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
+  vslNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
-  if(value.length<2){
-    message.warning('请输入至少两个字符');
-    return;
-  }
-  vesselNameState.fetching = true;
+  vslNameState.fetching = true;
   const res = await getVVd({ condition: value });
   if (res) {
-    vesselNameState.data = res.map((item: any) => ({
-      label: item.vieVslCName,
-      value: item.vieVslCName,
+    vslNameState.data = res.map((item: any) => ({
+      label: item.vieVslName,
+      value: item.vieVslName,
       data: item,
     }));
   }
-  vesselNameState.fetching = false;
+  vslNameState.fetching = false;
 };
 
-const vesselNameSelect = async (value: any, option: any) => {
-  await formApi.setFieldValue('vesselName', value.label);
-  vesselCode.value = option?.data?.vieVslCd;
+const vslNameSelect = async (value: any, option: any) => {
+  await formApi.setFieldValue('vslName', value.label);
+  vslCode.value = option?.data?.vieVslCd;
+  vieVoyType.value = option?.data?.vieVoyType;
 
-  vesselVoyageState.fetching = true;
+  vslVoyState.fetching = true;
   const res = await getVVd({ condition: value.label, queryType: 'VOYAGE' });
 
   if (res) {
-    vesselVoyageState.data = res.map((item: any) => ({
+    vslVoyState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
     }));
   }
 
-  vesselVoyageState.value = [];
-  await formApi.setFieldValue('vesselVoyage', '');
-  vesselVoyageState.fetching = false;
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
+  await formApi.setFieldValue('vslVoy', '');
+  vslVoyState.fetching = false;
 };
 
-const vesselNameChange = async () => {
-  await formApi.setFieldValue('vesselName', '');
-  await formApi.setFieldValue('vesselVoyage', '');
-  vesselVoyageState.value = [];
-  vesselVoyageState.data = [];
+const vslNameChange = async () => {
+  await formApi.setFieldValue('vslName', '');
+  await formApi.setFieldValue('vslVoy', '');
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
+  vslVoyState.data = [];
   selectKey.value++;
 };
 
-const vesselVoyageSelect = async (value: any) => {
-  await formApi.setFieldValue('vesselVoyage', value.label);
+const vslVoySelect = async (value: any) => {
+  await formApi.setFieldValue('vslVoy', value.label);
 };
 
 const payerNameSeaSearch = async (value: string) => {
+  payerNameSeaState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   payerNameSeaState.fetching = true;
   const res = await getCustomerList({
@@ -580,6 +680,10 @@ const payerNameSeaChange = async () => {
 };
 
 const payerNameGateSearch = async (value: string) => {
+  payerNameGateState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   payerNameGateState.fetching = true;
   const res = await getCustomerList({
@@ -607,6 +711,66 @@ const payerNameGateChange = async () => {
   await formApi.setFieldValue('payerNameGate', '');
 };
 
+const applicantCompanyNameSearch = async (value: string) => {
+  applicantCompanyNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+  if (!value) return;
+  applicantCompanyNameState.fetching = true;
+  const res = await getCustomerList({
+    pageNo: 1,
+    pageSize: 100,
+    customerName: value,
+  });
+  if (res) {
+    applicantCompanyNameState.data = res.map((item: any) => ({
+      label: item.customerName,
+      value: item.customerName,
+      data: item,
+    }));
+  }
+  applicantCompanyNameState.fetching = false;
+};
+
+const applicantCompanyNameSelect = async (value: any) => {
+  await formApi.setFieldValue('applicantCompanyName', value.label);
+};
+
+const applicantCompanyNameChange = async () => {
+  await formApi.setFieldValue('applicantCompanyName', '');
+};
+const tempInputMap = ref<Record<number | string, string>>({});
+const handleContTypeInput = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id; // 取行唯一标识
+  delete tempInputMap.value[rowKey];
+  row.contType = '';
+  if (val) {
+    tempInputMap.value[rowKey] = val.toUpperCase();
+  }
+  await $grid.validateField(row, 'contType');
+};
+const contTypeSelect = async (val: string, row: any) => {
+  const $grid = gridApi.grid;
+  const rowKey = row.key || row.id;
+  row.contType = val ? val.toUpperCase() : '';
+  tempInputMap.value[rowKey] = row.contType;
+  await $grid.validateField(row, 'contType');
+};
+const vslVoyChange = async () => {
+  await formApi.setFieldValue('vslVoy', '');
+};
+const handleVoyageSearch = async (value: string) => {
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+};
 // 暴露方法给父组件（如果需要）
 defineExpose({
   validate,
@@ -634,13 +798,48 @@ watch(
     }
   },
 );
+watch(
+  () => ({ ...formData }), // 创建新对象触发深度监听
+  (newVal) => {
+    if (originalData.value.form && formData.id) {
+      if (
+        originalData.value.form[fieldsChang.value[0]] ===
+        newVal[fieldsChang.value[0]]
+      ) {
+        fieldsChanges.value = fieldsChanges.value.filter(
+          (item) => item !== fieldsChang.value[0],
+        );
+      } else {
+        if (fieldsChang.value[0] === 'contInfo') {
+          const newArr = [];
+          [...gridApi.grid.getInsertRecords()].map((record) => {
+            const rawRecord = toRaw(record) as any;
+            const { serialNumber, ...recordWithoutSerial } = rawRecord;
+            return newArr.push(recordWithoutSerial);
+          });
+          if (
+            JSON.stringify(newArr) !==
+            JSON.stringify(originalData.value.containers)
+          ) {
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        } else {
+          if (!fieldsChanges.value.includes(fieldsChang.value[0])) {
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }
+      }
+    }
+  },
+  { deep: true, immediate: false },
+);
 </script>
 
 <template>
   <Form>
-    <template #containerInfo>
+    <template #contInfo>
       <div class="mt-4 w-full">
-        <div class="table-container">
+        <div class="table-cont">
           <Grid>
             <template #actions="{ row }">
               <TableAction
@@ -673,33 +872,51 @@ watch(
               </Button>
               <span v-else>箱量 x 箱型</span>
             </template>
-            <template #containerLengthEdit="{ row }">
+            <template #contSizeEdit="{ row }">
               <Select
                 :options="isoLengthState.data"
-                mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
-                v-model:value="row.containerSize"
+                v-model:value="row.contSize"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
-                :show-search="true"
-                :filter-option="true"
                 :list-height="100"
               />
             </template>
-            <template #containerTypeEdit="{ row }">
+            <template #contTypeEdit="{ row }">
               <Select
                 :options="isoTypeState.data"
                 mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
-                v-model:value="row.containerType"
+                v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
                 :get-popup-container="getPopupContainer"
                 :show-search="true"
                 :filter-option="true"
                 :list-height="100"
+                @search="(val) => handleContTypeInput(val, row)"
+                @select="(val) => contTypeSelect(val, row)"
               />
             </template>
           </Grid>
         </div>
       </div>
+    </template>
+
+    <template #applicantCompanyName>
+      <Select
+        v-model:value="applicantCompanyNameState.value"
+        mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+        label-in-value
+        placeholder="请输入申请公司名称"
+        style="width: 100%"
+        :filter-option="false"
+        :not-found-content="
+          applicantCompanyNameState.fetching ? undefined : null
+        "
+        :options="applicantCompanyNameState.data"
+        @search="applicantCompanyNameSearch"
+        allow-clear
+        @select="applicantCompanyNameSelect"
+        @change="applicantCompanyNameChange"
+      />
     </template>
 
     <template #payerNameSea>
@@ -736,35 +953,37 @@ watch(
       />
     </template>
 
-    <template #vesselName>
+    <template #vslName>
       <Select
-        v-model:value="vesselNameState.value"
+        v-model:value="vslNameState.value"
         mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
         label-in-value
         placeholder="请输入作业船名"
         style="width: 100%"
         :filter-option="false"
-        :not-found-content="vesselNameState.fetching ? undefined : null"
-        :options="vesselNameState.data"
+        :not-found-content="vslNameState.fetching ? undefined : null"
+        :options="vslNameState.data"
         @search="handleVesselSearch"
         allow-clear
-        @select="vesselNameSelect"
-        @change="vesselNameChange"
+        @select="vslNameSelect"
+        @change="vslNameChange"
       />
     </template>
 
-    <template #vesselVoyage>
+    <template #vslVoy>
       <Select
-        v-model:value="vesselVoyageState.value"
+        v-model:value="vslVoyState.value"
         mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
         label-in-value
         placeholder="请输入船名航次"
         style="width: 100%"
         :filter-option="true"
-        :not-found-content="vesselVoyageState.fetching ? undefined : null"
-        :options="vesselVoyageState.data"
+        :not-found-content="vslVoyState.fetching ? undefined : null"
+        :options="vslVoyState.data"
         allow-clear
-        @select="vesselVoyageSelect"
+        @select="vslVoySelect"
+        @change="vslVoyChange"
+        @search="handleVoyageSearch"
         :key="selectKey"
       />
     </template>

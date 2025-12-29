@@ -6,8 +6,8 @@ export namespace FlowOverLimitWorkApi {
   // 受理计划表单VO
   export interface AcceptancePlanFormVO {
     id?: string;
-    acceptancePlanNo?: string;
-    acceptancePlanWebNo?: string;
+    acptPlnNo?: string;
+    acptPlnWebNo?: string;
     applicantCompanyName: string;
     handlingPerson: string;
     handlingPhoneNumber: string;
@@ -16,8 +16,8 @@ export namespace FlowOverLimitWorkApi {
     paymentTypeGate: string;
     payerCodeGate: string;
     category: string;
-    vesselName: string;
-    vesselVoyage: string;
+    vslName: string;
+    vslVoy: string;
     plannedOperationTime: string;
     billNo?: string;
     cargoName: string;
@@ -30,8 +30,8 @@ export namespace FlowOverLimitWorkApi {
   // 受理计划VO
   export interface AcceptancePlanVO {
     id: number | string;
-    acceptancePlanNo: string;
-    acceptancePlanWebNo: string;
+    acptPlnNo: string;
+    acptPlnWebNo: string;
     applicantCode: string;
     applicantCompanyName: string;
     payerCodeGate: string;
@@ -39,9 +39,9 @@ export namespace FlowOverLimitWorkApi {
     payerCodeSea: string;
     paymentTypeSea: string;
     category: string;
-    vesselCode: string;
-    vesselName: string;
-    vesselVoyage: string;
+    vslCode: string;
+    vslName: string;
+    vslVoy: string;
     plannedOperationTime: string;
     attachmentFile: string;
     handlingPerson: string;
@@ -66,13 +66,15 @@ export namespace FlowOverLimitWorkApi {
     billNo?: string;
     cargoName: string;
     submissionTime: string;
+    vieVoyType: string;
+    vslVoyIn: string;
   }
   // 超限受理计划信息
   export interface AcceptancePlanOverOperationVO {
     id: number;
     isAllowedStacking: boolean;
     plannedMachineryType: string;
-    acceptancePlanNo: string;
+    acptPlnNo: string;
     processInstanceId: string;
     taskId: string;
     isUpdate: boolean;
@@ -80,17 +82,17 @@ export namespace FlowOverLimitWorkApi {
   // 超限受理计划箱信息
   export interface AcceptancePlanOverOperationContainerVO {
     id: number;
-    containerNo: string;
-    containerSize: string;
-    containerType: string;
-    containerCargoWeight: number;
-    containerTotalWeight: number;
-    containerCargoSize: string;
-    containerOverlimitDetails: string;
-    containerPhysicalStatus: string;
-    containerOperationNode: string;
-    acceptancePlanNo: string;
-    overOperationContainerNo: string;
+    contNo: string;
+    contSize: string;
+    contType: string;
+    contCargoWeight: number;
+    contTotalWeight: number;
+    contCargoSize: string;
+    contOogDetails: string;
+    contPhysicalStatus: string;
+    contOperationNode: string;
+    acptPlnNo: string;
+    oogContNo: string;
     processInstanceId: string;
     priceSea: number;
     priceGate: number;
@@ -102,7 +104,7 @@ export namespace FlowOverLimitWorkApi {
   // 提单信息表
   export interface AcceptancePlanBillMessageVO {
     id: number;
-    acceptancePlanNo: string;
+    acptPlnNo: string;
     billNo: string;
     cargoType: string;
     cargoName: string;
@@ -115,14 +117,14 @@ export namespace FlowOverLimitWorkApi {
     operationType: string;
     operationSource: string;
     changeReason: string;
-    vesselCode: string;
-    vesselVoyage: string;
+    vslCode: string;
+    vslVoy: string;
     operationNo: string;
     operationPosition: string;
-    machineSpreaderChangeType: string;
-    machineSpreaderType: string;
-    machineType: string;
-    machineNo: string;
+    cheWorkChangeType: string;
+    cheWorkType: string;
+    cheType: string;
+    machNo: string;
     spreaderType: string;
     startTime: number | string;
     endTime: number | string;
@@ -132,15 +134,16 @@ export namespace FlowOverLimitWorkApi {
     createTime: number | string;
     endTimeBack: number;
     operationRecordStatus: string;
-    acceptancePlanNo: string;
+    acptPlnNo: string;
     operationContainerId: number;
     stopCode: string;
     stopType: string;
     stopStartTime: number | string;
     stopEndTime: number | string;
     stopRemark: string;
-    overOperationContainerIds: string[]; // 用于现场操作新增
+    oogContIds: string[]; // 用于现场操作新增
     isOnSiteWork: string;
+    plannedCheType: string;
   }
   // 总数据
   export interface OverLimitWorkSaveReqVO {
@@ -284,4 +287,4 @@ export const cancelAcceptancePlanOverOperation = (ids: number[] | string[]) => {
   return requestClient.post(
     `/bpp/flow/acceptance-plan-over-operation/cancel?ids=${ids}`,
   );
-}
+};

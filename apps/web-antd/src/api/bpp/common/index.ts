@@ -56,12 +56,14 @@ export const getCustomerList = (params: PageParam) => {
 export const getVVd = ({
   queryType = 'VESSEL',
   condition,
+  inOutFlag = 'ALL',
 }: {
   condition: string;
   queryType?: string;
+  inOutFlag?: string;
 }) => {
   return requestClient.get(
-    `/bpp/flow/common/get-vvd?queryType=${queryType}&condition=${condition}`,
+    `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
 // 获取集装箱ISO信息

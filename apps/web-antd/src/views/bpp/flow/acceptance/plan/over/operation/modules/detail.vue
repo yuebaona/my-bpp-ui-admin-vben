@@ -8,18 +8,18 @@ import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Image,message } from 'ant-design-vue';
+import { Image, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import { Base64 } from 'js-base64';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
+import { handlePreview } from '#/utils/filePreview';
 import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
-  containerInfoDetailColumns,
+  contInfoDetailColumns,
 } from '../data';
 // 箱信息数据
 const containerData = reactive<
@@ -30,7 +30,7 @@ const fileList = ref<fileVo>([]);
 const acceptancePlanBillMessageVO =
   reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
     id: 0,
-    acceptancePlanNo: '',
+    acptPlnNo: '',
     billNo: '',
     cargoType: '',
     cargoName: '',
@@ -52,9 +52,9 @@ const formattedContainerTypes = computed(() => {
 
   // 统计每种箱型的数量
   containerData.forEach((item) => {
-    if (item.containerType) {
-      const count = typeCountMap.get(item.containerType) || 0;
-      typeCountMap.set(item.containerType, count + 1);
+    if (item.contType) {
+      const count = typeCountMap.get(item.contType) || 0;
+      typeCountMap.set(item.contType, count + 1);
     }
   });
 
@@ -65,11 +65,6 @@ const formattedContainerTypes = computed(() => {
   }
   return result.join('\n'); // 用换行符连接
 });
-const handlePreview = async (row: any) => {
-  window.open(
-    `http://10.15.78.1:8012/onlinePreview?url=${encodeURIComponent(Base64.encode(row.filePath))}`,
-  );
-};
 const handleDownload = async (row: any) => {
   // 判断如果是图片文件，则进行预览
   if (isImageFile(row.filePath)) {
@@ -105,7 +100,7 @@ const acceptancePlanOverOperationRespVO = ref(null);
 const containerDataArray = ref(null);
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
-    columns: containerInfoDetailColumns(),
+    columns: contInfoDetailColumns(),
     height: '250px',
     keepSource: true,
     border: true,
@@ -134,13 +129,13 @@ const [Grid] = useVbenVxeGrid({
     footerData: [
       {
         serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
-        containerNo: '', // 被合并，留空
-        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
-        containerType: '',
+        contNo: '', // 被合并，留空
+        contSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
+        contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,

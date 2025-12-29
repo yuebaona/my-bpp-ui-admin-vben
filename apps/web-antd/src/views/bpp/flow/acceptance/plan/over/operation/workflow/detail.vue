@@ -4,7 +4,7 @@ import {getAcceptancePlanOverOperation} from '#/api/bpp/flow/acceptance/plan/ove
 
 import {onMounted, ref} from 'vue';
 
-import {ContentWrap} from '@vben/common-ui';
+import { ContentWrap,useVbenModal } from '@vben/common-ui';
 
 import {Button, Card, Flex, Modal, Space} from 'ant-design-vue';
 import {router} from '#/router';
@@ -12,11 +12,17 @@ import businessButtonView from '#/views/bpp/flow/acceptance/plan/over/operation/
 import customButtonView from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/audit/customButtonView.vue';
 import acceptancePlanForm from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/detailView.vue';
 import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
+import { useGlobalTaskStore } from '#/store/globalTaskStore';
+import { getTaskTodoPage } from '#/api/bpm/task';
 
 /**
  * 参数
  */
 const props = defineProps({
+  // 从哪个页面跳转的路由
+  formPagePath: {
+    type: String,
+  },
   businessKey: {
     type: String,
   },
@@ -66,23 +72,41 @@ async function getDetailData() {
 
 // 取消审批
 function closeForm() {
-  router.back();
+  // 返回待办列表
+  router.push({
+    path: props.formPagePath,
+  });
 }
 
 // 打开审批任务窗口
 function openTaskModal() {
   openTask.value = true;
   buttonKey.value++;
+  modalApi.open();
 }
 
 const taskKey = ref(0);
 
-function closeCallBack(type: string | '') {
+// 关闭窗口
+function closeCallBack() {
   openTask.value = false;
   taskKey.value++;
+  modalApi.close();
+}
+
+// 获取待办任务,刷新菜单
+async function reGetTaskTodoPage(){
+  // 刷新待办任务
+  const globalTaskStore = useGlobalTaskStore();
+  globalTaskStore.refreshTaskTodoTotal();
+}
+
+// 提交回调
+async function submitCallBack(){
+  await reGetTaskTodoPage();
   // 返回超限受理列表
   router.push({
-    path: '/flow/flow-acceptance-plan-ovr-opr',
+    path: props.formPagePath,
   });
 }
 
@@ -101,7 +125,10 @@ function checkBusiness() {
   }
   return false;
 }
-
+const [Modal, modalApi] = useVbenModal({
+  showCancelButton: false,
+  showConfirmButton: false,
+});
 onMounted(() => {
   getDetailData();
 });
@@ -144,13 +171,14 @@ onMounted(() => {
     </div>
     <!--审批完成，即流程结束,-->
     <div v-else>
-      <acceptancePlanForm :id="id"/>
+      <acceptancePlanForm :id="id" />
     </div>
   </ContentWrap>
   <!--任务办理窗口-->
   <Modal
     :open="openTask"
     :width="1200"
+    class="w-1/2"
     title="提交审核"
     :closable="false"
     :key="taskKey"
@@ -164,6 +192,7 @@ onMounted(() => {
         :activity-nodes="activityNodes"
         :container-data-array="containerDataArray"
         @close-form="closeCallBack"
+        @submit-form="submitCallBack"
       />
     </div>
     <!--客服等其他节点-->
@@ -174,8 +203,8 @@ onMounted(() => {
         :todo-task="todoTask"
         :activity-nodes="activityNodes"
         @close-form="closeCallBack"
+        @submit-form="submitCallBack"
       />
     </div>
-    <template #footer></template>
   </Modal>
 </template>

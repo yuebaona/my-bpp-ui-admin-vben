@@ -4,7 +4,14 @@ import { Button, Card } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { inboxInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
+import LadingBill from "#/views/bpp/changeorder/unreturn/container/modules/ladingBill.vue";
+import { useVbenModal } from '@vben/common-ui';
+import type { FlowOverLimitWorkApi } from "#/api/bpp/flow/acceptance/plan/over/operation";
 
+const [LadingBillModal, ladingBillModalApi] = useVbenModal({
+  connectedComponent: LadingBill,
+  destroyOnClose: true,
+});
 const [Form, formApi] = useVbenForm({
   commonConfig: {
     componentProps: { class: 'w-full' },
@@ -16,13 +23,18 @@ const [Form, formApi] = useVbenForm({
   wrapperClass: 'grid-cols-1 md:grid-cols-4',
   schema: inboxInfoFormSchema(),
 });
+const handleClickPickupNo = () => {
+  // message.info('查看提单号信息');
+  ladingBillModalApi.setData(null).open();
+};
 </script>
 
 <template>
   <Card title="进箱信息">
+    <LadingBillModal class="w-2/5" />
     <Form>
       <template #billNo>
-        <Button type="primary">提单信息管理</Button>
+        <Button type="primary" @click="handleClickPickupNo">提单信息管理</Button>
       </template>
     </Form>
   </Card>

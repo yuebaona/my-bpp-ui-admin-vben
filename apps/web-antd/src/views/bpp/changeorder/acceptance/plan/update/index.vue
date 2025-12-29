@@ -45,7 +45,7 @@ onActivated(() => {
         :button-display="buttonDisplay"
       />
     </Affix>
-    <div class="w-screen">
+    <div class="w-full">
       <div class="mb-2 mt-2 flex">
         <div class="flex w-1/2 flex-col">
           <!-- 改单计划信息 -->

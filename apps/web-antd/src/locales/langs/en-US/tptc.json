@@ -1,0 +1,14 @@
+{
+  "dingTalk": {
+    "sync": {
+      "success": "Sync successful",
+      "doing": "Syncing, please wait…",
+      "user": "Do you want to sync user data?",
+      "department": "Do you want to sync department data?"
+    },
+    "button": {
+      "department": "Sync DingTalk Org Structure",
+      "user": "Sync DingTalk User Info"
+    }
+  }
+}

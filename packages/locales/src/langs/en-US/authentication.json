@@ -4,7 +4,7 @@
   "pageDesc": "Efficient, versatile frontend template",
   "loginSuccess": "Login Successful",
   "loginSuccessDesc": "Welcome Back",
-  "loginSubtitle": "Enter your account details to manage your projects",
+  "loginSubtitle": "Enter your account information to get started",
   "selectAccount": "Quick Select Account",
   "username": "Username",
   "password": "Password",
@@ -66,5 +66,9 @@
     "center": "Align Center",
     "alignLeft": "Align Left",
     "alignRight": "Align Right"
-  }
+  },
+  "businessPlatform": "Business Processing Platform",
+  "companyName": "Introduction to Guangxi Qinzhou Bonded Port Area Honggang Wharf Co, Ltd",
+  "companyDesc": "Qinzhou Automated Container Terminal of Beibu Gulf Port is a key initiative by the autonomous region to implement the national strategy of the New Western Land-Sea Corridor and a major project aimed at realizing the \"Four World-Class Standards\" and building a globally leading port. The project is developed in two phases: Phase I involves the automated retrofitting of Berths 7 and 8 at Dalanping South Operation Area, constructing two fully automated 100,000-ton-class container berths with a water depth of 15.1 meters and a total berth shoreline length of 518.5 meters; Phase II entails the new construction of Berths 9 and 10, adding two fully automated 200,000-ton-class container berths with a water depth of 18 meters and a total shoreline length of 783 meters. Upon completion, the entire terminal will have an annual throughput capacity of 2.6 million TEUs.",
+  "copyright": "Introduction to Guangxi Qinzhou Bonded Port Area Honggang Wharf Co, Ltd."
 }

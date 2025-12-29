@@ -519,8 +519,8 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
 /** 提单信息管理表格列配置 */
 export function ladingBillColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
-    { type: 'checkbox', width: 40, fixed: 'left' },
+    { title: '序号',type: 'seq',field: 'serialNumber', width: 50, align: 'center' },
+    { type: 'checkbox',field:'checkbox', width: 40, fixed: 'left' ,slots: { footer: 'checkbox' },},
     {
       field: 'pickupNo',
       title: '提单号',

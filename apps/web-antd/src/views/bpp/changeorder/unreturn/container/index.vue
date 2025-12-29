@@ -209,7 +209,7 @@ const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
 onMounted(async () => {
-  await getDictDataList();
+  // await getDictDataList();
 });
 watch(
   () => bppBaseDict.getBppBaseDictOptions('initiation_type'),
