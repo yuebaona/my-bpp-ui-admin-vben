@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import type { TreeProps } from 'ant-design-vue';
 
-import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
-
 import { computed, ref, watch } from 'vue';
 
 import { Button, Input, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
@@ -20,7 +18,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:visible', value: boolean): void;
-  (e: 'confirm', positions: string[]): void;
+  (e: 'confirm', positions: string[], yardColumnsMap: Record<string, string[]>): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -35,6 +33,9 @@ const emit = defineEmits<Emits>();
 const selectedYardPositions = ref<string[]>([]);
 const searchValue = ref('');
 const loading = ref(false);
+
+// 存储每个堆场位置对应的列信息
+const yardColumnsMap = ref<Record<string, string[]>>({});
 
 const yardPositionTreeData = ref<TreeProps['treeData']>([]);
 
@@ -74,13 +75,12 @@ const fetchYardRange = async () => {
   try {
     const response = await getSubPlanYardRange(props.mainId);
     yardPositionTreeData.value = [];
+    yardColumnsMap.value = {};
 
     if (response.length > 0) {
       const treeMap = new Map<string, any>();
 
       response.forEach((item: any) => {
-        console.log('item:', item);
-        console.log('item.yard:', item.yard);
         if (!item.yard) {
           return;
         }
@@ -110,6 +110,12 @@ const fetchYardRange = async () => {
           );
 
           if (!existingChild) {
+            if (item.yardBayList && Array.isArray(item.yardBayList)) {
+              yardColumnsMap.value[fullKey] = item.yardBayList;
+            } else {
+              yardColumnsMap.value[fullKey] = [];
+            }
+
             firstLevelNode.children.push({
               title: displayTitle,
               key: fullKey,
@@ -147,14 +153,26 @@ const removeSelectedPosition = (position: string) => {
   selectedYardPositions.value = selectedYardPositions.value.filter(
     (item) => item !== position,
   );
+  if (yardColumnsMap.value[position]) {
+    delete yardColumnsMap.value[position];
+  }
 };
 
 const clearSelectedPositions = () => {
   selectedYardPositions.value = [];
+  yardColumnsMap.value = {};
 };
 
 const handleConfirm = () => {
-  emit('confirm', selectedYardPositions.value);
+  // 只传递选中的位置的列信息
+  const selectedColumnsMap: Record<string, string[]> = {};
+  selectedYardPositions.value.forEach(position => {
+    if (yardColumnsMap.value[position]) {
+      selectedColumnsMap[position] = yardColumnsMap.value[position];
+    }
+  });
+
+  emit('confirm', selectedYardPositions.value, selectedColumnsMap);
   emit('update:visible', false);
 };
 

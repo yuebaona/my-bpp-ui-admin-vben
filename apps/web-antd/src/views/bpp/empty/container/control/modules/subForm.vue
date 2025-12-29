@@ -1,3 +1,4 @@
+[file name]: subForm.vue
 <script lang="ts" setup>
 // import type { UploadProps } from 'ant-design-vue';
 
@@ -38,6 +39,9 @@ const containerAreaParams = reactive({
 });
 
 const containerAreaData = reactive<any[]>([]);
+
+// 存储每个堆场位置的可选列信息
+const yardColumnsOptions = ref<Record<string, { label: string, value: string }[]>>({});
 
 const dischargeVslSchedule = reactive({
   data: [],
@@ -159,7 +163,7 @@ const transformStringToArray = (value: any): string[] => {
   return [];
 };
 
-const handleContainerAreaConfirm = async (positions: string[]) => {
+const handleContainerAreaConfirm = async (positions: string[], yardColumnsMap: Record<string, string[]>) => {
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
@@ -170,12 +174,39 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
         existingRowsMap.set(row.yardPosition, row);
       }
     });
+
     containerAreaData.splice(0);
+    yardColumnsOptions.value = {};
+
     const newRows = positions.map((pos) => {
       const yardPosition = `${pos}`;
 
+      // 保存该位置的可选列选项
+      if (yardColumnsMap[pos] && yardColumnsMap[pos].length > 0) {
+        yardColumnsOptions.value[pos] = yardColumnsMap[pos].map(col => ({
+          label: col,
+          value: col
+        }));
+      } else {
+        // 如果没有返回特定的列信息，使用默认的A-J列
+        yardColumnsOptions.value[pos] = [
+          { label: 'A', value: 'A' },
+          { label: 'B', value: 'B' },
+          { label: 'C', value: 'C' },
+          { label: 'D', value: 'D' },
+          { label: 'E', value: 'E' },
+          { label: 'F', value: 'F' },
+          { label: 'G', value: 'G' },
+          { label: 'H', value: 'H' },
+          { label: 'I', value: 'I' },
+          { label: 'J', value: 'J' },
+        ];
+      }
+
       if (existingRowsMap.has(yardPosition)) {
-        return existingRowsMap.get(yardPosition);
+        const existingRow = existingRowsMap.get(yardPosition);
+        // 确保已存在的行使用新的列选项
+        return existingRow;
       }
       // 新行数据
       return {
@@ -201,6 +232,38 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
   }
 };
 
+// 获取指定行的可选列选项
+const getYardColumnsOptions = (row: any) => {
+  if (!row.yardPosition) {
+    return [
+      { label: 'A', value: 'A' },
+      { label: 'B', value: 'B' },
+      { label: 'C', value: 'C' },
+      { label: 'D', value: 'D' },
+      { label: 'E', value: 'E' },
+      { label: 'F', value: 'F' },
+      { label: 'G', value: 'G' },
+      { label: 'H', value: 'H' },
+      { label: 'I', value: 'I' },
+      { label: 'J', value: 'J' },
+    ];
+  }
+
+  // 返回该位置的可选列，如果不存在则返回默认选项
+  return yardColumnsOptions.value[row.yardPosition] || [
+    { label: 'A', value: 'A' },
+    { label: 'B', value: 'B' },
+    { label: 'C', value: 'C' },
+    { label: 'D', value: 'D' },
+    { label: 'E', value: 'E' },
+    { label: 'F', value: 'F' },
+    { label: 'G', value: 'G' },
+    { label: 'H', value: 'H' },
+    { label: 'I', value: 'I' },
+    { label: 'J', value: 'J' },
+  ];
+};
+
 // 删除行方法
 const deleteRow = async (row: any) => {
   const $grid = gridApi.grid;
@@ -213,6 +276,11 @@ const deleteRow = async (row: any) => {
     );
     if (dataIndex !== -1) {
       currentGridData.splice(dataIndex, 1);
+    }
+
+    // 删除对应的列选项
+    if (row.yardPosition && yardColumnsOptions.value[row.yardPosition]) {
+      delete yardColumnsOptions.value[row.yardPosition];
     }
 
     containerAreaData.push(...currentGridData);
@@ -316,6 +384,7 @@ const [Form, formApi] = useVbenForm({
     if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
+      yardColumnsOptions.value = {};
       const $grid = gridApi.grid;
       if ($grid) {
         $grid.reloadData([]);
@@ -443,6 +512,7 @@ const [Modal, modalApi] = useVbenModal({
         planNo: '',
       });
       containerAreaData.splice(0);
+      yardColumnsOptions.value = {};
       isoState.data = [];
       ownerState.data = [];
       isoState.value = [];
@@ -455,6 +525,7 @@ const [Modal, modalApi] = useVbenModal({
     if (data) {
       // 清空现有数据
       containerAreaData.splice(0);
+      yardColumnsOptions.value = {};
 
       const subPlanData = data.acceptancePlanRespVO || data;
       Object.assign(formData, subPlanData);
@@ -498,6 +569,15 @@ const [Modal, modalApi] = useVbenModal({
             // 设置箱区范围数据
             if (data.yardPositionResp) {
               for (const item of data.yardPositionResp) {
+                // 从已有的数据中提取列信息（如果有）
+                const yardPosition = item.yardBay || item.yardPosition;
+                if (yardPosition && item.yardColumns) {
+                  yardColumnsOptions.value[yardPosition] = item.yardColumns.map((col: string) => ({
+                    label: col,
+                    value: col
+                  }));
+                }
+
                 await $grid.insertAt(
                   {
                     ...item,
@@ -509,9 +589,18 @@ const [Modal, modalApi] = useVbenModal({
               // 如果是数组格式
               if (Array.isArray(subPlanData.bayRangeList)) {
                 for (const bayRange of subPlanData.bayRangeList) {
+                  const yardPosition = bayRange.yardBay || '';
+                  if (yardPosition && bayRange.yardRaw) {
+                    const columns = bayRange.yardRaw.split(',');
+                    yardColumnsOptions.value[yardPosition] = columns.map(col => ({
+                      label: col,
+                      value: col
+                    }));
+                  }
+
                   await $grid.insertAt(
                     {
-                      yardPosition: bayRange.yardBay || '',
+                      yardPosition: yardPosition,
                       yardColumns: bayRange.yardRaw
                         ? bayRange.yardRaw.split(',')
                         : [],
@@ -523,9 +612,18 @@ const [Modal, modalApi] = useVbenModal({
                   );
                 }
               } else {
+                const yardPosition = subPlanData.bayRangeList.yardBay || '';
+                if (yardPosition && subPlanData.bayRangeList.yardRaw) {
+                  const columns = subPlanData.bayRangeList.yardRaw.split(',');
+                  yardColumnsOptions.value[yardPosition] = columns.map(col => ({
+                    label: col,
+                    value: col
+                  }));
+                }
+
                 await $grid.insertAt(
                   {
-                    yardPosition: subPlanData.bayRangeList.yardBay || '',
+                    yardPosition: yardPosition,
                     yardColumns: subPlanData.bayRangeList.yardRaw
                       ? subPlanData.bayRangeList.yardRaw.split(',')
                       : [],
@@ -682,20 +780,8 @@ const modalTitle = computed(() => {
                   v-model:value="row.yardColumns"
                   mode="multiple"
                   placeholder="请选择堆场列"
-                  :options="[
-                    { label: 'A', value: 'A' },
-                    { label: 'B', value: 'B' },
-                    { label: 'C', value: 'C' },
-                    { label: 'D', value: 'D' },
-                    { label: 'E', value: 'E' },
-                    { label: 'F', value: 'F' },
-                    { label: 'G', value: 'G' },
-                    { label: 'H', value: 'H' },
-                    { label: 'I', value: 'I' },
-                    { label: 'J', value: 'J' },
-                  ]"
+                  :options="getYardColumnsOptions(row)"
                   style="width: 100%"
-                  :max-tag-count="3"
                   :show-search="false"
                   @change="getStorageConditionSearch(row)"
                 />
