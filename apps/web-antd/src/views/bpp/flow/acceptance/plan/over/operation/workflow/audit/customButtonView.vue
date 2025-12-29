@@ -386,15 +386,12 @@ onMounted(async () => {
         </a-radio-group>
       </a-form-item>
       <!-- 机械类型（下拉） -->
-      <a-form-item label="机械类型" name="plannedMachineryType">
+      <a-form-item label="机械类型" name="plannedMachryType">
         <a-select
-          v-model:value="formData.plannedMachineryType"
+          v-model:value="formData.plannedMachryType"
           allow-clear
           placeholder="请选择机械类型"
         >
-          <a-select-option :value="item.value" v-for="item in plannedMachryTypeArray"
-      <a-form-item label="机械类型" name="plannedMachryType">
-          v-model:value="formData.plannedMachryType"
           <a-select-option :value="item.value" v-for="item in plannedMachryTypeArray"
                            :key="item.value">
             {{ item.label }}
