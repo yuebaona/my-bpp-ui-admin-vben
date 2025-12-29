@@ -93,6 +93,10 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
           if (selectedMainId.value) {
             formValues.mainId = selectedMainId.value;
           }
+          const mainFormValues = await mainGridApi.formApi.getValues();
+          if (mainFormValues.planNo) {
+            formValues.planNo = mainFormValues.planNo;
+          }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
@@ -141,7 +145,6 @@ function handleRowCheckboxChange({
 }: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
-  // 检查是否已勾选子计划
   if (checkedSubIds.value.length > 0) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
@@ -273,6 +276,19 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
             contIsoList: contIsoList.value,
             dischargeVslSchedule: dischargeVslSchedule.value,
           });
+          checkedSubIds.value = [];
+          subPlanNo.value = [];
+          hasSelectedMainPlan.value = false;
+          selectedMainId.value = null;
+
+          if (formValues.planNo && result.list && result.list.length > 0) {
+            const firstMainPlan = result.list[0];
+            if (firstMainPlan.planNo && formValues.planNo !== firstMainPlan.planNo) {
+              selectedMainId.value = firstMainPlan.id.toString();
+              hasSelectedMainPlan.value = true;
+              subGridApi.query();
+            }
+          }
           return result;
         },
       },
