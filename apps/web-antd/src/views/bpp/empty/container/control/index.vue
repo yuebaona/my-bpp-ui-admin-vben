@@ -226,11 +226,11 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
+            planType: 'MAIN',
+            ...queryParams,
             ownerCodeList: ownerCodeList.value,
             contIsoList: contIsoList.value,
             dischargeVslSchedule: dischargeVslSchedule.value,
-            planType: 'MAIN',
-            ...queryParams,
           });
           return result;
         },
