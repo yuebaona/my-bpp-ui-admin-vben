@@ -79,7 +79,7 @@ export function getPlanPage(params: PageParam) {
 
 /** 查询受理计划信息详情 */
 export function getPlan(id: number) {
-  return requestClient.get<AcceptancePlanApi.Plan>(
+  return requestClient.get<AcceptancePlanApi.RecordBase>(
     `/bpp/flow/acceptance-plan/get?id=${id}`,
   );
 }
