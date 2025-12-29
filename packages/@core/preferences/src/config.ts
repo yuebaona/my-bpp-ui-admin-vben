@@ -15,8 +15,7 @@ const defaultPreferences: Preferences = {
     contentPaddingLeft: 0,
     contentPaddingRight: 0,
     contentPaddingTop: 0,
-    defaultAvatar:
-      'https://unpkg.com/@vbenjs/static-source@0.1.7/source/avatar-v1.webp',
+    defaultAvatar: '/single-logo.png',
     defaultHomePath: '/analytics',
     dynamicTitle: true,
     enableCheckUpdates: true,
@@ -27,7 +26,7 @@ const defaultPreferences: Preferences = {
     layout: 'sidebar-nav',
     locale: 'zh-CN',
     loginExpiredMode: 'page',
-    name: 'Vben Admin',
+    name: 'porthg',
     preferencesButtonPosition: 'auto',
     watermark: false,
     watermarkContent: '',
@@ -41,9 +40,9 @@ const defaultPreferences: Preferences = {
     styleType: 'normal',
   },
   copyright: {
-    companyName: 'Vben',
-    companySiteLink: 'https://www.vben.pro',
-    date: '2024',
+    companyName: '广西钦州保税港区宏港码头有限公司',
+    companySiteLink: 'https://www.bbwport.cn/index.html',
+    date: '2025',
     enable: true,
     icp: '',
     icpLink: '',
@@ -65,7 +64,7 @@ const defaultPreferences: Preferences = {
   logo: {
     enable: true,
     fit: 'contain',
-    source: 'https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp',
+    source: '/single-logo.png',
   },
   navigation: {
     accordion: true,

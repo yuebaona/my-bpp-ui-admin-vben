@@ -233,7 +233,7 @@ function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
       :avatar="userStore.userInfo?.avatar || preferences.app.defaultAvatar"
     >
       <template #title>
-        您好, {{ userStore.userInfo?.nickname }}, 欢迎使用集装箱业务管理系统！
+        您好, {{ userStore.userInfo?.nickname }}, 欢迎使用业务处理平台！
       </template>
       <template #description>
         今日有 4 个待办事项需要处理，请注意查看！
@@ -242,14 +242,8 @@ function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
 
     <div class="mt-5 flex flex-col lg:flex-row">
       <div class="mr-4 w-full lg:w-3/5">
-        <WorkbenchProject
-          :items="projectItems"
-          title="集装箱业务系统"
-          @click="navTo"
-        />
         <WorkbenchTrends
           :items="trendItems"
-          class="mt-5"
           title="业务最新动态"
         />
       </div>
@@ -260,10 +254,6 @@ function navTo(nav: WorkbenchProjectItem | WorkbenchQuickNavItem) {
           title="业务快捷导航"
           @click="navTo"
         />
-        <WorkbenchTodo :items="todoItems" class="mt-5" title="待办事项" />
-        <AnalysisChartCard class="mt-5" title="集装箱状态统计">
-          <AnalyticsVisitsSource />
-        </AnalysisChartCard>
       </div>
     </div>
   </div>

@@ -13,8 +13,8 @@ import {getDictDataPage} from '#/api/bpp/base/dict/data';
 import {approveTask, getTaskListByReturn, rejectTask, transferTask,returnTask } from '#/api/bpm/task';
 import {getSimpleUserList} from '#/api/system/user';
 
-defineOptions({ name: 'CustomButtonView' });
-const emit = defineEmits(['close-form','submit-form']);
+defineOptions({name: 'CustomButtonView'});
+const emit = defineEmits(['closeCallBack']);
 /**
  * 参数
  */
@@ -104,15 +104,10 @@ async function getDetailData() {
   formData.value.acceptancePlanOverOperationOtherProcessReqVOS = businessData.acceptancePlanOverOperationContainerRespVOS;
 }
 
-// 取消任务，关闭弹窗
-function closeTask() {
-  emit('close-form');
+function closeTask(type: '' | string) {
+  emit('close-form', type);
 }
-// 提交任务，关闭弹窗
-function submitFormCallBack() {
-  emit('close-form');
-  emit('submit-form');
-}
+
 // 审批通过
 async function passTask() {
   try {
@@ -137,7 +132,7 @@ async function passTask() {
     await approveTask(data);
     message.success('审批通过成功');
     setTimeout(() => {
-      submitFormCallBack();
+      closeTask('');
     }, 500);
   } catch (e) {
     const res = JSON.stringify(e);
@@ -177,7 +172,7 @@ async function noPassTask() {
       await acceptancePlanOverRejectProgress({ id: props.businessKey });
       message.success('拒绝成功,流程已结束！');
       setTimeout(() => {
-        submitFormCallBack();
+        closeTask('');
       }, 500);
     } catch (e) {
       message.error('拒绝失败' + JSON.stringify(e));
@@ -220,7 +215,7 @@ async function doReturnTask() {
     buttonLoading.value = false;
     returnVisible.value = false;
     setTimeout(() => {
-      submitFormCallBack();
+      closeTask('');
     }, 500);
   } catch (e) {
     message.error(`退回失败 + ${JSON.stringify(e)}`);
@@ -249,7 +244,7 @@ async function doTransferTask() {
     buttonLoading.value = false;
     transferVisible.value = false;
     setTimeout(() => {
-      submitFormCallBack();
+      closeTask('');
     }, 500);
   } catch (e) {
     message.error('转办失败' + JSON.stringify(e));
@@ -312,7 +307,7 @@ const formRules = ref({
     {
       required: true,
       message: '请选择吊具类型',
-    },
+    }
   ],
 });
 
@@ -323,10 +318,6 @@ async function initDictData() {
   const mechanical = await getDictData('mechanical_type');
   initplannedMachryTypeArray.value = mechanical;
   plannedMachryTypeArray.value = mechanical;
-  initPlannedMachineryTypeArray.value = mechanical;
-  if(!formData.isAllowedStacking){
-    plannedMachineryTypeArray.value = initPlannedMachineryTypeArray.value.filter(x => x.value === 'QC')
-  }
   // if (props.activityNodes && props.activityNodes.length > 0) {
   //   nextNodeNameArray.value = props.activityNodes.filter(x => x.status === -1 && x.id != "EndEvent");
   // }
@@ -448,7 +439,7 @@ onMounted(async () => {
       <a-form-item>
         <Flex justify="end">
           <Space>
-            <Button @click="closeTask()">取消</Button>
+            <Button @click="closeTask('cancel')">取消</Button>
             <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
             <!--退回-->
             <a-popover v-model:open="returnVisible" title="退回" trigger="manual">
