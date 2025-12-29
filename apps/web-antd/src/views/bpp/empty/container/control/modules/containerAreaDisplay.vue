@@ -8,17 +8,11 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { containerAreaDisplayColumns } from '#/views/bpp/empty/container/control/data';
 
 interface Props {
-  tableBaseData?: EmptyContainerControlApi.containerAreaDisplayVO[];
-  ownerCodeList?: [];
-  contIsoList?: [];
   bayRangeList?: [];
   bayRanges?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  tableBaseData: () => [],
-  ownerCodeList: () => [],
-  contIsoList: () => [],
   bayRangeList: () => [],
   bayRanges: '',
 });
@@ -58,5 +52,7 @@ watch(() => props, { deep: true, immediate: true });
 </script>
 
 <template>
-  <Grid style="height: 300px; width: 600px" />
+  <div style="padding: 10px">
+    <Grid style="height: 300px; width: 600px" />
+  </div>
 </template>

@@ -259,7 +259,7 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
-    const formValues = await gridApi2.formApi.getValues();
+    const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,
       ownerCodeList: ownerCodeList.value,
@@ -566,19 +566,17 @@ const openContainerAreaWindow = (
           >
             <template #content>
               <ContainerAreaDisplay
-                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
-                @click="
+              />
+              <div
+                @click.stop="
                   () => {
                     popoverVisible[row.id] = false;
                     containerAreaClickRow.value = null;
                   }
                 "
-              >
-                Close
-              </ContainerAreaDisplay>
+              ></div>
             </template>
             <text
               @click="openContainerAreaWindow(row)"
@@ -666,19 +664,17 @@ const openContainerAreaWindow = (
           >
             <template #content>
               <ContainerAreaDisplay
-                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
-                @click="
+              />
+              <div
+                @click.stop="
                   () => {
                     popoverVisible[row.id] = false;
                     containerAreaClickRow.value = null;
                   }
                 "
-              >
-                Close
-              </ContainerAreaDisplay>
+              ></div>
             </template>
             <text
               @click="openContainerAreaWindow(row)"
