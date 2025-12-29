@@ -23,7 +23,7 @@ const defaultPreferences: Preferences = {
     enableRefreshToken: false,
     enableStickyPreferencesNavigationBar: true,
     isMobile: false,
-    layout: 'sidebar-nav',
+    layout: 'header-nav',
     locale: 'zh-CN',
     loginExpiredMode: 'page',
     name: 'porthg',
