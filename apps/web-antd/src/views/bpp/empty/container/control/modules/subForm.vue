@@ -41,7 +41,9 @@ const containerAreaParams = reactive({
 const containerAreaData = reactive<any[]>([]);
 
 // 存储每个堆场位置的可选列信息
-const yardColumnsOptions = ref<Record<string, { label: string, value: string }[]>>({});
+const yardColumnsOptions = ref<
+  Record<string, { label: string; value: string }[]>
+>({});
 
 const dischargeVslSchedule = reactive({
   data: [],
@@ -163,7 +165,10 @@ const transformStringToArray = (value: any): string[] => {
   return [];
 };
 
-const handleContainerAreaConfirm = async (positions: string[], yardColumnsMap: Record<string, string[]>) => {
+const handleContainerAreaConfirm = async (
+  positions: string[],
+  yardColumnsMap: Record<string, string[]>,
+) => {
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
@@ -183,9 +188,9 @@ const handleContainerAreaConfirm = async (positions: string[], yardColumnsMap: R
 
       // 保存该位置的可选列选项
       if (yardColumnsMap[pos] && yardColumnsMap[pos].length > 0) {
-        yardColumnsOptions.value[pos] = yardColumnsMap[pos].map(col => ({
+        yardColumnsOptions.value[pos] = yardColumnsMap[pos].map((col) => ({
           label: col,
-          value: col
+          value: col,
         }));
       } else {
         // 如果没有返回特定的列信息，使用默认的A-J列
@@ -250,18 +255,20 @@ const getYardColumnsOptions = (row: any) => {
   }
 
   // 返回该位置的可选列，如果不存在则返回默认选项
-  return yardColumnsOptions.value[row.yardPosition] || [
-    { label: 'A', value: 'A' },
-    { label: 'B', value: 'B' },
-    { label: 'C', value: 'C' },
-    { label: 'D', value: 'D' },
-    { label: 'E', value: 'E' },
-    { label: 'F', value: 'F' },
-    { label: 'G', value: 'G' },
-    { label: 'H', value: 'H' },
-    { label: 'I', value: 'I' },
-    { label: 'J', value: 'J' },
-  ];
+  return (
+    yardColumnsOptions.value[row.yardPosition] || [
+      { label: 'A', value: 'A' },
+      { label: 'B', value: 'B' },
+      { label: 'C', value: 'C' },
+      { label: 'D', value: 'D' },
+      { label: 'E', value: 'E' },
+      { label: 'F', value: 'F' },
+      { label: 'G', value: 'G' },
+      { label: 'H', value: 'H' },
+      { label: 'I', value: 'I' },
+      { label: 'J', value: 'J' },
+    ]
+  );
 };
 
 // 删除行方法
@@ -572,10 +579,12 @@ const [Modal, modalApi] = useVbenModal({
                 // 从已有的数据中提取列信息（如果有）
                 const yardPosition = item.yardBay || item.yardPosition;
                 if (yardPosition && item.yardColumns) {
-                  yardColumnsOptions.value[yardPosition] = item.yardColumns.map((col: string) => ({
-                    label: col,
-                    value: col
-                  }));
+                  yardColumnsOptions.value[yardPosition] = item.yardColumns.map(
+                    (col: string) => ({
+                      label: col,
+                      value: col,
+                    }),
+                  );
                 }
 
                 await $grid.insertAt(
@@ -592,15 +601,17 @@ const [Modal, modalApi] = useVbenModal({
                   const yardPosition = bayRange.yardBay || '';
                   if (yardPosition && bayRange.yardRaw) {
                     const columns = bayRange.yardRaw.split(',');
-                    yardColumnsOptions.value[yardPosition] = columns.map(col => ({
-                      label: col,
-                      value: col
-                    }));
+                    yardColumnsOptions.value[yardPosition] = columns.map(
+                      (col) => ({
+                        label: col,
+                        value: col,
+                      }),
+                    );
                   }
 
                   await $grid.insertAt(
                     {
-                      yardPosition: yardPosition,
+                      yardPosition,
                       yardColumns: bayRange.yardRaw
                         ? bayRange.yardRaw.split(',')
                         : [],
@@ -615,15 +626,17 @@ const [Modal, modalApi] = useVbenModal({
                 const yardPosition = subPlanData.bayRangeList.yardBay || '';
                 if (yardPosition && subPlanData.bayRangeList.yardRaw) {
                   const columns = subPlanData.bayRangeList.yardRaw.split(',');
-                  yardColumnsOptions.value[yardPosition] = columns.map(col => ({
-                    label: col,
-                    value: col
-                  }));
+                  yardColumnsOptions.value[yardPosition] = columns.map(
+                    (col) => ({
+                      label: col,
+                      value: col,
+                    }),
+                  );
                 }
 
                 await $grid.insertAt(
                   {
-                    yardPosition: yardPosition,
+                    yardPosition,
                     yardColumns: subPlanData.bayRangeList.yardRaw
                       ? subPlanData.bayRangeList.yardRaw.split(',')
                       : [],
