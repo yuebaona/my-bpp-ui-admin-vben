@@ -108,5 +108,7 @@ export function deletePlanList(ids: number[]) {
 
 /** 导出受理计划信息 */
 export function exportPlan(params: any) {
-  return requestClient.download('/bpp/flow/acceptance-plan/export-excel', { params });
+  return requestClient.download('/bpp/flow/acceptance-plan/export-excel', {
+    params,
+  });
 }
