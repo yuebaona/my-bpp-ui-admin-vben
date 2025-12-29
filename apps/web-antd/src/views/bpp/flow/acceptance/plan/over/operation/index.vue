@@ -643,9 +643,30 @@ const [Grid, gridApi] = useVbenVxeGrid({
       zoom: true,
     },
     pagerConfig: {
-      pageSize: 100,
+      pageSize: 10,
       enabled: true,
-      pageSizes: [100, 200, 300, 400, 500, 10_000],
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '200',
+          value: 200,
+        },
+        {
+          label: '500',
+          value: 500,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       ajax: {
@@ -700,9 +721,30 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
       search: false,
     },
     pagerConfig: {
-      pageSize: 100,
+      pageSize: 10,
       enabled: true,
-      pageSizes: [100, 200, 300, 400, 500, 10_000],
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '200',
+          value: 200,
+        },
+        {
+          label: '500',
+          value: 500,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       autoLoad: false,
@@ -757,9 +799,30 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         filename: '变更吊具记录',
       },
       pagerConfig: {
-        pageSize: 100,
+        pageSize: 10,
         enabled: true,
-        pageSizes: [100, 200, 300, 400, 500, 10_000],
+        pageSizes: [
+          {
+            label: '10',
+            value: 10,
+          },
+          {
+            label: '200',
+            value: 200,
+          },
+          {
+            label: '500',
+            value: 500,
+          },
+          {
+            label: '1000',
+            value: 1000,
+          },
+          {
+            label: '全部',
+            value: -1,
+          },
+        ],
       },
       proxyConfig: {
         // autoLoad: false,
