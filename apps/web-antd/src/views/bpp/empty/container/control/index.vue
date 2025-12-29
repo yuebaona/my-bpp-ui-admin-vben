@@ -2,59 +2,67 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { message } from 'ant-design-vue';
+import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
 import {
   deleteMainPlan,
   deleteSubPlan,
+  forceComplete,
   getMainPlan,
   getMainPlanPage,
   getSubPlan,
   getSubPlanPage,
+  getVesselAndVoyage,
 } from '#/api/bpp/empty/container/control';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import Detail2 from '#/views/bpp/empty/container/control/modules/detail2.vue';
-import Detail from '#/views/bpp/empty/container/control/modules/detail.vue';
-import Form2 from '#/views/bpp/empty/container/control/modules/form2.vue';
-import Form from '#/views/bpp/empty/container/control/modules/form.vue';
+import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
+import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
+import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
+import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
 
 import { mainPlanColumns, PlanSearchFormSchema, subPlanColumns } from './data';
 
-const checkedIds = ref<number[]>([]);
+const checkedMainIds = ref<number[]>([]);
 const planNo = ref<string[]>([]);
 const selectedMainId = ref<null | string>(null);
 const hasSelectedMainPlan = ref(false);
+const mainIdList = ref<string[]>([]);
 const checkedSubIds = ref<number[]>([]);
 const subPlanNo = ref<string[]>([]);
-// const checkedIds2 = ref<number[]>([]);
-// const mainPlanNo = ref<string[]>([]);
+const containerAreaClickRow =
+  ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
+const popoverVisible = ref({});
 
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
 });
 
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: Form,
+const [SubFormModal, subFormModalApi] = useVbenModal({
+  connectedComponent: SubForm,
   destroyOnClose: true,
-});
-
-const [DetailModal, detailModalApi] = useVbenModal({
-  connectedComponent: Detail,
-  destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
 const [LogQueryModal, logQueryModalApi] = useVbenModal({
   connectedComponent: LogQuery,
   destroyOnClose: true,
   footer: false,
+  closeOnClickModal: false,
+});
+
+const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
+  connectedComponent: ChooseContainer,
+  destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
@@ -76,25 +84,21 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
     },
-    // editRules: {
-    //
-    // },
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
           if (!hasSelectedMainPlan.value) {
             return { total: 0, list: [] };
           }
-          const transformedParams = transformFormToRequest(formValues);
           if (selectedMainId.value) {
-            transformedParams.planType = 'SUB';
-            transformedParams.mainId = selectedMainId.value;
+            formValues.mainId = selectedMainId.value;
           }
-          return await getSubPlanPage({
+          const result = await getSubPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...transformedParams,
+            ...formValues,
           });
+          return result;
         },
       },
     },
@@ -121,10 +125,10 @@ function handleSubRowCheckboxChange({
   records: EmptyContainerControlApi.subPlanVO[];
 }) {
   // 检查是否已勾选主计划
-  if (checkedIds.value.length > 0) {
+  if (checkedMainIds.value.length > 0) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
-    gridApi2.grid.setAllCheckboxRow(false);
+    mainGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
     return false;
   }
@@ -144,128 +148,39 @@ function handleRowCheckboxChange({
     subGridApi.grid.setAllCheckboxRow(false);
     message.warning('主计划和子计划不能同时勾选');
   }
-  checkedIds.value = records.map((item) => item.id);
+  checkedMainIds.value = records.map((item) => item.id);
+  mainIdList.value = [...checkedMainIds.value];
   planNo.value = records.map((item) => item.planNo);
-  if (checkedIds.value.length > 0 && hasSelectedMainPlan.value) {
+  if (checkedMainIds.value.length > 0 && hasSelectedMainPlan.value) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
     subGridApi.grid.setAllCheckboxRow(false);
   }
+  if (records.length > 0) {
+    // 获取最后一个勾选的主计划
+    const lastSelectedRecord = records[records.length - 1];
+    handleRowClick({ row: lastSelectedRecord });
+  } else {
+    // 如果没有勾选任何主计划，清空子计划查询
+    hasSelectedMainPlan.value = false;
+    selectedMainId.value = null;
+    subGridApi.query();
+  }
 }
-const [FormModal2, formModalApi2] = useVbenModal({
-  connectedComponent: Form2,
+const [MainFormModal, mainFormModalApi] = useVbenModal({
+  connectedComponent: MainForm,
   destroyOnClose: true,
+  closeOnClickModal: false,
 });
 
-const [DetailModal2, detailModalApi2] = useVbenModal({
-  connectedComponent: Detail2,
-  destroyOnClose: true,
-});
-
-/**
- * 转换表单值为接口请求参数格式
- */
-const transformFormToRequest = (
-  formValues: Record<string, any>,
-): Record<string, any> => {
-  const params = JSON.parse(JSON.stringify(formValues || {}));
-  delete params.pageNo;
-  delete params.pageSize;
-
-  if (params.bayRangeList) {
-    const [yardBay, yardRaw] = params.bayRangeList
-      .split('-')
-      .map((item: string) => item.trim());
-    params.bayRangeList = [
-      {
-        yardBay: yardBay || '',
-        yardRaw: yardRaw || '',
-      },
-    ];
-  } else {
-    delete params.bayRangeList;
-  }
-
-  if (params.ownerList) {
-    params.ownerList = params.ownerList
-      .split(',')
-      .map((item: string) => item.trim())
-      .filter(Boolean); // 过滤空字符串
-  } else {
-    delete params.ownerList;
-  }
-
-  if (params.isoNoList) {
-    params.isoNoList = params.isoNoList
-      .split(',')
-      .map((item: string) => item.trim())
-      .filter(Boolean);
-  } else {
-    delete params.isoNoList;
-  }
-
-  if (params.createTime) {
-    if (params.createTime.length === 0) {
-      delete params.createTime;
-    }
-  } else {
-    delete params.createTime;
-  }
-
-  // 主计划号 planNo：空值删除
-  if (
-    params.planNo === '' ||
-    params.planNo === undefined ||
-    params.planNo === null
-  ) {
-    delete params.planNo;
-  }
-
-  // 进口航次 importVoyageNo：空值删除
-  if (
-    params.importVoyageNo === '' ||
-    params.importVoyageNo === undefined ||
-    params.importVoyageNo === null
-  ) {
-    delete params.importVoyageNo;
-  }
-
-  // 贸易类型 tradeType：空值删除
-  if (
-    params.tradeType === '' ||
-    params.tradeType === undefined ||
-    params.tradeType === null
-  ) {
-    delete params.tradeType;
-  }
-
-  // 受理提箱计划号 pickupPlanNo：空值删除
-  if (
-    params.pickupPlanNo === '' ||
-    params.pickupPlanNo === undefined ||
-    params.pickupPlanNo === null
-  ) {
-    delete params.pickupPlanNo;
-  }
-
-  params.planType = 'MAIN';
-  Object.keys(params).forEach((key) => {
-    const value = params[key];
-    if (value === '' || value === undefined || value === null) {
-      delete params[key];
-    }
-  });
-  const finalParams = JSON.parse(JSON.stringify(params));
-  return finalParams;
-};
-
-const [Grid2, gridApi2] = useVbenVxeGrid({
+const [MainGrid, mainGridApi] = useVbenVxeGrid({
   formOptions: {
     schema: PlanSearchFormSchema(),
     submitButtonOptions: {
       content: '查询',
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
+    submitOnEnter: true,
   },
   gridOptions: {
     columns: mainPlanColumns(),
@@ -276,7 +191,7 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
       isHover: true,
     },
     toolbarConfig: {
-      search: true,
+      search: false,
       custom: true,
       export: true,
       // import: true,
@@ -293,12 +208,60 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          const transformedParams = transformFormToRequest(formValues);
-          return await getMainPlanPage({
+          const queryParams = { ...formValues };
+
+          // 将时间范围转换为时间戳
+          if (queryParams.createTime) {
+            if (queryParams.createTime.length > 0) {
+              queryParams.createTime = queryParams.createTime
+                .map((time: string) => {
+                  return time ? new Date(time).getTime() : null;
+                })
+                .filter(Boolean);
+            } else {
+              delete queryParams.createTime;
+            }
+          }
+          if (queryParams.bayRangeList) {
+            const bayRangeInput = queryParams.bayRangeList;
+            const upperCaseInput = bayRangeInput.toUpperCase();
+            const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
+            if (hyphenCount === 1) {
+              queryParams.bayRangeList = [
+                {
+                  yardBay: upperCaseInput,
+                  yardRaw: '',
+                },
+              ];
+            } else if (hyphenCount >= 2) {
+              const parts = upperCaseInput.split(/-/);
+              const yardBay = parts.slice(0, 2).join('-');
+              const yardRaw = parts.slice(2).join('-');
+              queryParams.bayRangeList = [
+                {
+                  yardBay,
+                  yardRaw,
+                },
+              ];
+            } else if (upperCaseInput) {
+              queryParams.bayRangeList = [
+                {
+                  yardBay: upperCaseInput,
+                  yardRaw: '',
+                },
+              ];
+            }
+          }
+          const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...transformedParams,
+            planType: 'MAIN',
+            ...queryParams,
+            ownerCodeList: ownerCodeList.value,
+            contIsoList: contIsoList.value,
+            dischargeVslSchedule: dischargeVslSchedule.value,
           });
+          return result;
         },
       },
     },
@@ -310,82 +273,98 @@ const [Grid2, gridApi2] = useVbenVxeGrid({
   },
 });
 
-// function handleRowCheckboxChange2({
-//   records,
-// }: {
-//   records: EmptyContainerControlApi.mainPlanVO[];
-// }) {
-//   checkedIds.value = records.map((item) => item.id);
-//   MainPlanNo.value = records.map((item) => item.MainPlanNo);
-// }
-
 // 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
-  gridApi2.query();
+  mainGridApi.query();
+  subGridApi.query();
 }
 
 /** 创建主计划新申请 */
 function handleCreateMainPlan() {
-  formModalApi2.setData(null).open();
+  mainFormModalApi.setData(null).open();
 }
-/** 创建新申请 */
+
+/** 闸口模拟选箱 */
+async function handleChooseContainer() {
+  try {
+    const formValues = await mainGridApi.formApi.getValues();
+    const searchParams = {
+      ...formValues,
+      ownerCodeList: ownerCodeList.value,
+      contIsoList: contIsoList.value,
+      dischargeVslSchedule: dischargeVslSchedule.value,
+    };
+    chooseContainerModalApi.setData(searchParams).open();
+  } catch (error) {
+    console.error('获取表单值失败:', error);
+  }
+}
+
+/** 新建子计划 */
 function handleCreateSubPlan() {
-  // 检查是否只勾选了一个主计划
-  if (checkedIds.value.length === 0) {
+  if (checkedMainIds.value.length === 0) {
     message.warning('请勾选一个主计划');
     return;
-  } else if (checkedIds.value.length > 1) {
+  } else if (checkedMainIds.value.length > 1) {
     message.warning('已勾选多个主计划，请只勾选一个主计划');
     return;
   }
-  formModalApi
-    .setData({
-      mainId: selectedMainId.value,
-      planType: 'SUB',
-    })
-    .open();
+  const selectedMainPlans = mainGridApi.grid.getCheckboxRecords();
+  if (selectedMainPlans.length > 0) {
+    const mainPlan = selectedMainPlans[0];
+    subFormModalApi
+      .setData({
+        mainId: mainPlan.id,
+        planType: 'SUB',
+        mainPlanIsRelease: mainPlan.isRelease,
+        mainPlanTradeType: mainPlan.tradeType,
+      })
+      .open();
+  }
 }
 
 /** 导出数据 */
-// function handleExport() {
-//   message.info('导出功能');
-// }
+// function handleMainExport() {}
 
 function handleSubExport() {
   message.info('导出功能');
 }
 
 /** 强制完成 */
-function handleForceComplete() {
-  message.info('强制完成');
-}
+const handleForceComplete = async () => {
+  try {
+    const res = await forceComplete({ mainIdList: mainIdList.value });
+    if (res) {
+      message.success('成功强制完成！');
+      await mainGridApi.query();
+      mainIdList.value = [];
+      checkedMainIds.value = [];
 
-/** 查看主计划详情 */
-const handleMainPlanDetail = async (
-  row: EmptyContainerControlApi.mainPlanVO,
-) => {
-  const res = await getMainPlan(row.id);
-  detailModalApi2.setData(res).open();
-};
-
-/** 查看子计划详情 */
-const handleSubDetail = async (row: EmptyContainerControlApi.subPlanVO) => {
-  const res = await getSubPlan(row.id);
-  detailModalApi.setData(res).open();
+      if (mainGridApi?.grid) {
+        // 取消所有行勾选
+        await mainGridApi.grid.setAllCheckboxRow(false);
+      }
+    } else {
+      const errorMsg = res?.msg || '强制完成失败，请重试';
+      message.error(errorMsg);
+    }
+  } catch (error) {
+    console.error('强制完成接口调用异常：', error);
+    message.error('网络异常或接口报错，强制完成操作失败！');
+  }
 };
 
 /** 编辑主计划申请 */
 const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
-  console.log('row.id', row.id);
   const res = await getMainPlan(row.id);
-  formModalApi2.setData(res).open();
+  mainFormModalApi.setData(res).open();
 };
 
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  formModalApi.setData(res).open();
+  subFormModalApi.setData(res).open();
 };
 
 /** 删除主计划 */
@@ -412,21 +391,234 @@ function handleLogQuery() {
 const adcancedQueryModalOpen = () => {
   AdvancedQueryModalApi.open();
 };
+
+const ownerCodeList = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+  isComposing: false,
+});
+
+const handleOwnerInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (ownerCodeList.isComposing) return;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchOwnerCodeList(target.value);
+};
+
+// 处理持箱人中文输入法组合开始
+const handleOwnerCompositionStart = () => {
+  ownerCodeList.isComposing = true;
+};
+
+// 处理持箱人中文输入法组合结束
+const handleOwnerCompositionEnd = (e: CompositionEvent) => {
+  ownerCodeList.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchOwnerCodeList(target.value);
+};
+
+const contIsoList = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+  isComposing: false,
+});
+
+// 处理ISO输入，将小写字母转换为大写
+const handleIsoInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (contIsoList.isComposing) return;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchContIsoList(target.value);
+};
+
+// 处理ISO中文输入法组合开始
+const handleIsoCompositionStart = () => {
+  contIsoList.isComposing = true;
+};
+
+// 处理ISO中文输入法组合结束
+const handleIsoCompositionEnd = (e: CompositionEvent) => {
+  contIsoList.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
+  fetchContIsoList(target.value);
+};
+
+const dischargeVslSchedule = reactive({
+  data: [],
+  value: '',
+  fetching: false,
+});
+
+// 获取卸船船期
+const fetchdischargeVslSchedule = async (searchText) => {
+  try {
+    dischargeVslSchedule.fetching = true;
+    const result = await getVesselAndVoyage({ condition: searchText });
+    dischargeVslSchedule.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    dischargeVslSchedule.data = [];
+  } finally {
+    dischargeVslSchedule.fetching = false;
+  }
+};
+
+// 获取持箱者列表
+const fetchOwnerCodeList = async (searchText: string) => {
+  ownerCodeList.fetching = true;
+  try {
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getContainerOwnerList({
+      ownerCode: upperCaseValue,
+      pageNo: 1,
+      pageSize: 100,
+    });
+    if (result) {
+      ownerCodeList.data = result.map((item) => ({
+        label: item.ownerCode,
+        value: item.ownerCode,
+        data: item,
+      }));
+    }
+  } catch {
+    ownerCodeList.data = [];
+  } finally {
+    ownerCodeList.fetching = false;
+  }
+};
+
+// 获取ISO列表
+const fetchContIsoList = async (searchText: string) => {
+  contIsoList.fetching = true;
+  try {
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getContainerIsoList({
+      contIso: upperCaseValue,
+      pageNo: 1,
+      pageSize: 100,
+      queryType: 'VESSEL',
+    });
+
+    if (result) {
+      contIsoList.data = result.map((item) => ({
+        label: item.contIso,
+        value: item.contIso,
+        data: item,
+      }));
+    }
+  } catch {
+    contIsoList.data = [];
+  } finally {
+    contIsoList.fetching = false;
+  }
+};
+
+// 控制箱区范围浮窗显隐藏
+const openContainerAreaWindow = (
+  row: EmptyContainerControlApi.containerAreaDisplayVO,
+) => {
+  containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
+  popoverVisible.value[row.id] = true;
+};
 </script>
 
 <template>
   <Page auto-content-height>
-    <FormModal class="w-3/5" @success="handleRefresh" />
-    <FormModal2 class="w-1/2" @success="handleRefresh" />
+    <SubFormModal class="w-3/5" @success="handleRefresh" />
+    <MainFormModal class="w-3/5" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
-    <DetailModal class="w-3/5" />
-    <DetailModal2 />
     <LogQueryModal />
+    <ChooseContainerModal class="w-3/5" @success="handleRefresh" />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
-      <Grid2 table-title="主计划">
+      <MainGrid table-title="主计划">
+        <template #form-ownerCodeList>
+          <Select
+            :options="ownerCodeList.data"
+            mode="multiple"
+            v-model:value="ownerCodeList.value"
+            style="width: 100%"
+            placeholder="请输入持箱人"
+            :show-search="true"
+            :filter-option="false"
+            :list-height="150"
+            allow-clear
+            @search="fetchOwnerCodeList"
+            @focus="fetchOwnerCodeList('')"
+            @input="handleOwnerInput"
+            @compositionstart="handleOwnerCompositionStart"
+            @compositionend="handleOwnerCompositionEnd"
+          />
+        </template>
+        <template #form-contIsoList>
+          <Select
+            :options="contIsoList.data"
+            mode="multiple"
+            v-model:value="contIsoList.value"
+            style="width: 100%"
+            placeholder="请输入ISO"
+            :show-search="true"
+            :filter-option="false"
+            :list-height="150"
+            allow-clear
+            @search="fetchContIsoList"
+            @input="handleIsoInput"
+            @focus="fetchContIsoList('')"
+            @compositionstart="handleIsoCompositionStart"
+            @compositionend="handleIsoCompositionEnd"
+          />
+        </template>
+        <template #form-dischargeVslSchedule>
+          <Select
+            :options="dischargeVslSchedule.data"
+            v-model:value="dischargeVslSchedule.value"
+            style="width: 100%"
+            placeholder="请输入船名或航次"
+            :show-search="true"
+            :filter-option="true"
+            :list-height="150"
+            allow-clear
+            @search="fetchdischargeVslSchedule"
+          />
+        </template>
+        <template #bayRanges="{ row }">
+          <a-popover
+            v-model:open="popoverVisible[row.id]"
+            trigger="click"
+            :key="row.id"
+          >
+            <template #content>
+              <ContainerAreaDisplay
+                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
+                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
+                :bay-range-list="containerAreaClickRow?.bayRangeList || []"
+                :bay-ranges="containerAreaClickRow?.bayRanges || ''"
+                @click="
+                  () => {
+                    popoverVisible[row.id] = false;
+                    containerAreaClickRow.value = null;
+                  }
+                "
+              >
+                Close
+              </ContainerAreaDisplay>
+            </template>
+            <a-text
+              @click="openContainerAreaWindow(row)"
+              style="color: #1890ff; cursor: pointer"
+            >
+              {{ row.bayRanges }}
+            </a-text>
+          </a-popover>
+        </template>
         <template #form-expand-before>
           <advancedButton @click="adcancedQueryModalOpen" />
         </template>
@@ -443,8 +635,14 @@ const adcancedQueryModalOpen = () => {
               {
                 label: '强制完成',
                 type: 'primary',
-                icon: ACTION_ICON.CLOSE,
+                icon: ACTION_ICON.AUDIT,
                 onClick: handleForceComplete,
+              },
+              {
+                label: '闸口模拟选箱',
+                type: 'primary',
+                icon: ACTION_ICON.GRID,
+                onClick: handleChooseContainer,
               },
               {
                 label: '日志查询',
@@ -466,27 +664,55 @@ const adcancedQueryModalOpen = () => {
                 onClick: handleMainPlanEdit.bind(null, row),
               },
               {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                onClick: handleMainPlanDetail.bind(null, row),
-              },
-              {
                 label: '删除',
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleMainPlanDelete.bind(null, row),
+                popConfirm: {
+                  title: '确定删除该条记录吗？',
+                  onConfirm: handleMainPlanDelete.bind(null, row),
+                  placement: 'topRight',
+                },
                 danger: true,
               },
             ]"
           />
         </template>
-      </Grid2>
+      </MainGrid>
     </div>
     <!-- 子计划列表 -->
     <div class="h-2/5 w-full">
       <SubGrid table-title="子计划">
+        <template #bayRanges="{ row }">
+          <a-popover
+            v-model:open="popoverVisible[row.id]"
+            trigger="click"
+            :key="row.id"
+          >
+            <template #content>
+              <ContainerAreaDisplay
+                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
+                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
+                :bay-range-list="containerAreaClickRow?.bayRangeList || []"
+                :bay-ranges="containerAreaClickRow?.bayRanges || ''"
+                @click="
+                  () => {
+                    popoverVisible[row.id] = false;
+                    containerAreaClickRow.value = null;
+                  }
+                "
+              >
+                Close
+              </ContainerAreaDisplay>
+            </template>
+            <a-text
+              @click="openContainerAreaWindow(row)"
+              style="color: #1890ff; cursor: pointer"
+            >
+              {{ row.bayRanges }}
+            </a-text>
+          </a-popover>
+        </template>
         <template #toolbar-tools>
           <TableAction
             :actions="[
@@ -517,17 +743,15 @@ const adcancedQueryModalOpen = () => {
                 onClick: handleSubEdit.bind(null, row),
               },
               {
-                label: '详情',
-                type: 'link',
-                icon: ACTION_ICON.VIEW,
-                onClick: handleSubDetail.bind(null, row),
-              },
-              {
                 label: '删除',
                 type: 'link',
                 icon: ACTION_ICON.DELETE,
                 auth: ['system:user:delete'],
-                onClick: handleSubDelete.bind(null, row),
+                popConfirm: {
+                  title: '确定删除该条记录吗？',
+                  onConfirm: handleSubDelete.bind(null, row),
+                  placement: 'topRight',
+                },
                 danger: true,
               },
             ]"
