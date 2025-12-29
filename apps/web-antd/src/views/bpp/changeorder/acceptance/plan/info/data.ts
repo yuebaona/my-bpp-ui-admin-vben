@@ -131,8 +131,8 @@ export function acceptancePlanChangeRecordSchema(): VxeTableGridOptions<Acceptan
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'acceptancePlanNo',
-      label: 'acptPlnNo',
+      fieldName: 'acptPlnNo',
+      label: '受理计划号',
       component: 'Input',
       componentProps: {
         allowClear: true,
