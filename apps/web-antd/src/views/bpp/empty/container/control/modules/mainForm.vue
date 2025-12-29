@@ -518,7 +518,20 @@ const [Modal, modalApi] = useVbenModal({
 });
 
 // 查询堆存情况
+// 查询堆存情况
 const getStorageConditionSearch = async (row: any) => {
+  const $grid = gridApi.grid;
+  const rowIndex = $grid.getRowIndex(row);
+
+  const originalBayRange =
+    formData.bayRangeList && formData.bayRangeList[rowIndex];
+  const originalYard = originalBayRange ? originalBayRange.yardRaw : '';
+  const originalYardArray = originalYard
+    ? originalYard.split(',').filter((item) => item.trim())
+    : [];
+
+  const newYard = Array.isArray(row.yardColumns) ? row.yardColumns : [];
+
   try {
     // 清空上次查询结果
     row.totalCount = undefined;
@@ -528,6 +541,26 @@ const getStorageConditionSearch = async (row: any) => {
     if (!row.yardPosition) {
       message.warning('请先填写堆场位置');
       return;
+    }
+
+    if (formData.id && originalYardArray.length > 0) {
+      const removedItems = originalYardArray.filter(
+        (item) => !newYard.includes(item),
+      );
+
+      if (removedItems.length > 0) {
+        const allValues = [...originalYardArray];
+        newYard.forEach((item) => {
+          if (!allValues.includes(item)) {
+            allValues.push(item);
+          }
+        });
+
+        row.yardColumns = allValues;
+        message.warning(`不能删除已存在的堆场列: ${removedItems.join(', ')}`);
+        await $grid.updateData();
+        return;
+      }
     }
 
     // 构建接口请求参数
