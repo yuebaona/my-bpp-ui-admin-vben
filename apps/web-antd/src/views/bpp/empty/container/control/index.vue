@@ -525,6 +525,7 @@ const openContainerAreaWindow = (
             :list-height="150"
             allow-clear
             @search="fetchOwnerCodeList"
+            @focus="fetchOwnerCodeList('')"
             @input="handleOwnerInput"
             @compositionstart="handleOwnerCompositionStart"
             @compositionend="handleOwnerCompositionEnd"
@@ -543,6 +544,7 @@ const openContainerAreaWindow = (
             allow-clear
             @search="fetchContIsoList"
             @input="handleIsoInput"
+            @focus="fetchContIsoList('')"
             @compositionstart="handleIsoCompositionStart"
             @compositionend="handleIsoCompositionEnd"
           />
