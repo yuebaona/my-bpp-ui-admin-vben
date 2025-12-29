@@ -50,6 +50,7 @@ const isoState = reactive({
   value: [],
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
+  originalValue: [],
 });
 
 // 处理ISO输入，将小写字母转换为大写
@@ -81,6 +82,7 @@ const ownerState = reactive({
   value: [],
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
+  originalValue: [],
 });
 
 // 处理持箱人输入，将小写字母转换为大写
@@ -482,11 +484,13 @@ const [Modal, modalApi] = useVbenModal({
           await formApi.setValues(subPlanData);
           if (subPlanData.ownerCodeList) {
             ownerState.value = subPlanData.ownerCodeList;
+            ownerState.originalValue = subPlanData.ownerCodeList;
           }
 
           // 设置ISO选择值
           if (subPlanData.contIsoList) {
             isoState.value = subPlanData.contIsoList;
+            isoState.originalValue = subPlanData.contIsoList;
           }
 
           if (subPlanData.dischargeVslSchedule) {
@@ -604,6 +608,57 @@ const updateStorageCondition = async () => {
     }
   }
 };
+const ownerStateChange = async (value: any) => {
+  if (
+    ownerState.originalValue &&
+    ownerState.originalValue.length > 0 &&
+    checkIfTryingToRemoveOriginalData(value, ownerState.originalValue, '持箱人')
+  ) {
+    // 恢复原来的值
+    ownerState.value = [...ownerState.originalValue];
+    await formApi.setFieldValue('ownerCodeList', ownerState.value);
+    await formApi.validateField('ownerCodeList');
+    return;
+  }
+  // 更新值和表单字段
+  ownerState.value = value;
+  await formApi.setFieldValue('ownerCodeList', value);
+  await formApi.validateField('ownerCodeList');
+};
+const isoStateChange = async (value: any) => {
+  if (
+    isoState.originalValue &&
+    isoState.originalValue.length > 0 &&
+    checkIfTryingToRemoveOriginalData(value, isoState.originalValue, 'ISO')
+  ) {
+    // 恢复原来的值
+    isoState.value = [...isoState.originalValue];
+    await formApi.setFieldValue('contIsoList', isoState.value);
+    await formApi.validateField('contIsoList');
+    return;
+  }
+  isoState.value = value;
+  await formApi.setFieldValue('contIsoList', value);
+  await formApi.validateField('contIsoList');
+};
+const checkIfTryingToRemoveOriginalData = (
+  newValue: any[],
+  originalValue: any[],
+  fieldName: string,
+): boolean => {
+  if (!originalValue || originalValue.length === 0) {
+    return false;
+  }
+
+  // 找出被删除的原始值
+  const removedItems = originalValue.filter((item) => !newValue.includes(item));
+  if (removedItems.length > 0) {
+    message.warning(`不能删除已存在的${fieldName}: ${removedItems.join(', ')}`);
+    return true;
+  }
+
+  return false;
+};
 
 const modalTitle = computed(() => {
   return formData.id
@@ -626,7 +681,7 @@ const modalTitle = computed(() => {
           :options="isoState.data"
           allow-clear
           show-search
-          @change="(value) => formApi.setFieldValue('contIsoList', value)"
+          @change="isoStateChange"
           @input="handleIsoInput"
           @compositionstart="handleIsoCompositionStart"
           @compositionend="handleIsoCompositionEnd"
@@ -643,7 +698,7 @@ const modalTitle = computed(() => {
           :options="ownerState.data"
           allow-clear
           show-search
-          @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
+          @change="ownerStateChange"
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"
           @compositionend="handleOwnerCompositionEnd"
