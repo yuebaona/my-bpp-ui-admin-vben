@@ -468,7 +468,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '例如：B01-02',
+        placeholder: '例如：B01-02-A',
         allowClear: true,
         onInput: (e: Event) => {
           setTimeout(() => {
@@ -884,7 +884,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '例如：B01-02',
+        placeholder: '例如：B01-02-A',
         allowClear: true,
         onInput: (e: Event) => {
           setTimeout(() => {

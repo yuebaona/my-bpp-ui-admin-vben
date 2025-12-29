@@ -222,7 +222,36 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
               delete queryParams.createTime;
             }
           }
-
+          if (queryParams.bayRangeList) {
+            const bayRangeInput = queryParams.bayRangeList;
+            const upperCaseInput = bayRangeInput.toUpperCase();
+            const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
+            if (hyphenCount === 1) {
+              queryParams.bayRangeList = [
+                {
+                  yardBay: upperCaseInput,
+                  yardRaw: '',
+                },
+              ];
+            } else if (hyphenCount >= 2) {
+              const parts = upperCaseInput.split(/-/);
+              const yardBay = parts.slice(0, 2).join('-');
+              const yardRaw = parts.slice(2).join('-');
+              queryParams.bayRangeList = [
+                {
+                  yardBay,
+                  yardRaw,
+                },
+              ];
+            } else if (upperCaseInput) {
+              queryParams.bayRangeList = [
+                {
+                  yardBay: upperCaseInput,
+                  yardRaw: '',
+                },
+              ];
+            }
+          }
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
