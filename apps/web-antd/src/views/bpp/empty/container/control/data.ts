@@ -464,15 +464,6 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'importVoyageNo',
-      label: '进口航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入进口航次',
-        allowClear: true,
-      },
-    },
-    {
       fieldName: 'bayRangeList',
       label: '箱区',
       component: 'Input',
@@ -484,7 +475,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
             const target = e.target as HTMLInputElement;
             target.value = target.value
               .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
+              .replaceAll(/[^A-Z0-9-]/g, '');
           }, 10);
         },
       },
@@ -893,8 +884,16 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '',
+        placeholder: '例如：B01-02',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9-]/g, '');
+          }, 10);
+        },
       },
     },
     {
