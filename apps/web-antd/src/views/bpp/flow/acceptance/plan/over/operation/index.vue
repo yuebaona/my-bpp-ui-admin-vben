@@ -9,7 +9,7 @@ import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
-import { message, Select } from 'ant-design-vue';
+import { Input, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -107,19 +107,23 @@ const loadDictData = async (dictTypes: string[]) => {
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
+  draggable: true,
 });
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
+  draggable: true,
 });
 const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
+  draggable: true,
 });
 // 现场操作确认弹框
 const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
   connectedComponent: OnSiteOperation,
   destroyOnClose: true,
+  draggable: true,
 });
 /** 刷新表格 */
 function handleRefresh() {
@@ -609,6 +613,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitOnEnter: true,
   },
   gridOptions: {
+    resizableConfig: {
+      isDblclickAutoWidth: true, // 启用双击自适应列宽
+    },
+    checkboxConfig: {
+      highlight: true,
+      range: true,
+      isShiftKey: true,
+    },
     floatingFilterConfig: {
       enabled: true,
     },
@@ -633,6 +645,28 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '200',
+          value: 200,
+        },
+        {
+          label: '500',
+          value: 500,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       ajax: {
@@ -660,6 +694,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
       // 调用gridApi.query()刷新表格数据，实现实时筛选
       // await gridApi.query();
     }, 300),
+    checkboxRangeSelect: ({ rangeRecords }) => {
+      handleRowCheckboxChange({ records: rangeRecords });
+    },
   },
 });
 
@@ -686,6 +723,28 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '200',
+          value: 200,
+        },
+        {
+          label: '500',
+          value: 500,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       autoLoad: false,
@@ -736,9 +795,34 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         search: true,
         export: true,
       },
+      exportConfig: {
+        filename: '变更吊具记录',
+      },
       pagerConfig: {
         pageSize: 10,
         enabled: true,
+        pageSizes: [
+          {
+            label: '10',
+            value: 10,
+          },
+          {
+            label: '200',
+            value: 200,
+          },
+          {
+            label: '500',
+            value: 500,
+          },
+          {
+            label: '1000',
+            value: 1000,
+          },
+          {
+            label: '全部',
+            value: -1,
+          },
+        ],
       },
       proxyConfig: {
         // autoLoad: false,
@@ -1029,6 +1113,69 @@ const vslVoySelect = async (value: any) => {
 const vslVoyChange = async () => {
   gridApi.formApi.form.setFieldValue('vslVoy', '');
 };
+const changeNameFilter = (option: any, column: any, index: number) => {
+  option.data = option.data.toUpperCase();
+  let $grid;
+  if (index === 1) {
+    $grid = gridApi.grid;
+  } else if (index === 2) {
+    $grid = boxGridApi.grid;
+  } else {
+    $grid = machineSpreaderChangeRecordGridApi.grid;
+  }
+  if ($grid) {
+    $grid.updateFilterOptionStatus(option, !!option.data);
+    $grid.saveFilter(column);
+  }
+};
+const boxFloatingFilterColumns = ref<string[]>([
+  'contOperationNode',
+  'contNo',
+  'contSize',
+  'contType',
+  'contCargoWeight',
+  'contTotalWeight',
+  'contCargoSize',
+  'contOogDetails',
+]);
+const oogFloatingFilterColumns = ref<string[]>([
+  'cheWorkChangeType',
+  'vslName',
+  'vslVoy',
+  'contNo',
+  'operationSource',
+  'changeReason',
+  'cheWorkType',
+  'machNo',
+  'isOnSiteWork',
+  'operationPosition',
+  'cheType',
+  'startTime',
+  'endTime',
+  'remark',
+  'creatorName',
+  'createTime',
+]);
+const acceptanceFloatingFilterColumns = ref<string[]>([
+  'acptPlnNo',
+  'planStatus',
+  'approvalWorkflowCurrentNode',
+  'acptPlnWebNo',
+  'applicantCompanyName',
+  'handlingPerson',
+  'vslName',
+  'vslVoy',
+  'category',
+  'vslCode',
+  'billNo',
+  'cargoName',
+  'payerNameSea',
+  'paymentTypeSea',
+  'payerNameGate',
+  'paymentTypeGate',
+  'isSystemRate',
+  'conclusionTime',
+]);
 </script>
 
 <template>
@@ -1116,6 +1263,7 @@ const vslVoyChange = async () => {
                 label: $t('cxmo.action.revoke'),
                 type: 'default',
                 icon: ACTION_ICON.UNDO,
+                auth: ['bpp:flow-acceptance-plan-over-operation:cancel'],
                 onClick: handleRevoke,
               },
               //
@@ -1143,6 +1291,7 @@ const vslVoyChange = async () => {
                     label: $t('cxmo.action.audit'),
                     type: 'link',
                     icon: ACTION_ICON.AUDIT,
+                    auth: ['bpp:flow-acceptance-plan-over-operation:process'],
                     onClick: handleViewDetail.bind(null, row),
                   }
                 : '',
@@ -1166,6 +1315,17 @@ const vslVoyChange = async () => {
                 onClick: handleDetail.bind(null, row),
               },
             ]"
+          />
+        </template>
+        <template
+          v-for="col in acceptanceFloatingFilterColumns"
+          #[`${col}`]="{ option, column }"
+          :key="col"
+        >
+          <Input
+            v-model:value="option.data"
+            clearable
+            @change="changeNameFilter(option, column, 1)"
           />
         </template>
       </Grid>
@@ -1196,20 +1356,40 @@ const vslVoyChange = async () => {
                 {
                   label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:confirm',
+                  ],
                   onClick: handleOnSiteOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:no-operation',
+                  ],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:complete',
+                  ],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
+            />
+          </template>
+          <template
+            v-for="col in boxFloatingFilterColumns"
+            #[`${col}`]="{ option, column }"
+            :key="col"
+          >
+            <Input
+              v-model:value="option.data"
+              clearable
+              @change="changeNameFilter(option, column, 2)"
             />
           </template>
         </BoxGrid>
@@ -1243,7 +1423,7 @@ const vslVoyChange = async () => {
                 {
                   label: $t('cxmo.overOperation.noChangeOperations'),
                   type: 'primary',
-                  auth: ['system:user:create'],
+                  auth: ['bpp:flow-machine-spreader-record:delete'],
                   onClick: handleMachineSpreaderRecordDeleteList,
                 },
               ]"
@@ -1279,7 +1459,7 @@ const vslVoyChange = async () => {
                   label: $t('common.edit'),
                   type: 'link',
                   icon: ACTION_ICON.EDIT,
-                  auth: ['system:user:update'],
+                  auth: ['bpp:flow-machine-spreader-record:update'],
                   onClick: handleOnSiteEditOperation.bind(null, row),
                 },
                 {
@@ -1287,13 +1467,24 @@ const vslVoyChange = async () => {
                   type: 'link',
                   danger: true,
                   icon: ACTION_ICON.DELETE,
-                  auth: ['system:user:delete'],
+                  auth: ['bpp:flow-machine-spreader-record:delete'],
                   popConfirm: {
                     title: $t('ui.actionMessage.deleteConfirm'),
                     confirm: handleMachineSpreaderDelete.bind(null, row),
                   },
                 },
               ]"
+            />
+          </template>
+          <template
+            v-for="col in oogFloatingFilterColumns"
+            #[`${col}`]="{ option, column }"
+            :key="col"
+          >
+            <Input
+              v-model:value="option.data"
+              clearable
+              @change="changeNameFilter(option, column, 3)"
             />
           </template>
         </MachineSpreaderChangeRecordGrid>
