@@ -241,6 +241,7 @@ const [Modal, modalApi] = useVbenModal({
             @search="ownerSearch"
             allow-clear
             show-search
+            @focus="ownerSearch('')"
             @change="(value) => formApi.setFieldValue('owner', value)"
             @input="handleOwnerInput"
             @compositionstart="handleOwnerCompositionStart"
@@ -260,6 +261,7 @@ const [Modal, modalApi] = useVbenModal({
             show-search
             @change="(value) => formApi.setFieldValue('iso', value)"
             @input="handleIsoInput"
+            @focus="isoSearch('')"
             @compositionstart="handleIsoCompositionStart"
             @compositionend="handleIsoCompositionEnd"
           />

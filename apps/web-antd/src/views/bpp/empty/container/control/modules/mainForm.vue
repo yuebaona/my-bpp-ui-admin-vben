@@ -531,6 +531,7 @@ const getStorageConditionSearch = async (row: any) => {
       yardBayList: [
         {
           yardBay: row.yardPosition,
+          yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
         },
       ],
       baseInfo: {
@@ -588,6 +589,7 @@ const modalTitle = computed(() => {
           allow-clear
           show-search
           @change="(value) => formApi.setFieldValue('contIsoList', value)"
+          @focus="isoSearch('')"
           @input="handleIsoInput"
           @compositionstart="handleIsoCompositionStart"
           @compositionend="handleIsoCompositionEnd"
@@ -605,6 +607,7 @@ const modalTitle = computed(() => {
           @search="ownerSearch"
           allow-clear
           show-search
+          @focus="ownerSearch('')"
           @change="(value) => formApi.setFieldValue('ownerCodeList', value)"
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"

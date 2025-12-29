@@ -1,6 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
+
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -463,27 +464,18 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'importVoyageNo',
-      label: '进口航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入进口航次',
-        allowClear: true,
-      },
-    },
-    {
       fieldName: 'bayRangeList',
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '例如：B01-02',
+        placeholder: '例如：B01-02-A',
         allowClear: true,
         onInput: (e: Event) => {
           setTimeout(() => {
             const target = e.target as HTMLInputElement;
             target.value = target.value
               .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
+              .replaceAll(/[^A-Z0-9-]/g, '');
           }, 10);
         },
       },
@@ -608,7 +600,6 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'trade_type',
-        //options: getPlanStatusOptions('trade_type'),
       },
     },
     {
@@ -711,7 +702,6 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       cellRender: {
         name: 'CellTagDict',
         props: 'empty_container_control_sub_status',
-        //options: getPlanStatusOptions('empty_container_control_sub_status'),
       },
     },
     {
@@ -894,8 +884,16 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '',
+        placeholder: '例如：B01-02-A',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9-]/g, '');
+          }, 10);
+        },
       },
     },
     {
