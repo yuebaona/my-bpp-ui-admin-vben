@@ -23,8 +23,8 @@ import {
   getSubPlanPage,
   getVesselAndVoyage,
 } from '#/api/bpp/empty/container/control';
-import { advancedButton } from '#/components/advanced-button';
-import { AdvancedQuery } from '#/components/advanced-query';
+// import { advancedButton } from '#/components/advanced-button';
+// import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
@@ -44,10 +44,10 @@ const containerAreaClickRow =
   ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
 const popoverVisible = ref({});
 
-const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
-  showCancelButton: false,
-  showConfirmButton: false,
-});
+// const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
+//   showCancelButton: false,
+//   showConfirmButton: false,
+// });
 
 const [SubFormModal, subFormModalApi] = useVbenModal({
   connectedComponent: SubForm,
@@ -206,7 +206,7 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     toolbarConfig: {
       search: false,
       custom: true,
-      export: true,
+      export: false,
       // import: true,
       refresh: true,
       zoom: true,
@@ -372,9 +372,9 @@ function handleCreateSubPlan() {
 /** 导出数据 */
 // function handleMainExport() {}
 
-function handleSubExport() {
-  message.info('导出功能');
-}
+// function handleSubExport() {
+//   message.info('导出功能');
+// }
 
 /** 强制完成 */
 const handleForceComplete = async () => {
@@ -433,9 +433,9 @@ function handleLogQuery() {
   logQueryModalApi.open();
 }
 
-const adcancedQueryModalOpen = () => {
-  AdvancedQueryModalApi.open();
-};
+// const adcancedQueryModalOpen = () => {
+//   AdvancedQueryModalApi.open();
+// };
 
 const ownerCodeList = reactive({
   data: [],
@@ -580,9 +580,9 @@ const openContainerAreaWindow = (
   <Page auto-content-height>
     <SubFormModal class="w-3/5" @success="handleSubPlanRefresh" />
     <MainFormModal class="w-3/5" @success="handleRefresh" />
-    <AdvancedQueryModal class="w-2/5">
-      <AdvancedQuery />
-    </AdvancedQueryModal>
+    <!--    <AdvancedQueryModal class="w-2/5">-->
+    <!--      <AdvancedQuery />-->
+    <!--    </AdvancedQueryModal>-->
     <LogQueryModal />
     <ChooseContainerModal class="w-3/5" />
     <!-- 主计划列表 -->
@@ -665,9 +665,9 @@ const openContainerAreaWindow = (
             </text>
           </a-popover>
         </template>
-        <template #form-expand-before>
-          <advancedButton @click="adcancedQueryModalOpen" />
-        </template>
+        <!--        <template #form-expand-before>-->
+        <!--          <advancedButton @click="adcancedQueryModalOpen" />-->
+        <!--        </template>-->
         <template #toolbar-tools>
           <TableAction
             :actions="[
@@ -773,12 +773,12 @@ const openContainerAreaWindow = (
                 auth: ['system:user:create'],
                 onClick: handleCreateSubPlan,
               },
-              {
-                label: '导出',
-                type: 'primary',
-                icon: ACTION_ICON.DOWNLOAD,
-                onClick: handleSubExport,
-              },
+              // {
+              //   label: '导出',
+              //   type: 'primary',
+              //   icon: ACTION_ICON.DOWNLOAD,
+              //   onClick: handleSubExport,
+              // },
             ]"
           />
         </template>
