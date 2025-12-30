@@ -10,6 +10,7 @@ export const ACTION_ICON = {
   MORE: 'lucide:ellipsis-vertical',
   VIEW: 'lucide:eye',
   COPY: 'lucide:copy',
+  GRID: 'lucide:grid-2x2-plus',
   BRIEFCASE: 'lucide:briefcase',
   AUDIT: 'ant-design:audit-outlined',
   UNDO: 'ant-design:undo-outlined',

@@ -149,10 +149,10 @@ const [Modal, modalApi] = useVbenModal({
     Object.assign(formData.value, data);
     formData.value.acptPlnNo = data.value?.acptPlnNo;
     if (data?.id) {
-      formData.value.endTime = data.endTime.toString();
-      formData.value.endTimeBack = data.endTimeBack.toString();
-      formData.value.startTime = data.startTime.toString();
-      formData.value.startTimeBack = data.startTimeBack.toString();
+      formData.value.endTime = data?.endTime?.toString();
+      formData.value.endTimeBack = data?.endTimeBack?.toString();
+      formData.value.startTime = data?.startTime?.toString();
+      formData.value.startTimeBack = data?.startTimeBack?.toString();
       await formApi.setValues(formData.value);
       await formApi.setFieldValue('endTime', data?.endTime?.toString() || null);
       await formApi.setFieldValue(

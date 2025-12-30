@@ -24,6 +24,26 @@ export namespace CommonApi {
     noticeEmail: string;
     noticePhone: string;
   }
+
+  export interface ContainerOwnerVO {
+    id?: number;
+    ownerCode?: string;
+    ownerName?: string;
+    ownerCountry?: string;
+    ownerMaster?: string;
+    ownerLocalNm?: string;
+  }
+
+  export interface isoVO {
+    id?: number;
+    contIso?: string;
+    isSpecial?: string;
+    containerType?: string;
+    containerTypeName?: string;
+    containerLength?: string;
+    containerHeight?: string;
+    isoCode?: string;
+  }
 }
 // 获取客户基础信息
 export const getCustomerList = (params: PageParam) => {
@@ -50,5 +70,16 @@ export const getVVd = ({
 export const getContainerIsoList = (queryType: string) => {
   return requestClient.get(
     `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
+  );
+};
+// 获取集装箱持箱人信息
+export const getContainerOwnerList = (params: {
+  ownerCode: string;
+  pageNo: number;
+  pageSize: number;
+}) => {
+  return requestClient.get<PageResult<CommonApi.ContainerOwnerVO>>(
+    '/bpp/flow/common/get-container-owner-list',
+    { params },
   );
 };

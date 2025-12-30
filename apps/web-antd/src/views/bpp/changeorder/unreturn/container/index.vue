@@ -12,18 +12,11 @@ import { message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 // import { getDictDataPage } from '#/api/bpp/base/dict/data';
-import {
-  deleteMachineSpreaderRecord,
-  getAcceptancePlanOverOperation,
-  getAcceptancePlanOverOperationPage,
-} from '#/api/bpp/flow/acceptance/plan/over/operation';
+import { getAcceptancePlanOverOperationPage } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
-import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
-import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
 
 import {
   acceptancePlanColumns,
@@ -32,24 +25,10 @@ import {
   planInfoFormSchema,
 } from './data';
 import BundleBox from './modules/bundleBox.vue';
+import Edit from './modules/edit.vue';
 import LadingBill from './modules/ladingBill.vue';
 import Return from './modules/return.vue';
 
-interface OnSideOperation {
-  overOperationContainerIds: string;
-  initiationType: string;
-  machineSpreaderChangeType: string;
-  acceptancePlanNo: string;
-  containerNo: string;
-  spreaderType: string;
-  vesselCode: string;
-  vesselVoyage: string;
-  vesselName: string;
-}
-interface batchQueryConditionsVO {
-  acceptancePlanNo: string;
-  containerNo: string;
-}
 // 使用字典 store
 const bppBaseDict = bppBaseDictStore();
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
@@ -58,15 +37,6 @@ const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 });
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
-  destroyOnClose: true,
-});
-const [DetailModal, detailModalApi] = useVbenModal({
-  connectedComponent: Detail,
-  destroyOnClose: true,
-});
-// 现场操作确认弹框
-const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
-  connectedComponent: OnSiteOperation,
   destroyOnClose: true,
 });
 
@@ -88,11 +58,15 @@ const [ReturnModal, returnModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
+// 批量编辑
+const [EditModal, editModalApi] = useVbenModal({
+  connectedComponent: Edit,
+  destroyOnClose: true,
+});
+
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
-  PlanInfoApi.query();
-  machineSpreaderChangeRecordGridApi.query();
 }
 
 /** 创建新申请 */
@@ -100,67 +74,10 @@ function handleCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 办理任务 */
-function handleAudit(row: any) {
-  // router.push({
-  //   name: 'BpmProcessInstanceDetail',
-  //   query: {
-  //     id: row.processInstance!.id,
-  //   },
-  // });
-  router.push({
-    path: '/bpm/process-instance/detail',
-    query: {
-      id: row.processInstance!.id,
-    },
-  });
-}
-
-/** 流程审核 */
-function handleViewDetail(row: any) {
-  if (!row.processInstanceId) {
-    message.error($t('ui.actionMessage.noProcessInstance'));
-    return;
-  }
-  handleAudit({
-    processInstance: {
-      id: row.processInstanceId,
-    },
-  });
-}
-
-/** 查看详情 */
-const handleDetail = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
-  const res = await getAcceptancePlanOverOperation(row.id);
-  detailModalApi.setData(res).open();
-};
-
 /** 编辑申请 */
 const handleEdit = async (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
   // const res = await getAcceptancePlanOverOperation(row.id);
   formModalApi.setData(row).open();
-};
-/** 变更吊具修改 */
-const handleOnSiteEditOperation = async (
-  row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
-) => {
-  OnSideOperationModalApi.setData(row).open();
-};
-/** 删除变更吊具信息 */
-const handleMachineSpreaderDelete = async (
-  row: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
-) => {
-  const hideLoading = message.loading({
-    content: $t('ui.actionMessage.deleting', [row.id]),
-    duration: 0,
-  });
-  try {
-    await deleteMachineSpreaderRecord(row.id);
-    message.success($t('ui.actionMessage.deleteSuccess', [row.id]));
-    handleRefresh();
-  } finally {
-    hideLoading();
-  }
 };
 
 /** 超限作业申请选中操作 */
@@ -173,90 +90,12 @@ function handleRowCheckboxChange({
 }) {
   checkedIds.value = records.map((item) => item.id);
   acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
-  PlanInfoApi.query();
 }
-/** 重置箱信息相关数据 */
-const resetContainerData = () => {
-  boxCheckedIds.value = [];
-  boxAcceptancePlanNo.value = [];
-  containerNos.value = [];
-  containerIds.value = [];
-  batchQueryConditions.value = [];
-  machineSpreaderChangeTypes.value = [];
-  containerOperationNodes.value = [];
-  vesselCodes.value = [];
-  vesselVoyages.value = [];
-  vesselNames.value = [];
-  plannedSpreaderTypes.value = [];
-  // 清除表格选中状态
-  if (PlanInfoApi.grid) {
-    PlanInfoApi.grid.clearCheckboxRow(); // 清除所有选中行
-    PlanInfoApi.grid.clearCheckboxRow(); // 清除复选框选中
-  }
-
-  if (machineSpreaderChangeRecordGridApi.grid) {
-    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
-    machineSpreaderChangeRecordGridApi.grid.clearCheckboxRow();
-  }
-  machineSpreaderChangeRecordGridApi.query();
-};
-/** 箱信息选中操作 */
-const boxCheckedIds = ref<number[]>([]);
-const boxAcceptancePlanNo = ref<string[]>([]);
-const containerNos = ref<string[]>([]);
-const containerIds = ref<number[]>([]);
-const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
-const machineSpreaderChangeTypes = ref<string[]>([]);
-const containerOperationNodes = ref<string[]>([]);
-const vesselCodes = ref<string[]>([]);
-const vesselVoyages = ref<string[]>([]);
-const vesselNames = ref<string[]>([]);
-const plannedSpreaderTypes = ref<string[]>([]);
-function boxHandleRowCheckboxChange({
-  records,
-}: {
-  records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
-}) {
-  const refMap = {
-    boxCheckedIds,
-    boxAcceptancePlanNo,
-    containerNos,
-    containerIds,
-    machineSpreaderChangeTypes,
-    containerOperationNodes,
-    vesselCodes,
-    vesselVoyages,
-    vesselNames,
-    plannedSpreaderTypes,
-  };
-  const fieldMappings = {
-    boxCheckedIds: 'id',
-    boxAcceptancePlanNo: 'acceptancePlanNo',
-    containerNos: 'containerNo',
-    containerIds: 'id',
-    machineSpreaderChangeTypes: 'machineSpreaderChangeType',
-    containerOperationNodes: 'containerOperationNode',
-    vesselCodes: 'vesselCode',
-    vesselVoyages: 'vesselVoyage',
-    vesselNames: 'vesselName',
-    plannedSpreaderTypes: 'plannedSpreaderType',
-  };
-  Object.entries(fieldMappings).forEach(([refName, field]) => {
-    refMap[refName].value = records.map((item) => item[field]);
-  });
-  batchQueryConditions.value = records.map((item) => ({
-    acceptancePlanNo: item.acceptancePlanNo,
-    containerNo: item.containerNo,
-  }));
-  machineSpreaderChangeRecordGridApi.query();
-}
-/** 吊具变更记录选中操作 */
-const machineSpreaderChangeRecordCheckedIds = ref<number[]>([]);
 
 // 高级查询处理函数
-function handleHighPriceQuery() {
-  message.info('高级查询功能');
-}
+// function handleHighPriceQuery() {
+//   message.info('高级查询功能');
+// }
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -331,7 +170,7 @@ const [PlanInfoForm, planInfoFormApi] = useVbenForm({
     Object.assign(planInfoFormValues, values);
   },
   handleSubmit: async () => {
-    console.log('表单提交:', planInfoFormValues);
+    // console.log('表单提交:', planInfoFormValues);
     message.success('表单提交成功');
   },
   handleReset: async () => {
@@ -355,7 +194,7 @@ const [PayInfoForm, payInfoFormApi] = useVbenForm({
     Object.assign(payInfoFormValues, values);
   },
   handleSubmit: async () => {
-    console.log('表单提交:', payInfoFormValues);
+    // console.log('表单提交:', payInfoFormValues);
     message.success('表单提交成功');
   },
   handleReset: async () => {
@@ -391,10 +230,10 @@ watch(
 const queryResult = ref<any>(null);
 
 // 处理查询事件
-const handleQuery = (params: any) => {
-  console.log('查询参数:', params);
-  queryResult.value = params;
-};
+// const handleQuery = (params: any) => {
+//   // console.log('查询参数:', params);
+//   queryResult.value = params;
+// };
 
 // 处理重置事件
 const handleReset = () => {
@@ -403,18 +242,22 @@ const handleReset = () => {
 };
 
 /** 处理点击提单号事件 */
-const handleClickPickupNo = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+const handleClickPickupNo = () => {
   // message.info('查看提单号信息');
   ladingBillModalApi.setData(null).open();
 };
 
-const handleClickSubBox = (row: FlowOverLimitWorkApi.AcceptancePlanVO) => {
+const handleClickSubBox = () => {
   bundleBoxModalApi.setData(null).open();
 };
 
 const handleClickReturn = () => {
   returnModalApi.setData(null).open();
 };
+
+function batchEdit() {
+  editModalApi.setData(null).open();
+}
 </script>
 
 <template>
@@ -423,11 +266,10 @@ const handleClickReturn = () => {
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery @reset="handleReset" />
     </AdvancedQueryModal>
-    <DetailModal />
     <LadingBillModal class="w-3/4" @success="handleRefresh" />
     <BundleBoxModal class="w-3/4" @success="handleRefresh" />
     <ReturnModal class="w-1/4" @success="handleRefresh" />
-    <OnSideOperationModal class="w-1/2" @success="handleRefresh" />
+    <EditModal class="w-3/4" @success="handleRefresh" />
     <!-- 未回场箱信息修改 -->
     <div class="my-3 flex" style="height: 50px">111</div>
     <div class="my-3 flex" style="height: 220px">
@@ -456,7 +298,7 @@ const handleClickReturn = () => {
                 label: '批量修改',
                 type: 'primary',
                 icon: ACTION_ICON.EDIT,
-                onClick: handleCreate,
+                onClick: batchEdit,
               },
               {
                 label: '删除TO',
@@ -487,16 +329,12 @@ const handleClickReturn = () => {
           />
         </template>
         <template #pickupNoAction="{ row }">
-          <a-button
-            type="primary"
-            size="small"
-            @click="handleClickPickupNo(row)"
-          >
+          <a-button type="primary" size="small" @click="handleClickPickupNo">
             提单信息管理
           </a-button>
         </template>
         <template #boxAction="{ row }">
-          <a-button type="primary" size="small" @click="handleClickSubBox(row)">
+          <a-button type="primary" size="small" @click="handleClickSubBox">
             捆绑箱维护
           </a-button>
         </template>
