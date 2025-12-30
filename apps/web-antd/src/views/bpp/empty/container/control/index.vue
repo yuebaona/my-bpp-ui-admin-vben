@@ -425,7 +425,7 @@ const handleMainPlanDelete = async (
 const handleSubDelete = async (row: EmptyContainerControlApi.subPlanVO) => {
   await deleteSubPlan(row.id);
   message.success('删除成功');
-  handleRefresh();
+  handleSubPlanRefresh();
 };
 
 /** 日志查询 */
