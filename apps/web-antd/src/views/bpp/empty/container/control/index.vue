@@ -9,7 +9,10 @@ import { Page, useVbenModal } from '@vben/common-ui';
 import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
 import {
   deleteMainPlan,
   deleteSubPlan,
@@ -184,12 +187,12 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
-    handleReset: () => {
-      contIsoList.value = [];
-      ownerCodeList.value = [];
-      dischargeVslSchedule.value = '';
-      mainGridApi.formApi.resetForm();
-      mainGridApi.query();
+    resetButtonOptions: {
+      onClick: () => {
+        ownerCodeList.value = [];
+        contIsoList.value = [];
+        dischargeVslSchedule.value = '';
+      },
     },
   },
   gridOptions: {
@@ -305,6 +308,11 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
 /** 刷新表格 */
 function handleRefresh() {
   mainGridApi.query();
+  subGridApi.query();
+}
+
+/** 只刷新子计划表格 */
+function handleSubPlanRefresh() {
   subGridApi.query();
 }
 
@@ -502,7 +510,7 @@ const fetchOwnerCodeList = async (searchText: string) => {
   ownerCodeList.fetching = true;
   try {
     const upperCaseValue = searchText.toUpperCase();
-    const result = await getContainerOwnerList({
+    const result = await getContainerOwnerListPage({
       ownerCode: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
@@ -526,7 +534,7 @@ const fetchContIsoList = async (searchText: string) => {
   contIsoList.fetching = true;
   try {
     const upperCaseValue = searchText.toUpperCase();
-    const result = await getContainerIsoList({
+    const result = await getContainerIsoListPage({
       contIso: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
@@ -558,13 +566,13 @@ const openContainerAreaWindow = (
 
 <template>
   <Page auto-content-height>
-    <SubFormModal class="w-3/5" @success="handleRefresh" />
+    <SubFormModal class="w-3/5" @success="handleSubPlanRefresh" />
     <MainFormModal class="w-3/5" @success="handleRefresh" />
     <AdvancedQueryModal class="w-2/5">
       <AdvancedQuery />
     </AdvancedQueryModal>
     <LogQueryModal />
-    <ChooseContainerModal class="w-3/5" @success="handleRefresh" />
+    <ChooseContainerModal class="w-3/5" />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <MainGrid table-title="主计划">

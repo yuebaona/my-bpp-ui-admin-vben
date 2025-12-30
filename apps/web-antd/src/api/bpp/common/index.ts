@@ -66,8 +66,8 @@ export const getVVd = ({
     `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
-// 获取集装箱ISO信息
-export const getContainerIsoList = (params: {
+// 分页获取集装箱ISO信息
+export const getContainerIsoListPage = (params: {
   contIso: string;
   pageNo: number;
   pageSize: number;
@@ -78,8 +78,8 @@ export const getContainerIsoList = (params: {
     { params },
   );
 };
-// 获取集装箱持箱人信息
-export const getContainerOwnerList = (params: {
+// 分页获取集装箱持箱人信息
+export const getContainerOwnerListPage = (params: {
   ownerCode: string;
   pageNo: number;
   pageSize: number;

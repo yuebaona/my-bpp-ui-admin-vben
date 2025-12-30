@@ -13,14 +13,13 @@ import { message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
 import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
-import {
-  logQueryColumns,
-  logQueryFormSchema, PlanSearchFormSchema
-  // STATIC_MASTER_PLAN_QUERY_DATA,
-} from "../data";
+import { logQueryColumns, logQueryFormSchema } from '../data';
 
 const formValues = reactive({});
 
@@ -90,7 +89,7 @@ const handleIsoCompositionEnd = (e: CompositionEvent) => {
 const ownerSearch = async (value: string) => {
   ownerState.fetching = true;
   try {
-    const res = await getContainerOwnerList({
+    const res = await getContainerOwnerListPage({
       pageNo: 1,
       pageSize: 10,
       ownerCode: value.toUpperCase(),
@@ -115,7 +114,7 @@ const isoSearch = async (value: string) => {
   isoState.fetching = true;
   try {
     const upperCaseValue = value.toUpperCase();
-    const res = await getContainerIsoList({
+    const res = await getContainerIsoListPage({
       pageNo: 1,
       pageSize: 10,
       contIso: upperCaseValue,
@@ -145,6 +144,7 @@ const [Form, formApi] = useVbenForm({
   },
   schema: logQueryFormSchema(),
   showDefaultActions: true,
+  submitOnEnter: true,
   wrapperClass: 'grid-cols-1 md:grid-cols-4',
   actionWrapperClass: 'col-span-1 text-right',
   handleValuesChange: (values) => {
@@ -154,8 +154,14 @@ const [Form, formApi] = useVbenForm({
     await handleQuery();
   },
   handleReset: async () => {
-    formApi.resetForm();
+    await formApi.resetForm();
     Object.assign(formValues, {});
+    ownerState.value = [];
+    ownerState.data = [];
+    isoState.value = [];
+    isoState.data = [];
+    await formApi.setFieldValue('owner', undefined);
+    await formApi.setFieldValue('iso', undefined);
     await handleQuery();
   },
 });

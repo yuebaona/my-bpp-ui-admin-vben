@@ -10,7 +10,10 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
 import {
   createMainPlan,
   getStorageQuantity,
@@ -228,7 +231,7 @@ const isoSearch = async (value: string) => {
   isoState.fetching = true;
   try {
     const upperCaseValue = value.toUpperCase();
-    const res = await getContainerIsoList({
+    const res = await getContainerIsoListPage({
       pageNo: 1,
       pageSize: 10,
       contIso: upperCaseValue,
@@ -259,7 +262,7 @@ const ownerSearch = async (value: string) => {
   ownerState.fetching = true;
   try {
     const upperCaseValue = value.toUpperCase();
-    const res = await getContainerOwnerList({
+    const res = await getContainerOwnerListPage({
       pageNo: 1,
       pageSize: 10,
       ownerCode: upperCaseValue,
@@ -302,10 +305,10 @@ const [Form, formApi] = useVbenForm({
       Array.isArray(changedValues) && changedValues[0] === 'contIsoList';
     const isChangeOwner =
       Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
-    const isChangePickupPlanNo =
-      Array.isArray(changedValues) && changedValues[0] === 'pickupPlanNo';
+    const isChangeTradeType =
+      Array.isArray(changedValues) && changedValues[0] === 'tradeType';
 
-    if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
+    if (isChangeContIso || isChangeOwner || isChangeTradeType) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       const $grid = gridApi.grid;
