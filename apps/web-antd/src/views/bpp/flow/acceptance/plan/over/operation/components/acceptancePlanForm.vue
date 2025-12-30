@@ -377,7 +377,8 @@ const loadFormData = async () => {
     // 设置主表单数据
     if (data.acceptancePlanRespVO) {
       Object.assign(formData, data.acceptancePlanRespVO);
-      formData.plannedOperationTime = data.acceptancePlanRespVO.plannedOperationTime.toString();
+      formData.plannedOperationTime =
+        data.acceptancePlanRespVO.plannedOperationTime.toString();
       await formApi.setValues(formData);
       originalData.value = {
         form: data.acceptancePlanRespVO,
@@ -408,11 +409,14 @@ const loadFormData = async () => {
         data.acceptancePlanRespVO.attachmentFile || '[]',
       );
 
-      fileList.value = fileListData.map((item) => {
+      fileList.value = fileListData.map((item: any) => {
         const parts = item.split('?');
 
         return parts[0];
       });
+      if (fileListData.length <= 0) {
+        await formApi.setFieldValue('attachmentFile', '');
+      }
 
       // 设置船舶信息
       if (data.acceptancePlanRespVO.vslName) {
@@ -493,7 +497,10 @@ const loadFormData = async () => {
 
 const handleUpload = async (data: any) => {
   fileList.value = data;
-  await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
+  await formApi.setFieldValue(
+    'attachmentFile',
+    fileList.value.length > 0 ? JSON.stringify(fileList.value) : '',
+  );
   await formApi.validateField('attachmentFile');
 };
 
