@@ -347,7 +347,7 @@ const handleOnSiteOperation = async () => {
       const contIds = currentSelected.map((item) => item.id);
 
       data.value = {
-        oogContIds: contIds.join(','),
+        oogContIds: contIds,
         initiationType: initiationTypeValue.value,
         cheWorkChangeType: currentSelected[0]?.cheWorkChangeType || '',
         acptPlnNo: currentSelected[0]?.acptPlnNo || '',

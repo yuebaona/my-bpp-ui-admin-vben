@@ -66,6 +66,12 @@ export const getVVd = ({
     `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
+// 获取集装箱ISO信息
+export const getContainerIsoList = (queryType: string) => {
+  return requestClient.get(
+    `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
+  );
+};
 // 分页获取集装箱ISO信息
 export const getContainerIsoListPage = (params: {
   contIso: string;
