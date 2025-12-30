@@ -705,7 +705,10 @@ const modalTitle = computed(() => {
                   ]"
                   style="width: 100%"
                   :show-search="false"
-                  @change="getStorageConditionSearch(row)"
+                  @change="(value) => {
+                    row.yardColumns = [...value].sort();
+                    getStorageConditionSearch(row);
+                  }"
                 />
               </template>
               <template #actions="{ row }">
