@@ -31,6 +31,7 @@ const pickupPlanNoShow = ref(false);
 const emit = defineEmits(['success']);
 
 const containerAreaModalVisible = ref(false);
+const tradeTypeDisabled = ref(false);
 const isSubmitting = ref(false);
 const containerAreaParams = reactive({
   ownerCodeList: [],
@@ -382,7 +383,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: subPlanFormSchema(pickupPlanNoShow),
+  schema: subPlanFormSchema(pickupPlanNoShow, tradeTypeDisabled.value),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values, changedValues) => {
@@ -395,6 +396,8 @@ const [Form, formApi] = useVbenForm({
       Array.isArray(changedValues) && changedValues[0] === 'pickupPlanNo';
     const isChangeIsRelease =
       Array.isArray(changedValues) && changedValues[0] === 'isRelease';
+    const isChangeTradeType =
+      Array.isArray(changedValues) && changedValues[0] === 'tradeType';
 
     // 根据是否放箱的初始值设置计划箱量字段状态
     if (isChangeIsRelease) {
@@ -418,6 +421,9 @@ const [Form, formApi] = useVbenForm({
       if ($grid) {
         $grid.reloadData([]);
       }
+    }
+    if (isChangeTradeType && !tradeTypeDisabled.value) {
+      formData.tradeType = values.tradeType;
     }
   },
 });
@@ -574,6 +580,15 @@ const [Modal, modalApi] = useVbenModal({
       }
       if (data.planType === 'SUB' && data.mainPlanIsRelease !== null) {
         formData.isRelease = !data.mainPlanIsRelease;
+      }
+      if (data.planType === 'SUB' && data.mainPlanTradeType) {
+        formData.tradeType = data.mainPlanTradeType;
+        tradeTypeDisabled.value = true;
+        formApi.updateSchema([{ fieldName: 'tradeType', disabled: true }]);
+      } else {
+        formData.tradeType = '';
+        tradeTypeDisabled.value = false;
+        formApi.updateSchema([{ fieldName: 'tradeType', disabled: false }]);
       }
       if (data.planType === 'SUB' && data.mainPlanTradeType) {
         formData.tradeType =
@@ -925,10 +940,12 @@ const modalTitle = computed(() => {
                   :options="getYardColumnsOptions(row)"
                   style="width: 100%"
                   :show-search="false"
-                  @change="(value) => {
-                    row.yardColumns = [...value].sort();
-                    getStorageConditionSearch(row);
-                  }"
+                  @change="
+                    (value) => {
+                      row.yardColumns = [...value].sort();
+                      getStorageConditionSearch(row);
+                    }
+                  "
                 />
               </template>
               <template #actions="{ row }">

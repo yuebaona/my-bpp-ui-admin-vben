@@ -100,7 +100,7 @@ const handleOwnerCompositionEnd = (e: CompositionEvent) => {
   ownerSearch(target.value);
 };
 
-let containerAreaData = reactive<any[]>([]);
+const containerAreaData = reactive<any[]>([]);
 
 const formData = reactive<EmptyContainerControlApi.mainPlanVO>({
   id: '',
@@ -254,9 +254,9 @@ const isoSearch = async (value: string) => {
 };
 
 // 初始化ISO数据
-const initIsoData = async () => {
-  await isoSearch('');
-};
+// const initIsoData = async () => {
+//   await isoSearch('');
+// };
 
 // 持箱人搜索函数
 const ownerSearch = async (value: string) => {
@@ -284,9 +284,9 @@ const ownerSearch = async (value: string) => {
 };
 
 // 初始化持箱人数据
-const initOwnerData = async () => {
-  await ownerSearch('');
-};
+// const initOwnerData = async () => {
+//   await ownerSearch('');
+// };
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -303,13 +303,13 @@ const [Form, formApi] = useVbenForm({
   handleValuesChange: async (values, changedValues) => {
     Object.assign(formData, values);
     const isChangeContIso =
-      Array.isArray(changedValues) && changedValues[0] === 'contIsoList';
+      Array.isArray(changedValues) && changedValues.includes('contIsoList');
     const isChangeOwner =
-      Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
+      Array.isArray(changedValues) && changedValues.includes('ownerCodeList');
     const isChangeTradeType =
-      Array.isArray(changedValues) && changedValues[0] === 'tradeType';
+      Array.isArray(changedValues) && changedValues.includes('tradeType');
     const isChangeIsRelease =
-      Array.isArray(changedValues) && changedValues[0] === 'isRelease';
+      Array.isArray(changedValues) && changedValues.includes('isRelease');
 
     // 根据是否放箱的初始值设置计划箱量字段状态
     if (isChangeIsRelease) {
@@ -506,20 +506,26 @@ const [Modal, modalApi] = useVbenModal({
             ]);
           }
           const $grid = gridApi.grid;
-          if ($grid) {
-            if (mainPlanData.bayRangeList && Array.isArray(mainPlanData.bayRangeList)) {
-              const tableData = mainPlanData.bayRangeList.map((bayRange: any) => ({
+          if (
+            $grid &&
+            mainPlanData.bayRangeList &&
+            Array.isArray(mainPlanData.bayRangeList)
+          ) {
+            const tableData = mainPlanData.bayRangeList.map(
+              (bayRange: any) => ({
                 yardPosition: bayRange.yardBay || '',
-                yardColumns: bayRange.yardRaw ? bayRange.yardRaw.split(',') : [],
+                yardColumns: bayRange.yardRaw
+                  ? bayRange.yardRaw.split(',')
+                  : [],
                 totalCount: bayRange.totalCount || '',
                 minDays: bayRange.minDays || '',
                 maxDays: bayRange.maxDays || '',
                 isNew: false,
-              }));
-              $grid.reloadData(tableData);
-              // containerAreaData.push(...tableData);
-              // $grid.reloadData(containerAreaData);
-            }
+              }),
+            );
+            $grid.reloadData(tableData);
+            // containerAreaData.push(...tableData);
+            // $grid.reloadData(containerAreaData);
           }
         } finally {
           modalApi.unlock();
@@ -736,10 +742,12 @@ const modalTitle = computed(() => {
                   ]"
                   style="width: 100%"
                   :show-search="false"
-                  @change="(value) => {
-                    row.yardColumns = [...value].sort();
-                    getStorageConditionSearch(row);
-                  }"
+                  @change="
+                    (value) => {
+                      row.yardColumns = [...value].sort();
+                      getStorageConditionSearch(row);
+                    }
+                  "
                 />
               </template>
               <template #actions="{ row }">
