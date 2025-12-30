@@ -288,6 +288,15 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
+    if (
+      ownerCodeList.value &&
+      ownerCodeList.value.length > 0 &&
+      contIsoList.value &&
+      contIsoList.value.length > 0
+    ) {
+      message.warning('只能选择持箱人或ISO其中一个条件');
+      return;
+    }
     const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,
