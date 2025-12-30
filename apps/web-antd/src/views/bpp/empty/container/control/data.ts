@@ -199,8 +199,10 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'tradeType',
       label: '贸易类型',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
+        placeholder: '请选择贸易类型',
+        allowClear: true,
         options: [
           { label: '内贸', value: 'DOMESTIC' },
           { label: '外贸', value: 'FOREIGN' },
@@ -241,7 +243,10 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
   ];
 }
 
-export function subPlanFormSchema(pickupPlanNoShow: boolean): VbenFormSchema[] {
+export function subPlanFormSchema(
+  pickupPlanNoShow: boolean,
+  tradeTypeDisabled?: boolean,
+): VbenFormSchema[] {
   return [
     {
       fieldName: 'planNo',
@@ -307,14 +312,16 @@ export function subPlanFormSchema(pickupPlanNoShow: boolean): VbenFormSchema[] {
     {
       fieldName: 'tradeType',
       label: '贸易类型',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
+        placeholder: '请选择贸易类型',
+        allowClear: true,
         options: [
           { label: '内贸', value: 'DOMESTIC' },
           { label: '外贸', value: 'FOREIGN' },
         ],
       },
-      disabled: true,
+      disabled: tradeTypeDisabled,
     },
     {
       fieldName: 'contIsoList',
