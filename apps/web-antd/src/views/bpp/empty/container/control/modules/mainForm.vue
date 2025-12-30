@@ -308,6 +308,8 @@ const [Form, formApi] = useVbenForm({
       Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
     const isChangeTradeType =
       Array.isArray(changedValues) && changedValues[0] === 'tradeType';
+    const isChangeIsRelease =
+      Array.isArray(changedValues) && changedValues[0] === 'isRelease';
 
     // 根据是否放箱的初始值设置计划箱量字段状态
     if (isChangeIsRelease) {
@@ -604,15 +606,6 @@ const getStorageConditionSearch = async (row: any) => {
   }
 };
 
-// const updateStorageCondition = async () => {
-//   const $grid = gridApi.grid;
-//   if ($grid) {
-//     const currentGridData = $grid.getTableData().fullData;
-//     for (const row of currentGridData) {
-//       await getStorageConditionSearch(row);
-//     }
-//   }
-// };
 const ownerStateChange = async (value: any) => {
   if (
     ownerState.originalValue &&
