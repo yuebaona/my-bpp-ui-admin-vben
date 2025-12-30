@@ -241,7 +241,7 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
   ];
 }
 
-export function subPlanFormSchema(): VbenFormSchema[] {
+export function subPlanFormSchema(pickupPlanNoShow: boolean): VbenFormSchema[] {
   return [
     {
       fieldName: 'planNo',
@@ -282,6 +282,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
           }, 10);
         },
       },
+      disabled: pickupPlanNoShow,
     },
     {
       fieldName: 'dischargeVslSchedule',

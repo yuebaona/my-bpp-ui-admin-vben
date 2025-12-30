@@ -26,6 +26,7 @@ import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
 import ContainerArea from './containerAreaSelect.vue';
 
+const pickupPlanNoShow = ref(false);
 const emit = defineEmits(['success']);
 
 const containerAreaModalVisible = ref(false);
@@ -303,7 +304,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: subPlanFormSchema(),
+  schema: subPlanFormSchema(pickupPlanNoShow),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   handleValuesChange: async (values, changedValues) => {
@@ -474,7 +475,9 @@ const [Modal, modalApi] = useVbenModal({
         formData.tradeType =
           data.mainPlanTradeType === 'DOMESTIC' ? 'DOMESTIC' : 'FOREIGN';
       }
-
+      if (data.pickupPlanNo) {
+        pickupPlanNoShow.value = true;
+      }
       initIsoData(formData.mainId);
       initOwnerData(formData.mainId);
 
