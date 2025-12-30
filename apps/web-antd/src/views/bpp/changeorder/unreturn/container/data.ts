@@ -93,6 +93,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
+        placeholder: '请输入申请人',
       },
       rules: 'required',
     },
@@ -102,6 +103,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
+        placeholder: '请输入申请人电话',
       },
       rules: 'required',
     },
@@ -111,6 +113,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
+        placeholder: '请输入货主单位',
       },
       rules: 'required',
     },
@@ -120,16 +123,18 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
+        placeholder: '请输入货代单位',
       },
       rules: 'required',
     },
     {
       fieldName: 'remark',
+      component: 'Textarea',
       label: '备注',
-      component: 'Input',
       componentProps: {
-        allowClear: true,
+        placeholder: '请输入备注',
       },
+      formItemClass: 'w-full p-0 md:col-span-2',
     },
   ];
 }
