@@ -618,7 +618,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     checkboxConfig: {
       highlight: true,
-      range: true,
       isShiftKey: true,
     },
     floatingFilterConfig: {
@@ -702,7 +701,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       // 调用gridApi.query()刷新表格数据，实现实时筛选
       // await gridApi.query();
     }, 300),
-    checkboxRangeSelect: ({ rangeRecords }) => {
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
       handleRowCheckboxChange({ records: rangeRecords });
     },
   },
@@ -711,6 +710,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    resizableConfig: {
+      isDblclickAutoWidth: true, // 启用双击自适应列宽
+    },
+    checkboxConfig: {
+      highlight: true,
+      isShiftKey: true,
+    },
     floatingFilterConfig: {
       enabled: true,
     },
@@ -786,6 +792,9 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: boxHandleRowCheckboxChange,
     checkboxChange: boxHandleRowCheckboxChange,
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+      boxHandleRowCheckboxChange({ records: rangeRecords });
+    },
   },
 });
 
@@ -793,6 +802,13 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      resizableConfig: {
+        isDblclickAutoWidth: true, // 启用双击自适应列宽
+      },
+      checkboxConfig: {
+        highlight: true,
+        isShiftKey: true,
+      },
       floatingFilterConfig: {
         enabled: true,
       },
@@ -878,6 +894,9 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
     gridEvents: {
       checkboxAll: machineSpreaderChangeRecordHandleRowCheck,
       checkboxChange: machineSpreaderChangeRecordHandleRowCheck,
+      checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+        machineSpreaderChangeRecordHandleRowCheck({ records: rangeRecords });
+      },
     },
   });
 
