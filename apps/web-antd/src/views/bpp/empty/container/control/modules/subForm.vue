@@ -355,8 +355,11 @@ const initOwnerData = async (mainId: string) => {
 };
 
 // 获取卸船船期
-const fetchdischargeVslSchedule = async (searchText) => {
+const fetchdischargeVslSchedule = async (searchText: string) => {
   try {
+    if (!searchText || searchText.length < 2) {
+      return;
+    }
     dischargeVslSchedule.fetching = true;
     const result = await getVesselAndVoyage({ condition: searchText });
     dischargeVslSchedule.data = result.map((item) => ({
