@@ -48,11 +48,26 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions<EmptyContainerControlApi.containerAreaDisplayVO>,
 });
 
-watch(() => props, { deep: true, immediate: true });
+watch(
+  () => props.bayRangeList,
+  (newBayRangeList) => {
+    if (newBayRangeList) {
+      const newData = newBayRangeList.map((item) => ({
+        yardBay: item.yardBay,
+        yardRaw: item.yardRaw,
+        totalCount: item.totalCount,
+        minDays: item.minDays,
+        maxDays: item.maxDays,
+      }));
+      gridApi.setGridOptions({ data: newData });
+    }
+  },
+  { deep: true, immediate: true },
+);
 </script>
 
 <template>
-  <div style="padding: 10px">
+  <div>
     <Grid style="height: 300px; width: 600px" />
   </div>
 </template>
