@@ -651,16 +651,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
           value: 10,
         },
         {
-          label: '200',
-          value: 200,
+          label: '25',
+          value: 25,
         },
         {
-          label: '500',
-          value: 500,
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
         },
         {
           label: '1000',
           value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
         },
         {
           label: '全部',
@@ -729,16 +737,24 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
           value: 10,
         },
         {
-          label: '200',
-          value: 200,
+          label: '25',
+          value: 25,
         },
         {
-          label: '500',
-          value: 500,
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
         },
         {
           label: '1000',
           value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
         },
         {
           label: '全部',
@@ -807,16 +823,24 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
             value: 10,
           },
           {
-            label: '200',
-            value: 200,
+            label: '25',
+            value: 25,
           },
           {
-            label: '500',
-            value: 500,
+            label: '50',
+            value: 50,
+          },
+          {
+            label: '100',
+            value: 100,
           },
           {
             label: '1000',
             value: 1000,
+          },
+          {
+            label: '10000',
+            value: 10_000,
           },
           {
             label: '全部',
