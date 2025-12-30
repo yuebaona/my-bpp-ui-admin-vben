@@ -312,7 +312,23 @@ const [Form, formApi] = useVbenForm({
       Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
     const isChangePickupPlanNo =
       Array.isArray(changedValues) && changedValues[0] === 'pickupPlanNo';
+    const isChangeIsRelease =
+      Array.isArray(changedValues) && changedValues[0] === 'isRelease';
 
+    // 根据是否放箱的初始值设置计划箱量字段状态
+    if (isChangeIsRelease) {
+      if (formData.isRelease === false) {
+        formData.planQuantity = '';
+        await formApi.setFieldValue('planQuantity', '');
+        formApi.updateSchema([
+          { fieldName: 'planQuantity', componentProps: { disabled: true } },
+        ]);
+      } else if (formData.isRelease === true) {
+        formApi.updateSchema([
+          { fieldName: 'planQuantity', componentProps: { disabled: false } },
+        ]);
+      }
+    }
     if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
@@ -552,6 +568,22 @@ const [Modal, modalApi] = useVbenModal({
       } else {
         await formApi.setValues(formData);
       }
+
+      // 根据是否放箱的初始值设置计划箱量字段状态
+      if (formData.isRelease === false) {
+        formData.planQuantity = '';
+        formApi.updateSchema([
+          { fieldName: 'planQuantity', componentProps: { disabled: true } },
+        ]);
+      } else {
+        formApi.updateSchema([
+          {
+            fieldName: 'planQuantity',
+            componentProps: { disabled: false },
+          },
+        ]);
+      }
+
       if (!data.planType) {
         formData.planType = 'SUB';
       }
