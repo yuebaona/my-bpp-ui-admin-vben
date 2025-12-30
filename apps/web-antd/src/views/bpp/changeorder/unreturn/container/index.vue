@@ -7,27 +7,25 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
-
-import { useVbenForm } from '#/adapter/form';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 // import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { getAcceptancePlanOverOperationPage } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
-import { AdvancedQuery } from '#/components/advanced-query';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 
 import {
   acceptancePlanColumns,
   acceptancePlanSearchSchema,
-  payInfoFormSchema,
-  planInfoFormSchema,
+  // payInfoFormSchema,
+  // planInfoFormSchema,
 } from './data';
 import BundleBox from './modules/bundleBox.vue';
 import Edit from './modules/edit.vue';
 import LadingBill from './modules/ladingBill.vue';
 import Return from './modules/return.vue';
+import PlanInfoForm from "#/views/bpp/changeorder/unreturn/container/modules/planInfoForm.vue";
+import PayInfoForm from "#/views/bpp/changeorder/unreturn/container/modules/payInfoForm.vue";
 
 // 使用字典 store
 const bppBaseDict = bppBaseDictStore();
@@ -150,59 +148,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
-// 改单计划信息表单数据
-const planInfoFormValues = reactive({});
-const payInfoFormValues = reactive({});
-
-// 改单计划信息表单
-const [PlanInfoForm, planInfoFormApi] = useVbenForm({
-  commonConfig: {
-    componentProps: {
-      class: 'w-full',
-    },
-    labelWidth: 100,
-  },
-  schema: planInfoFormSchema(),
-  showDefaultActions: false,
-  wrapperClass: 'grid-cols-1 md:grid-cols-2',
-  actionWrapperClass: 'col-span-2 text-right',
-  handleValuesChange: (values) => {
-    Object.assign(planInfoFormValues, values);
-  },
-  handleSubmit: async () => {
-    // console.log('表单提交:', planInfoFormValues);
-    message.success('表单提交成功');
-  },
-  handleReset: async () => {
-    planInfoFormApi.resetForm();
-    Object.assign(planInfoFormValues, {});
-  },
-});
-
-const [PayInfoForm, payInfoFormApi] = useVbenForm({
-  commonConfig: {
-    componentProps: {
-      class: 'w-full',
-    },
-    labelWidth: 100,
-  },
-  schema: payInfoFormSchema(),
-  showDefaultActions: false,
-  wrapperClass: 'grid-cols-1 md:grid-cols-2',
-  actionWrapperClass: 'col-span-2 text-right',
-  handleValuesChange: (values) => {
-    Object.assign(payInfoFormValues, values);
-  },
-  handleSubmit: async () => {
-    // console.log('表单提交:', payInfoFormValues);
-    message.success('表单提交成功');
-  },
-  handleReset: async () => {
-    payInfoFormApi.resetForm();
-    Object.assign(payInfoFormValues, {});
-  },
-});
-
 const initiationTypeValue = ref<null | string>(null);
 
 const adcancedQueryModalOpen = () => {
@@ -263,34 +208,27 @@ function batchEdit() {
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
-    <AdvancedQueryModal class="w-2/5">
-      <AdvancedQuery @reset="handleReset" />
-    </AdvancedQueryModal>
     <LadingBillModal class="w-3/4" @success="handleRefresh" />
     <BundleBoxModal class="w-3/4" @success="handleRefresh" />
     <ReturnModal class="w-1/4" @success="handleRefresh" />
     <EditModal class="w-3/4" @success="handleRefresh" />
     <!-- 未回场箱信息修改 -->
     <div class="my-3 flex" style="height: 50px">111</div>
-    <div class="my-3 flex" style="height: 220px">
+    <div class="my-3 flex" style="height: 250px">
+<!--      改单计划信息-->
       <div class="h-full w-1/2">
-        <div class="flex h-full flex-col rounded-lg bg-white p-4 shadow">
-          <h3 class="mb-4 text-lg">改单计划信息</h3>
+        <div class="flex h-full flex-col rounded-lg">
           <PlanInfoForm class="h-full flex-1" />
         </div>
       </div>
       <div class="ml-3 h-full w-1/2">
-        <div class="flex h-full flex-col rounded-lg bg-white p-4 shadow">
-          <h3 class="mb-4 text-lg">改单付费信息</h3>
+        <div class="flex h-full flex-col rounded-lg">
           <PayInfoForm class="h-full flex-1" />
         </div>
       </div>
     </div>
     <div class="h-3/5 w-full">
       <Grid table-title=" 受理计划列表 ">
-        <template #form-expand-before>
-          <advancedButton @click="adcancedQueryModalOpen" />
-        </template>
         <template #toolbar-tools>
           <TableAction
             :actions="[
