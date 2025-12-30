@@ -67,15 +67,9 @@ export const getVVd = ({
   );
 };
 // 获取集装箱ISO信息
-export const getContainerIsoList = (params: {
-  contIso: string;
-  pageNo: number;
-  pageSize: number;
-  queryType: string;
-}) => {
-  return requestClient.get<PageResult<CommonApi.isoVO>>(
-    `/bpp/flow/common/get-container-iso-list`,
-    { params },
+export const getContainerIsoList = (queryType: string) => {
+  return requestClient.get(
+    `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
   );
 };
 // 获取集装箱持箱人信息
