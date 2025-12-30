@@ -627,7 +627,7 @@ const openContainerAreaWindow = (
         <template #form-dischargeVslSchedule>
           <Select
             :options="dischargeVslSchedule.data"
-            v-model:value="dischargeVslSchedule.value"
+            v-model="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
