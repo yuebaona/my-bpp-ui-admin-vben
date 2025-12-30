@@ -25,6 +25,7 @@ import ContainerArea from './containerAreaSelect.vue';
 const emit = defineEmits(['success']);
 
 const containerAreaModalVisible = ref(false);
+const isSubmitting = ref(false);
 
 const containerAreaParams = reactive({
   ownerCodeList: [],
@@ -352,58 +353,66 @@ const debouncedConfirm = debounce(async () => {
   //   message.warning('请至少添加一条箱区范围数据');
   //   return;
   // }
-
-  // 根据是否放箱状态决定计划箱量的验证规则
-  if (formData.isRelease) {
-    if (!formData.planQuantity) {
-      message.warning('若“是否放箱”选择“是”，计划箱量为必填项', 3);
-      return;
-    }
-    const quantity = Number(formData.planQuantity);
-    if (Number.isNaN(quantity) || quantity <= 0) {
-      message.warning('计划箱量必须大于0');
-      return;
-    }
-  }
-
-  const { valid } = await formApi.validate();
-  const gridValid: boolean = await gridApi.grid.validate(true);
-
-  if (!valid || gridValid) {
+  if (isSubmitting.value) {
     return;
   }
+  isSubmitting.value = true;
 
-  // Object.assign(formData, await formApi.getValues());
-  const formValues = await formApi.getValues();
-  Object.assign(formData, formValues);
-  if (!formData.planType) {
-    formData.planType = 'MAIN';
+  try {
+    // 根据是否放箱状态决定计划箱量的验证规则
+    if (formData.isRelease) {
+      if (!formData.planQuantity) {
+        message.warning('若“是否放箱”选择“是”，计划箱量为必填项', 3);
+        return;
+      }
+      const quantity = Number(formData.planQuantity);
+      if (Number.isNaN(quantity) || quantity <= 0) {
+        message.warning('计划箱量必须大于0');
+        return;
+      }
+    }
+
+    const { valid } = await formApi.validate();
+    const gridValid: boolean = await gridApi.grid.validate(true);
+
+    if (!valid || gridValid) {
+      return;
+    }
+
+    // Object.assign(formData, await formApi.getValues());
+    const formValues = await formApi.getValues();
+    Object.assign(formData, formValues);
+    if (!formData.planType) {
+      formData.planType = 'MAIN';
+    }
+
+    if (!Array.isArray(formData.ownerCodeList)) {
+      formData.ownerCodeList = [formData.ownerCodeList];
+    }
+    if (!Array.isArray(formData.contIsoList)) {
+      formData.contIsoList = [formData.contIsoList];
+    }
+
+    const $grid = gridApi.grid;
+    const gridData = $grid ? $grid.getTableData().fullData : containerAreaData;
+    const bayRangeList = gridData.map((row: any) => ({
+      yardBay: row.yardPosition || '',
+      yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
+    }));
+
+    const data: EmptyContainerControlApi.mainPlanVO = {
+      ...formData,
+      bayRangeList,
+    } as EmptyContainerControlApi.mainPlanVO;
+
+    await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
+
+    await modalApi.close();
+    emit('success');
+    message.success($t('ui.actionMessage.operationSuccess'));
+  } finally {
+    isSubmitting.value = false;
   }
-
-  if (!Array.isArray(formData.ownerCodeList)) {
-    formData.ownerCodeList = [formData.ownerCodeList];
-  }
-  if (!Array.isArray(formData.contIsoList)) {
-    formData.contIsoList = [formData.contIsoList];
-  }
-
-  const $grid = gridApi.grid;
-  const gridData = $grid ? $grid.getTableData().fullData : containerAreaData;
-  const bayRangeList = gridData.map((row: any) => ({
-    yardBay: row.yardPosition || '',
-    yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
-  }));
-
-  const data: EmptyContainerControlApi.mainPlanVO = {
-    ...formData,
-    bayRangeList,
-  } as EmptyContainerControlApi.mainPlanVO;
-
-  await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
-
-  await modalApi.close();
-  emit('success');
-  message.success($t('ui.actionMessage.operationSuccess'));
 }, 300);
 
 const [Modal, modalApi] = useVbenModal({
