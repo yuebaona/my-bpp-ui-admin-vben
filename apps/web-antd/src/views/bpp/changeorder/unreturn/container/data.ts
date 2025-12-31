@@ -157,7 +157,7 @@ export function payInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入付费方式'
+        placeholder: '请输入付费方式',
       },
       rules: 'required',
     },
@@ -168,6 +168,7 @@ export function payInfoFormSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         disabled: true,
+        placeholder: '请输入发票抬头',
       },
       rules: 'required',
     },
