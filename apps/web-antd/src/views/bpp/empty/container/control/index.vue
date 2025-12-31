@@ -710,7 +710,7 @@ const openContainerAreaWindow = (
                 label: '新增',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                auth: ['system:user:create'],
+                auth: ['empty:container-control-main:create'],
                 onClick: handleCreateMainPlan,
               },
               {
@@ -730,6 +730,7 @@ const openContainerAreaWindow = (
                 type: 'primary',
                 icon: ACTION_ICON.VIEW,
                 onClick: handleLogQuery,
+                auth: ['empty:container-control-main-log:query'],
               },
             ]"
           />
@@ -741,7 +742,7 @@ const openContainerAreaWindow = (
                 label: '修改',
                 type: 'link',
                 icon: ACTION_ICON.EDIT,
-                auth: ['system:user:update'],
+                auth: ['empty:container-control-main:update'],
                 onClick: handleMainPlanEdit.bind(null, row),
                 disabled: row.planStatus === 'COMPLETED',
               },
@@ -752,7 +753,7 @@ const openContainerAreaWindow = (
                       label: '删除',
                       type: 'link',
                       icon: ACTION_ICON.DELETE,
-                      auth: ['system:user:delete'],
+                      auth: ['empty:container-control-main:delete'],
                       popConfirm: {
                         title: '确定删除该条记录吗？',
                         onConfirm: handleMainPlanDelete.bind(null, row),
