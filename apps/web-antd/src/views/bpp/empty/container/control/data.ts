@@ -662,7 +662,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'creator',
+      field: 'creatorName',
       title: '创建人',
       minWidth: 100,
     },
@@ -673,7 +673,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       formatter: 'formatDateTime',
     },
     {
-      field: 'updater',
+      field: 'updaterName',
       title: '修改人',
       minWidth: 100,
     },
@@ -728,7 +728,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'dischargeVslSchedule',
       title: '卸船船期',
-      minWidth: 120,
+      minWidth: 200,
     },
     {
       field: 'tradeType',
@@ -782,7 +782,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'creator',
+      field: 'creatorName',
       title: '创建人',
       minWidth: 100,
     },
@@ -793,7 +793,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       formatter: 'formatDateTime',
     },
     {
-      field: 'updater',
+      field: 'updaterName',
       title: '修改人',
       minWidth: 100,
     },
@@ -974,8 +974,8 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'operator',
-      title: '修改人',
+      field: 'operatorName',
+      title: '操作人',
       minWidth: 100,
     },
     {
