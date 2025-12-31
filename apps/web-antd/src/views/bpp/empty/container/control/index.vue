@@ -319,6 +319,7 @@ function handleCreateSubPlan() {
         planType: 'SUB',
         mainPlanIsRelease: mainPlan.isRelease,
         mainPlanTradeType: mainPlan.tradeType,
+        pickupPlanNo: mainPlan.pickupPlanNo,
       })
       .open();
   }
