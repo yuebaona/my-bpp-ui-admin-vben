@@ -181,19 +181,7 @@ export function onSiteOperationConfirmFormSchema(
         },
         disabled: shouldDisable('contNo'),
       },
-      rules: z.string().refine(
-        (value) => {
-          // 如果值为 "HATCH"，则不校验
-          if (value.toUpperCase() === 'HATCH') {
-            return true;
-          }
-          // 其他情况校验格式
-          return /^[A-Z]{4}\d{7}$/i.test(value);
-        },
-        {
-          message: '请输入正确的箱号（前四位为英文，后七位数字）',
-        },
-      ),
+      rules: 'required'
     },
     {
       fieldName: 'operationPosition',
