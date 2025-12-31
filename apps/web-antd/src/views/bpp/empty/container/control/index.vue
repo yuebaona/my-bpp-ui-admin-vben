@@ -9,7 +9,10 @@ import { Page, useVbenModal } from '@vben/common-ui';
 import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
 import {
   deleteMainPlan,
   deleteSubPlan,
@@ -20,8 +23,8 @@ import {
   getSubPlanPage,
   getVesselAndVoyage,
 } from '#/api/bpp/empty/container/control';
-import { advancedButton } from '#/components/advanced-button';
-import { AdvancedQuery } from '#/components/advanced-query';
+// import { advancedButton } from '#/components/advanced-button';
+// import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
@@ -41,10 +44,10 @@ const containerAreaClickRow =
   ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
 const popoverVisible = ref({});
 
-const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
-  showCancelButton: false,
-  showConfirmButton: false,
-});
+// const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
+//   showCancelButton: false,
+//   showConfirmButton: false,
+// });
 
 const [SubFormModal, subFormModalApi] = useVbenModal({
   connectedComponent: SubForm,
@@ -92,6 +95,10 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
           }
           if (selectedMainId.value) {
             formValues.mainId = selectedMainId.value;
+          }
+          const mainFormValues = await mainGridApi.formApi.getValues();
+          if (mainFormValues.planNo) {
+            formValues.planNo = mainFormValues.planNo;
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
@@ -141,7 +148,6 @@ function handleRowCheckboxChange({
 }: {
   records: EmptyContainerControlApi.mainPlanVO[];
 }) {
-  // 检查是否已勾选子计划
   if (checkedSubIds.value.length > 0) {
     checkedSubIds.value = [];
     subPlanNo.value = [];
@@ -181,6 +187,13 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
+    resetButtonOptions: {
+      onClick: () => {
+        ownerCodeList.value = [];
+        contIsoList.value = [];
+        dischargeVslSchedule.value = '';
+      },
+    },
   },
   gridOptions: {
     columns: mainPlanColumns(),
@@ -193,7 +206,7 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     toolbarConfig: {
       search: false,
       custom: true,
-      export: true,
+      export: false,
       // import: true,
       refresh: true,
       zoom: true,
@@ -208,6 +221,11 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          checkedSubIds.value = [];
+          subPlanNo.value = [];
+          hasSelectedMainPlan.value = false;
+          selectedMainId.value = null;
+          subGridApi.query();
           const queryParams = { ...formValues };
 
           // 将时间范围转换为时间戳
@@ -261,6 +279,19 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
             contIsoList: contIsoList.value,
             dischargeVslSchedule: dischargeVslSchedule.value,
           });
+          checkedSubIds.value = [];
+          subPlanNo.value = [];
+          hasSelectedMainPlan.value = false;
+          selectedMainId.value = null;
+
+          if (formValues.planNo && result.list && result.list.length > 0) {
+            const firstMainPlan = result.list[0];
+            if (firstMainPlan.planNo && formValues.planNo !== firstMainPlan.planNo) {
+              selectedMainId.value = firstMainPlan.id.toString();
+              hasSelectedMainPlan.value = true;
+              subGridApi.query();
+            }
+          }
           return result;
         },
       },
@@ -280,6 +311,11 @@ function handleRefresh() {
   subGridApi.query();
 }
 
+/** 只刷新子计划表格 */
+function handleSubPlanRefresh() {
+  subGridApi.query();
+}
+
 /** 创建主计划新申请 */
 function handleCreateMainPlan() {
   mainFormModalApi.setData(null).open();
@@ -288,6 +324,14 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
+    if (ownerCodeList.value && ownerCodeList.value.length > 1) {
+      message.warning('持箱人只能选择一个');
+      return;
+    }
+    if (contIsoList.value && contIsoList.value.length > 1) {
+      message.warning('ISO只能选择一个');
+      return;
+    }
     const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,
@@ -328,9 +372,9 @@ function handleCreateSubPlan() {
 /** 导出数据 */
 // function handleMainExport() {}
 
-function handleSubExport() {
-  message.info('导出功能');
-}
+// function handleSubExport() {
+//   message.info('导出功能');
+// }
 
 /** 强制完成 */
 const handleForceComplete = async () => {
@@ -365,7 +409,15 @@ const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  subFormModalApi.setData(res).open();
+  const mainPlanRes = await getMainPlan(row.mainId);
+  subFormModalApi
+    .setData({
+      ...res,
+      mainId: row.mainId,
+      planType: 'SUB',
+      mainPlanTradeType: mainPlanRes.tradeType,
+    })
+    .open();
 };
 
 /** 删除主计划 */
@@ -381,7 +433,7 @@ const handleMainPlanDelete = async (
 const handleSubDelete = async (row: EmptyContainerControlApi.subPlanVO) => {
   await deleteSubPlan(row.id);
   message.success('删除成功');
-  handleRefresh();
+  handleSubPlanRefresh();
 };
 
 /** 日志查询 */
@@ -389,9 +441,9 @@ function handleLogQuery() {
   logQueryModalApi.open();
 }
 
-const adcancedQueryModalOpen = () => {
-  AdvancedQueryModalApi.open();
-};
+// const adcancedQueryModalOpen = () => {
+//   AdvancedQueryModalApi.open();
+// };
 
 const ownerCodeList = reactive({
   data: [],
@@ -455,8 +507,11 @@ const dischargeVslSchedule = reactive({
 });
 
 // 获取卸船船期
-const fetchdischargeVslSchedule = async (searchText) => {
+const fetchdischargeVslSchedule = async (searchText: string) => {
   try {
+    if (!searchText || searchText.length < 2) {
+      return;
+    }
     dischargeVslSchedule.fetching = true;
     const result = await getVesselAndVoyage({ condition: searchText });
     dischargeVslSchedule.data = result.map((item) => ({
@@ -475,7 +530,7 @@ const fetchOwnerCodeList = async (searchText: string) => {
   ownerCodeList.fetching = true;
   try {
     const upperCaseValue = searchText.toUpperCase();
-    const result = await getContainerOwnerList({
+    const result = await getContainerOwnerListPage({
       ownerCode: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
@@ -499,7 +554,7 @@ const fetchContIsoList = async (searchText: string) => {
   contIsoList.fetching = true;
   try {
     const upperCaseValue = searchText.toUpperCase();
-    const result = await getContainerIsoList({
+    const result = await getContainerIsoListPage({
       contIso: upperCaseValue,
       pageNo: 1,
       pageSize: 100,
@@ -531,13 +586,13 @@ const openContainerAreaWindow = (
 
 <template>
   <Page auto-content-height>
-    <SubFormModal class="w-3/5" @success="handleRefresh" />
+    <SubFormModal class="w-3/5" @success="handleSubPlanRefresh" />
     <MainFormModal class="w-3/5" @success="handleRefresh" />
-    <AdvancedQueryModal class="w-2/5">
-      <AdvancedQuery />
-    </AdvancedQueryModal>
+    <!--    <AdvancedQueryModal class="w-2/5">-->
+    <!--      <AdvancedQuery />-->
+    <!--    </AdvancedQueryModal>-->
     <LogQueryModal />
-    <ChooseContainerModal class="w-3/5" @success="handleRefresh" />
+    <ChooseContainerModal class="w-3/5" />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <MainGrid table-title="主计划">
@@ -580,7 +635,7 @@ const openContainerAreaWindow = (
         <template #form-dischargeVslSchedule>
           <Select
             :options="dischargeVslSchedule.data"
-            v-model:value="dischargeVslSchedule.value"
+            v-model="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
@@ -598,31 +653,29 @@ const openContainerAreaWindow = (
           >
             <template #content>
               <ContainerAreaDisplay
-                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
-                @click="
+              />
+              <div
+                @click.stop="
                   () => {
                     popoverVisible[row.id] = false;
                     containerAreaClickRow.value = null;
                   }
                 "
-              >
-                Close
-              </ContainerAreaDisplay>
+              ></div>
             </template>
-            <a-text
+            <text
               @click="openContainerAreaWindow(row)"
               style="color: #1890ff; cursor: pointer"
             >
               {{ row.bayRanges }}
-            </a-text>
+            </text>
           </a-popover>
         </template>
-        <template #form-expand-before>
-          <advancedButton @click="adcancedQueryModalOpen" />
-        </template>
+        <!--        <template #form-expand-before>-->
+        <!--          <advancedButton @click="adcancedQueryModalOpen" />-->
+        <!--        </template>-->
         <template #toolbar-tools>
           <TableAction
             :actions="[
@@ -663,19 +716,25 @@ const openContainerAreaWindow = (
                 icon: ACTION_ICON.EDIT,
                 auth: ['system:user:update'],
                 onClick: handleMainPlanEdit.bind(null, row),
+                disabled: row.planStatus === 'COMPLETED',
               },
-              {
-                label: '删除',
-                type: 'link',
-                icon: ACTION_ICON.DELETE,
-                auth: ['system:user:delete'],
-                popConfirm: {
-                  title: '确定删除该条记录吗？',
-                  onConfirm: handleMainPlanDelete.bind(null, row),
-                  placement: 'topRight',
-                },
-                danger: true,
-              },
+              // 当状态不是'已完成'时才显示删除按钮
+              ...(row.planStatus !== 'COMPLETED'
+                ? [
+                    {
+                      label: '删除',
+                      type: 'link',
+                      icon: ACTION_ICON.DELETE,
+                      auth: ['system:user:delete'],
+                      popConfirm: {
+                        title: '确定删除该条记录吗？',
+                        onConfirm: handleMainPlanDelete.bind(null, row),
+                        placement: 'topRight',
+                      },
+                      danger: true,
+                    },
+                  ]
+                : []),
             ]"
           />
         </template>
@@ -692,26 +751,24 @@ const openContainerAreaWindow = (
           >
             <template #content>
               <ContainerAreaDisplay
-                :owner-code-list="containerAreaClickRow?.ownerCodeList || []"
-                :cont-iso-list="containerAreaClickRow?.contIsoList || []"
                 :bay-range-list="containerAreaClickRow?.bayRangeList || []"
                 :bay-ranges="containerAreaClickRow?.bayRanges || ''"
-                @click="
+              />
+              <div
+                @click.stop="
                   () => {
                     popoverVisible[row.id] = false;
                     containerAreaClickRow.value = null;
                   }
                 "
-              >
-                Close
-              </ContainerAreaDisplay>
+              ></div>
             </template>
-            <a-text
+            <text
               @click="openContainerAreaWindow(row)"
               style="color: #1890ff; cursor: pointer"
             >
               {{ row.bayRanges }}
-            </a-text>
+            </text>
           </a-popover>
         </template>
         <template #toolbar-tools>
@@ -724,12 +781,12 @@ const openContainerAreaWindow = (
                 auth: ['system:user:create'],
                 onClick: handleCreateSubPlan,
               },
-              {
-                label: '导出',
-                type: 'primary',
-                icon: ACTION_ICON.DOWNLOAD,
-                onClick: handleSubExport,
-              },
+              // {
+              //   label: '导出',
+              //   type: 'primary',
+              //   icon: ACTION_ICON.DOWNLOAD,
+              //   onClick: handleSubExport,
+              // },
             ]"
           />
         </template>
@@ -742,19 +799,24 @@ const openContainerAreaWindow = (
                 icon: ACTION_ICON.EDIT,
                 auth: ['system:user:update'],
                 onClick: handleSubEdit.bind(null, row),
+                disabled: row.planStatus === 'COMPLETED',
               },
-              {
-                label: '删除',
-                type: 'link',
-                icon: ACTION_ICON.DELETE,
-                auth: ['system:user:delete'],
-                popConfirm: {
-                  title: '确定删除该条记录吗？',
-                  onConfirm: handleSubDelete.bind(null, row),
-                  placement: 'topRight',
-                },
-                danger: true,
-              },
+              ...(row.planStatus !== 'COMPLETED'
+                ? [
+                    {
+                      label: '删除',
+                      type: 'link',
+                      icon: ACTION_ICON.DELETE,
+                      auth: ['system:user:delete'],
+                      popConfirm: {
+                        title: '确定删除该条记录吗？',
+                        onConfirm: handleSubDelete.bind(null, row),
+                        placement: 'topRight',
+                      },
+                      danger: true,
+                    },
+                  ]
+                : []),
             ]"
           />
         </template>

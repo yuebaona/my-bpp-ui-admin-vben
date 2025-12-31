@@ -72,8 +72,20 @@ export const getContainerIsoList = (queryType: string) => {
     `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
   );
 };
-// 获取集装箱持箱人信息
-export const getContainerOwnerList = (params: {
+// 分页获取集装箱ISO信息
+export const getContainerIsoListPage = (params: {
+  contIso: string;
+  pageNo: number;
+  pageSize: number;
+  queryType: string;
+}) => {
+  return requestClient.get<PageResult<CommonApi.isoVO>>(
+    `/bpp/flow/common/get-container-iso-list`,
+    { params },
+  );
+};
+// 分页获取集装箱持箱人信息
+export const getContainerOwnerListPage = (params: {
   ownerCode: string;
   pageNo: number;
   pageSize: number;

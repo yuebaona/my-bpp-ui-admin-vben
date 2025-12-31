@@ -10,7 +10,10 @@ import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getContainerIsoList, getContainerOwnerList } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
 import {
   createMainPlan,
   getStorageQuantity,
@@ -25,6 +28,7 @@ import ContainerArea from './containerAreaSelect.vue';
 const emit = defineEmits(['success']);
 
 const containerAreaModalVisible = ref(false);
+const isSubmitting = ref(false);
 
 const containerAreaParams = reactive({
   ownerCodeList: [],
@@ -165,17 +169,16 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
     containerAreaData.splice(0);
     const newRows = positions.map((pos) => {
       const yardPosition = `${pos}`;
-
       if (existingRowsMap.has(yardPosition)) {
         return existingRowsMap.get(yardPosition);
       }
-      // 新行数据
       return {
         yardPosition,
         yardColumns: [],
         totalCount: '',
-        minStorageDays: '',
-        maxStorageDays: '',
+        minDays: '',
+        maxDays: '',
+        isNew: true,
       };
     });
 
@@ -187,8 +190,12 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
         item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
       ...item,
     }));
+
+    // 只查询新添加的行的堆存数据
     for (const row of containerAreaData) {
-      await getStorageConditionSearch(row);
+      if (row.isNew) {
+        await getStorageConditionSearch(row);
+      }
     }
   }
 };
@@ -225,7 +232,7 @@ const isoSearch = async (value: string) => {
   isoState.fetching = true;
   try {
     const upperCaseValue = value.toUpperCase();
-    const res = await getContainerIsoList({
+    const res = await getContainerIsoListPage({
       pageNo: 1,
       pageSize: 10,
       contIso: upperCaseValue,
@@ -247,16 +254,16 @@ const isoSearch = async (value: string) => {
 };
 
 // 初始化ISO数据
-const initIsoData = async () => {
-  await isoSearch('');
-};
+// const initIsoData = async () => {
+//   await isoSearch('');
+// };
 
 // 持箱人搜索函数
 const ownerSearch = async (value: string) => {
   ownerState.fetching = true;
   try {
     const upperCaseValue = value.toUpperCase();
-    const res = await getContainerOwnerList({
+    const res = await getContainerOwnerListPage({
       pageNo: 1,
       pageSize: 10,
       ownerCode: upperCaseValue,
@@ -277,9 +284,9 @@ const ownerSearch = async (value: string) => {
 };
 
 // 初始化持箱人数据
-const initOwnerData = async () => {
-  await ownerSearch('');
-};
+// const initOwnerData = async () => {
+//   await ownerSearch('');
+// };
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -296,13 +303,30 @@ const [Form, formApi] = useVbenForm({
   handleValuesChange: async (values, changedValues) => {
     Object.assign(formData, values);
     const isChangeContIso =
-      Array.isArray(changedValues) && changedValues[0] === 'contIsoList';
+      Array.isArray(changedValues) && changedValues.includes('contIsoList');
     const isChangeOwner =
-      Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
-    const isChangePickupPlanNo =
-      Array.isArray(changedValues) && changedValues[0] === 'pickupPlanNo';
+      Array.isArray(changedValues) && changedValues.includes('ownerCodeList');
+    const isChangeTradeType =
+      Array.isArray(changedValues) && changedValues.includes('tradeType');
+    const isChangeIsRelease =
+      Array.isArray(changedValues) && changedValues.includes('isRelease');
 
-    if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
+    // 根据是否放箱的初始值设置计划箱量字段状态
+    if (isChangeIsRelease) {
+      if (formData.isRelease === false) {
+        formData.planQuantity = '';
+        await formApi.setFieldValue('planQuantity', '');
+        formApi.updateSchema([
+          { fieldName: 'planQuantity', componentProps: { disabled: true } },
+        ]);
+      } else if (formData.isRelease === true) {
+        formApi.updateSchema([
+          { fieldName: 'planQuantity', componentProps: { disabled: false } },
+        ]);
+      }
+    }
+
+    if (isChangeContIso || isChangeOwner || isChangeTradeType) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       const $grid = gridApi.grid;
@@ -354,58 +378,67 @@ const debouncedConfirm = debounce(async () => {
   //   message.warning('请至少添加一条箱区范围数据');
   //   return;
   // }
-
-  // 根据是否放箱状态决定计划箱量的验证规则
-  if (formData.isRelease) {
-    if (!formData.planQuantity) {
-      message.warning('若“是否放箱”选择“是”，计划箱量为必填项', 3);
-      return;
-    }
-    const quantity = Number(formData.planQuantity);
-    if (Number.isNaN(quantity) || quantity <= 0) {
-      message.warning('计划箱量必须大于0');
-      return;
-    }
-  }
-
-  const { valid } = await formApi.validate();
-  const gridValid: boolean = await gridApi.grid.validate(true);
-
-  if (!valid || gridValid) {
+  if (isSubmitting.value) {
     return;
   }
+  isSubmitting.value = true;
 
-  // Object.assign(formData, await formApi.getValues());
-  const formValues = await formApi.getValues();
-  Object.assign(formData, formValues);
-  if (!formData.planType) {
-    formData.planType = 'MAIN';
+  try {
+    // 根据是否放箱状态决定计划箱量的验证规则
+    if (formData.isRelease) {
+      if (!formData.planQuantity) {
+        message.warning('若“是否放箱”选择“是”，计划箱量为必填项', 3);
+        return;
+      }
+      const quantity = Number(formData.planQuantity);
+      if (Number.isNaN(quantity) || quantity <= 0) {
+        message.warning('计划箱量必须大于0');
+        return;
+      }
+    }
+
+    const { valid } = await formApi.validate();
+    const gridValid: boolean = await gridApi.grid.validate(true);
+
+    if (!valid || gridValid) {
+      return;
+    }
+
+    // Object.assign(formData, await formApi.getValues());
+    const formValues = await formApi.getValues();
+    Object.assign(formData, formValues);
+    if (!formData.planType) {
+      formData.planType = 'MAIN';
+    }
+
+    if (!Array.isArray(formData.ownerCodeList)) {
+      formData.ownerCodeList = [formData.ownerCodeList];
+    }
+    if (!Array.isArray(formData.contIsoList)) {
+      formData.contIsoList = [formData.contIsoList];
+    }
+
+    const $grid = gridApi.grid;
+    const gridData = $grid ? $grid.getTableData().fullData : containerAreaData;
+    const bayRangeList = gridData.map((row: any) => ({
+      yardBay: row.yardPosition || '',
+      yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
+    }));
+
+    const data: EmptyContainerControlApi.mainPlanVO = {
+      ...formData,
+      bayRangeList,
+      tradeType: formData.tradeType ?? '',
+    } as EmptyContainerControlApi.mainPlanVO;
+
+    await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
+
+    await modalApi.close();
+    emit('success');
+    message.success($t('ui.actionMessage.operationSuccess'));
+  } finally {
+    isSubmitting.value = false;
   }
-
-  if (!Array.isArray(formData.ownerCodeList)) {
-    formData.ownerCodeList = [formData.ownerCodeList];
-  }
-  if (!Array.isArray(formData.contIsoList)) {
-    formData.contIsoList = [formData.contIsoList];
-  }
-
-  const $grid = gridApi.grid;
-  const gridData = $grid ? $grid.getTableData().fullData : containerAreaData;
-  const bayRangeList = gridData.map((row: any) => ({
-    yardBay: row.yardPosition || '',
-    yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
-  }));
-
-  const data: EmptyContainerControlApi.mainPlanVO = {
-    ...formData,
-    bayRangeList,
-  } as EmptyContainerControlApi.mainPlanVO;
-
-  await (formData?.id ? updateMainPlan(data) : createMainPlan(data));
-
-  await modalApi.close();
-  emit('success');
-  message.success($t('ui.actionMessage.operationSuccess'));
 }, 300);
 
 const [Modal, modalApi] = useVbenModal({
@@ -428,8 +461,8 @@ const [Modal, modalApi] = useVbenModal({
         planNo: '',
       });
       containerAreaData.splice(0);
-      initIsoData();
-      initOwnerData();
+      // initIsoData();
+      // initOwnerData();
     }
     const data = await modalApi.getData<any>();
 
@@ -455,58 +488,46 @@ const [Modal, modalApi] = useVbenModal({
             ownerState.value = mainPlanData.ownerCodeList;
             ownerState.originalValue = mainPlanData.ownerCodeList;
           }
-
-          // 设置ISO选择值
           if (mainPlanData.contIsoList) {
             isoState.value = mainPlanData.contIsoList;
             isoState.originalValue = mainPlanData.contIsoList;
           }
-          const $grid = gridApi.grid;
-          if ($grid) {
-            // 设置箱区范围数据
-            if (data.yardPositionResp) {
-              for (const item of data.yardPositionResp) {
-                await $grid.insertAt(
-                  {
-                    ...item,
-                  },
-                  -1,
-                );
-              }
-            } else if (mainPlanData.bayRangeList) {
-              // 如果是数组格式
-              if (Array.isArray(mainPlanData.bayRangeList)) {
-                for (const bayRange of mainPlanData.bayRangeList) {
-                  await $grid.insertAt(
-                    {
-                      yardPosition: bayRange.yardBay || '',
-                      yardColumns: bayRange.yardRaw
-                        ? bayRange.yardRaw.split(',')
-                        : [],
-                      totalCount: '',
-                      minStorageDays: '',
-                      maxStorageDays: '',
-                    },
-                    -1,
-                  );
-                }
-              } else {
-                await $grid.insertAt(
-                  {
-                    yardPosition: mainPlanData.bayRangeList.yardBay || '',
-                    yardColumns: mainPlanData.bayRangeList.yardRaw
-                      ? mainPlanData.bayRangeList.yardRaw.split(',')
-                      : [],
-                    totalCount: '',
-                    minStorageDays: '',
-                    maxStorageDays: '',
-                  },
-                  -1,
-                );
-              }
-            }
+          // 根据是否放箱的初始值设置计划箱量字段状态
+          if (formData.isRelease === false) {
+            formData.planQuantity = '';
+            formApi.updateSchema([
+              { fieldName: 'planQuantity', componentProps: { disabled: true } },
+            ]);
+          } else {
+            formApi.updateSchema([
+              {
+                fieldName: 'planQuantity',
+                componentProps: { disabled: false },
+              },
+            ]);
           }
-          await updateStorageCondition();
+          const $grid = gridApi.grid;
+          if (
+            $grid &&
+            mainPlanData.bayRangeList &&
+            Array.isArray(mainPlanData.bayRangeList)
+          ) {
+            const tableData = mainPlanData.bayRangeList.map(
+              (bayRange: any) => ({
+                yardPosition: bayRange.yardBay || '',
+                yardColumns: bayRange.yardRaw
+                  ? bayRange.yardRaw.split(',')
+                  : [],
+                totalCount: bayRange.totalCount || '',
+                minDays: bayRange.minDays || '',
+                maxDays: bayRange.maxDays || '',
+                isNew: false,
+              }),
+            );
+            $grid.reloadData(tableData);
+            // containerAreaData.push(...tableData);
+            // $grid.reloadData(containerAreaData);
+          }
         } finally {
           modalApi.unlock();
         }
@@ -517,7 +538,6 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 
-// 查询堆存情况
 // 查询堆存情况
 const getStorageConditionSearch = async (row: any) => {
   const $grid = gridApi.grid;
@@ -593,15 +613,6 @@ const getStorageConditionSearch = async (row: any) => {
   }
 };
 
-const updateStorageCondition = async () => {
-  const $grid = gridApi.grid;
-  if ($grid) {
-    const currentGridData = $grid.getTableData().fullData;
-    for (const row of currentGridData) {
-      await getStorageConditionSearch(row);
-    }
-  }
-};
 const ownerStateChange = async (value: any) => {
   if (
     ownerState.originalValue &&
@@ -732,7 +743,12 @@ const modalTitle = computed(() => {
                   ]"
                   style="width: 100%"
                   :show-search="false"
-                  @change="getStorageConditionSearch(row)"
+                  @change="
+                    (value) => {
+                      row.yardColumns = [...value].sort();
+                      getStorageConditionSearch(row);
+                    }
+                  "
                 />
               </template>
               <template #actions="{ row }">
