@@ -533,12 +533,13 @@ const handleDischargeVslScheduleCompositionEnd = (e: CompositionEvent) => {
 
 // 获取卸船船期
 const fetchDischargeVslSchedule = async (searchText: string) => {
+  dischargeVslSchedule.fetching = true;
   try {
     if (!searchText || searchText.length < 2) {
       return;
     }
-    dischargeVslSchedule.fetching = true;
-    const result = await getVesselAndVoyage({ condition: searchText });
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getVesselAndVoyage({ condition: upperCaseValue });
     dischargeVslSchedule.data = result.map((item) => ({
       label: item,
       value: item,
