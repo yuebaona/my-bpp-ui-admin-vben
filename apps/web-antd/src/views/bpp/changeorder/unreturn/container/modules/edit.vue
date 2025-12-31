@@ -24,9 +24,9 @@ const formData = reactive<any[]>({
 const [Form, formApi] = useVbenForm({
   commonConfig: {
     componentProps: {
-      class: 'w-3/4',
+      lass: 'w-full',
     },
-    labelWidth: 180,
+    labelWidth: 170,
   },
   scrollToFirstError: true,
   layout: 'horizontal',

@@ -306,3 +306,10 @@ export const getSimulationSelectContainer = (data: any) => {
     data,
   );
 };
+
+// 获取子计划箱区范围
+export const getSubPlanYardRange = (mainId: string) => {
+  return requestClient.get(
+    `/bpp/flow/empty/container-control-main/sub/bay/list?mainId=${mainId}`,
+  );
+};
