@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch } from 'vue';
 
-import { Button, Input, Select } from 'ant-design-vue';
+import { Button, Input, Select, Modal } from 'ant-design-vue';
 
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import AcceptancePlanForm from '#/views/bpp/changeorder/unreturn/container/modules/acceptancePlanForm.vue';
@@ -52,25 +52,55 @@ const handleBusinessTypeChange = (value: string) => {
   selectedBusinessType.value = value;
 };
 
-// 按钮点击事件
+/** 删除改单计划按钮 */
 const handleDeleteModifyPlan = () => {
-  // 删除改单计划逻辑
-  console.log('删除改单计划');
+  Modal.confirm({
+    content: '是否确认删除改单计划？',
+    onOk() {
+      // 用户确认删除后执行的逻辑
+      console.log('删除改单计划');
+      // 这里可以添加实际的删除API调用
+    },
+    onCancel() {
+      // 用户取消删除后执行的逻辑
+      console.log('取消删除改单计划');
+    },
+  });
 };
-
+/** 暂存按钮 */
 const handleSaveDraft = () => {
   // 暂存逻辑
   console.log('暂存');
 };
-
+/** 提交审核按钮 */
 const handleSubmitAudit = () => {
-  // 提交审核逻辑
-  console.log('提交审核');
+  Modal.confirm({
+    content: '本次修改需要收费20元，是否确认进行信息修改？',
+    onOk() {
+      // 用户确认删除后执行的逻辑
+      console.log('删除改单计划');
+      // 这里可以添加实际的删除API调用
+    },
+    onCancel() {
+      // 用户取消删除后执行的逻辑
+      console.log('取消删除改单计划');
+    },
+  });
 };
-
+/** 执行改单按钮 */
 const handleExecuteModify = () => {
-  // 执行改单逻辑
-  console.log('执行改单');
+  Modal.confirm({
+    content: '是否确认执行改单？',
+    onOk() {
+      // 用户确认删除后执行的逻辑
+      console.log('删除改单计划');
+      // 这里可以添加实际的删除API调用
+    },
+    onCancel() {
+      // 用户取消删除后执行的逻辑
+      console.log('取消删除改单计划');
+    },
+  });
 };
 </script>
 
