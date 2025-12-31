@@ -960,7 +960,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'remark',
       label: '备注',
-      component: 'Input',
+      component: 'Textarea',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+      formItemClass: 'w-full p-0 md:col-span-3',
     },
   ];
 }
