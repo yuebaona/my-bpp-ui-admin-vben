@@ -27,9 +27,8 @@ import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils
 import { containerAreaRangeColumns, subPlanFormSchema } from '../data';
 import ContainerArea from './containerSubAreaSelect.vue';
 
-const pickupPlanNoShow = ref(false);
 const emit = defineEmits(['success']);
-
+const pickupPlanNoShow = ref(false);
 const containerAreaModalVisible = ref(false);
 const tradeTypeDisabled = ref(false);
 const isSubmitting = ref(false);
@@ -581,12 +580,26 @@ const [Modal, modalApi] = useVbenModal({
       if (data.planType === 'SUB' && data.mainPlanIsRelease !== null) {
         formData.isRelease = !data.mainPlanIsRelease;
       }
-      if (data.planType === 'SUB' && data.mainPlanTradeType) {
-        formData.tradeType = data.mainPlanTradeType;
-        tradeTypeDisabled.value = true;
-        formApi.updateSchema([{ fieldName: 'tradeType', disabled: true }]);
+      if (data.planType === 'SUB') {
+        const hasMainTradeType = !!(
+          data.mainPlanTradeType || subPlanData.mainTradeType
+        );
+
+        if (hasMainTradeType) {
+          formData.tradeType =
+            data.mainPlanTradeType || subPlanData.mainTradeType;
+          tradeTypeDisabled.value = true;
+          formApi.updateSchema([{ fieldName: 'tradeType', disabled: true }]);
+        } else {
+          formData.tradeType = '';
+          tradeTypeDisabled.value = false;
+          formApi.updateSchema([{ fieldName: 'tradeType', disabled: false }]);
+        }
       } else {
-        formData.tradeType = '';
+        // 非子计划情况
+        if (!subPlanData?.id) {
+          formData.tradeType = '';
+        }
         tradeTypeDisabled.value = false;
         formApi.updateSchema([{ fieldName: 'tradeType', disabled: false }]);
       }

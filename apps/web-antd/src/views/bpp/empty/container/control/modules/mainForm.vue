@@ -428,6 +428,7 @@ const debouncedConfirm = debounce(async () => {
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
       bayRangeList,
+      tradeType: formData.tradeType ?? '',
     } as EmptyContainerControlApi.mainPlanVO;
 
     await (formData?.id ? updateMainPlan(data) : createMainPlan(data));

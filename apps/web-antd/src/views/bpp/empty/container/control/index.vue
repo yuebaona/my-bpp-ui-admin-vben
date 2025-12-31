@@ -409,7 +409,15 @@ const handleMainPlanEdit = async (row: EmptyContainerControlApi.mainPlanVO) => {
 /** 编辑子计划申请 */
 const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
   const res = await getSubPlan(row.id);
-  subFormModalApi.setData(res).open();
+  const mainPlanRes = await getMainPlan(row.mainId);
+  subFormModalApi
+    .setData({
+      ...res,
+      mainId: row.mainId,
+      planType: 'SUB',
+      mainPlanTradeType: mainPlanRes.tradeType,
+    })
+    .open();
 };
 
 /** 删除主计划 */
