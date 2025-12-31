@@ -618,7 +618,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     checkboxConfig: {
       highlight: true,
-      range: true,
       isShiftKey: true,
     },
     floatingFilterConfig: {
@@ -651,16 +650,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
           value: 10,
         },
         {
-          label: '200',
-          value: 200,
+          label: '25',
+          value: 25,
         },
         {
-          label: '500',
-          value: 500,
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
         },
         {
           label: '1000',
           value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
         },
         {
           label: '全部',
@@ -694,7 +701,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       // 调用gridApi.query()刷新表格数据，实现实时筛选
       // await gridApi.query();
     }, 300),
-    checkboxRangeSelect: ({ rangeRecords }) => {
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
       handleRowCheckboxChange({ records: rangeRecords });
     },
   },
@@ -703,6 +710,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    resizableConfig: {
+      isDblclickAutoWidth: true, // 启用双击自适应列宽
+    },
+    checkboxConfig: {
+      highlight: true,
+      isShiftKey: true,
+    },
     floatingFilterConfig: {
       enabled: true,
     },
@@ -729,16 +743,24 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
           value: 10,
         },
         {
-          label: '200',
-          value: 200,
+          label: '25',
+          value: 25,
         },
         {
-          label: '500',
-          value: 500,
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
         },
         {
           label: '1000',
           value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
         },
         {
           label: '全部',
@@ -770,6 +792,9 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: boxHandleRowCheckboxChange,
     checkboxChange: boxHandleRowCheckboxChange,
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+      boxHandleRowCheckboxChange({ records: rangeRecords });
+    },
   },
 });
 
@@ -777,6 +802,13 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      resizableConfig: {
+        isDblclickAutoWidth: true, // 启用双击自适应列宽
+      },
+      checkboxConfig: {
+        highlight: true,
+        isShiftKey: true,
+      },
       floatingFilterConfig: {
         enabled: true,
       },
@@ -807,16 +839,24 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
             value: 10,
           },
           {
-            label: '200',
-            value: 200,
+            label: '25',
+            value: 25,
           },
           {
-            label: '500',
-            value: 500,
+            label: '50',
+            value: 50,
+          },
+          {
+            label: '100',
+            value: 100,
           },
           {
             label: '1000',
             value: 1000,
+          },
+          {
+            label: '10000',
+            value: 10_000,
           },
           {
             label: '全部',
@@ -854,6 +894,9 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
     gridEvents: {
       checkboxAll: machineSpreaderChangeRecordHandleRowCheck,
       checkboxChange: machineSpreaderChangeRecordHandleRowCheck,
+      checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+        machineSpreaderChangeRecordHandleRowCheck({ records: rangeRecords });
+      },
     },
   });
 
