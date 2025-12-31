@@ -953,6 +953,9 @@ const modalTitle = computed(() => {
           :filter-option="true"
           :list-height="150"
           allow-clear
+          @change="
+            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+          "
           @input="handleDischargeVslScheduleInput"
           @compositionstart="handleDischargeVslScheduleCompositionStart"
           @compositionend="handleDischargeVslScheduleCompositionEnd"
