@@ -326,7 +326,10 @@ const [Form, formApi] = useVbenForm({
       }
     }
 
-    if (isChangeContIso || isChangeOwner || isChangeTradeType) {
+    if (
+      (isChangeContIso || isChangeOwner || isChangeTradeType) &&
+      !formData.id
+    ) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       const $grid = gridApi.grid;

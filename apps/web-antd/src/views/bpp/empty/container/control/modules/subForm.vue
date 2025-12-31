@@ -438,7 +438,7 @@ const [Form, formApi] = useVbenForm({
         ]);
       }
     }
-    if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
+    if ((isChangeContIso || isChangeOwner || isChangePickupPlanNo) && !formData.id) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       yardColumnsOptions.value = {};
