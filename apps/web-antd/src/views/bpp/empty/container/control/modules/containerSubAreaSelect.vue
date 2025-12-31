@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import type { TreeProps } from 'ant-design-vue';
 
+import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
+
 import { computed, ref, watch } from 'vue';
 
 import { Button, Input, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
 
-import { getSubPlanYardRange } from '#/api/bpp/empty/container/control';
+import {
+  getSubPlanYardRange,
+  getYardRange,
+} from '#/api/bpp/empty/container/control';
 
 interface Props {
   visible: boolean;
@@ -18,7 +23,11 @@ interface Props {
 
 interface Emits {
   (e: 'update:visible', value: boolean): void;
-  (e: 'confirm', positions: string[], yardColumnsMap: Record<string, string[]>): void;
+  (
+    e: 'confirm',
+    positions: string[],
+    yardColumnsMap: Record<string, string[]>,
+  ): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,66 +82,41 @@ watch(
 const fetchYardRange = async () => {
   loading.value = true;
   try {
-    const response = await getSubPlanYardRange(props.mainId);
+    let response = await getSubPlanYardRange(props.mainId);
+    if (!response || response.length === 0) {
+      const params: EmptyContainerControlApi.yardRangeVO = {
+        ownerCodeList: props.ownerCodeList || [],
+        contIsoList: props.contIsoList || [],
+        tradeType: props.tradeType || '',
+      };
+      response = await getYardRange(params);
+    }
     yardPositionTreeData.value = [];
     yardColumnsMap.value = {};
 
     if (response.length > 0) {
-      const treeMap = new Map<string, any>();
-
-      response.forEach((item: any) => {
-        if (!item.yard) {
-          return;
-        }
-
-        const yardParts = item.yard.split('-');
-
-        if (yardParts.length === 0) {
-          return;
-        }
-
-        const firstLevelKey = yardParts[0];
-        if (!treeMap.has(firstLevelKey)) {
-          treeMap.set(firstLevelKey, {
-            title: firstLevelKey,
-            key: firstLevelKey,
-            children: [],
-          });
-        }
-
-        if (yardParts.length > 1) {
-          const firstLevelNode = treeMap.get(firstLevelKey);
-          const fullKey = item.yard;
-          const displayTitle = yardParts.slice(1).join('-');
-
-          const existingChild = firstLevelNode.children.find(
-            (child: any) => child.key === fullKey
-          );
-
-          if (!existingChild) {
-            if (item.yardBayList && Array.isArray(item.yardBayList)) {
-              yardColumnsMap.value[fullKey] = item.yardBayList;
-            } else {
-              yardColumnsMap.value[fullKey] = [];
-            }
-
-            firstLevelNode.children.push({
-              title: displayTitle,
-              key: fullKey,
-            });
+      yardPositionTreeData.value = response
+        .map((item: any) => {
+          if (
+            !item ||
+            !item.yard ||
+            !Array.isArray(item.yardBayList) ||
+            item.yardBayList.length === 0
+          ) {
+            return null;
           }
-        }
-      });
-
-      // 转换 Map 为数组并过滤掉没有子节点的项（如果需要的话）
-      yardPositionTreeData.value = Array.from(treeMap.values())
-        .filter((item: any) => item.children.length > 0)
-        .map((item: any) => ({
-          ...item,
-          // 如果只有一级，则作为叶子节点处理
-          isLeaf: item.children.length === 0,
-        }));
-
+          return {
+            title: item.yard,
+            key: item.yard,
+            children: item.yardBayList.map((bay: string) => {
+              return {
+                title: bay,
+                key: `${item.yard}-${bay}`,
+              };
+            }),
+          };
+        })
+        .filter((item: any) => item !== null);
     } else {
       message.info('没有找到匹配的箱区数据');
     }
@@ -166,7 +150,7 @@ const clearSelectedPositions = () => {
 const handleConfirm = () => {
   // 只传递选中的位置的列信息
   const selectedColumnsMap: Record<string, string[]> = {};
-  selectedYardPositions.value.forEach(position => {
+  selectedYardPositions.value.forEach((position) => {
     if (yardColumnsMap.value[position]) {
       selectedColumnsMap[position] = yardColumnsMap.value[position];
     }

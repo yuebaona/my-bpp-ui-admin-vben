@@ -303,13 +303,13 @@ const [Form, formApi] = useVbenForm({
   handleValuesChange: async (values, changedValues) => {
     Object.assign(formData, values);
     const isChangeContIso =
-      Array.isArray(changedValues) && changedValues.includes('contIsoList');
+      Array.isArray(changedValues) && changedValues[0] === 'contIsoList';
     const isChangeOwner =
-      Array.isArray(changedValues) && changedValues.includes('ownerCodeList');
+      Array.isArray(changedValues) && changedValues[0] === 'ownerCodeList';
     const isChangeTradeType =
-      Array.isArray(changedValues) && changedValues.includes('tradeType');
+      Array.isArray(changedValues) && changedValues[0] === 'tradeType';
     const isChangeIsRelease =
-      Array.isArray(changedValues) && changedValues.includes('isRelease');
+      Array.isArray(changedValues) && changedValues[0] === 'isRelease';
 
     // 根据是否放箱的初始值设置计划箱量字段状态
     if (isChangeIsRelease) {
