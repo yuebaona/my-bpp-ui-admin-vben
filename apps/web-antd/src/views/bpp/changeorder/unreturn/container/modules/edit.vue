@@ -6,13 +6,14 @@ import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Select } from 'ant-design-vue';
+import { message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import {
   getContainerIsoListPage,
   getContainerOwnerListPage,
 } from '#/api/bpp/common';
+import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 import { $t } from '#/locales';
 
@@ -26,6 +27,7 @@ const formData = reactive<any[]>({
   returnPort: '',
 });
 
+// ISO搜索选择器
 const {
   state: isoState,
   search: isoSearch,
@@ -69,6 +71,57 @@ const {
   toUpperCase: true,
   filterRegex: /[^A-Z0-9]/g,
 });
+
+const dischargeVslSchedule = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+  isComposing: false, // 标记是否在中文输入法组合状态
+});
+
+// 处理卸船船期输入，将英文部分转为大写，同时允许中文
+const handleDischargeVslScheduleInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+
+  if (dischargeVslSchedule.isComposing) {
+    return;
+  }
+  target.value = target.value.toUpperCase();
+  fetchDischargeVslSchedule(target.value);
+};
+
+// 处理卸船船期中文输入法组合开始
+const handleDischargeVslScheduleCompositionStart = () => {
+  dischargeVslSchedule.isComposing = true;
+};
+
+// 处理卸船船期中文输入法组合结束
+const handleDischargeVslScheduleCompositionEnd = (e: CompositionEvent) => {
+  dischargeVslSchedule.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase();
+  fetchDischargeVslSchedule(target.value);
+};
+
+// 获取卸船船期
+const fetchDischargeVslSchedule = async (searchText: string) => {
+  dischargeVslSchedule.fetching = true;
+  try {
+    if (!searchText || searchText.length < 2) {
+      return;
+    }
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getVesselAndVoyage({ condition: upperCaseValue });
+    dischargeVslSchedule.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    dischargeVslSchedule.data = [];
+  } finally {
+    dischargeVslSchedule.fetching = false;
+  }
+};
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -170,6 +223,24 @@ const [Modal, modalApi] = useVbenModal({
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"
           @compositionend="handleOwnerCompositionEnd"
+        />
+      </template>
+      <template #vesselName>
+        <Select
+          :options="dischargeVslSchedule.data"
+          v-model:value="dischargeVslSchedule.value"
+          style="width: 100%"
+          placeholder="请输入船名或航次"
+          :show-search="true"
+          :filter-option="true"
+          :list-height="150"
+          allow-clear
+          @change="
+            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+          "
+          @input="handleDischargeVslScheduleInput"
+          @compositionstart="handleDischargeVslScheduleCompositionStart"
+          @compositionend="handleDischargeVslScheduleCompositionEnd"
         />
       </template>
     </Form>
