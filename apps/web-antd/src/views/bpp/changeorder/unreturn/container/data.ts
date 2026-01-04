@@ -799,7 +799,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'iso',
       label: '箱ISO',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入ISO',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'isReefer',
