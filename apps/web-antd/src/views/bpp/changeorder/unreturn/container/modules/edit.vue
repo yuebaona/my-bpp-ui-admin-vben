@@ -6,10 +6,14 @@ import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { message, Select } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { getContainerIsoListPage } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 import { $t } from '#/locales';
 
 import { editFormSchema } from '../data';
@@ -22,63 +26,49 @@ const formData = reactive<any[]>({
   returnPort: '',
 });
 
-const isoState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-  isComposing: false, // 标记是否在中文输入法组合状态
-  originalValue: [],
-});
-
-// ISO搜索函数
-const isoSearch = async (value: string) => {
-  isoState.fetching = true;
-  try {
-    const upperCaseValue = value.toUpperCase();
-    const res = await getContainerIsoListPage({
+const {
+  state: isoState,
+  search: isoSearch,
+  handleInput: handleIsoInput,
+  handleCompositionStart: handleIsoCompositionStart,
+  handleCompositionEnd: handleIsoCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
       pageNo: 1,
       pageSize: 10,
-      contIso: upperCaseValue,
+      contIso: value,
       queryType: 'ISO',
     });
+  },
+  labelField: 'contIso',
+  valueField: 'contIso',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
 
-    if (res) {
-      isoState.data = res.map((item: any) => ({
-        label: item.contIso,
-        value: item.contIso,
-        data: item,
-      }));
-    }
-  } catch {
-    message.error('获取ISO数据失败');
-  } finally {
-    isoState.fetching = false;
-  }
-};
-
-// 处理ISO输入，将小写字母转换为大写
-const handleIsoInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-
-  if (isoState.isComposing) {
-    return;
-  }
-  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  isoSearch(target.value);
-};
-
-// 处理ISO中文输入法组合开始
-const handleIsoCompositionStart = () => {
-  isoState.isComposing = true;
-};
-
-// 处理ISO中文输入法组合结束（回车或选择候选词）
-const handleIsoCompositionEnd = (e: CompositionEvent) => {
-  isoState.isComposing = false;
-  const target = e.target as HTMLInputElement;
-  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  isoSearch(target.value);
-};
+// 持箱人搜索选择器
+const {
+  state: ownerState,
+  search: ownerSearch,
+  handleInput: handleOwnerInput,
+  handleCompositionStart: handleOwnerCompositionStart,
+  handleCompositionEnd: handleOwnerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerOwnerListPage({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
+  },
+  labelField: 'ownerCode',
+  valueField: 'ownerCode',
+  errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -162,6 +152,24 @@ const [Modal, modalApi] = useVbenModal({
           @input="handleIsoInput"
           @compositionstart="handleIsoCompositionStart"
           @compositionend="handleIsoCompositionEnd"
+        />
+      </template>
+      <template #owner>
+        <Select
+          v-model:value="ownerState.value"
+          mode="multiple"
+          placeholder="请输入持箱人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="ownerState.fetching ? undefined : null"
+          :options="ownerState.data"
+          @search="ownerSearch"
+          allow-clear
+          show-search
+          @focus="ownerSearch('')"
+          @input="handleOwnerInput"
+          @compositionstart="handleOwnerCompositionStart"
+          @compositionend="handleOwnerCompositionEnd"
         />
       </template>
     </Form>

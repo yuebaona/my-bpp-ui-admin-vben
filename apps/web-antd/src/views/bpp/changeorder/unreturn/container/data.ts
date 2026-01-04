@@ -759,7 +759,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'owner',
       label: '持箱人',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入持箱人',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'tradeType',
