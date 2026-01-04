@@ -6,8 +6,8 @@ import { Card, message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { $t } from '#/locales';
-import FormConfigModal from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
-import { inboxInfoFormSchema } from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/data';
+import FormConfigModal from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
+import { inboxInfoFormSchema } from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/data';
 
 const [Form, FormApi] = useVbenForm({
   commonConfig: {

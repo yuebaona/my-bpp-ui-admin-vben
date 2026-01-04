@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Page } from '@vben/common-ui';
 
-import BillOfLadingInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/billOfLadingInfo.vue';
-import ChangeOrderPaymentInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/changeOrderPaymentInfo.vue';
-import ChangeOrderPlanInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/changeOrderPlanInfo.vue';
-import InboxInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/inboxInfo.vue';
-import OriginalPlanPaymentInfo from '#/views/bpp/custfrom/changeorder/acceptance/plan/update/modules/originalPlanPaymentInfo.vue';
+import BillOfLadingInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/billOfLadingInfo.vue';
+import ChangeOrderPaymentInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/changeOrderPaymentInfo.vue';
+import ChangeOrderPlanInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/changeOrderPlanInfo.vue';
+import InboxInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/inboxInfo.vue';
+import OriginalPlanPaymentInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/originalPlanPaymentInfo.vue';
 </script>
 
 <template>
