@@ -447,7 +447,7 @@ const [Form, formApi] = useVbenForm({
       }
     }
     if (isChangeTradeType && !tradeTypeDisabled.value) {
-      formData.tradeType = values.tradeType;
+      formData.tradeType = values.tradeType || '';
     }
   },
 });
@@ -546,6 +546,9 @@ const debouncedConfirm = debounce(async () => {
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
       bayRangeList,
+      // 确保即使字段为空也能提交到后端
+      dischargeVslSchedule: formData.dischargeVslSchedule || '',
+      tradeType: formData.tradeType || '',
     } as EmptyContainerControlApi.subPlanVO;
 
     await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
@@ -958,7 +961,12 @@ const modalTitle = computed(() => {
           allow-clear
           @search="fetchdischargeVslSchedule"
           @change="
-            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+            (value) => {
+              // 确保清除时将值设置为空字符串而不是undefined
+              const clearValue = value || '';
+              dischargeVslSchedule.value = clearValue;
+              formApi.setFieldValue('dischargeVslSchedule', clearValue);
+            }
           "
         />
       </template>
