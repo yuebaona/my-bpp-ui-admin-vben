@@ -84,7 +84,7 @@ const {
     return await getContainerIsoListPage({
       pageNo: 1,
       pageSize: 10,
-      contIso: value,
+      contLength: value,
       queryType: 'length',
     });
   },
@@ -95,6 +95,30 @@ const {
   filterRegex: /[^A-Z0-9]/g,
 });
 
+// 箱型搜索选择器
+const {
+  state: containerTypeState,
+  search: containerTypeSearch,
+  handleInput: handleContainerTypeInput,
+  handleCompositionStart: handleContainerTypeCompositionStart,
+  handleCompositionEnd: handleContainerTypeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contType: value,
+      queryType: 'type',
+    });
+  },
+  labelField: 'contType',
+  valueField: 'contType',
+  errorMessage: '获取箱型数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 船名航次搜索选择器
 const dischargeVslSchedule = reactive({
   data: [],
   value: [],
@@ -264,6 +288,24 @@ const [Modal, modalApi] = useVbenModal({
           @input="handleSizeInput"
           @compositionstart="handleSizeCompositionStart"
           @compositionend="handleSizeCompositionEnd"
+        />
+      </template>
+      <template #containerType>
+        <Select
+          v-model:value="containerTypeState.value"
+          mode="multiple"
+          placeholder="请输入箱型"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="containerTypeState.fetching ? undefined : null"
+          :options="containerTypeState.data"
+          @search="containerTypeSearch"
+          allow-clear
+          show-search
+          @focus="containerTypeSearch('')"
+          @input="handleContainerTypeInput"
+          @compositionstart="handleContainerTypeCompositionStart"
+          @compositionend="handleContainerTypeCompositionEnd"
         />
       </template>
       <template #vesselName>
