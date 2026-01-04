@@ -721,7 +721,7 @@ export function returnManageFormSchema(): VbenFormSchema[] {
 export function editFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'vesselName',
+      fieldName: 'vslName',
       label: '船名航次',
       component: 'Select',
       componentProps: {
@@ -761,7 +761,7 @@ export function editFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owner',
+      fieldName: 'holderCode',
       label: '持箱人',
       component: 'Select',
       componentProps: {
@@ -780,7 +780,7 @@ export function editFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'size',
+      fieldName: 'contSize',
       label: '尺寸',
       component: 'Select',
       componentProps: {
@@ -789,12 +789,12 @@ export function editFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'containerType',
+      fieldName: 'contType',
       label: '箱型',
       component: 'Input',
     },
     {
-      fieldName: 'containerHeight',
+      fieldName: 'contHeight',
       label: '箱高',
       component: 'Select',
       componentProps: {
@@ -813,7 +813,7 @@ export function editFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'iso',
+      fieldName: 'contIso',
       label: '箱ISO',
       component: 'Select',
       componentProps: {

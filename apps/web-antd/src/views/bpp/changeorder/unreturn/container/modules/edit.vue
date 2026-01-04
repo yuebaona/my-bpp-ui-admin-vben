@@ -259,7 +259,7 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal title="批量修改">
     <Form>
-      <template #iso>
+      <template #contIso>
         <Select
           v-model:value="isoState.value"
           mode="multiple"
@@ -277,7 +277,7 @@ const [Modal, modalApi] = useVbenModal({
           @compositionend="handleIsoCompositionEnd"
         />
       </template>
-      <template #owner>
+      <template #holderCode>
         <Select
           v-model:value="ownerState.value"
           mode="multiple"
@@ -295,7 +295,7 @@ const [Modal, modalApi] = useVbenModal({
           @compositionend="handleOwnerCompositionEnd"
         />
       </template>
-      <template #size>
+      <template #contSize>
         <Select
           v-model:value="sizeState.value"
           mode="multiple"
@@ -313,7 +313,7 @@ const [Modal, modalApi] = useVbenModal({
           @compositionend="handleSizeCompositionEnd"
         />
       </template>
-      <template #containerType>
+      <template #contType>
         <Select
           v-model:value="containerTypeState.value"
           mode="multiple"
@@ -331,7 +331,7 @@ const [Modal, modalApi] = useVbenModal({
           @compositionend="handleContainerTypeCompositionEnd"
         />
       </template>
-      <template #containerHeight>
+      <template #contHeight>
         <Select
           v-model:value="containerHeightState.value"
           mode="multiple"
@@ -349,7 +349,7 @@ const [Modal, modalApi] = useVbenModal({
           @compositionend="handleContainerHeightCompositionEnd"
         />
       </template>
-      <template #vesselName>
+      <template #vslName>
         <Select
           :options="dischargeVslSchedule.data"
           v-model:value="dischargeVslSchedule.value"
