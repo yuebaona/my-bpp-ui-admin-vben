@@ -782,7 +782,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'size',
       label: '尺寸',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入尺寸',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'containerType',

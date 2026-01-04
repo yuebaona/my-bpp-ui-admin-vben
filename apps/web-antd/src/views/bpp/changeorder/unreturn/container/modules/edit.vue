@@ -72,6 +72,29 @@ const {
   filterRegex: /[^A-Z0-9]/g,
 });
 
+// 箱尺寸搜索选择器
+const {
+  state: sizeState,
+  search: sizeSearch,
+  handleInput: handleSizeInput,
+  handleCompositionStart: handleSizeCompositionStart,
+  handleCompositionEnd: handleSizeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contIso: value,
+      queryType: 'length',
+    });
+  },
+  labelField: 'contLength',
+  valueField: 'contLength',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
 const dischargeVslSchedule = reactive({
   data: [],
   value: [],
@@ -223,6 +246,24 @@ const [Modal, modalApi] = useVbenModal({
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"
           @compositionend="handleOwnerCompositionEnd"
+        />
+      </template>
+      <template #size>
+        <Select
+          v-model:value="sizeState.value"
+          mode="multiple"
+          placeholder="请输入持箱人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="sizeState.fetching ? undefined : null"
+          :options="sizeState.data"
+          @search="sizeSearch"
+          allow-clear
+          show-search
+          @focus="sizeSearch('')"
+          @input="handleSizeInput"
+          @compositionstart="handleSizeCompositionStart"
+          @compositionend="handleSizeCompositionEnd"
         />
       </template>
       <template #vesselName>
