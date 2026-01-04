@@ -796,7 +796,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'containerHeight',
       label: '箱高',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入箱高',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'imdg',

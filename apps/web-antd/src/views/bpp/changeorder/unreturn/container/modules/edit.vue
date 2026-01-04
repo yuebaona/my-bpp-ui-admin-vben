@@ -118,6 +118,29 @@ const {
   filterRegex: /[^A-Z0-9]/g,
 });
 
+// 箱高选择器
+const {
+  state: containerHeightState,
+  search: containerHeightSearch,
+  handleInput: handleContainerHeightInput,
+  handleCompositionStart: handleContainerHeightCompositionStart,
+  handleCompositionEnd: handleContainerHeightCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contHeight: value,
+      queryType: 'ISO',
+    });
+  },
+  labelField: 'contHeight',
+  valueField: 'contHeight',
+  errorMessage: '获取箱高数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
 // 船名航次搜索选择器
 const dischargeVslSchedule = reactive({
   data: [],
@@ -306,6 +329,24 @@ const [Modal, modalApi] = useVbenModal({
           @input="handleContainerTypeInput"
           @compositionstart="handleContainerTypeCompositionStart"
           @compositionend="handleContainerTypeCompositionEnd"
+        />
+      </template>
+      <template #containerHeight>
+        <Select
+          v-model:value="containerHeightState.value"
+          mode="multiple"
+          placeholder="请输入箱高"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="containerHeightState.fetching ? undefined : null"
+          :options="containerHeightState.data"
+          @search="containerHeightSearch"
+          allow-clear
+          show-search
+          @focus="containerHeightSearch('')"
+          @input="handleContainerHeightInput"
+          @compositionstart="handleContainerHeightCompositionStart"
+          @compositionend="handleContainerHeightCompositionEnd"
         />
       </template>
       <template #vesselName>

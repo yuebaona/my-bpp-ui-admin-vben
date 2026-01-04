@@ -80,7 +80,7 @@ export function useSearchSelect<T = any>(
     valueField,
     errorMessage,
     toUpperCase = true,
-    filterRegex = /[^A-Z0-9]/g,
+    filterRegex,
   } = config;
 
   const state = reactive({
