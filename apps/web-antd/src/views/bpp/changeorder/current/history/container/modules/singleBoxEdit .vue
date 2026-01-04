@@ -1,0 +1,164 @@
+// 单箱修改
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+
+import { message } from 'ant-design-vue';
+
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { boxlistColumns } from '#/views/bpp/changeorder/current/history/container/data';
+
+// 定义接收选中箱信息的props
+const props = defineProps<{
+  selectedBoxes?: any[];
+}>();
+const emit = defineEmits(['removeFromEdit']);
+// 存储已选择的箱信息
+const modifyBoxes = ref<any[]>([]);
+
+const [Grid, gridApi] = useVbenVxeGrid({
+  gridOptions: {
+    floatingFilterConfig: {
+      enabled: true,
+    },
+    filterConfig: {
+      showIcon: false,
+    },
+    columns: boxlistColumns(),
+    height: '300px',
+    keepSource: false,
+    rowConfig: {
+      keyField: 'id',
+      isHover: true,
+    },
+    toolbarConfig: {
+      search: false,
+      custom: false,
+      import: false,
+      refresh: false,
+      zoom: false,
+    },
+    pagerConfig: {
+      pageSize: 10,
+      enabled: true,
+    },
+    proxyConfig: {
+      autoLoad: false,
+      ajax: {
+        query: async () => {
+          return {
+            total: modifyBoxes.value.length,
+            list: modifyBoxes.value,
+          };
+        },
+      },
+    },
+  },
+});
+
+watch(
+  () => props.selectedBoxes,
+  (newVal) => {
+    if (newVal && newVal.length > 0) {
+      newVal.forEach((box) => {
+        const existingIndex = modifyBoxes.value.findIndex(
+          (item) => item.id === box.id,
+        );
+        if (existingIndex === -1) {
+          modifyBoxes.value.push(box);
+        }
+      });
+      gridApi.query();
+    }
+  },
+  { deep: true },
+);
+
+// 定义同步装卸船选项
+const syncOptions = ref({
+  loadingList: false, // 同步装船清单
+  unloadingList: false, // 同步卸船清单
+});
+
+// 监听同步装船/卸船清单
+watch(
+  syncOptions,
+  (newVal, oldVal) => {
+    // sendToBackend(newVal);
+  },
+  { deep: true },
+);
+
+// 从修改列表中移除
+function handleRemove() {
+  const selectedRows = gridApi.grid.getCheckboxRecords();
+  if (selectedRows.length === 0) {
+    message.warning('请至少选择一条箱信息');
+    return;
+  }
+
+  const selectedIds = selectedRows.map((row: any) => row.id);
+  modifyBoxes.value = modifyBoxes.value.filter(
+    (box) => !selectedIds.includes(box.id),
+  );
+  emit('removeFromEdit', selectedIds);
+
+  // 重新加载列表数据
+  gridApi.query();
+  message.success(`已从修改列表中移除 ${selectedRows.length} 条箱信息`);
+}
+
+// 批量修改
+function handleBatchEdit() {
+  const selectedRows = gridApi.grid.getCheckboxRecords();
+  if (selectedRows.length === 0) {
+    return;
+  }
+
+  console.log('批量修改选中的行:', selectedRows);
+}
+</script>
+<template>
+  <Grid table-title="单箱修改">
+    <template #toolbar-tools>
+      <div class="flex items-center space-x-2">
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="syncLoadingList"
+            v-model="syncOptions.loadingList"
+            class="mr-1"
+          />
+          <label for="syncLoadingList" class="text-sm">同步装船清单</label>
+        </div>
+
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="syncUnloadingList"
+            v-model="syncOptions.unloadingList"
+            class="mr-1"
+          />
+          <label for="syncUnloadingList" class="text-sm">同步卸船清单</label>
+        </div>
+        <TableAction
+          :actions="[
+            {
+              label: '从修改列表中移除',
+              type: 'primary',
+              icon: ACTION_ICON.DELETE,
+              auth: ['system:user:delete'],
+              onClick: handleRemove,
+            },
+            {
+              label: '批量修改',
+              type: 'primary',
+              icon: ACTION_ICON.ADD,
+              auth: ['system:user:create'],
+              onClick: handleBatchEdit,
+            },
+          ]"
+        />
+      </div>
+    </template>
+  </Grid>
+</template>

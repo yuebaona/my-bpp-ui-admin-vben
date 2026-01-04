@@ -109,45 +109,38 @@ export function boxInfoColumns(): VxeTableGridOptions['columns'] {
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
     { type: 'checkbox', width: 40, fixed: 'left' },
     {
-      field: 'planNo',
+      field: 'contNo',
       title: '集装箱号',
       minWidth: 80,
       fixed: 'left',
     },
     {
-      field: 'planStatus',
+      field: 'vesselVoyage',
       title: '船名航次',
       minWidth: 80,
     },
     {
-      field: 'isRelease',
+      field: 'billOfLadingNo',
       title: '提单号',
       minWidth: 80,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
-      },
     },
     {
-      field: 'pickupPlanNo',
+      field: 'sealNo',
       title: '铅封号',
       minWidth: 80,
     },
     {
-      field: 'pickupPlanNo',
+      field: 'ownerCode',
       title: '持箱人',
       minWidth: 50,
     },
     {
-      field: 'owners',
+      field: 'containerFlow',
       title: '箱流向',
       minWidth: 80,
     },
     {
-      field: 'tradeType',
+      field: 'containerStatus',
       title: '状态',
       minWidth: 50,
     },
@@ -804,29 +797,13 @@ export function boxlistColumns(): VxeTableGridOptions['columns'] {
     { type: 'checkbox', width: 40, fixed: 'left' },
     // 箱号
     {
-      field: 'vesselVoyage',
+      field: 'contNo',
       title: '箱号',
       minWidth: 180,
-      // sortable: true,
-      // filters: [{ data: '' }],
-      // filterRender: {
-      //   name: 'VxeInput',
-      //   props: {
-      //     placeholder: '请输入船名航次',
-      //     allowClear: true,
-      //   },
-      // },
-      // filterMethod: ({ option, row, column }) => {
-      //   if (option.data) {
-      //     return `${row[column.field]}`.includes(option.data);
-      //   }
-      //   return true;
-      // },
     },
-
     // 修改箱号
     {
-      field: 'billOfLadingNo',
+      field: 'editedContNo',
       title: '修改箱号',
       minWidth: 200,
       filters: [{ data: '' }],
@@ -847,7 +824,7 @@ export function boxlistColumns(): VxeTableGridOptions['columns'] {
 
     // 持箱人
     {
-      field: 'dischargePort',
+      field: 'ownerCode',
       title: '持箱人',
       minWidth: 120,
       filters: [{ data: '' }],

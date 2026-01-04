@@ -1,13 +1,29 @@
 <script setup lang="ts">
+import { onActivated, ref } from 'vue';
+
+import { Affix } from 'ant-design-vue';
+
 import BoxInfo from '#/views/bpp/changeorder/current/history/container/modules/boxInfo.vue';
-import boxList from '#/views/bpp/changeorder/current/history/container/modules/boxList.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPlanInfo.vue';
-import HeaderInfo from "#/views/bpp/changeorder/current/history/container/modules/headerInfo.vue";
-import {Affix} from "ant-design-vue";
-import {onActivated, ref} from "vue";
+import HeaderInfo from '#/views/bpp/changeorder/current/history/container/modules/headerInfo.vue';
+import boxList from '#/views/bpp/changeorder/current/history/container/modules/singleBoxEdit .vue';
 
 const affix = ref(0);
+const selectedBoxes = ref<any[]>([]);
+
+// 加入修改列表
+function handleAddToEdit(boxes: any[]) {
+  selectedBoxes.value = boxes;
+}
+
+// 从修改列表中移除
+function handleRemoveFromEdit(boxIds: string[]) {
+  selectedBoxes.value = selectedBoxes.value.filter(
+    (box) => !boxIds.includes(box.id),
+  );
+}
+
 // 模拟父组件传递的参数
 const businessTypes = ref([
   { label: '受理计划修改', value: 'acceptance_plan_modify' },
@@ -43,7 +59,7 @@ onActivated(() => {
         :button-display="buttonDisplay"
       />
     </Affix>
-    <div class="w-screen mb-2">
+    <div class="mb-2 w-screen">
       <div class="mb-2 mt-2 flex">
         <div class="flex w-3/5 flex-col">
           <div>
@@ -55,10 +71,13 @@ onActivated(() => {
         </div>
         <!-- 箱信息 -->
         <div class="ml-2 w-full">
-          <BoxInfo />
+          <BoxInfo @add-to-edit="handleAddToEdit" />
         </div>
       </div>
     </div>
-    <boxList />
+    <boxList
+      :selected-boxes="selectedBoxes"
+      @remove-from-edit="handleRemoveFromEdit"
+    />
   </Page>
 </template>
