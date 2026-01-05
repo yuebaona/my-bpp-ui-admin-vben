@@ -1,20 +1,23 @@
 <script setup lang="ts">
-// 改单计划信息表单
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
+
+import { reactive, ref } from 'vue';
+
+import { useVbenModal } from '@vben/common-ui';
+import { $t } from '@vben/locales';
+
+import { message } from 'ant-design-vue';
+
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   acceptancePlanColumns,
   acceptancePlanSearchSchema,
-} from "#/views/bpp/changeorder/unreturn/container/data";
-import { ACTION_ICON, TableAction, useVbenVxeGrid, type VxeTableGridOptions } from "#/adapter/vxe-table";
-import { $t } from "@vben/locales";
-import type { FlowOverLimitWorkApi } from "#/api/bpp/flow/acceptance/plan/over/operation";
-import { reactive, ref } from "vue";
-import { useVbenModal } from '@vben/common-ui';
-import Form from "#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue";
-import LadingBill from "#/views/bpp/changeorder/unreturn/container/modules/ladingBill.vue";
-import BundleBox from "#/views/bpp/changeorder/unreturn/container/modules/bundleBox.vue";
-import Return from "#/views/bpp/changeorder/unreturn/container/modules/return.vue";
-import Edit from "#/views/bpp/changeorder/unreturn/container/modules/edit.vue";
-import { message } from "ant-design-vue";
+} from '#/views/bpp/changeorder/unreturn/container/data';
+import BundleBox from '#/views/bpp/changeorder/unreturn/container/modules/bundleBox.vue';
+import Edit from '#/views/bpp/changeorder/unreturn/container/modules/edit.vue';
+import LadingBill from '#/views/bpp/changeorder/unreturn/container/modules/ladingBill.vue';
+import Return from '#/views/bpp/changeorder/unreturn/container/modules/return.vue';
 
 const formData = reactive<any[]>([
   {
@@ -65,7 +68,7 @@ const formData = reactive<any[]>([
     newContainerNo: '',
     isBand: '否',
     subContainer: '',
-    remark: '正常货物'
+    remark: '正常货物',
   },
   {
     id: 2,
@@ -115,17 +118,12 @@ const formData = reactive<any[]>([
     newContainerNo: '',
     isBand: '是',
     subContainer: 'SUB001,SUB002',
-    remark: '拼箱货物'
-  }
-])
+    remark: '拼箱货物',
+  },
+]);
 
 // 编辑状态管理
-const editingRow = ref<string | null>(null);
-
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: Form,
-  destroyOnClose: true,
-});
+const editingRow = ref<null | string>(null);
 
 // 提单信息管理模态框
 const [LadingBillModal, ladingBillModalApi] = useVbenModal({
@@ -212,7 +210,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<string[]>([]);
-function handleRowCheckboxChange({ records,}: {
+function handleRowCheckboxChange({
+  records,
+}: {
   records: FlowOverLimitWorkApi.AcceptancePlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
@@ -224,7 +224,7 @@ function batchEdit() {
 }
 
 /** 创建新申请 */
-function handleCreate() {
+function handleDeleteTO() {
   formModalApi.setData(null).open();
 }
 
@@ -240,12 +240,15 @@ function handleEdit(row: any) {
 
 // 保存编辑
 function handleSave(row: any) {
-  gridApi.grid?.commitEditRow(row.id).then(() => {
-    editingRow.value = null;
-    message.success('保存成功');
-  }).catch(() => {
-    message.error('保存失败');
-  });
+  gridApi.grid
+    ?.commitEditRow(row.id)
+    .then(() => {
+      editingRow.value = null;
+      message.success('保存成功');
+    })
+    .catch(() => {
+      message.error('保存失败');
+    });
 }
 
 // 取消编辑
@@ -268,79 +271,79 @@ const handleClickSubBox = () => {
 function handleRefresh() {
   gridApi.query();
 }
-
 </script>
 
 <template>
-  <FormModal class="w-1/2" @success="handleRefresh" />
-  <LadingBillModal class="w-3/4" @success="handleRefresh" />
-  <BundleBoxModal class="w-3/4" @success="handleRefresh" />
-  <ReturnModal class="w-1/4" @success="handleRefresh" />
-  <EditModal class="w-3/4" @success="handleRefresh" />
-  <Grid table-title=" 受理计划列表 ">
-    <template #toolbar-tools>
-      <TableAction
-        :actions="[
+  <ACard title="受理计划列表" :body-style="{ padding: '2px 16px' }">
+    <LadingBillModal class="w-3/4" @success="handleRefresh" />
+    <BundleBoxModal class="w-3/4" @success="handleRefresh" />
+    <ReturnModal class="w-1/4" @success="handleRefresh" />
+    <EditModal class="w-3/4" @success="handleRefresh" />
+    <Grid>
+      <template #toolbar-tools>
+        <TableAction
+          :actions="[
+            {
+              label: '批量修改',
+              type: 'primary',
+              icon: ACTION_ICON.EDIT,
+              onClick: batchEdit,
+            },
+            {
+              label: '删除TO',
+              type: 'default',
+              icon: ACTION_ICON.DELETE,
+              onClick: handleDeleteTO,
+            },
+            {
+              label: '返场信息管理',
+              type: 'primary',
+              icon: ACTION_ICON.BRIEFCASE,
+              onClick: handleClickReturn,
+            },
+          ]"
+        />
+      </template>
+      <template #actions="{ row }">
+        <template v-if="editingRow === row.id">
+          <TableAction
+            :actions="[
               {
-                label: '批量修改',
-                type: 'primary',
-                icon: ACTION_ICON.EDIT,
-                onClick: batchEdit,
+                label: '保存',
+                type: 'link',
+                onClick: handleSave.bind(null, row),
               },
               {
-                label: '删除TO',
-                type: 'default',
-                icon: ACTION_ICON.DELETE,
-                onClick: handleCreate,
-              },
-              {
-                label: '返场信息管理',
-                type: 'primary',
-                icon: ACTION_ICON.BRIEFCASE,
-                onClick: handleClickReturn,
+                label: '取消',
+                type: 'link',
+                onClick: handleCancel.bind(null, row),
               },
             ]"
-      />
-    </template>
-    <template #actions="{ row }">
-      <template v-if="editingRow === row.id">
-        <TableAction
-          :actions="[
-                {
-                  label: '保存',
-                  type: 'link',
-                  onClick: handleSave.bind(null, row),
-                },
-                {
-                  label: '取消',
-                  type: 'link',
-                  onClick: handleCancel.bind(null, row),
-                },
-              ]"
-        />
+          />
+        </template>
+        <template v-else>
+          <TableAction
+            :actions="[
+              {
+                label: '编辑',
+                type: 'link',
+                icon: ACTION_ICON.EDIT,
+                onClick: handleEdit.bind(null, row),
+              },
+            ]"
+          />
+        </template>
       </template>
-      <template v-else>
-        <TableAction
-          :actions="[
-                {
-                  label: '编辑',
-                  type: 'link',
-                  icon: ACTION_ICON.EDIT,
-                  onClick: handleEdit.bind(null, row),
-                },
-              ]"
-        />
+      <template #pickupNoAction="{ row }">
+        <a-button type="primary" size="small" @click="handleClickPickupNo">
+          提单信息管理
+        </a-button>
       </template>
-    </template>
-    <template #pickupNoAction="{ row }">
-      <a-button type="primary" size="small" @click="handleClickPickupNo">
-        提单信息管理
-      </a-button>
-    </template>
-    <template #boxAction="{ row }">
-      <a-button type="primary" size="small" @click="handleClickSubBox">
-        捆绑箱维护
-      </a-button>
-    </template>
-  </Grid>
+      <template #boxAction="{ row }">
+        <a-button type="primary" size="small" @click="handleClickSubBox">
+          捆绑箱维护
+        </a-button>
+      </template>
+    </Grid>
+  </ACard>
 </template>
