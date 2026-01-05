@@ -64,8 +64,8 @@ export function useFormSchema(): VbenFormSchema[] {
 export function acceptancePlanRecordSchema(): DescriptionItemSchema[] {
   return [
     // 基础信息
-    { field: 'acptPlnNo', label: '受理计划号' },
-    { field: 'acptPlnWebNo', label: '网上受理计划号' },
+    { field: 'acceptancePlanNo', label: '受理计划号' },
+    { field: 'acceptancePlanWebNo', label: '网上受理计划号' },
     { field: 'applicantPlanType', label: '业务类型' },
     { field: 'planStatus', label: '改单计划状态' },
     { field: 'applicantCode', label: '申请人' },
@@ -99,7 +99,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'acceptancePlanNo',
-      label: 'acptPlnNo',
+      label: '受理计划号',
       component: 'Input',
       componentProps: {
         allowClear: true,
@@ -107,7 +107,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'acptPlnWebNo',
+      fieldName: 'acceptancePlanWebNo',
       label: '网上受理计划号',
       component: 'Input',
       componentProps: {
@@ -250,12 +250,12 @@ export function useGridColumns(): VxeTableGridOptions<AcceptancePlanApi.Plan>['c
       visible: false,
     },
     {
-      field: 'acptPlnNo',
+      field: 'acceptancePlanNo',
       title: '受理计划号',
       minWidth: 180,
     },
     {
-      field: 'acptPlnWebNo',
+      field: 'acceptancePlanWebNo',
       title: '网上受理计划号',
       minWidth: 180,
     },
@@ -327,15 +327,15 @@ export function useGridColumns(): VxeTableGridOptions<AcceptancePlanApi.Plan>['c
       title: '进口船名\n（英文/中文）',
       minWidth: 120,
       formatter: ({ row }) => {
-        const vslNameIn = row.vslNameIn || '';
-        const vslZhNameIn = row.vslZhNameIn || '';
-        return vslNameIn && vslZhNameIn
-          ? `${vslNameIn}/${vslZhNameIn}`
-          : vslNameIn || vslZhNameIn || '';
+        const vesselNameIn = row.vesselNameIn || '';
+        const vesselZhNameIn = row.vesselZhNameIn || '';
+        return vesselNameIn && vesselZhNameIn
+          ? `${vesselNameIn}/${vesselZhNameIn}`
+          : vesselNameIn || vesselZhNameIn || '';
       },
     },
     {
-      field: 'vslVoyIn',
+      field: 'vesselVoyageIn',
       title: '进口航次',
       minWidth: 120,
     },
@@ -344,15 +344,15 @@ export function useGridColumns(): VxeTableGridOptions<AcceptancePlanApi.Plan>['c
       title: '出口船名\n（英文/中文）',
       minWidth: 120,
       formatter: ({ row }) => {
-        const vslNameOut = row.vslNameOut || '';
-        const vslZhNameOut = row.vslZhNameOut || '';
-        return vslNameOut && vslZhNameOut
-          ? `${vslNameOut}/${vslZhNameOut}`
-          : vslNameOut || vslZhNameOut || '';
+        const vesselNameOut = row.vesselNameOut || '';
+        const vesselZhNameOut = row.vesselZhNameOut || '';
+        return vesselNameOut && vesselZhNameOut
+          ? `${vesselNameOut}/${vesselZhNameOut}`
+          : vesselNameOut || vesselZhNameOut || '';
       },
     },
     {
-      field: 'vslVoyOut',
+      field: 'vesselVoyageOut',
       title: '出口航次',
       minWidth: 120,
     },

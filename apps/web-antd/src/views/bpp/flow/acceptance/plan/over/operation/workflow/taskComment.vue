@@ -39,13 +39,13 @@ async function getDetailData() {
 }
 
 // 获取计划机械类型
-function getplannedMachryType(plannedMachryType: string) {
-  if (plannedMachryType == 'RMG_QC') {
+function getPlannedMachineryType(plannedMachineryType: string) {
+  if (plannedMachineryType == 'RMG_QC') {
     return '场桥+岸桥';
-  } else if (plannedMachryType == 'QC') {
+  } else if (plannedMachineryType == 'QC') {
     return '场桥';
   } else {
-    return plannedMachryType;
+    return plannedMachineryType;
   }
 }
 
@@ -227,7 +227,7 @@ onMounted(async () => {
         </td>
         <td class="handler-content-cell">
           <p style="width:100%">
-            {{ getplannedMachryType(acceptancePlanOverOperationData?.plannedMachryType) }}</p>
+            {{ getPlannedMachineryType(acceptancePlanOverOperationData?.plannedMachineryType) }}</p>
         </td>
       </tr>
       <tr>
@@ -236,10 +236,10 @@ onMounted(async () => {
         </td>
         <td>
           <Flex>
-            <Card v-for="item in containerDataArray" :key="item.contNo"
+            <Card v-for="item in containerDataArray" :key="item.containerNo"
                   style="width: 200px;margin-right: 5px">
-              <p>箱号：{{ item.contNo }}</p>
-              <p>吊具类型：{{ item.plannedCheType }}</p>
+              <p>箱号：{{ item.containerNo }}</p>
+              <p>吊具类型：{{ item.plannedSpreaderType }}</p>
             </Card>
           </Flex>
         </td>
