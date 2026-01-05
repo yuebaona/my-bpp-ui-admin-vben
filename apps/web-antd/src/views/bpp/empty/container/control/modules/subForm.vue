@@ -428,11 +428,11 @@ const [Form, formApi] = useVbenForm({
       if (formData.isRelease === false) {
         formData.planQuantity = '';
         await formApi.setFieldValue('planQuantity', '');
-        formApi.updateSchema([
+        await formApi.updateSchema([
           { fieldName: 'planQuantity', componentProps: { disabled: true } },
         ]);
       } else if (formData.isRelease === true) {
-        formApi.updateSchema([
+        await formApi.updateSchema([
           { fieldName: 'planQuantity', componentProps: { disabled: false } },
         ]);
       }
@@ -605,7 +605,11 @@ const [Modal, modalApi] = useVbenModal({
       if (data.mainId) {
         formData.mainId = data.mainId;
       }
-      if (data.planType === 'SUB' && data.mainPlanIsRelease !== null) {
+      if (
+        data.planType === 'SUB' &&
+        data.mainPlanIsRelease !== null &&
+        data.mainPlanIsRelease !== undefined
+      ) {
         formData.isRelease = !data.mainPlanIsRelease;
       }
       if (data.planType === 'SUB') {
@@ -749,11 +753,11 @@ const [Modal, modalApi] = useVbenModal({
       // 根据是否放箱的初始值设置计划箱量字段状态
       if (formData.isRelease === false) {
         formData.planQuantity = '';
-        formApi.updateSchema([
+        await formApi.updateSchema([
           { fieldName: 'planQuantity', componentProps: { disabled: true } },
         ]);
       } else {
-        formApi.updateSchema([
+        await formApi.updateSchema([
           {
             fieldName: 'planQuantity',
             componentProps: { disabled: false },
