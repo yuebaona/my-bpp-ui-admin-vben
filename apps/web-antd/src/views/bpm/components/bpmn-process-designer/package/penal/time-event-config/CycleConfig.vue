@@ -8,10 +8,8 @@ import {
   Input,
   InputNumber,
   Radio,
-  TabPane,
   Tabs,
 } from 'ant-design-vue';
-import dayjs from 'dayjs';
 
 const props = defineProps({
   value: {
@@ -43,7 +41,7 @@ const cronFieldList = [
 ];
 const activeField = ref('second');
 const cronMode = ref({
-  second: 'every',
+  second: 'appoint',
   minute: 'every',
   hour: 'every',
   day: 'every',
@@ -52,7 +50,7 @@ const cronMode = ref({
   year: 'every',
 });
 const cronAppoint = ref({
-  second: [],
+  second: ['00', '01'],
   minute: [],
   hour: [],
   day: [],
@@ -109,156 +107,103 @@ watch(
 const isoStr = ref('');
 const repeat = ref(1);
 const isoDate = ref('');
-const durationUnits = [
-  { key: 'Y', label: '年', presets: [1, 2, 3, 4] },
-  { key: 'M', label: '月', presets: [1, 2, 3, 4] },
-  { key: 'D', label: '天', presets: [1, 2, 3, 4] },
-  { key: 'H', label: '时', presets: [4, 8, 12, 24] },
-  { key: 'm', label: '分', presets: [5, 10, 30, 50] },
-  { key: 'S', label: '秒', presets: [5, 10, 30, 50] },
-];
-const durationCustom = ref({ Y: '', M: '', D: '', H: '', m: '', S: '' });
 const isoDuration = ref('');
-
-function setDuration(key, val) {
-  durationCustom.value[key] = !val || Number.isNaN(val) ? '' : val;
-  updateDurationStr();
-}
-
-function updateDurationStr() {
-  let str = 'P';
-  str += durationCustom.value.Y ? `${durationCustom.value.Y}Y` : '';
-  str += durationCustom.value.M ? `${durationCustom.value.M}M` : '';
-  str += durationCustom.value.D ? `${durationCustom.value.D}D` : '';
-  str +=
-    durationCustom.value.H || durationCustom.value.m || durationCustom.value.S
-      ? 'T'
-      : '';
-  str += durationCustom.value.H ? `${durationCustom.value.H}H` : '';
-  str += durationCustom.value.m ? `${durationCustom.value.m}M` : '';
-  str += durationCustom.value.S ? `${durationCustom.value.S}S` : '';
-  isoDuration.value = str === 'P' ? '' : str;
+function setDuration(type, val) {
+  // 组装ISO 8601字符串
+  let d = isoDuration.value;
+  if (d.includes(type)) {
+    d = d.replace(new RegExp(String.raw`\d+${type}`), val + type);
+  } else {
+    d += val + type;
+  }
+  isoDuration.value = d;
   updateIsoStr();
 }
-
 function updateIsoStr() {
   let str = `R${repeat.value}`;
-  if (isoDate.value) {
-    const dateStr =
+  if (isoDate.value)
+    str += `/${
       typeof isoDate.value === 'string'
         ? isoDate.value
-        : isoDate.value.toISOString();
-    str += `/${dateStr}`;
-  }
+        : new Date(isoDate.value).toISOString()
+    }`;
   if (isoDuration.value) str += `/${isoDuration.value}`;
   isoStr.value = str;
   if (tab.value === 'iso') emit('change', isoStr.value);
 }
-watch([repeat, isoDate], updateIsoStr);
-watch(durationCustom, updateDurationStr, { deep: true });
+watch([repeat, isoDate, isoDuration], updateIsoStr);
 watch(
   () => props.value,
   (val) => {
     if (!val) return;
-    // 自动检测格式：以R开头的是ISO 8601格式，否则是CRON表达式
-    if (val.startsWith('R')) {
-      tab.value = 'iso';
-      isoStr.value = val;
-      // 解析ISO格式：R{repeat}/{date}/{duration}
-      const parts = val.split('/');
-      if (parts[0]) {
-        const repeatMatch = parts[0].match(/^R(\d+)$/);
-        if (repeatMatch) repeat.value = Number.parseInt(repeatMatch[1], 10);
-      }
-      // 解析date部分（ISO 8601日期时间格式）
-      const datePart = parts.find(
-        (p) => p.includes('T') && !p.startsWith('P') && !p.startsWith('R'),
-      );
-      if (datePart) {
-        isoDate.value = dayjs(datePart);
-      }
-      // 解析duration部分
-      const durationPart = parts.find((p) => p.startsWith('P'));
-      if (durationPart) {
-        const match = durationPart.match(
-          /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/,
-        );
-        if (match) {
-          durationCustom.value.Y = match[1] || '';
-          durationCustom.value.M = match[2] || '';
-          durationCustom.value.D = match[3] || '';
-          durationCustom.value.H = match[4] || '';
-          durationCustom.value.m = match[5] || '';
-          durationCustom.value.S = match[6] || '';
-          isoDuration.value = durationPart;
-        }
-      }
-    } else {
-      tab.value = 'cron';
-      cronStr.value = val;
-    }
+    if (tab.value === 'cron') cronStr.value = val;
+    if (tab.value === 'iso') isoStr.value = val;
   },
   { immediate: true },
 );
 </script>
 <template>
   <Tabs v-model:active-key="tab">
-    <TabPane key="cron" tab="CRON表达式">
-      <div class="mb-2.5">
+    <Tabs.TabPane key="cron" tab="CRON表达式">
+      <div style="margin-bottom: 10px">
         <Input
           v-model:value="cronStr"
           readonly
-          class="w-[400px] font-bold"
+          style="width: 400px; font-weight: bold"
           key="cronStr"
         />
       </div>
-      <div class="mb-2 flex gap-2">
+      <div style="display: flex; gap: 8px; margin-bottom: 8px">
         <Input
           v-model:value="fields.second"
           placeholder="秒"
-          class="w-20"
+          style="width: 80px"
           key="second"
         />
         <Input
           v-model:value="fields.minute"
           placeholder="分"
-          class="w-20"
+          style="width: 80px"
           key="minute"
         />
         <Input
           v-model:value="fields.hour"
           placeholder="时"
-          class="w-20"
+          style="width: 80px"
           key="hour"
         />
         <Input
           v-model:value="fields.day"
           placeholder="天"
-          class="w-20"
+          style="width: 80px"
           key="day"
         />
         <Input
           v-model:value="fields.month"
           placeholder="月"
-          class="w-20"
+          style="width: 80px"
           key="month"
         />
         <Input
           v-model:value="fields.week"
           placeholder="周"
-          class="w-20"
+          style="width: 80px"
           key="week"
         />
         <Input
           v-model:value="fields.year"
           placeholder="年"
-          class="w-20"
+          style="width: 80px"
           key="year"
         />
       </div>
-      <Tabs v-model:active-key="activeField" type="card" class="mb-2">
+      <Tabs
+        v-model:active-key="activeField"
+        type="card"
+        style="margin-bottom: 8px"
+      >
         <Tabs.TabPane v-for="f in cronFieldList" :key="f.key" :tab="f.label">
-          <div class="mb-2">
+          <div style="margin-bottom: 8px">
             <Radio.Group
               v-model:value="cronMode[f.key]"
               :key="`radio-${f.key}`"
@@ -273,7 +218,7 @@ watch(
                   :min="f.min"
                   :max="f.max"
                   size="small"
-                  class="w-[60px]"
+                  style="width: 60px"
                   :key="`range0-${f.key}`"
                 />
                 到
@@ -282,7 +227,7 @@ watch(
                   :min="f.min"
                   :max="f.max"
                   size="small"
-                  class="w-[60px]"
+                  style="width: 60px"
                   :key="`range1-${f.key}`"
                 />
                 之间每{{ f.label }}
@@ -294,7 +239,7 @@ watch(
                   :min="f.min"
                   :max="f.max"
                   size="small"
-                  class="w-[60px]"
+                  style="width: 60px"
                   :key="`step0-${f.key}`"
                 />
                 开始每
@@ -303,7 +248,7 @@ watch(
                   :min="1"
                   :max="f.max"
                   size="small"
-                  class="w-[60px]"
+                  style="width: 60px"
                   :key="`step1-${f.key}`"
                 />
                 {{ f.label }}
@@ -327,64 +272,109 @@ watch(
           </div>
         </Tabs.TabPane>
       </Tabs>
-    </TabPane>
-    <TabPane key="iso" tab="标准格式">
-      <div class="mb-2.5">
+    </Tabs.TabPane>
+    <Tabs.TabPane key="iso" title="标准格式" tab="iso-tab">
+      <div style="margin-bottom: 10px">
         <Input
           v-model:value="isoStr"
           placeholder="如R1/2025-05-21T21:59:54/P3DT30M30S"
-          class="w-[400px] font-bold"
+          style="width: 400px; font-weight: bold"
           key="isoStr"
         />
       </div>
-      <div class="mb-2.5">
+      <div style="margin-bottom: 10px">
         循环次数：<InputNumber
           v-model:value="repeat"
           :min="1"
-          class="w-[100px]"
+          style="width: 100px"
           key="repeat"
         />
       </div>
-      <div class="mb-2.5">
-        开始时间：<DatePicker
+      <div style="margin-bottom: 10px">
+        日期时间：<DatePicker
           v-model:value="isoDate"
           show-time
-          placeholder="选择开始时间"
-          class="w-[200px]"
+          placeholder="选择日期时间"
+          style="width: 200px"
           key="isoDate"
         />
       </div>
-      <div class="mb-2.5">
-        间隔时长：<Input
+      <div style="margin-bottom: 10px">
+        当前时长：<Input
           v-model:value="isoDuration"
-          readonly
           placeholder="如P3DT30M30S"
-          class="w-[200px]"
+          style="width: 200px"
           key="isoDuration"
         />
       </div>
       <div>
-        <div v-for="unit in durationUnits" :key="unit.key" class="mb-2">
-          <span>{{ unit.label }}：</span>
-          <Button.Group>
-            <Button
-              v-for="val in unit.presets"
-              :key="val"
-              size="small"
-              @click="setDuration(unit.key, val)"
-            >
-              {{ val }}
-            </Button>
-            <Input
-              v-model:value="durationCustom[unit.key]"
-              size="small"
-              class="ml-2 w-[60px]"
-              placeholder="自定义"
-              @change="setDuration(unit.key, durationCustom[unit.key])"
-            />
-          </Button.Group>
+        <div>
+          秒：
+          <Button
+            v-for="s in [5, 10, 30, 50]"
+            @click="setDuration('S', s)"
+            :key="`sec-${s}`"
+          >
+            {{ s }}
+          </Button>
+          自定义
+        </div>
+        <div>
+          分：
+          <Button
+            v-for="m in [5, 10, 30, 50]"
+            @click="setDuration('M', m)"
+            :key="`min-${m}`"
+          >
+            {{ m }}
+          </Button>
+          自定义
+        </div>
+        <div>
+          小时：
+          <Button
+            v-for="h in [4, 8, 12, 24]"
+            @click="setDuration('H', h)"
+            :key="`hour-${h}`"
+          >
+            {{ h }}
+          </Button>
+          自定义
+        </div>
+        <div>
+          天：
+          <Button
+            v-for="d in [1, 2, 3, 4]"
+            @click="setDuration('D', d)"
+            :key="`day-${d}`"
+          >
+            {{ d }}
+          </Button>
+          自定义
+        </div>
+        <div>
+          月：
+          <Button
+            v-for="mo in [1, 2, 3, 4]"
+            @click="setDuration('M', mo)"
+            :key="`mon-${mo}`"
+          >
+            {{ mo }}
+          </Button>
+          自定义
+        </div>
+        <div>
+          年：
+          <Button
+            v-for="y in [1, 2, 3, 4]"
+            @click="setDuration('Y', y)"
+            :key="`year-${y}`"
+          >
+            {{ y }}
+          </Button>
+          自定义
         </div>
       </div>
-    </TabPane>
+    </Tabs.TabPane>
   </Tabs>
 </template>

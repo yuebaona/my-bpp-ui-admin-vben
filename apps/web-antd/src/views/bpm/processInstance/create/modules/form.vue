@@ -108,7 +108,7 @@ async function submitForm() {
     // 关闭并提示
     message.success('发起流程成功');
     await closeCurrentTab();
-    await router.push({ name: 'BpmProcessInstanceMy' });
+    await router.push({ name: 'BpmTaskMy' });
   } finally {
     processInstanceStartLoading.value = false;
   }
@@ -173,7 +173,6 @@ async function initProcessInfo(row: any, formVariables?: any) {
       row.formCustomCreatePath || '',
     );
     // 返回选择流程
-    // TODO @jason：这里为啥要有个 cancel 事件哈？目前看 vue3 + element-plus 貌似不需要呀；
     emit('cancel');
     // await router.push({
     //   path: row.formCustomCreatePath,

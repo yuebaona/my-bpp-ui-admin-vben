@@ -85,10 +85,9 @@ setupVbenVxeTable({
 
     // 表格配置项可以用 cellRender: { name: 'CellImage' },
     vxeUI.renderer.add('CellImage', {
-      renderTableDefault(renderOpts, params) {
-        const { props } = renderOpts;
+      renderTableDefault(_renderOpts, params) {
         const { column, row } = params;
-        return h(Image, { src: row[column.field], ...props });
+        return h(Image, { src: row[column.field] });
       },
     });
 

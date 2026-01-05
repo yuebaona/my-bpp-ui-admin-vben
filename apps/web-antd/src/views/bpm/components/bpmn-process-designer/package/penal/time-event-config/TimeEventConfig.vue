@@ -1,14 +1,11 @@
 <script lang="ts" setup>
-import type { Dayjs } from 'dayjs';
-
 import type { Ref } from 'vue';
 
 import { computed, nextTick, onMounted, ref, toRaw, watch } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
-import { Button, DatePicker, Input, Tooltip } from 'ant-design-vue';
+import { Button, DatePicker, Input, Modal, Tooltip } from 'ant-design-vue';
 
 import CycleConfig from './CycleConfig.vue';
 import DurationConfig from './DurationConfig.vue';
@@ -23,8 +20,13 @@ const props = defineProps({
 const bpmnInstances = () => (window as any).bpmnInstances;
 const type: Ref<string> = ref('time');
 const condition: Ref<string> = ref('');
-const valid: Ref<boolean> = ref(false);
-const dateValue = ref<Dayjs>();
+const valid: Ref<boolean> = ref(true);
+const showDatePicker: Ref<boolean> = ref(false);
+const showDurationDialog: Ref<boolean> = ref(false);
+const showCycleDialog: Ref<boolean> = ref(false);
+const showHelp: Ref<boolean> = ref(false);
+const dateValue: Ref<Date | null> = ref(null);
+// const bpmnElement = ref(null);
 
 const placeholder = computed<string>(() => {
   if (type.value === 'time') return '请输入时间';
@@ -46,9 +48,6 @@ const helpHtml = computed<string>(() => {
   }
   if (type.value === 'cycle') {
     return `支持CRON表达式（如0 0/30 * * * ?）或ISO 8601周期（如R3/PT10M）。`;
-  }
-  if (type.value === 'time') {
-    return `支持ISO 8601格式的时间（如2024-12-12T12:12:12）`;
   }
   return '';
 });
@@ -83,6 +82,7 @@ function setType(t: string) {
 // 输入校验
 watch([type, condition], () => {
   valid.value = validate();
+  // updateNode() // 可以注释掉，避免频繁触发
 });
 
 function validate(): boolean {
@@ -93,74 +93,46 @@ function validate(): boolean {
     return /^P.*$/.test(condition.value);
   }
   if (type.value === 'cycle') {
-    // 支持CRON表达式或ISO 8601周期格式：R{n}/P... 或 R{n}/{date}/P...
-    return /^(?:[0-9*/?, ]+|R\d+(?:\/[^/]+)*\/P.*)$/.test(condition.value);
+    return /^(?:[0-9*/?, ]+|R\d*\/P.*)$/.test(condition.value);
   }
   return true;
 }
 
-// 选择时间 Modal
-const [DateModal, dateModalApi] = useVbenModal({
-  title: '选择时间',
-  class: 'w-[400px]',
-  onConfirm: onDateConfirm,
-});
-
+// 选择时间
 function onDateChange(val: any) {
-  dateValue.value = val || undefined;
+  dateValue.value = val;
 }
 function onDateConfirm(): void {
   if (dateValue.value) {
-    condition.value = dateValue.value.toISOString();
-    dateModalApi.close();
+    condition.value = new Date(dateValue.value).toISOString();
+    showDatePicker.value = false;
     updateNode();
   }
 }
 
-// 持续时长 Modal
-const [DurationModal, durationModalApi] = useVbenModal({
-  title: '时间配置',
-  class: 'w-[600px]',
-  onConfirm: onDurationConfirm,
-});
-
+// 持续时长
 function onDurationChange(val: string) {
   condition.value = val;
 }
 function onDurationConfirm(): void {
-  durationModalApi.close();
+  showDurationDialog.value = false;
   updateNode();
 }
 
-// 循环配置 Modal
-const [CycleModal, cycleModalApi] = useVbenModal({
-  title: '时间配置',
-  class: 'w-[800px]',
-  onConfirm: onCycleConfirm,
-});
-
+// 循环
 function onCycleChange(val: string) {
   condition.value = val;
 }
 function onCycleConfirm(): void {
-  cycleModalApi.close();
+  showCycleDialog.value = false;
   updateNode();
 }
 
-// 帮助说明 Modal
-const [HelpModal, helpModalApi] = useVbenModal({
-  class: 'w-[600px]',
-  title: '格式说明',
-  showCancelButton: false,
-  confirmText: '关闭',
-  onConfirm: () => helpModalApi.close(),
-});
-
-// 点击输入框时弹窗
-function handleInputClick(): void {
-  if (type.value === 'time') dateModalApi.open();
-  if (type.value === 'duration') durationModalApi.open();
-  if (type.value === 'cycle') cycleModalApi.open();
+// 输入框聚焦时弹窗（可选）
+function handleInputFocus(): void {
+  if (type.value === 'time') showDatePicker.value = true;
+  if (type.value === 'duration') showDurationDialog.value = true;
+  if (type.value === 'cycle') showCycleDialog.value = true;
 }
 
 // 同步到节点
@@ -238,8 +210,8 @@ watch(
 
 <template>
   <div class="panel-tab__content">
-    <div class="mt-2 flex items-center">
-      <span class="w-14">类型：</span>
+    <div style="margin-top: 10px">
+      <span>类型：</span>
       <Button.Group>
         <Button
           size="small"
@@ -266,17 +238,17 @@ watch(
       <IconifyIcon
         icon="ant-design:check-circle-filled"
         v-if="valid"
-        class="ml-2 text-green-500"
+        style="margin-left: 8px; color: green"
       />
     </div>
-    <div class="mt-2 flex items-center gap-1">
-      <span class="w-14">条件：</span>
+    <div style="display: flex; align-items: center; margin-top: 10px">
+      <span>条件：</span>
       <Input
         v-model:value="condition"
         :placeholder="placeholder"
-        class="w-full"
+        class="w-[calc(100vw-25%)]"
         :readonly="type !== 'duration' && type !== 'cycle'"
-        @click="handleInputClick"
+        @focus="handleInputFocus"
         @blur="updateNode"
       >
         <template #suffix>
@@ -290,13 +262,13 @@ watch(
             <IconifyIcon
               icon="ant-design:question-circle-filled"
               class="cursor-pointer text-[#409eff]"
-              @click="helpModalApi.open()"
+              @click="showHelp = true"
             />
           </Tooltip>
           <Button
             v-if="type === 'time'"
-            @click="dateModalApi.open()"
-            class="ml-1 flex items-center justify-center"
+            @click="showDatePicker = true"
+            style="margin-left: 4px"
             shape="circle"
             size="small"
           >
@@ -304,8 +276,8 @@ watch(
           </Button>
           <Button
             v-if="type === 'duration'"
-            @click="durationModalApi.open()"
-            class="ml-1 flex items-center justify-center"
+            @click="showDurationDialog = true"
+            style="margin-left: 4px"
             shape="circle"
             size="small"
           >
@@ -313,8 +285,8 @@ watch(
           </Button>
           <Button
             v-if="type === 'cycle'"
-            @click="cycleModalApi.open()"
-            class="ml-1 flex items-center justify-center"
+            @click="showCycleDialog = true"
+            style="margin-left: 4px"
             shape="circle"
             size="small"
           >
@@ -323,32 +295,62 @@ watch(
         </template>
       </Input>
     </div>
-
     <!-- 时间选择器 -->
-    <DateModal>
+    <Modal
+      v-model:open="showDatePicker"
+      title="选择时间"
+      width="400px"
+      @cancel="showDatePicker = false"
+    >
       <DatePicker
         v-model:value="dateValue"
         show-time
         placeholder="选择日期时间"
-        class="w-full"
+        style="width: 100%"
         @change="onDateChange"
       />
-    </DateModal>
-
+      <template #footer>
+        <Button @click="showDatePicker = false">取消</Button>
+        <Button type="primary" @click="onDateConfirm">确定</Button>
+      </template>
+    </Modal>
     <!-- 持续时长选择器 -->
-    <DurationModal>
+    <Modal
+      v-model:open="showDurationDialog"
+      title="时间配置"
+      width="600px"
+      @cancel="showDurationDialog = false"
+    >
       <DurationConfig :value="condition" @change="onDurationChange" />
-    </DurationModal>
-
+      <template #footer>
+        <Button @click="showDurationDialog = false">取消</Button>
+        <Button type="primary" @click="onDurationConfirm">确定</Button>
+      </template>
+    </Modal>
     <!-- 循环配置器 -->
-    <CycleModal>
+    <Modal
+      v-model:open="showCycleDialog"
+      title="时间配置"
+      width="800px"
+      @cancel="showCycleDialog = false"
+    >
       <CycleConfig :value="condition" @change="onCycleChange" />
-    </CycleModal>
-
+      <template #footer>
+        <Button @click="showCycleDialog = false">取消</Button>
+        <Button type="primary" @click="onCycleConfirm">确定</Button>
+      </template>
+    </Modal>
     <!-- 帮助说明 -->
-    <HelpModal>
-      <!-- eslint-disable-next-line vue/no-v-html -->
+    <Modal
+      v-model:open="showHelp"
+      title="格式说明"
+      width="600px"
+      @cancel="showHelp = false"
+    >
       <div v-html="helpHtml"></div>
-    </HelpModal>
+      <template #footer>
+        <Button @click="showHelp = false">关闭</Button>
+      </template>
+    </Modal>
   </div>
 </template>

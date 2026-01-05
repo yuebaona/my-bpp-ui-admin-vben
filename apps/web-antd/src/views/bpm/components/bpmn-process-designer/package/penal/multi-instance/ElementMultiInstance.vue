@@ -1,4 +1,4 @@
-<!-- eslint-disable no-unused-vars -->
+<!-- eslint-disable unused-imports/no-unused-vars -->
 <script lang="ts" setup>
 import { inject, nextTick, onBeforeUnmount, ref, toRaw, watch } from 'vue';
 
@@ -73,7 +73,6 @@ declare global {
 
 const bpmnInstances = () => (window as any)?.bpmnInstances;
 
-// eslint-disable-next-line unused-imports/no-unused-vars
 const getElementLoop = (businessObject: any): void => {
   if (!businessObject.loopCharacteristics) {
     loopCharacteristics.value = 'Null';
@@ -279,8 +278,6 @@ const approveRatio = ref<number>(100);
 const otherExtensions = ref<any[]>([]);
 const getElementLoopNew = (): void => {
   if (props.type === 'UserTask') {
-    const loopCharacteristics =
-      bpmnElement.value.businessObject?.loopCharacteristics;
     const extensionElements =
       bpmnElement.value.businessObject?.extensionElements ??
       bpmnInstances().moddle.create('bpmn:ExtensionElements', { values: [] });
@@ -297,25 +294,10 @@ const getElementLoopNew = (): void => {
       approveMethod.value = ApproveMethodType.SEQUENTIAL_APPROVE;
       updateLoopCharacteristics();
     }
-
-    // 如果是按比例会签，从现有 completionCondition 中解析比例，反推到 approveRatio
-    if (
-      approveMethod.value === ApproveMethodType.APPROVE_BY_RATIO &&
-      loopCharacteristics?.completionCondition?.body
-    ) {
-      const body = loopCharacteristics.completionCondition.body as string;
-      // 形如 "${ nrOfCompletedInstances/nrOfInstances >= 0.9 }"
-      const match = body.match(/>=\s*(\d+(?:\.\d+)?)/);
-      if (match) {
-        const ratio = Number(match[1]);
-        if (!Number.isNaN(ratio)) {
-          approveRatio.value = ratio * 100;
-        }
-      }
-    }
   }
 };
 const onApproveMethodChange = (): void => {
+  approveRatio.value = 100;
   updateLoopCharacteristics();
 };
 const onApproveRatioChange = (): void => {
@@ -411,29 +393,31 @@ watch(
 </script>
 
 <template>
-  <div class="-mx-2 px-2">
+  <div class="panel-tab__content">
     <RadioGroup
       v-if="type === 'UserTask'"
       v-model:value="approveMethod"
       @change="onApproveMethodChange"
     >
-      <div class="flex flex-col gap-3">
+      <div class="flex-col">
         <div v-for="(item, index) in APPROVE_METHODS" :key="index">
           <Radio :value="item.value">
             {{ item.label }}
           </Radio>
-          <InputNumber
-            v-if="
-              item.value === ApproveMethodType.APPROVE_BY_RATIO &&
-              approveMethod === ApproveMethodType.APPROVE_BY_RATIO
-            "
-            v-model:value="approveRatio"
-            :min="10"
-            :max="100"
-            :step="10"
-            size="small"
-            @change="onApproveRatioChange"
-          />
+          <FormItem prop="approveRatio">
+            <InputNumber
+              v-model:value="approveRatio"
+              :min="10"
+              :max="100"
+              :step="10"
+              size="small"
+              v-if="
+                item.value === ApproveMethodType.APPROVE_BY_RATIO &&
+                approveMethod === ApproveMethodType.APPROVE_BY_RATIO
+              "
+              @change="onApproveRatioChange"
+            />
+          </FormItem>
         </div>
       </div>
     </RadioGroup>
@@ -526,7 +510,7 @@ watch(
         </FormItem>
         <FormItem
           label="重试周期"
-          name="timeCycle"
+          prop="timeCycle"
           v-if="loopInstanceForm.asyncAfter || loopInstanceForm.asyncBefore"
           key="timeCycle"
         >

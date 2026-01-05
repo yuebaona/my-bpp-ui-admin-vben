@@ -31,7 +31,7 @@ const handleClickPickupNo = () => {
 
 <template>
   <Card title="进箱信息">
-    <LadingBillModal/>
+    <LadingBillModal class="w-2/5" />
     <Form>
       <template #billNo>
         <Button type="primary" @click="handleClickPickupNo">提单信息管理</Button>

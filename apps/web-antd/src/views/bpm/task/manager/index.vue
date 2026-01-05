@@ -13,7 +13,7 @@ import { useGridColumns, useGridFormSchema } from './data';
 defineOptions({ name: 'BpmManagerTask' });
 
 /** 查看历史 */
-function handleHistory(row: BpmTaskApi.Task) {
+function handleHistory(row: BpmTaskApi.TaskManager) {
   router.push({
     name: 'BpmProcessInstanceDetail',
     query: {

@@ -9,11 +9,11 @@ import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
-import { message, Select } from 'ant-design-vue';
+import { Input, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
-import { getCustomerList, getVVd } from "#/api/bpp/common";
+import { getCustomerList, getVVd } from '#/api/bpp/common';
 import {
   acceptancePlanOverOperationContainerComplete,
   acceptancePlanOverOperationContainerNoOperation,
@@ -41,31 +41,51 @@ import {
 } from './data';
 
 interface OnSideOperation {
-  overOperationContainerIds: string;
+  oogContIds: string;
   initiationType: string;
-  machineSpreaderChangeType: string;
-  acceptancePlanNo: string;
-  containerNo: string;
-  spreaderType: string;
-  vesselCode: string;
-  vesselVoyage: string;
-  vesselName: string;
+  cheWorkChangeType: string;
+  acptPlnNo: string;
+  contNo: string;
+  cheType: string;
+  vslCode: string;
+  vslVoy: string;
+  vslName: string;
 }
 interface batchQueryConditionsVO {
-  acceptancePlanNo: string;
-  containerNo: string;
+  acptPlnNo: string;
+  contNo: string;
 }
-
-const vesselNameState = reactive({
-  data: [],
-  value: [],
+interface LabelInValueType {
+  value: number | string;
+  label: string;
+}
+const vslNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const vesselVoyageState = reactive({
-  data: [],
-  value: [],
+const vslVoyState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
+});
+const applicantCompanyNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
+  fetching: false,
+  data: [],
 });
 const selectKey = ref(0);
 // 使用字典 store
@@ -87,19 +107,23 @@ const loadDictData = async (dictTypes: string[]) => {
 const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
   showCancelButton: false,
   showConfirmButton: false,
+  draggable: true,
 });
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
+  draggable: true,
 });
 const [DetailModal, detailModalApi] = useVbenModal({
   connectedComponent: Detail,
   destroyOnClose: true,
+  draggable: true,
 });
 // 现场操作确认弹框
 const [OnSideOperationModal, OnSideOperationModalApi] = useVbenModal({
   connectedComponent: OnSiteOperation,
   destroyOnClose: true,
+  draggable: true,
 });
 /** 刷新表格 */
 function handleRefresh() {
@@ -114,7 +138,7 @@ function handleCreate() {
 }
 /** 撤销  */
 function handleRevoke() {
-  if (acceptancePlanNo.value.length === 0) {
+  if (acptPlnNo.value.length === 0) {
     message.error($t('cxmo.message.revokeMessage'));
     return;
   }
@@ -132,7 +156,7 @@ function handleRevoke() {
     return;
   }
   confirm({
-    content: `您确定撤销以下${acceptancePlanNo.value.toString()}申请编号的数据吗？`,
+    content: `您确定撤销以下${acptPlnNo.value.toString()}申请编号的数据吗？`,
     icon: 'info',
   })
     .then(async () => {
@@ -216,33 +240,39 @@ const handleMachineSpreaderDelete = async (
 };
 /** 现场操作确认 */
 const handleOnSiteOperation = async () => {
+  const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
   const data = ref<OnSideOperation>({
-    overOperationContainerIds: '',
+    oogContIds: '',
     initiationType: '',
-    machineSpreaderChangeType: '',
-    acceptancePlanNo: '',
-    containerNo: '',
-    spreaderType: '',
-    vesselCode: '',
-    vesselVoyage: '',
-    vesselName: '',
+    cheWorkChangeType: '',
+    acptPlnNo: '',
+    contNo: '',
+    cheType: '',
+    vslCode: '',
+    vslVoy: '',
+    vslName: '',
   });
+
   if (!initiationTypeValue.value) {
-    // 提示要选择发起类型
     message.error('请选择发起类型');
     return;
   }
+
   switch (
     bppBaseDict.getBppBaseDictData('initiation_type', initiationTypeValue.value)
       .label
   ) {
     case '客户发起': {
-      if (containerNos.value.length === 0) {
+      if (currentSelected.length === 0) {
         message.error($t('cxmo.message.boxMessage'));
         return;
       }
+
+      const contOperationNodes = currentSelected.map(
+        (item) => item.contOperationNode,
+      );
       const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-      const hasInvalidNode = containerOperationNodes.value.some((node) =>
+      const hasInvalidNode = contOperationNodes.some((node) =>
         invalidNodes.has(node),
       );
       if (hasInvalidNode) {
@@ -250,56 +280,82 @@ const handleOnSiteOperation = async () => {
         return;
       }
 
-      if (boxAcceptancePlanNo.value.length > 1) {
-        const uniqueNos = new Set(boxAcceptancePlanNo.value);
-        if (uniqueNos.size > 1) {
-          message.error('存在不同的受理编号，请检查');
-          return;
+      // 检查是否选择了不同的受理编号
+      if (currentSelected.length > 0) {
+        const boxAcptPlnNos = currentSelected.map((item) => item.acptPlnNo);
+        if (boxAcptPlnNos.length > 1) {
+          const uniqueNos = new Set(boxAcptPlnNos);
+          if (uniqueNos.size > 1) {
+            message.error('存在不同的受理编号，请检查');
+            return;
+          }
+        }
+
+        const vslCodes = currentSelected.map((item) => item.vslCode);
+        if (vslCodes.length > 1) {
+          const uniqueCodes = new Set(vslCodes);
+          if (uniqueCodes.size > 1) {
+            message.error('存在不同的船代码，请检查');
+            return;
+          }
+        }
+
+        const vslVoys = currentSelected.map((item) => item.vslVoy);
+        if (vslVoys.length > 1) {
+          const uniqueVoyages = new Set(vslVoys);
+          if (uniqueVoyages.size > 1) {
+            message.error('存在不同的航次，请检查');
+            return;
+          }
+        }
+
+        const cheWorkChangeTypes = currentSelected.map(
+          (item) => item.cheWorkChangeType,
+        );
+        if (cheWorkChangeTypes.length > 1) {
+          const uniqueTypes = new Set(cheWorkChangeTypes);
+          if (uniqueTypes.size > 1) {
+            message.error('存在不同的吊具类型，请检查');
+            return;
+          }
+        }
+
+        const contOperationNodes = currentSelected.map(
+          (item) => item.contOperationNode,
+        );
+        if (contOperationNodes.length > 1) {
+          const uniqueNodes = new Set(contOperationNodes);
+          if (uniqueNodes.size > 1) {
+            message.error('存在不同的现场作业节点，请检查');
+            return;
+          }
+        }
+
+        const plannedCheTypes = currentSelected.map(
+          (item) => item.plannedCheType,
+        );
+        if (plannedCheTypes.length > 1) {
+          const uniqueTypes = new Set(plannedCheTypes);
+          if (uniqueTypes.size > 1) {
+            message.error('存在不同的现场作业吊具，请检查');
+            return;
+          }
         }
       }
-      if (vesselCodes.value.length > 1) {
-        const uniqueNames = new Set(vesselCodes.value);
-        if (uniqueNames.size > 1) {
-          message.error('存在不同的船名，请检查');
-          return;
-        }
-      }
-      if (vesselVoyages.value.length > 1) {
-        const uniqueVoyages = new Set(vesselVoyages.value);
-        if (uniqueVoyages.size > 1) {
-          message.error('存在不同的航次，请检查');
-          return;
-        }
-      }
-      if (machineSpreaderChangeTypes.value.length > 1) {
-        const uniqueTypes = new Set(machineSpreaderChangeTypes.value);
-        if (uniqueTypes.size > 1) {
-          message.error('存在不同的吊具类型，请检查');
-          return;
-        }
-      }
-      if (containerOperationNodes.value.length > 1) {
-        const uniqueNodes = new Set(containerOperationNodes.value);
-        if (uniqueNodes.size > 1) {
-          message.error('存在不同的现在作业节点，请检查');
-        }
-      }
-      if (plannedSpreaderTypes.value.length > 1) {
-        const uniqueNodes = new Set(plannedSpreaderTypes.value);
-        if (uniqueNodes.size > 1) {
-          message.error('存在不同的现场作业吊具，请检查');
-        }
-      }
+
+      const contNos = currentSelected.map((item) => item.contNo);
+      const contIds = currentSelected.map((item) => item.id);
+
       data.value = {
-        overOperationContainerIds: containerIds,
+        oogContIds: contIds,
         initiationType: initiationTypeValue.value,
-        machineSpreaderChangeType: machineSpreaderChangeTypes.value[0],
-        acceptancePlanNo: boxAcceptancePlanNo.value[0],
-        containerNo: containerNos.value.join(','),
-        spreaderType: plannedSpreaderTypes.value[0],
-        vesselCode: vesselCodes.value[0],
-        vesselVoyage: vesselVoyages.value[0],
-        vesselName: vesselNames.value[0],
+        cheWorkChangeType: currentSelected[0]?.cheWorkChangeType || '',
+        acptPlnNo: currentSelected[0]?.acptPlnNo || '',
+        contNo: contNos.join(','),
+        cheType: currentSelected[0]?.plannedCheType || '',
+        vslCode: currentSelected[0]?.vslCode || '',
+        vslVoy: currentSelected[0]?.vslVoy || '',
+        vslName: currentSelected[0]?.vslName || '',
       };
       break;
     }
@@ -311,7 +367,7 @@ const handleOnSiteOperation = async () => {
     }
     case '舱盖板': {
       data.value = {
-        containerNo: 'HATCH',
+        contNo: 'HATCH',
         initiationType: initiationTypeValue.value,
       };
       break;
@@ -321,21 +377,33 @@ const handleOnSiteOperation = async () => {
 };
 /** 实际未发生 */
 const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
-  // 判断是否选中箱
-  if (containerIds.value.length === 0) {
+  // 获取当前选中的行
+  const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
+
+  if (currentSelected.length === 0) {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
+
+  // 实时获取选中行的 contOperationNode
+  const currentOperationNodes = currentSelected.map(
+    (item) => item.contOperationNode,
+  );
   const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+  const hasInvalidNode = currentOperationNodes.some((node) =>
     invalidNodes.has(node),
   );
+
   if (hasInvalidNode) {
     message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
+
+  const contNos = currentSelected.map((item) => item.contNo);
+  const contIds = currentSelected.map((item) => item.id);
+
   confirm({
-    content: `${containerNos.value.toString()}箱实际没有在本码头入港作业。`,
+    content: `${contNos.toString()}箱实际没有在本码头入港作业。`,
     icon: 'info',
   })
     .then(async () => {
@@ -344,9 +412,7 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
         duration: 0,
       });
       try {
-        await acceptancePlanOverOperationContainerNoOperation(
-          containerIds.value,
-        );
+        await acceptancePlanOverOperationContainerNoOperation(contIds);
         message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
@@ -357,21 +423,31 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
 };
 /** 停止后续作业  */
 const handleAcceptancePlanOverOperationContainerComplete = async () => {
+  // 获取当前选中的箱数据
+  const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
+
   // 判断是否选中箱
-  if (containerIds.value.length === 0) {
+  if (currentSelected.length === 0) {
     message.error($t('cxmo.message.boxMessage'));
     return;
   }
+
+  // 获取当前选中箱的 contOperationNode
+  const currentOperationNodes = currentSelected.map(
+    (item) => item.contOperationNode,
+  );
   const invalidNodes = new Set(['COM', 'INITIALIZATION']);
-  const hasInvalidNode = containerOperationNodes.value.some((node) =>
+  const hasInvalidNode = currentOperationNodes.some((node) =>
     invalidNodes.has(node),
   );
   if (hasInvalidNode) {
     message.error($t('cxmo.message.iniOrComMessage'));
     return;
   }
+  const contNos = currentSelected.map((item) => item.contNo);
+  const contIds = currentSelected.map((item) => item.id);
   confirm({
-    content: `${containerNos.value.toString()}箱是否确认现场操作已全部完成？`,
+    content: `${contNos.toString()}箱是否确认现场操作已全部完成？`,
     icon: 'info',
   })
     .then(async () => {
@@ -380,7 +456,7 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
         duration: 0,
       });
       try {
-        await acceptancePlanOverOperationContainerComplete(containerIds.value);
+        await acceptancePlanOverOperationContainerComplete(contIds);
         message.success($t('cxmo.action.success'));
         handleRefresh();
       } finally {
@@ -419,7 +495,7 @@ const handleMachineSpreaderRecordDeleteList = async () => {
 };
 /** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
-const acceptancePlanNo = ref<string[]>([]);
+const acptPlnNo = ref<string[]>([]);
 const planStatusArr = ref<string[]>([]);
 function handleRowCheckboxChange({
   records,
@@ -427,61 +503,55 @@ function handleRowCheckboxChange({
   records: FlowOverLimitWorkApi.AcceptancePlanVO[];
 }) {
   checkedIds.value = records.map((item) => item.id);
-  acceptancePlanNo.value = records.map((item) => item.acceptancePlanNo);
+  acptPlnNo.value = records.map((item) => item.acptPlnNo);
   planStatusArr.value = records.map((item) => item.planStatus);
   boxGridApi.query();
 }
 /** 箱信息选中操作 */
 const boxCheckedIds = ref<number[]>([]);
-const boxAcceptancePlanNo = ref<string[]>([]);
-const containerNos = ref<string[]>([]);
-const containerIds = ref<number[]>([]);
+const boxAcptPlnNo = ref<string[]>([]);
 const batchQueryConditions = ref<batchQueryConditionsVO[]>([]);
-const machineSpreaderChangeTypes = ref<string[]>([]);
-const containerOperationNodes = ref<string[]>([]);
-const vesselCodes = ref<string[]>([]);
-const vesselVoyages = ref<string[]>([]);
-const vesselNames = ref<string[]>([]);
-const plannedSpreaderTypes = ref<string[]>([]);
-const boxList = ref<
-  FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
->([]);
+const cheWorkChangeTypes = ref<string[]>([]);
+const contOperationNodes = ref<string[]>([]);
+const vslCodes = ref<string[]>([]);
+const vslVoys = ref<string[]>([]);
+const vslNames = ref<string[]>([]);
+const plannedCheTypes = ref<string[]>([]);
+const boxList = ref<FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[]>(
+  [],
+);
 function boxHandleRowCheckboxChange({
   records,
 }: {
-  records: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+  records: FlowOverLimitWorkApi.AcceptancePlanOverOperationcontVO[];
 }) {
   boxList.value = records;
   const refMap = {
     boxCheckedIds,
-    boxAcceptancePlanNo,
-    containerNos,
-    containerIds,
-    machineSpreaderChangeTypes,
-    containerOperationNodes,
-    vesselCodes,
-    vesselVoyages,
-    vesselNames,
-    plannedSpreaderTypes,
+    boxAcptPlnNo,
+    cheWorkChangeTypes,
+    contOperationNodes,
+    vslCodes,
+    vslVoys,
+    vslNames,
+    plannedCheTypes,
   };
   const fieldMappings = {
     boxCheckedIds: 'id',
-    boxAcceptancePlanNo: 'acceptancePlanNo',
-    containerNos: 'containerNo',
-    containerIds: 'id',
-    machineSpreaderChangeTypes: 'machineSpreaderChangeType',
-    containerOperationNodes: 'containerOperationNode',
-    vesselCodes: 'vesselCode',
-    vesselVoyages: 'vesselVoyage',
-    vesselNames: 'vesselName',
-    plannedSpreaderTypes: 'plannedSpreaderType',
+    boxAcptPlnNo: 'acptPlnNo',
+    cheWorkChangeTypes: 'cheWorkChangeType',
+    contOperationNodes: 'contOperationNode',
+    vslCodes: 'vslCode',
+    vslVoys: 'vslVoy',
+    vslNames: 'vslName',
+    plannedCheTypes: 'plannedCheType',
   };
   Object.entries(fieldMappings).forEach(([refName, field]) => {
     refMap[refName].value = records.map((item) => item[field]);
   });
   batchQueryConditions.value = records.map((item) => ({
-    acceptancePlanNo: item.acceptancePlanNo,
-    containerNo: item.containerNo,
+    acptPlnNo: item.acptPlnNo,
+    contNo: item.contNo,
   }));
 
   machineSpreaderChangeRecordGridApi.query();
@@ -522,15 +592,40 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitButtonOptions: {
       content: $t('cxmo.action.search'),
     },
+    resetButtonOptions: {
+      onClick: () => {
+        // 清空自定义插槽绑定的状态
+        vslNameState.value = {
+          value: '',
+          label: '',
+        };
+        vslVoyState.value = {
+          value: '',
+          label: '',
+        };
+        applicantCompanyNameState.value = {
+          value: '',
+          label: '',
+        };
+      },
+    },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
   },
   gridOptions: {
+    resizableConfig: {
+      isDblclickAutoWidth: true, // 启用双击自适应列宽
+    },
+    checkboxConfig: {
+      highlight: true,
+      isShiftKey: true,
+    },
     floatingFilterConfig: {
       enabled: true,
     },
     filterConfig: {
       showIcon: false,
+      // remote: true,
     },
     columns: acceptancePlanOvrOprColumns(),
     height: 'auto',
@@ -549,8 +644,37 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '25',
+          value: 25,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
-    // 禁用代理模式，确保不发送远程请求
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -567,12 +691,32 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
+    filterChange: useDebounceFn(async ({ filterList }) => {
+      const searchCont = filterList.reduce((obj, item) => {
+        if (item.datas && item.datas.length > 0) {
+          obj[item.field] = item.datas[0];
+        }
+        return obj;
+      }, {});
+      // 调用gridApi.query()刷新表格数据，实现实时筛选
+      // await gridApi.query();
+    }, 300),
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+      handleRowCheckboxChange({ records: rangeRecords });
+    },
   },
 });
 
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    resizableConfig: {
+      isDblclickAutoWidth: true, // 启用双击自适应列宽
+    },
+    checkboxConfig: {
+      highlight: true,
+      isShiftKey: true,
+    },
     floatingFilterConfig: {
       enabled: true,
     },
@@ -593,16 +737,46 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '25',
+          value: 25,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       autoLoad: false,
       manual: true,
       ajax: {
         query: async ({ page }, formValues) => {
-          if (acceptancePlanNo.value.length > 0) {
-            formValues.acceptancePlanNos = acceptancePlanNo.value;
+          if (acptPlnNo.value.length > 0) {
+            formValues.acptPlnNos = acptPlnNo.value;
           }
-          if (formValues?.acceptancePlanNos?.length > 0) {
+          if (formValues?.acptPlnNos?.length > 0) {
             return await getAcceptancePlanOverOperationContainerPage({
               pageNo: page.currentPage,
               pageSize: page.pageSize,
@@ -618,6 +792,9 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridEvents: {
     checkboxAll: boxHandleRowCheckboxChange,
     checkboxChange: boxHandleRowCheckboxChange,
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+      boxHandleRowCheckboxChange({ records: rangeRecords });
+    },
   },
 });
 
@@ -625,6 +802,13 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      resizableConfig: {
+        isDblclickAutoWidth: true, // 启用双击自适应列宽
+      },
+      checkboxConfig: {
+        highlight: true,
+        isShiftKey: true,
+      },
       floatingFilterConfig: {
         enabled: true,
       },
@@ -643,9 +827,42 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
         search: true,
         export: true,
       },
+      exportConfig: {
+        filename: '变更吊具记录',
+      },
       pagerConfig: {
         pageSize: 10,
         enabled: true,
+        pageSizes: [
+          {
+            label: '10',
+            value: 10,
+          },
+          {
+            label: '25',
+            value: 25,
+          },
+          {
+            label: '50',
+            value: 50,
+          },
+          {
+            label: '100',
+            value: 100,
+          },
+          {
+            label: '1000',
+            value: 1000,
+          },
+          {
+            label: '10000',
+            value: 10_000,
+          },
+          {
+            label: '全部',
+            value: -1,
+          },
+        ],
       },
       proxyConfig: {
         // autoLoad: false,
@@ -677,6 +894,9 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
     gridEvents: {
       checkboxAll: machineSpreaderChangeRecordHandleRowCheck,
       checkboxChange: machineSpreaderChangeRecordHandleRowCheck,
+      checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+        machineSpreaderChangeRecordHandleRowCheck({ records: rangeRecords });
+      },
     },
   });
 
@@ -806,29 +1026,25 @@ const queryResult = ref<any>(null);
 
 // 处理查询事件
 const handleQuery = (params: any) => {
-  console.log('查询参数:', params);
   queryResult.value = params;
 };
 
 // 处理重置事件
 const handleReset = () => {
-  console.log('重置查询条件');
   queryResult.value = null;
 };
 
 // 处理保存模板事件
-const handleSaveTemplate = (templateName: string) => {
-  console.log('保存模板:', templateName);
-};
+const handleSaveTemplate = (templateName: string) => {};
 // 监听超限作业申请选中的受理编号变化
 watch(
-  () => acceptancePlanNo.value,
-  (newAcceptancePlanNos, oldAcceptancePlanNos) => {
+  () => acptPlnNo.value,
+  (newAcptPlnNos, oldAcptPlnNos) => {
     const addedPlanNos = new Set(
-      oldAcceptancePlanNos.filter((no) => !newAcceptancePlanNos.includes(no)),
+      oldAcptPlnNos.filter((no) => !newAcptPlnNos.includes(no)),
     );
     boxList.value.forEach((item) => {
-      if (addedPlanNos.has(item.acceptancePlanNo)) {
+      if (addedPlanNos.has(item.acptPlnNo)) {
         boxGridApi.grid.setCheckboxRow(item, false);
       }
     });
@@ -855,12 +1071,11 @@ const toggleSearchInput = () => {
 const handleSearch = () => {
   machineSpreaderChangeRecordGridApi.query();
 };
-const applicantCompanyNameState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-});
 const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
+  applicantCompanyNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   gridApi.formApi.form.setFieldValue('applicantCompanyName', value);
   if (!value) return;
   applicantCompanyNameState.fetching = true;
@@ -879,54 +1094,131 @@ const applicantCompanyNameSearch = useDebounceFn(async (value: string) => {
   applicantCompanyNameState.fetching = false;
 }, 100);
 const handleVesselSearch = async (value: string) => {
-  gridApi.formApi.form.setFieldValue('vesselName', value);
+  vslNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+  gridApi.formApi.form.setFieldValue('vslName', value);
   if (!value) return;
-  vesselNameState.fetching = true;
+  vslNameState.fetching = true;
   const res = await getVVd({ condition: value });
   if (res) {
-    vesselNameState.data = res.map((item: any) => ({
+    vslNameState.data = res.map((item: any) => ({
       label: item.vieVslName,
       value: item.vieVslName,
       data: item,
     }));
   }
-  vesselNameState.fetching = false;
+  vslNameState.fetching = false;
 };
 
-const vesselNameSelect = async (value: any) => {
-  gridApi.formApi.form.setFieldValue('vesselName', value.label);
+const vslNameSelect = async (value: any) => {
+  gridApi.formApi.form.setFieldValue('vslName', value.label);
 
-  vesselVoyageState.fetching = true;
+  vslVoyState.fetching = true;
   const res = await getVVd({ condition: value.label, queryType: 'VOYAGE' });
 
   if (res) {
-    vesselVoyageState.data = res.map((item: any) => ({
+    vslVoyState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
     }));
   }
 
-  vesselVoyageState.value = [];
-  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
-  vesselVoyageState.fetching = false;
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
+  gridApi.formApi.form.setFieldValue('vslVoy', '');
+  vslVoyState.fetching = false;
 };
 
-const vesselNameChange = async () => {
-  gridApi.formApi.form.setFieldValue('vesselName', '');
-  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
-  vesselVoyageState.value = [];
-  vesselVoyageState.data = [];
+const vslNameChange = async () => {
+  gridApi.formApi.form.setFieldValue('vslName', '');
+  gridApi.formApi.form.setFieldValue('vslVoy', '');
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
+  vslVoyState.data = [];
   selectKey.value++;
 };
 const handleVoyageSearch = async (value: string) => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', value);
-}
-const vesselVoyageSelect = async (value: any) => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', value.label);
+  vslVoyState.value = {
+    value: value.toUpperCase(),
+    label: value.toUpperCase(),
+  };
+  gridApi.formApi.form.setFieldValue('vslVoy', value.toUpperCase());
 };
-const vesselVoyageChange = async () => {
-  gridApi.formApi.form.setFieldValue('vesselVoyage', '');
+const vslVoySelect = async (value: any) => {
+  gridApi.formApi.form.setFieldValue('vslVoy', value.label.toUpperCase());
 };
+const vslVoyChange = async () => {
+  gridApi.formApi.form.setFieldValue('vslVoy', '');
+};
+const changeNameFilter = (option: any, column: any, index: number) => {
+  option.data = option.data.toUpperCase();
+  let $grid;
+  if (index === 1) {
+    $grid = gridApi.grid;
+  } else if (index === 2) {
+    $grid = boxGridApi.grid;
+  } else {
+    $grid = machineSpreaderChangeRecordGridApi.grid;
+  }
+  if ($grid) {
+    $grid.updateFilterOptionStatus(option, !!option.data);
+    $grid.saveFilter(column);
+  }
+};
+const boxFloatingFilterColumns = ref<string[]>([
+  'contOperationNode',
+  'contNo',
+  'contSize',
+  'contType',
+  'contCargoWeight',
+  'contTotalWeight',
+  'contCargoSize',
+  'contOogDetails',
+]);
+const oogFloatingFilterColumns = ref<string[]>([
+  'cheWorkChangeType',
+  'vslName',
+  'vslVoy',
+  'contNo',
+  'operationSource',
+  'changeReason',
+  'cheWorkType',
+  'machNo',
+  'isOnSiteWork',
+  'operationPosition',
+  'cheType',
+  'startTime',
+  'endTime',
+  'remark',
+  'creatorName',
+  'createTime',
+]);
+const acceptanceFloatingFilterColumns = ref<string[]>([
+  'acptPlnNo',
+  'planStatus',
+  'approvalWorkflowCurrentNode',
+  'acptPlnWebNo',
+  'applicantCompanyName',
+  'handlingPerson',
+  'vslName',
+  'vslVoy',
+  'category',
+  'vslCode',
+  'billNo',
+  'cargoName',
+  'payerNameSea',
+  'paymentTypeSea',
+  'payerNameGate',
+  'paymentTypeGate',
+  'isSystemRate',
+  'conclusionTime',
+]);
 </script>
 
 <template>
@@ -963,36 +1255,36 @@ const vesselVoyageChange = async () => {
             allow-clear
           />
         </template>
-        <template #form-vesselName>
+        <template #form-vslName>
           <Select
-            v-model:value="vesselNameState.value"
+            v-model:value="vslNameState.value"
             mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
             label-in-value
             placeholder="请输入作业船名"
             style="width: 100%"
             :filter-option="false"
-            :not-found-content="vesselNameState.fetching ? undefined : null"
-            :options="vesselNameState.data"
+            :not-found-content="vslNameState.fetching ? undefined : null"
+            :options="vslNameState.data"
             @search="handleVesselSearch"
             allow-clear
-            @select="vesselNameSelect"
-            @change="vesselNameChange"
+            @select="vslNameSelect"
+            @change="vslNameChange"
           />
         </template>
 
-        <template #form-vesselVoyage>
+        <template #form-vslVoy>
           <Select
-            v-model:value="vesselVoyageState.value"
+            v-model:value="vslVoyState.value"
             mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
             label-in-value
             placeholder="请输入船名航次"
             style="width: 100%"
             :filter-option="true"
-            :not-found-content="vesselVoyageState.fetching ? undefined : null"
-            :options="vesselVoyageState.data"
+            :not-found-content="vslVoyState.fetching ? undefined : null"
+            :options="vslVoyState.data"
             allow-clear
-            @select="vesselVoyageSelect"
-            @change="vesselVoyageChange"
+            @select="vslVoySelect"
+            @change="vslVoyChange"
             @search="handleVoyageSearch"
             :key="selectKey"
           />
@@ -1014,6 +1306,7 @@ const vesselVoyageChange = async () => {
                 label: $t('cxmo.action.revoke'),
                 type: 'default',
                 icon: ACTION_ICON.UNDO,
+                auth: ['bpp:flow-acceptance-plan-over-operation:cancel'],
                 onClick: handleRevoke,
               },
               //
@@ -1041,6 +1334,7 @@ const vesselVoyageChange = async () => {
                     label: $t('cxmo.action.audit'),
                     type: 'link',
                     icon: ACTION_ICON.AUDIT,
+                    auth: ['bpp:flow-acceptance-plan-over-operation:process'],
                     onClick: handleViewDetail.bind(null, row),
                   }
                 : '',
@@ -1064,6 +1358,17 @@ const vesselVoyageChange = async () => {
                 onClick: handleDetail.bind(null, row),
               },
             ]"
+          />
+        </template>
+        <template
+          v-for="col in acceptanceFloatingFilterColumns"
+          #[`${col}`]="{ option, column }"
+          :key="col"
+        >
+          <Input
+            v-model:value="option.data"
+            clearable
+            @change="changeNameFilter(option, column, 1)"
           />
         </template>
       </Grid>
@@ -1094,20 +1399,40 @@ const vesselVoyageChange = async () => {
                 {
                   label: $t('cxmo.overOperation.onSiteOperationConfirm'),
                   type: 'primary',
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:confirm',
+                  ],
                   onClick: handleOnSiteOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.actuallyNoOperation'),
                   type: 'primary',
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:no-operation',
+                  ],
                   onClick:
                     handleAcceptancePlanOverOperationContainerNoOperation,
                 },
                 {
                   label: $t('cxmo.overOperation.stopSubSequentOperations'),
                   type: 'primary',
+                  auth: [
+                    'bpp:flow-acceptance-plan-over-operation-container:complete',
+                  ],
                   onClick: handleAcceptancePlanOverOperationContainerComplete,
                 },
               ]"
+            />
+          </template>
+          <template
+            v-for="col in boxFloatingFilterColumns"
+            #[`${col}`]="{ option, column }"
+            :key="col"
+          >
+            <Input
+              v-model:value="option.data"
+              clearable
+              @change="changeNameFilter(option, column, 2)"
             />
           </template>
         </BoxGrid>
@@ -1141,7 +1466,7 @@ const vesselVoyageChange = async () => {
                 {
                   label: $t('cxmo.overOperation.noChangeOperations'),
                   type: 'primary',
-                  auth: ['system:user:create'],
+                  auth: ['bpp:flow-machine-spreader-record:delete'],
                   onClick: handleMachineSpreaderRecordDeleteList,
                 },
               ]"
@@ -1177,7 +1502,7 @@ const vesselVoyageChange = async () => {
                   label: $t('common.edit'),
                   type: 'link',
                   icon: ACTION_ICON.EDIT,
-                  auth: ['system:user:update'],
+                  auth: ['bpp:flow-machine-spreader-record:update'],
                   onClick: handleOnSiteEditOperation.bind(null, row),
                 },
                 {
@@ -1185,13 +1510,24 @@ const vesselVoyageChange = async () => {
                   type: 'link',
                   danger: true,
                   icon: ACTION_ICON.DELETE,
-                  auth: ['system:user:delete'],
+                  auth: ['bpp:flow-machine-spreader-record:delete'],
                   popConfirm: {
                     title: $t('ui.actionMessage.deleteConfirm'),
                     confirm: handleMachineSpreaderDelete.bind(null, row),
                   },
                 },
               ]"
+            />
+          </template>
+          <template
+            v-for="col in oogFloatingFilterColumns"
+            #[`${col}`]="{ option, column }"
+            :key="col"
+          >
+            <Input
+              v-model:value="option.data"
+              clearable
+              @change="changeNameFilter(option, column, 3)"
             />
           </template>
         </MachineSpreaderChangeRecordGrid>

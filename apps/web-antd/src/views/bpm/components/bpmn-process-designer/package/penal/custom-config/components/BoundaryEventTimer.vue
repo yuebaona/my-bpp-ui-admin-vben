@@ -2,17 +2,14 @@
 import { inject, nextTick, ref, toRaw, watch } from 'vue';
 
 import {
-  Col,
   Divider,
   FormItem,
   InputNumber,
   RadioButton,
   RadioGroup,
-  Row,
   Select,
   SelectOption,
   Switch,
-  TypographyText,
 } from 'ant-design-vue';
 
 import { convertTimeUnit } from '#/views/bpm/components/simple-process-design/components/nodes-config/utils';
@@ -76,7 +73,7 @@ const resetElement = () => {
   // 执行动作
   timeoutHandlerType.value = elExtensionElements.value.values?.find(
     (ex: any) => ex.$type === `${prefix}:TimeoutHandlerType`,
-  );
+  )?.[0];
   if (timeoutHandlerType.value) {
     configExtensions.value.push(timeoutHandlerType.value);
     if (eventDefinition.value.timeCycle) {
@@ -246,54 +243,38 @@ watch(
         </RadioButton>
       </RadioGroup>
     </FormItem>
-    <FormItem
-      label="超时时间设置"
-      v-if="timeoutHandlerEnable"
-      :label-col="{ span: 24 }"
-      :wrapper-col="{ span: 24 }"
-    >
-      <Row :gutter="[0, 0]">
-        <Col>
-          <TypographyText class="mr-2 mt-2 inline-flex text-sm">
-            当超过
-          </TypographyText>
-        </Col>
-        <Col>
-          <FormItem name="timeDuration" class="mb-0">
-            <InputNumber
-              class="mr-2 mt-0.5"
-              v-model:value="timeDuration"
-              :min="1"
-              controls-position="right"
-              @change="
-                () => {
-                  updateTimeModdle();
-                  updateElementExtensions();
-                }
-              "
-            />
-          </FormItem>
-        </Col>
-        <Col>
-          <Select
-            v-model:value="timeUnit"
-            class="mr-2 !w-24"
-            @change="onTimeUnitChange"
-          >
-            <SelectOption
-              v-for="item in TIME_UNIT_TYPES"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
-              {{ item.label }}
-            </SelectOption>
-          </Select>
-          <TypographyText class="mr-2 mt-2 inline-flex text-sm">
-            未处理
-          </TypographyText>
-        </Col>
-      </Row>
+    <FormItem label="超时时间设置" v-if="timeoutHandlerEnable">
+      <span class="mr-2">当超过</span>
+      <FormItem name="timeDuration">
+        <InputNumber
+          class="mr-2"
+          :style="{ width: '100px' }"
+          v-model:value="timeDuration"
+          :min="1"
+          :controls="true"
+          @change="
+            () => {
+              updateTimeModdle();
+              updateElementExtensions();
+            }
+          "
+        />
+      </FormItem>
+      <Select
+        v-model:value="timeUnit"
+        class="mr-2"
+        :style="{ width: '100px' }"
+        @change="onTimeUnitChange"
+      >
+        <SelectOption
+          v-for="item in TIME_UNIT_TYPES"
+          :key="item.value"
+          :value="item.value"
+        >
+          {{ item.label }}
+        </SelectOption>
+      </Select>
+      未处理
     </FormItem>
     <FormItem
       label="最大提醒次数"
@@ -314,3 +295,5 @@ watch(
     </FormItem>
   </div>
 </template>
+
+<style lang="scss" scoped></style>
