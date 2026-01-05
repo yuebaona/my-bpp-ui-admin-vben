@@ -2,9 +2,8 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
-import { getDictDataPage } from '#/api/system/dict/data';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-// import { z } from '#/adapter/form';
 import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
@@ -43,7 +42,7 @@ function getPlanStatusOptions(type: string) {
   }));
 }
 
-/** 箱区范围字段 */
+/** 箱区范围选择字段 */
 export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   return [
     {
@@ -69,15 +68,25 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
       editRender: { name: 'input', attrs: { type: 'number' } },
     },
     {
-      title: '最低准存天数 ♦ ▽ ◁',
-      field: 'minStorageDays',
+      title: '最低准存天数',
+      field: 'minDays',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
       editRender: { name: 'input', attrs: { type: 'number' } },
     },
     {
-      title: '最高准存天数 ♦ ▽ ◁',
-      field: 'maxStorageDays',
+      title: '最高准存天数',
+      field: 'maxDays',
       minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
       editRender: { name: 'input', attrs: { type: 'number' } },
     },
     {
@@ -89,10 +98,56 @@ export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
   ];
 }
 
+/** 箱区范围浮窗展示字段 */
+export function containerAreaDisplayColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '堆场贝位',
+      field: 'yardBay',
+      minWidth: 80,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '堆场列',
+      field: 'yardRaw',
+      minWidth: 60,
+      editRender: { name: 'input' },
+    },
+    {
+      title: '总数（当前可用量）',
+      field: 'totalCount',
+      minWidth: 100,
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+    {
+      title: '最低准存天数',
+      field: 'minDays',
+      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+    {
+      title: '最高准存天数',
+      field: 'maxDays',
+      minWidth: 100,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+      },
+      editRender: { name: 'input', attrs: { type: 'number' } },
+    },
+  ];
+}
+
 export function mainPlanFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'mainId',
+      fieldName: 'planNo',
       label: '主计划号',
       component: 'Input',
       componentProps: {
@@ -120,23 +175,34 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提箱受理计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入持箱人，可多条',
-        allowClear: true,
-      },
+      component: 'Select',
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
       fieldName: 'tradeType',
       label: '贸易类型',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
+        placeholder: '请选择贸易类型',
+        allowClear: true,
         options: [
           { label: '内贸', value: 'DOMESTIC' },
           { label: '外贸', value: 'FOREIGN' },
@@ -144,12 +210,14 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'contIsoList',
       label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入ISO，可多条',
-      },
+      component: 'Select',
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
@@ -175,7 +243,10 @@ export function mainPlanFormSchema(): VbenFormSchema[] {
   ];
 }
 
-export function subPlanFormSchema(): VbenFormSchema[] {
+export function subPlanFormSchema(
+  pickupPlanNoShow: boolean,
+  tradeTypeDisabled?: boolean,
+): VbenFormSchema[] {
   return [
     {
       fieldName: 'planNo',
@@ -198,6 +269,7 @@ export function subPlanFormSchema(): VbenFormSchema[] {
         ],
       },
       rules: 'required',
+      disabled: true,
     },
     {
       fieldName: 'pickupPlanNo',
@@ -206,10 +278,19 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入提箱受理计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
+      disabled: pickupPlanNoShow,
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -218,33 +299,39 @@ export function subPlanFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入持箱人，可多条',
-        allowClear: true,
-      },
+      component: 'Select',
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
       fieldName: 'tradeType',
       label: '贸易类型',
-      component: 'RadioGroup',
+      component: 'Select',
       componentProps: {
+        placeholder: '请选择贸易类型',
+        allowClear: true,
         options: [
           { label: '内贸', value: 'DOMESTIC' },
           { label: '外贸', value: 'FOREIGN' },
         ],
       },
+      disabled: tradeTypeDisabled,
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'contIsoList',
       label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入ISO，可多条',
-      },
+      component: 'Select',
+      // renderComponentContent: () => {
+      //   return {
+      //     default: () => null,
+      //   };
+      // },
       rules: 'required',
     },
     {
@@ -303,7 +390,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'dischargeVesselSchedule',
+      fieldName: 'dischargeVslSchedule',
       label: '卸船船期',
       component: 'Input',
       componentProps: {
@@ -312,7 +399,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owners',
+      fieldName: 'ownerCodeList',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -333,7 +420,7 @@ export function subPlanDetailSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isoNos',
+      fieldName: 'contIsoList',
       label: 'ISO',
       component: 'Input',
       componentProps: {
@@ -369,20 +456,19 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'planNo',
-      label: '主计划号',
+      label: '计划号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入主计划号',
+        placeholder: '请输入计划号',
         allowClear: true,
-      },
-    },
-    {
-      fieldName: 'importVoyageNo',
-      label: '进口航次',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入进口航次',
-        allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
@@ -390,8 +476,16 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '格式：箱区-排，例如：B1-02',
+        placeholder: '例如：B01-02-A',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9-]/g, '');
+          }, 10);
+        },
       },
     },
     {
@@ -408,39 +502,61 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'ownerList',
-      label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '多个持箱人用英文逗号分隔',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'isoNoList',
-      label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '多个ISO用英文逗号分隔',
-        allowClear: true,
-      },
-    },
-    {
       fieldName: 'createTime',
       label: '创建时间',
-      component: 'TimeRangePicker',
+      component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
         allowClear: true,
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
       },
     },
     {
+      fieldName: 'ownerCodeList',
+      label: '持箱人',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择持箱人',
+        allowClear: true,
+      },
+      slot: 'form-ownerCodeList',
+    },
+    {
+      fieldName: 'contIsoList',
+      label: 'ISO',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择ISO号',
+        allowClear: true,
+      },
+      slot: 'form-contIsoList',
+    },
+    {
+      fieldName: 'dischargeVslSchedule',
+      label: '卸船船期',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入船名或航次号',
+        allowClear: true,
+      },
+      slot: 'form-dischargeVslSchedule',
+    },
+    {
       fieldName: 'pickupPlanNo',
-      label: '受理提箱计划号',
+      label: '受理计划号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入受理提箱计划号',
+        placeholder: '请输入受理计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
   ];
@@ -454,7 +570,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '主计划号',
-      minWidth: 120,
+      minWidth: 150,
       fixed: 'left',
     },
     {
@@ -463,19 +579,16 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('empty_container_control_main_status'),
+        props: 'empty_container_control_main_status',
+        // options: getPlanStatusOptions('empty_container_control_main_status'),
       },
     },
     {
       field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
+      formatter: ({ cellValue }) => {
+        return cellValue ? 'Y' : 'N';
       },
     },
     {
@@ -484,7 +597,7 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'owners',
+      field: 'ownerCodeList',
       title: '持箱人',
       minWidth: 120,
     },
@@ -494,18 +607,19 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('trade_type'),
+        props: 'trade_type',
       },
     },
     {
-      field: 'isoNos',
+      field: 'contIsoList',
       title: 'ISO',
       minWidth: 120,
     },
     {
       field: 'bayRanges',
       title: '箱区范围',
-      minWidth: 120,
+      minWidth: 200,
+      slots: { default: 'bayRanges', actions: 'bayRanges' },
     },
     {
       field: 'planQuantity',
@@ -548,28 +662,30 @@ export function mainPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'creator',
+      field: 'creatorName',
       title: '创建人',
       minWidth: 100,
     },
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 110,
+      minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
-      field: 'updater',
+      field: 'updaterName',
       title: '修改人',
       minWidth: 100,
     },
     {
       field: 'updateTime',
       title: '修改时间',
-      minWidth: 100,
+      minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',
-      width: 200,
+      width: 150,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -584,7 +700,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'planNo',
       title: '子计划号',
-      minWidth: 120,
+      minWidth: 150,
       fixed: 'left',
     },
     {
@@ -593,19 +709,15 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('empty_container_control_sub_status'),
+        props: 'empty_container_control_sub_status',
       },
     },
     {
       field: 'isRelease',
       title: '是否放箱(Y/N)',
       minWidth: 150,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
+      formatter: ({ cellValue }) => {
+        return cellValue ? 'Y' : 'N';
       },
     },
     {
@@ -614,9 +726,9 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'dischargeVesselSchedule',
+      field: 'dischargeVslSchedule',
       title: '卸船船期',
-      minWidth: 120,
+      minWidth: 200,
     },
     {
       field: 'tradeType',
@@ -624,23 +736,25 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('trade_type'),
+        props: 'trade_type',
+        // options: getPlanStatusOptions('trade_type'),
       },
     },
     {
-      field: 'owners',
+      field: 'ownerCodeList',
       title: '持箱人',
       minWidth: 120,
     },
     {
-      field: 'isoNos',
+      field: 'contIsoList',
       title: 'ISO',
       minWidth: 120,
     },
     {
       field: 'bayRanges',
       title: '箱区范围',
-      minWidth: 120,
+      minWidth: 200,
+      slots: { default: 'bayRanges', actions: 'bayRanges' },
     },
     {
       field: 'planQuantity',
@@ -668,7 +782,7 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'creator',
+      field: 'creatorName',
       title: '创建人',
       minWidth: 100,
     },
@@ -676,9 +790,10 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
-      field: 'updater',
+      field: 'updaterName',
       title: '修改人',
       minWidth: 100,
     },
@@ -686,10 +801,11 @@ export function subPlanColumns(): VxeTableGridOptions['columns'] {
       field: 'updateTime',
       title: '修改时间',
       minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',
-      width: 200,
+      width: 150,
       fixed: 'right',
       slots: { default: 'actions' },
     },
@@ -702,11 +818,25 @@ export function mainPlanDetailSchema(): DescriptionItemSchema[] {
     // 基础信息
     { field: 'planNo', label: '主计划号' },
     { field: 'planStatus', label: '状态' },
-    { field: 'isRelease', label: '是否放箱' },
+    {
+      field: 'isRelease',
+      label: '是否放箱',
+      render: (value) => {
+        return `${value ? '是' : '否'}`;
+      },
+    },
     { field: 'pickupPlanNo', label: '提箱受理计划号' },
-    { field: 'owners', label: '持箱人' },
+    { field: 'ownerCodeList', label: '持箱人' },
     { field: 'tradeType', label: '贸易类型' },
-    { field: 'isoNos', label: 'ISO' },
+    // 确保数据中 tradeType 字段的值正确
+    {
+      field: 'tradeType',
+      label: '贸易类型',
+      render: (value) => {
+        return value === 'FOREIGN' ? '外贸' : '内贸';
+      },
+    },
+    { field: 'contIsoList', label: 'ISO' },
     { field: 'bayRanges', label: '箱区范围' },
     { field: 'planQuantity', label: '计划箱量' },
     { field: 'completedReleaseQuantity', label: '已放箱量' },
@@ -729,12 +859,20 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入主计划号',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9]/g, '');
+          }, 10);
+        },
       },
     },
     {
       fieldName: 'owner',
       label: '持箱人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入持箱人',
         allowClear: true,
@@ -743,7 +881,7 @@ export function logQueryFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'iso',
       label: 'ISO',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入ISO',
         allowClear: true,
@@ -754,13 +892,21 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '',
+        placeholder: '例如：B01-02-A',
         allowClear: true,
+        onInput: (e: Event) => {
+          setTimeout(() => {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value
+              .toUpperCase()
+              .replaceAll(/[^A-Z0-9-]/g, '');
+          }, 10);
+        },
       },
     },
     {
       fieldName: 'createTime',
-      label: '创建时间',
+      label: '操作时间',
       component: 'RangePicker',
       componentProps: {
         ...getRangePickerDefaultProps(),
@@ -788,12 +934,8 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       field: 'mainIsRelease',
       title: '是否放箱(Y/N)',
       minWidth: 120,
-      cellRender: {
-        name: 'CellTagDict',
-        options: [
-          { value: true, label: '是' },
-          { value: false, label: '否' },
-        ],
+      formatter: ({ cellValue }) => {
+        return cellValue ? 'Y' : 'N';
       },
     },
     {
@@ -812,7 +954,8 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions('trade_type'),
+        props: 'trade_type',
+        // options: getPlanStatusOptions('trade_type'),
       },
     },
     {
@@ -831,14 +974,15 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 120,
     },
     {
-      field: 'operator',
-      title: '修改人',
+      field: 'operatorName',
+      title: '操作人',
       minWidth: 100,
     },
     {
       field: 'operationTimestamp',
-      title: '修改时间',
+      title: '操作时间',
       minWidth: 150,
+      formatter: 'formatDateTime',
     },
     {
       field: 'operationType',
@@ -846,41 +990,40 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       cellRender: {
         name: 'CellTagDict',
-        options: getPlanStatusOptions(
-          'empty_container_control_main_operation_type',
-        ),
+        props: 'empty_container_control_main_operation_type',
+        // options: getPlanStatusOptions(
+        //           'empty_container_control_main_operation_type',
+        //         ),
       },
     },
   ];
 }
 
-export const STATIC_MASTER_PLAN_QUERY_DATA = [
-  {
-    id: 1,
-    mainPlanNo: 'MP20230001',
-    isRelease: true,
-    acceptancePlanNo: '137635841765',
-    owners: '李三',
-    tradeType: 'FOREIGN',
-    isoNos: 'ISO001',
-    bayRanges: 'A01-B02',
-    mainGateReleaseQty: '100',
-    modifier: '管理员',
-    modifyTime: '2023-11-01 10:00:00',
-    modifyType: '修改类型A',
-  },
-  {
-    id: 2,
-    mainPlanNo: 'MP20230002',
-    isRelease: false,
-    acceptancePlanNo: '71326815685',
-    owners: '张三',
-    tradeType: 'FOREIGN',
-    isoNos: 'ISO002',
-    bayRanges: 'C01-D02',
-    mainGateReleaseQty: '100',
-    modifier: '操作员',
-    modifyTime: '2023-11-02 10:00:00',
-    modifyType: '修改类型B',
-  },
-];
+export function gatePlanColumns(): VxeTableGridOptions['columns'] {
+  return [
+    { type: 'seq', width: 50, align: 'center' },
+    {
+      field: 'planNo',
+      title: '计划号',
+      minWidth: 100,
+    },
+    {
+      field: 'isRelease',
+      title: '是否放箱',
+      minWidth: 100,
+      formatter: (value) => {
+        return `${value ? 'Y' : 'N'}`;
+      },
+    },
+    {
+      field: 'bayRanges',
+      title: '箱区范围',
+      minWidth: 120,
+    },
+    {
+      field: 'mainGateReleaseQuantity',
+      title: '可放总箱量',
+      minWidth: 100,
+    },
+  ];
+}
