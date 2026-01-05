@@ -252,6 +252,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       mode: 'row',
       showIcon: false,
       trigger: 'manual',
+      autoClear: false,
     },
     toolbarConfig: {
       export: true,
