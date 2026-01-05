@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref, computed } from 'vue';
+import { reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -10,7 +10,10 @@ import { $t } from '@vben/locales';
 import { Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getContainerOwnerListPage } from '#/api/bpp/common';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
 import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 import {
@@ -38,7 +41,7 @@ const formData = reactive<any[]>([
     destinationPort: '苏州港',
     tradeType: 'DOMESTIC',
     owner: 'COS',
-    size: '40尺',
+    size: '40',
     containerType: '干货箱',
     containerHeight: '高箱',
     iso: '45G1',
@@ -88,7 +91,7 @@ const formData = reactive<any[]>([
     destinationPort: '洛杉矶港',
     tradeType: 'FOREIGN',
     owner: 'CMA',
-    size: '20尺',
+    size: '20',
     containerType: '干货箱',
     containerHeight: '普箱',
     iso: '22G1',
@@ -146,6 +149,29 @@ const {
   labelField: 'ownerCode',
   valueField: 'ownerCode',
   errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 箱尺寸搜索选择器
+const {
+  state: sizeState,
+  search: sizeSearch,
+  handleInput: handleSizeInput,
+  handleCompositionStart: handleSizeCompositionStart,
+  handleCompositionEnd: handleSizeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contLength: value,
+      queryType: 'length',
+    });
+  },
+  labelField: 'contLength',
+  valueField: 'contLength',
+  errorMessage: '获取ISO数据失败',
   toUpperCase: true,
   filterRegex: /[^A-Z0-9]/g,
 });
@@ -316,7 +342,7 @@ function handleEdit(row: any) {
 
 /** 保存编辑 */
 function handleSave(row: any) {
-  const index = formData.findIndex(item => item.id === row.id);
+  const index = formData.findIndex((item) => item.id === row.id);
   if (index !== -1) {
     Object.assign(formData[index], row);
   }
@@ -384,6 +410,25 @@ function handleRefresh() {
             @input="handleOwnerInput"
             @compositionstart="handleOwnerCompositionStart"
             @compositionend="handleOwnerCompositionEnd"
+          />
+        </div>
+      </template>
+      <template #size_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.size"
+            placeholder="请输入尺寸"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="sizeState.fetching ? undefined : null"
+            :options="sizeState.data"
+            @search="sizeSearch"
+            allow-clear
+            show-search
+            @focus="sizeSearch('')"
+            @input="handleSizeInput"
+            @compositionstart="handleSizeCompositionStart"
+            @compositionend="handleSizeCompositionEnd"
           />
         </div>
       </template>
