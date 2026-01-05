@@ -93,7 +93,6 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入申请人',
       },
       rules: 'required',
     },
@@ -103,7 +102,6 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入申请人电话',
       },
       rules: 'required',
     },
@@ -113,7 +111,6 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入货主单位',
       },
       rules: 'required',
     },
@@ -123,18 +120,16 @@ export function planInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入货代单位',
       },
       rules: 'required',
     },
     {
-      fieldName: 'remark',
-      component: 'Textarea',
+      fieldName: 'beizhu',
       label: '备注',
+      component: 'Input',
       componentProps: {
-        placeholder: '请输入备注',
+        allowClear: true,
       },
-      formItemClass: 'w-full p-0 md:col-span-2',
     },
   ];
 }
@@ -142,12 +137,11 @@ export function planInfoFormSchema(): VbenFormSchema[] {
 export function payInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'payer',
+      fieldName: 'payPerson',
       label: '付费人',
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入付费人',
       },
       rules: 'required',
     },
@@ -157,7 +151,6 @@ export function payInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder: '请输入付费方式',
       },
       rules: 'required',
     },
@@ -168,7 +161,6 @@ export function payInfoFormSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         disabled: true,
-        placeholder: '请输入发票抬头',
       },
       rules: 'required',
     },
@@ -197,7 +189,7 @@ export function acceptancePlanSearchSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'pickupNo',
+      fieldName: 'pickNo',
       label: '提单号',
       component: 'Input',
       componentProps: {
@@ -278,216 +270,187 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       field: 'cargo',
       title: '货名',
       minWidth: 120,
-      editRender: { name: 'input' },
+      sortable: true,
     },
     {
       field: 'vesselName',
       title: '船名航次',
       minWidth: 120,
-      editRender: { name: 'input' },
+      sortable: true,
     },
     {
       field: 'dischargePort',
       title: '卸货港',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'destinationPort',
       title: '目的港',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'tradeType',
       title: '内外贸',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'owner',
       title: '持箱人',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'size',
       title: '尺寸',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'containerType',
       title: '箱型',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'containerHeight',
       title: '箱高',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'iso',
       title: 'ISO',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
-      field: 'empty',
+      field: 'isEmpty',
       title: '空重',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'imdg',
       title: 'IMDG',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'unno',
       title: 'UNNO',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'isReefer',
       title: '是否打冷',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'temperature',
       title: '打冷温度',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'vent',
       title: '通风口',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'sealNo',
       title: '铅封号',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'weight',
       title: '箱重',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'containerLevel',
       title: '箱等级',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'damage',
       title: '是否残存',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'damageLevel',
       title: '残损等级',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'overLimit',
       title: '是否超限',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'front',
       title: '前超',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'rear',
       title: '后超',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'left',
       title: '左超',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'right',
       title: '右超',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'pickup',
       title: '直装直提',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'PTI',
       title: '是否PTI有效',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'PTITime',
       title: 'PTI有效期',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'relatePickupNo',
       title: '关联提单号',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'relateTO',
       title: '关联TO号',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'returnPort',
@@ -500,14 +463,12 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '付费人',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'payment',
       title: '付费方式',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'title',
@@ -520,21 +481,18 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '旧箱号',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'newContainerNo',
       title: '新箱号',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'isBand',
       title: '是否捆绑',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
     },
     {
       field: 'subContainer',
@@ -714,257 +672,6 @@ export function returnManageFormSchema(): VbenFormSchema[] {
         ],
       },
       rules: 'required',
-    },
-  ];
-}
-
-export function editFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      fieldName: 'vesselName',
-      label: '船名航次',
-      component: 'Input',
-    },
-    {
-      fieldName: 'dischargePort',
-      label: '卸货港',
-      component: 'Input',
-    },
-    {
-      fieldName: 'destinationPort',
-      label: '目的港',
-      component: 'Input',
-    },
-    {
-      fieldName: 'pickupNo',
-      label: '提单号',
-      component: 'Input',
-    },
-    {
-      fieldName: 'cargo',
-      label: '货名',
-      component: 'Input',
-    },
-    {
-      fieldName: 'isLCL',
-      label: '是否拼箱',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'owner',
-      label: '持箱人',
-      component: 'Input',
-    },
-    {
-      fieldName: 'tradeType',
-      label: '内外贸',
-      component: 'Input',
-    },
-    {
-      fieldName: 'empty',
-      label: '空重',
-      component: 'Input',
-    },
-    {
-      fieldName: 'size',
-      label: '尺寸',
-      component: 'Input',
-    },
-    {
-      fieldName: 'containerType',
-      label: '箱型',
-      component: 'Input',
-    },
-    {
-      fieldName: 'containerHeight',
-      label: '箱高',
-      component: 'Input',
-    },
-    {
-      fieldName: 'imdg',
-      label: '危品等级（IMDG）',
-      component: 'Input',
-    },
-    {
-      fieldName: 'unno',
-      label: '危品联合国代码（UNNO）',
-      component: 'Input',
-    },
-    {
-      fieldName: 'iso',
-      label: '箱ISO',
-      component: 'Input',
-    },
-    {
-      fieldName: 'isReefer',
-      label: '是否打冷',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'overLimit',
-      label: '是否超限',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'transportType',
-      label: '运输方式',
-      component: 'Input',
-    },
-    {
-      fieldName: 'temperature',
-      label: '打冷温度',
-      component: 'Input',
-    },
-    {
-      fieldName: 'front',
-      label: '前超',
-      component: 'Input',
-    },
-    {
-      fieldName: 'station',
-      label: '火车站点',
-      component: 'Input',
-    },
-    {
-      fieldName: 'vent',
-      label: '通风口',
-      component: 'Input',
-    },
-    {
-      fieldName: 'rear',
-      label: '后超',
-      component: 'Input',
-    },
-    {
-      fieldName: '',
-      label: '是否陆海贸易新通道',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'containerLevel',
-      label: '箱等级',
-      component: 'Input',
-    },
-    {
-      fieldName: 'left',
-      label: '左超',
-      component: 'Input',
-    },
-    {
-      fieldName: 'origin',
-      label: '来源/流向',
-      component: 'Input',
-    },
-    {
-      fieldName: 'damage',
-      label: '是否残损',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'right',
-      label: '右超',
-      component: 'Input',
-    },
-    {
-      fieldName: 'customsType',
-      label: '报关方式',
-      component: 'Input',
-    },
-    {
-      fieldName: 'damageLevel',
-      label: '残损等级',
-      component: 'Input',
-    },
-    {
-      fieldName: 'overHeight',
-      label: '超高',
-      component: 'Input',
-    },
-    {
-      fieldName: 'pickup',
-      label: '是否直装',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'PTI',
-      label: '是否PTI有效',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是', value: 'Y' },
-          { label: '否', value: 'N' },
-        ],
-      },
-    },
-    {
-      fieldName: 'PTITime',
-      label: 'PTI有效期',
-      component: 'Input',
-    },
-    {
-      fieldName: 'returnPort',
-      label: '返场码头',
-      component: 'Input',
-    },
-    {
-      fieldName: 'payer',
-      label: '付费人',
-      component: 'Input',
-    },
-    {
-      fieldName: 'payment',
-      label: '付费方式',
-      component: 'Input',
-    },
-    {
-      fieldName: 'title',
-      label: '发票抬头',
-      component: 'Input',
-    },
-    {
-      fieldName: 'remark',
-      label: '备注',
-      component: 'Textarea',
-      componentProps: {
-        placeholder: '请输入备注',
-      },
-      formItemClass: 'w-full p-0 md:col-span-3',
     },
   ];
 }

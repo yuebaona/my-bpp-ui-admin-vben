@@ -303,7 +303,7 @@ async function initNextAssigneesFormField() {
         (isEmpty(node.tasks) &&
           isEmpty(node.candidateUsers) &&
           BpmCandidateStrategyEnum.START_USER_SELECT ===
-            node.candidateStrategy) ||
+          node.candidateStrategy) ||
         // 情况二：当前节点是审批人自选
         BpmCandidateStrategyEnum.APPROVE_USER_SELECT === node.candidateStrategy
       ) {
@@ -804,9 +804,9 @@ defineExpose({ loadTodoTask });
                     @click="handleAudit(true, approveFormRef)"
                   >
                     {{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.APPROVE,
-                      )
+                    getButtonDisplayName(
+                    BpmTaskOperationButtonTypeEnum.APPROVE,
+                    )
                     }}
                   </Button>
                   <Button @click="closePopover('approve', approveFormRef)">
@@ -861,7 +861,7 @@ defineExpose({ loadTodoTask });
                   @click="handleAudit(false, rejectFormRef)"
                 >
                   {{
-                    getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT)
+                  getButtonDisplayName(BpmTaskOperationButtonTypeEnum.REJECT)
                   }}
                 </Button>
                 <Button
@@ -936,7 +936,7 @@ defineExpose({ loadTodoTask });
                     @click="handleCopy"
                   >
                     {{
-                      getButtonDisplayName(BpmTaskOperationButtonTypeEnum.COPY)
+                    getButtonDisplayName(BpmTaskOperationButtonTypeEnum.COPY)
                     }}
                   </Button>
                   <Button @click="closePopover('copy', copyFormRef)">
@@ -1007,9 +1007,9 @@ defineExpose({ loadTodoTask });
                     @click="handleTransfer()"
                   >
                     {{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.TRANSFER,
-                      )
+                    getButtonDisplayName(
+                    BpmTaskOperationButtonTypeEnum.TRANSFER,
+                    )
                     }}
                   </Button>
                   <Button @click="closePopover('transfer', transferFormRef)">
@@ -1080,9 +1080,9 @@ defineExpose({ loadTodoTask });
                     @click="handleDelegate()"
                   >
                     {{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.DELEGATE,
-                      )
+                    getButtonDisplayName(
+                    BpmTaskOperationButtonTypeEnum.DELEGATE,
+                    )
                     }}
                   </Button>
                   <Button @click="closePopover('delegate', delegateFormRef)">
@@ -1154,9 +1154,9 @@ defineExpose({ loadTodoTask });
                     @click="handlerAddSign('before')"
                   >
                     向前{{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.ADD_SIGN,
-                      )
+                    getButtonDisplayName(
+                    BpmTaskOperationButtonTypeEnum.ADD_SIGN,
+                    )
                     }}
                   </Button>
                   <Button
@@ -1165,9 +1165,9 @@ defineExpose({ loadTodoTask });
                     @click="handlerAddSign('after')"
                   >
                     向后{{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.ADD_SIGN,
-                      )
+                    getButtonDisplayName(
+                    BpmTaskOperationButtonTypeEnum.ADD_SIGN,
+                    )
                     }}
                   </Button>
                   <Button @click="closePopover('addSign', addSignFormRef)">
@@ -1304,9 +1304,9 @@ defineExpose({ loadTodoTask });
                     @click="handleReturn()"
                   >
                     {{
-                      getButtonDisplayName(
-                        BpmTaskOperationButtonTypeEnum.RETURN,
-                      )
+                    getButtonDisplayName(
+                    BpmTaskOperationButtonTypeEnum.RETURN,
+                    )
                     }}
                   </Button>
                   <Button @click="closePopover('return', returnFormRef)">

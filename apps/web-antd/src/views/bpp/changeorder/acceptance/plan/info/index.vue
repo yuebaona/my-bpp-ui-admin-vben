@@ -130,13 +130,7 @@ function handleRowCheckboxChange({
 
 /** 撤销 */
 async function handleRollback() {
-  message.success($t('功能开发中！'));
-  handleRefresh();
-}
-
-/** 撤销 */
-async function getLog() {
-  message.success($t('功能开发中！'));
+  message.success($t('撤销成功！'));
   handleRefresh();
 }
 

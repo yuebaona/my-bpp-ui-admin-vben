@@ -19,7 +19,7 @@ import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflo
 import {
   acceptancePlanOvrOprDetailSchema,
   attachmentDetailColumns,
-  contInfoDetailColumns,
+  containerInfoDetailColumns,
 } from '../data';
 // 箱信息数据
 const containerData = reactive<
@@ -30,7 +30,7 @@ const fileList = ref<fileVo>([]);
 const acceptancePlanBillMessageVO =
   reactive<FlowOverLimitWorkApi.AcceptancePlanBillMessageVO>({
     id: 0,
-    acptPlnNo: '',
+    acceptancePlanNo: '',
     billNo: '',
     cargoType: '',
     cargoName: '',
@@ -52,9 +52,9 @@ const formattedContainerTypes = computed(() => {
 
   // 统计每种箱型的数量
   containerData.forEach((item) => {
-    if (item.contType) {
-      const count = typeCountMap.get(item.contType) || 0;
-      typeCountMap.set(item.contType, count + 1);
+    if (item.containerType) {
+      const count = typeCountMap.get(item.containerType) || 0;
+      typeCountMap.set(item.containerType, count + 1);
     }
   });
 
@@ -100,7 +100,7 @@ const acceptancePlanOverOperationRespVO = ref(null);
 const containerDataArray = ref(null);
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
-    columns: contInfoDetailColumns(),
+    columns: containerInfoDetailColumns(),
     height: '250px',
     keepSource: true,
     border: true,
@@ -129,13 +129,13 @@ const [Grid] = useVbenVxeGrid({
     footerData: [
       {
         serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
-        contNo: '', // 被合并，留空
-        contSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
-        contType: '',
+        containerNo: '', // 被合并，留空
+        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
+        containerType: '',
         cargoWeight: '',
-        contTotalWeight: '',
-        contCargoSize: '',
-        contOogDetails: '',
+        totalWeight: '',
+        cargoSize: '',
+        overLimitDetail: '',
       },
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
@@ -166,8 +166,6 @@ const [FileGrid] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 const [Modal, modalApi] = useVbenModal({
-  showCancelButton: false,
-  showConfirmButton: false,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
       return;

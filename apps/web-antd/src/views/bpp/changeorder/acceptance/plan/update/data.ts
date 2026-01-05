@@ -201,7 +201,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
   return [
     // 第一行
     {
-      fieldName: 'vslVoy',
+      fieldName: 'vesselVoyage',
       component: 'Input',
       label: '船名航次',
       componentProps: { placeholder: '请输入船名航次' },
@@ -325,7 +325,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第五行
     {
-      fieldName: 'contType',
+      fieldName: 'containerType',
       component: 'Input',
       label: '箱型',
       componentProps: { placeholder: '请输入箱型' },
@@ -355,7 +355,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第六行
     {
-      fieldName: 'contHeight',
+      fieldName: 'containerHeight',
       component: 'Input',
       label: '箱高',
       componentProps: { placeholder: '请输入箱高' },
@@ -387,7 +387,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第七行
     {
-      fieldName: 'contIso',
+      fieldName: 'containerIso',
       component: 'Input',
       label: '箱ISO',
       componentProps: { placeholder: '请输入箱ISO' },
@@ -408,7 +408,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'contWeightKg',
+      fieldName: 'containerWeightKg',
       component: 'Input',
       label: '箱重',
       componentProps: { placeholder: '请输入箱重' },
@@ -417,7 +417,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第八行
     {
-      fieldName: 'contEmptyKg',
+      fieldName: 'containerEmptyKg',
       component: 'Input',
       label: '空重',
       componentProps: { placeholder: '' },
@@ -451,7 +451,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第九行
     {
-      fieldName: 'isCommodityEmptyCont',
+      fieldName: 'isCommodityEmptyContainer',
       component: 'RadioGroup',
       label: '是否商品空箱',
       componentProps: {
@@ -464,7 +464,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'contGrade',
+      fieldName: 'containerGrade',
       component: 'Input',
       label: '箱等级',
       componentProps: { placeholder: '请输入箱等级' },
@@ -484,7 +484,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
   return [
     // 第一行
     {
-      fieldName: 'vslVoy',
+      fieldName: 'vesselVoyage',
       component: 'Input',
       label: '船名航次',
       componentProps: {
@@ -502,7 +502,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'contEmptyKg',
+      fieldName: 'containerEmptyKg',
       component: 'Input',
       label: '空重',
       componentProps: {
@@ -511,7 +511,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isCommodityEmptyCont',
+      fieldName: 'isCommodityEmptyContainer',
       component: 'RadioGroup',
       label: '是否商品空箱',
       componentProps: {
@@ -535,7 +535,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'contType',
+      fieldName: 'containerType',
       component: 'Input',
       label: '箱型',
       componentProps: {
@@ -544,7 +544,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'contHeight',
+      fieldName: 'containerHeight',
       component: 'Input',
       label: '箱高',
       componentProps: {
@@ -553,7 +553,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'contIso',
+      fieldName: 'containerIso',
       component: 'Input',
       label: '箱ISO',
       componentProps: {
@@ -606,7 +606,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
 
     // 第四行
     {
-      fieldName: 'contGrade',
+      fieldName: 'containerGrade',
       component: 'Input',
       label: '箱等级',
       componentProps: {
@@ -804,7 +804,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 箱型
     {
-      field: 'contType',
+      field: 'containerType',
       title: '箱型',
       minWidth: 80,
       filters: [{ data: '' }],
@@ -825,7 +825,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 箱高
     {
-      field: 'contHeight',
+      field: 'containerHeight',
       title: '箱高',
       minWidth: 80,
       sortable: true,
@@ -847,7 +847,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 箱ISO
     {
-      field: 'contIso',
+      field: 'containerIso',
       title: '箱ISO',
       minWidth: 100,
       filters: [{ data: '' }],
@@ -868,7 +868,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 空重
     {
-      field: 'contEmptyKg',
+      field: 'containerEmptyKg',
       title: '空重',
       minWidth: 80,
       sortable: true,
@@ -1111,7 +1111,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 箱等级
     {
-      field: 'contGrade',
+      field: 'containerGrade',
       title: '箱等级',
       minWidth: 100,
       filters: [{ data: '' }],
@@ -1132,7 +1132,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 柜封号
     {
-      field: 'contSealNo',
+      field: 'containerSealNo',
       title: '柜封号',
       minWidth: 150,
       filters: [{ data: '' }],
@@ -1153,7 +1153,7 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
 
     // 箱重
     {
-      field: 'contWeightKg',
+      field: 'containerWeightKg',
       title: '箱重',
       minWidth: 80,
       sortable: true,

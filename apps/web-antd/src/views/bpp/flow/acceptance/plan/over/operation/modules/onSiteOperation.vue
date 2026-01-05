@@ -7,8 +7,8 @@ import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
-import { message, Select } from 'ant-design-vue';
 
+import { message, Select } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { getVVd } from '#/api/bpp/common';
 import {
@@ -19,28 +19,16 @@ import { onSiteOperationConfirmFormSchema } from '#/views/bpp/flow/acceptance/pl
 
 const emit = defineEmits(['success']);
 const disabledFields = ref<string[]>([]);
-const vslCode = ref<string>();
-interface LabelInValueType {
-  value: number | string;
-  label: string;
-}
-const vslNameState = reactive<{
-  data: any[];
-  fetching: boolean;
-  value: LabelInValueType;
-}>({
-  value: { value: '', label: '' },
-  fetching: false,
+const vesselCode = ref<string>();
+const vesselNameState = reactive({
   data: [],
+  value: [],
+  fetching: false,
 });
-const vslVoyState = reactive<{
-  data: any[];
-  fetching: boolean;
-  value: LabelInValueType;
-}>({
-  value: { value: '', label: '' },
-  fetching: false,
+const vesselVoyageState = reactive({
   data: [],
+  value: [],
+  fetching: false,
 });
 
 async function setFieldAndDisable(fieldName: string, value: any) {
@@ -53,22 +41,21 @@ async function setFieldAndDisable(fieldName: string, value: any) {
 }
 
 const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
-  plannedCheType: '',
-  spreaderType: '',
   isOnSiteWork: '',
   endTimeBack: 0,
   id: '',
   operationType: '',
   operationSource: '',
   changeReason: '',
-  vslCode: '',
-  vslVoy: '',
+  vesselCode: '',
+  vesselVoyage: '',
   operationNo: '',
   operationPosition: '',
-  cheWorkChangeType: '',
-  cheWorkType: '',
-  machNo: '',
-  cheType: '',
+  machineSpreaderChangeType: '',
+  machineSpreaderType: '',
+  machineType: '',
+  machineNo: '',
+  spreaderType: '',
   startTime: '',
   endTime: '',
   operationFile: '',
@@ -76,14 +63,14 @@ const formData = ref<FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO>({
   creator: '',
   createTime: '',
   operationRecordStatus: '',
-  acptPlnNo: '',
+  acceptancePlanNo: '',
   operationContainerId: 0,
   stopCode: '',
   stopType: '',
   stopStartTime: '',
   stopEndTime: '',
   stopRemark: '',
-  oogContIds: [],
+  overOperationContainerIds: [],
 });
 
 const [Form, formApi] = useVbenForm({
@@ -104,12 +91,12 @@ const submitCoreLogic = async () => {
   modalApi.lock();
   try {
     // 提交表单
-    const acptPlnNo = formData.value?.acptPlnNo;
+    const acceptancePlanNo = formData.value?.acceptancePlanNo;
     const data =
       (await formApi.getValues()) as FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO;
     Object.assign(formData.value, data);
-    formData.value.acptPlnNo = acptPlnNo;
-    formData.value.vslCode = vslCode?.value || '';
+    formData.value.acceptancePlanNo = acceptancePlanNo;
+    formData.value.vesselCode = vesselCode.value;
     formData.value.operationFile = JSON.stringify(data.operationFile);
 
     // 调用接口提交
@@ -147,70 +134,75 @@ const [Modal, modalApi] = useVbenModal({
     modalApi.lock();
     const data = modalApi.getData();
     Object.assign(formData.value, data);
-    formData.value.acptPlnNo = data.value?.acptPlnNo;
+    formData.value.acceptancePlanNo = data.value?.acceptancePlanNo;
     if (data?.id) {
-      formData.value.endTime = data?.endTime?.toString();
-      formData.value.endTimeBack = data?.endTimeBack?.toString();
-      formData.value.startTime = data?.startTime?.toString();
-      formData.value.startTimeBack = data?.startTimeBack?.toString();
-      await formApi.setValues(formData.value);
-      await formApi.setFieldValue('endTime', data?.endTime?.toString() || null);
+      await formApi.setValues(data);
+      await formApi.setFieldValue('endTime', data?.endTime?.toString()||null);
       await formApi.setFieldValue(
         'endTimeBack',
         data?.endTimeBack?.toString() || null,
       );
     }
-    if (data?.vslName || data.value?.vslName) {
-      vslNameState.value = {
-        label: data?.vslName || data.value?.vslName,
-        value: data?.vslName || data.value?.vslName,
+    if (data?.vesselName || data.value?.vesselName) {
+      vesselNameState.value = {
+        label: data?.vesselName || data.value?.vesselName,
+        value: data?.vesselName || data.value?.vesselName,
       };
 
       // 同时查询对应的航次列表
       const voyageRes = await getVVd({
-        condition: data?.vslName || data.value?.vslName,
+        condition: data?.vesselName || data.value?.vesselName,
         queryType: 'VOYAGE',
       });
       if (voyageRes) {
-        vslVoyState.data = voyageRes.map((item: any) => ({
+        vesselVoyageState.data = voyageRes.map((item: any) => ({
           label: item.vieVoy,
           value: item.vieVoy,
         }));
       }
       await formApi.setFieldValue(
-        'vslCode',
-        data.value?.vslCode || data?.vslCode,
+        'vesselCode',
+        data.value?.vesselCode || data?.vesselCode,
       );
       await formApi.setFieldValue(
-        'vslName',
-        data.value?.vslName || data?.vslName,
+        'vesselName',
+        data.value?.vesselName || data?.vesselName,
       );
     }
-    if (data?.vslVoy || data.value?.vslVoy) {
-      vslVoyState.value = {
-        label: data?.vslVoy || data.value?.vslVoy,
-        value: data?.vslVoy || data.value?.vslVoy,
+    if (data?.vesselVoyage || data.value?.vesselVoyage) {
+      vesselVoyageState.value = {
+        label: data?.vesselVoyage || data.value?.vesselVoyage,
+        value: data?.vesselVoyage || data.value?.vesselVoyage,
       };
-      await formApi.setFieldValue('vslVoy', data.value?.vslVoy || data?.vslVoy);
+      await formApi.setFieldValue(
+        'vesselVoyage',
+        data.value?.vesselVoyage || data?.vesselVoyage,
+      );
     }
-    if (data?.vslCode || data.value?.vslCode) {
-      vslCode.value = data?.vslCode || data.value?.vslCode;
+    if (data?.vesselCode || data.value?.vesselCode) {
+      vesselCode.value = data?.vesselCode || data.value?.vesselCode;
     }
     // 数据回显
-    await setFieldAndDisable('contNo', data.value?.contNo || data?.contNo);
+    await setFieldAndDisable(
+      'containerNo',
+      data.value?.containerNo || data?.containerNo,
+    );
     await setFieldAndDisable(
       'operationSource',
       data.value?.initiationType || data?.operationSource,
     );
     await setFieldAndDisable(
-      'cheWorkChangeType',
-      data.value?.cheWorkChangeType || data?.cheWorkChangeType,
+      'machineSpreaderChangeType',
+      data.value?.machineSpreaderChangeType || data?.machineSpreaderChangeType,
     );
-    await setFieldAndDisable('oogContIds', data.value?.oogContIds);
-    if (data.value?.cheType || data?.cheType) {
+    await setFieldAndDisable(
+      'overOperationContainerIds',
+      data.value?.overOperationContainerIds,
+    );
+    if (data.value?.spreaderType || data?.spreaderType) {
       await formApi.setFieldValue(
-        'cheType',
-        data.value?.cheType || data?.cheType,
+        'spreaderType',
+        data.value?.spreaderType || data?.spreaderType,
       );
     }
     const newSchema = onSiteOperationConfirmFormSchema(disabledFields.value);
@@ -221,31 +213,27 @@ const [Modal, modalApi] = useVbenModal({
 
 const modalTitle = ref<string>('现场操作确认');
 const handleVesselSearch = async (value: any) => {
-  vslNameState.value = {
-    label: value.toUpperCase(),
-    value: value.toUpperCase(),
-  };
   if (!value) return;
-  vslNameState.data = [];
-  vslNameState.fetching = true;
+  vesselNameState.data = [];
+  vesselNameState.fetching = true;
   const res = await getVVd({
     condition: value,
   });
   if (res) {
-    vslNameState.data = res.map((item: any) => ({
+    vesselNameState.data = res.map((item: any) => ({
       label: item.vieVslName,
       value: item.vieVslName,
       data: item,
     }));
-    vslNameState.fetching = false;
+    vesselNameState.fetching = false;
   }
 };
-const vslNameSelect = async (value: any, option: any) => {
+const vesselNameSelect = async (value: any, option: any) => {
   // 赋值到表单
-  await formApi.setFieldValue('vslName', value.label);
-  vslCode.value = option?.data?.vieVslCd;
+  await formApi.setFieldValue('vesselName', value.label);
+  vesselCode.value = option?.data?.vieVslCd;
 
-  vslVoyState.fetching = true;
+  vesselVoyageState.fetching = true;
 
   // 查航次列表
   const res = await getVVd({
@@ -254,89 +242,76 @@ const vslNameSelect = async (value: any, option: any) => {
   });
 
   if (res) {
-    vslVoyState.data = res.map((item: any) => ({
+    vesselVoyageState.data = res.map((item: any) => ({
       label: item.vieVoy,
       value: item.vieVoy,
     }));
-    vslVoyState.fetching = false;
+    vesselVoyageState.fetching = false;
 
     // 重要：在数据加载完成后再清空当前选择的航次值
-    vslVoyState.value = {
-      label: '',
-      value: '',
-    };
-    await formApi.setFieldValue('vslVoy', '');
+    vesselVoyageState.value = [];
+    await formApi.setFieldValue('vesselVoyage', '');
   }
 };
 
-const vslNameChange = async () => {
-  await formApi.setFieldValue('vslName', '');
-  await formApi.setFieldValue('vslVoy', '');
+const vesselNameChange = async () => {
+  await formApi.setFieldValue('vesselName', '');
+  await formApi.setFieldValue('vesselVoyage', '');
 
   // 清空航次数据
-  vslVoyState.value = {
-    label: '',
-    value: '',
-  };
-  vslVoyState.data = [];
+  vesselVoyageState.value = [];
+  vesselVoyageState.data = [];
   selectKey.value++;
 };
 // 赋值到表单
-const vslVoySelect = async (value: any) => {
-  await formApi.setFieldValue('vslVoy', value.label);
+const vesselVoyageSelect = async (value: any) => {
+  await formApi.setFieldValue('vesselVoyage', value.label);
 };
-const vslVoyChange = async () => {
-  await formApi.setFieldValue('vslVoy', '');
+const vesselVoyageChange = async () => {
+  await formApi.setFieldValue('vesselVoyage', '');
 };
-const handleVoyageSearch = async (value: string) => {
-  vslVoyState.value = {
-    label: value.toUpperCase(),
-    value: value.toUpperCase(),
-  };
-};
-watch(vslNameState.value, () => {
-  vslNameState.data = [];
-  vslNameState.fetching = false;
+watch(vesselNameState.value, () => {
+  vesselNameState.data = [];
+  vesselNameState.fetching = false;
 });
-watch(vslVoyState.value, () => {
-  vslVoyState.data = [];
-  vslVoyState.fetching = false;
+watch(vesselVoyageState.value, () => {
+  vesselVoyageState.data = [];
+  vesselVoyageState.fetching = false;
 });
 const selectKey = ref(0);
 </script>
 <template>
   <Modal :title="modalTitle">
     <Form>
-      <template #vslName>
+      <template #vesselName>
         <Select
-          v-model:value="vslNameState.value"
+          v-model:value="vesselNameState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
           placeholder="请输入作业船名"
           style="width: 100%"
           :filter-option="false"
-          :not-found-content="vslNameState.fetching ? undefined : null"
-          :options="vslNameState.data"
+          :not-found-content="vesselNameState.fetching ? undefined : null"
+          :options="vesselNameState.data"
           @search="handleVesselSearch"
           allow-clear
-          @select="vslNameSelect"
-          @change="vslNameChange"
+          @select="vesselNameSelect"
+          @change="vesselNameChange"
         />
       </template>
-      <template #vslVoy>
+      <template #vesselVoyage>
         <Select
-          v-model:value="vslVoyState.value"
+          v-model:value="vesselVoyageState.value"
           mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
           label-in-value
           placeholder="请输入船名航次"
           style="width: 100%"
           :filter-option="true"
-          :not-found-content="vslVoyState.fetching ? undefined : null"
-          :options="vslVoyState.data"
+          :not-found-content="vesselVoyageState.fetching ? undefined : null"
+          :options="vesselVoyageState.data"
           allow-clear
-          @select="vslVoySelect"
-          @change="vslVoyChange"
-          @search="handleVoyageSearch"
+          @select="vesselVoyageSelect"
+          @change="vesselVoyageChange"
           :key="selectKey"
         />
       </template>
