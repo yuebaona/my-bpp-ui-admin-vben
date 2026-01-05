@@ -181,7 +181,7 @@ export function acceptancePlanSearchSchema(): VbenFormSchema[] {
     {
       fieldName: 'vesselName',
       label: '船名航次',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入船名航次',
         allowClear: true,
