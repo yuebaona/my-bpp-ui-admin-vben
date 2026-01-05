@@ -459,6 +459,29 @@ function handleRefresh() {
           />
         </div>
       </template>
+      <template #tradeType_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.tradeType"
+            placeholder="请选择内外贸"
+            style="width: 100%"
+            allow-clear
+            :options="[
+              { label: '内贸', value: 'DOMESTIC' },
+              { label: '外贸', value: 'FOREIGN' },
+            ]"
+            @change="
+              () => {
+                if (editingRow === row.id) {
+                  gridApi.grid?.setEditRow(row);
+                }
+              }
+            "
+            @mousedown.prevent
+            @click.stop
+          />
+        </div>
+      </template>
       <template #size_edit="{ row }">
         <div v-if="editingRow === row.id">
           <Select

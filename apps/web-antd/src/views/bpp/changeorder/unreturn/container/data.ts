@@ -247,12 +247,11 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '内外贸',
       minWidth: 120,
       sortable: true,
-      editRender: {
-        name: 'select',
-        options: [
-          { label: '内贸', value: 'DOMESTIC' },
-          { label: '外贸', value: 'FOREIGN' },
-        ],
+      slots: { edit: 'tradeType_edit' },
+      editRender: { name: '$input' },
+      formatter: ({ cellValue }) => {
+        const map = { DOMESTIC: '内贸', FOREIGN: '外贸' };
+        return map[cellValue as keyof typeof map] || cellValue;
       },
     },
     {
