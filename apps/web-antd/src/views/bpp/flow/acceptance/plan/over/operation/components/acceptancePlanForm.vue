@@ -24,6 +24,7 @@ import { getContainerIsoList, getCustomerList, getVVd } from '#/api/bpp/common';
 import { getAcceptancePlanOverOperation } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { getUserProfile } from '#/api/system/user/profile';
 import { FileUpload } from '#/components/upload';
+import { validateContainerNo } from '#/utils/contCheck';
 
 import { acceptancePlanFormSchema, contInfoColumns } from '../data';
 
@@ -248,7 +249,7 @@ const [Form, formApi] = useVbenForm({
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: contInfoColumns(),
-    height: '300px',
+    height: 'auto',
     keepSource: true,
     border: true,
     showOverflow: false,
@@ -264,10 +265,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     editRules: {
       contNo: [
-        { required: true, message: '必须填写' },
+        { required: true, content: '必须填写' },
         {
-          pattern: /^[A-Z]{4}\d{7}$/i,
-          message: '箱号格式（前四位为英文，后七位数字）',
+          validator({ cellValue }) {
+            const error = validateContainerNo(cellValue);
+            if (error) {
+              return new Error(error);
+            }
+          },
         },
       ],
       contSize: [{ required: true, message: '必须填写' }],
@@ -847,7 +852,7 @@ watch(
     <template #contInfo>
       <div class="mt-4 w-full">
         <div class="table-cont">
-          <Grid>
+          <Grid :resizeable="true">
             <template #actions="{ row }">
               <TableAction
                 :actions="[
