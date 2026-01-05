@@ -1121,3 +1121,240 @@ export function boxlistColumns(): VxeTableGridOptions['columns'] {
     },
   ];
 }
+/** 批量修改的字段 */
+export function batchEditFormSchema(): VbenFormSchema[] {
+  return [
+    {
+      fieldName: 'vesselName',
+      label: '持箱人',
+      component: 'Input',
+    },
+    {
+      fieldName: 'vesselName',
+      label: '进口船名航次',
+      component: 'Input',
+    },
+    {
+      fieldName: 'vesselName',
+      label: '出口船名航次',
+      component: 'Input',
+    },
+    {
+      fieldName: 'vesselName',
+      label: '始发港',
+      component: 'Input',
+    },
+    {
+      fieldName: 'vesselName',
+      label: '装货港',
+      component: 'Input',
+    },
+    {
+      fieldName: 'dischargePort',
+      label: '卸货港',
+      component: 'Input',
+    },
+    {
+      fieldName: 'destinationPort',
+      label: '下一卸货港',
+      component: 'Input',
+    },
+    {
+      fieldName: 'destinationPort',
+      label: '目的港',
+      component: 'Input',
+    },
+    {
+      fieldName: 'empty',
+      label: '空重',
+      component: 'Input',
+    },
+    {
+      fieldName: 'pickupNo',
+      label: '提单号',
+      component: 'PrimaryButton',
+      componentProps: {
+        onClick: () => {
+          console.log('点击了选择提单号按钮');
+        },
+      },
+      renderComponentContent: () => {
+        return {
+          default: () => '选择提单号',
+        };
+      },
+    },
+    {
+      fieldName: 'tradeType',
+      label: '内/外贸',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '箱重',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '箱流向',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '商品空箱标志',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '国际中转箱标志',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '尺寸',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '箱型',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '箱高',
+      component: 'Input',
+    },
+    {
+      fieldName: 'iso',
+      label: 'ISO',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'cargo',
+      label: 'VGM',
+      component: 'Input',
+    },
+    {
+      fieldName: 'cargo',
+      label: '箱等级',
+      component: 'Input',
+    },
+    {
+      fieldName: 'isLCL',
+      label: '是否残损',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是', value: 'Y' },
+          { label: '否', value: 'N' },
+        ],
+      },
+    },
+    {
+      fieldName: 'owner',
+      label: '残损等级',
+      component: 'Input',
+    },
+    {
+      fieldName: 'empty',
+      label: '火车站点',
+      component: 'Input',
+    },
+    {
+      fieldName: 'size',
+      label: '危品等级（IMDG）',
+      component: 'Input',
+    },
+    {
+      fieldName: 'containerType',
+      label: '危品联合国代码（UNNO）',
+      component: 'Input',
+    },
+    {
+      fieldName: 'containerHeight',
+      label: '运输方式',
+      component: 'Input',
+    },
+    {
+      fieldName: 'isReefer',
+      label: '是否打冷',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是', value: 'Y' },
+          { label: '否', value: 'N' },
+        ],
+      },
+    },
+    {
+      fieldName: 'temperature',
+      label: '温度',
+      component: 'Input',
+    },
+    {
+      fieldName: 'temperature',
+      label: '通风口',
+      component: 'Input',
+    },
+    {
+      fieldName: 'overLimit',
+      label: '是否超限',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是', value: 'Y' },
+          { label: '否', value: 'N' },
+        ],
+      },
+    },
+    {
+      fieldName: 'transportType',
+      label: '前超',
+      component: 'Input',
+    },
+    {
+      fieldName: 'rear',
+      label: '后超',
+      component: 'Input',
+    },
+    {
+      fieldName: 'front',
+      label: '左超',
+      component: 'Input',
+    },
+    {
+      fieldName: 'station',
+      label: '右超',
+      component: 'Input',
+    },
+    {
+      fieldName: 'vent',
+      label: '超高',
+      component: 'Input',
+    },
+    {
+      fieldName: '',
+      label: '是否陆海贸易新通道',
+      component: 'RadioGroup',
+      componentProps: {
+        options: [
+          { label: '是', value: 'Y' },
+          { label: '否', value: 'N' },
+        ],
+      },
+    },
+    {
+      fieldName: 'origin',
+      label: '来源/流向',
+      component: 'Input',
+    },
+    {
+      fieldName: 'customsType',
+      label: '报关方式',
+      component: 'Input',
+    },
+  ];
+}

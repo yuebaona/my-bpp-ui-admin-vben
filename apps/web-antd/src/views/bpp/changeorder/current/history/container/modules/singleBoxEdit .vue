@@ -2,11 +2,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 
+import { useVbenModal } from '@vben/common-ui';
+
 import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { boxlistColumns } from '#/views/bpp/changeorder/current/history/container/data';
-
+import BatchEdit from '#/views/bpp/changeorder/current/history/container/modules/batchEdit.vue';
 // 定义接收选中箱信息的props
 const props = defineProps<{
   selectedBoxes?: any[];
@@ -53,6 +55,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
       },
     },
   },
+});
+
+// 批量编辑
+const [BatchEditModal, batchEditModalApi] = useVbenModal({
+  connectedComponent: BatchEdit,
+  destroyOnClose: true,
 });
 
 watch(
@@ -111,13 +119,16 @@ function handleRemove() {
 function handleBatchEdit() {
   const selectedRows = gridApi.grid.getCheckboxRecords();
   if (selectedRows.length === 0) {
+    message.warning('请至少选择一条箱信息');
     return;
   }
-
-  console.log('批量修改选中的行:', selectedRows);
+  const selectedIds = selectedRows.map((row) => row.id);
+  batchEditModalApi.setData(selectedIds).open();
+  console.log('批量修改选中的ID:', selectedIds);
 }
 </script>
 <template>
+  <BatchEditModal class="w-3/4" @success="handleRefresh" />
   <Grid table-title="单箱修改">
     <template #toolbar-tools>
       <div class="flex items-center space-x-2">
