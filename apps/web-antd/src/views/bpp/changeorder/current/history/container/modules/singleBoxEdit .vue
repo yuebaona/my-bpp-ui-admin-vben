@@ -20,17 +20,22 @@ const modifyBoxes = ref<any[]>([]);
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     floatingFilterConfig: {
-      enabled: true,
+      enabled: false,
     },
     filterConfig: {
       showIcon: false,
     },
     columns: boxlistColumns(),
     height: '300px',
-    keepSource: false,
+    keepSource: true,
     rowConfig: {
       keyField: 'id',
       isHover: true,
+    },
+    editConfig: {
+      mode: 'cell',
+      showIcon: true,
+      trigger: 'click',
     },
     toolbarConfig: {
       search: false,
