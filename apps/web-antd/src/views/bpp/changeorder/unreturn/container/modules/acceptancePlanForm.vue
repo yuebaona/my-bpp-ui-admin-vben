@@ -42,7 +42,7 @@ const formData = reactive<any[]>([
     tradeType: 'DOMESTIC',
     owner: 'COS',
     size: '40',
-    containerType: '干货箱',
+    containerType: 'PF',
     containerHeight: '高箱',
     iso: '45G1',
     empty: '重箱',
@@ -92,7 +92,7 @@ const formData = reactive<any[]>([
     tradeType: 'FOREIGN',
     owner: 'CMA',
     size: '20',
-    containerType: '干货箱',
+    containerType: 'HD',
     containerHeight: '普箱',
     iso: '22G1',
     empty: '重箱',
@@ -172,6 +172,29 @@ const {
   labelField: 'contLength',
   valueField: 'contLength',
   errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 箱型搜索选择器
+const {
+  state: containerTypeState,
+  search: containerTypeSearch,
+  handleInput: handleContainerTypeInput,
+  handleCompositionStart: handleContainerTypeCompositionStart,
+  handleCompositionEnd: handleContainerTypeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contType: value,
+      queryType: 'type',
+    });
+  },
+  labelField: 'contType',
+  valueField: 'contType',
+  errorMessage: '获取箱型数据失败',
   toUpperCase: true,
   filterRegex: /[^A-Z0-9]/g,
 });
@@ -429,6 +452,25 @@ function handleRefresh() {
             @input="handleSizeInput"
             @compositionstart="handleSizeCompositionStart"
             @compositionend="handleSizeCompositionEnd"
+          />
+        </div>
+      </template>
+      <template #containerType_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.containerType"
+            placeholder="请输入箱型"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="containerTypeState.fetching ? undefined : null"
+            :options="containerTypeState.data"
+            @search="containerTypeSearch"
+            allow-clear
+            show-search
+            @focus="containerTypeSearch('')"
+            @input="handleContainerTypeInput"
+            @compositionstart="handleContainerTypeCompositionStart"
+            @compositionend="handleContainerTypeCompositionEnd"
           />
         </div>
       </template>

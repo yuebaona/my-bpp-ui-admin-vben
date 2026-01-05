@@ -276,7 +276,8 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '箱型',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'containerType_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'containerHeight',
