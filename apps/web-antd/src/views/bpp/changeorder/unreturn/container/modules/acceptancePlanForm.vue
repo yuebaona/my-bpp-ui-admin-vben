@@ -199,6 +199,29 @@ const {
   filterRegex: /[^A-Z0-9]/g,
 });
 
+// ISO搜索选择器
+const {
+  state: isoState,
+  search: isoSearch,
+  handleInput: handleIsoInput,
+  handleCompositionStart: handleIsoCompositionStart,
+  handleCompositionEnd: handleIsoCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contIso: value,
+      queryType: 'ISO',
+    });
+  },
+  labelField: 'contIso',
+  valueField: 'contIso',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
 // 提单信息管理模态框
 const [LadingBillModal, ladingBillModalApi] = useVbenModal({
   connectedComponent: LadingBill,
@@ -474,7 +497,25 @@ function handleRefresh() {
           />
         </div>
       </template>
-
+      <template #iso_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.iso"
+            placeholder="请输入ISO"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="isoState.fetching ? undefined : null"
+            :options="isoState.data"
+            @search="isoSearch"
+            allow-clear
+            show-search
+            @focus="isoSearch('')"
+            @input="handleIsoInput"
+            @compositionstart="handleIsoCompositionStart"
+            @compositionend="handleIsoCompositionEnd"
+          />
+        </div>
+      </template>
       <template #toolbar-tools>
         <TableAction
           :actions="[

@@ -291,7 +291,8 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: 'ISO',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'iso_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'empty',
