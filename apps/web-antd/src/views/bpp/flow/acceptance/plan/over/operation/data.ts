@@ -10,6 +10,7 @@ import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
+import { validateContainerNo } from '#/utils/contCheck';
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
@@ -174,43 +175,50 @@ export function onSiteOperationConfirmFormSchema(
         onInput: (e: Event) => {
           setTimeout(() => {
             const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
+            target.value = target.value.toUpperCase();
           }, 10);
         },
         disabled: shouldDisable('contNo'),
       },
-      rules: z.string().refine(
-        (value) => {
-          // 去除首尾空格
-          const trimmedValue = value.trim();
-          if (!trimmedValue) return false;
+      rules: z.string().superRefine((value, ctx) => {
+        const trimmedValue = value.trim();
+        if (!trimmedValue) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: '请输入箱号',
+          });
+          return;
+        }
 
-          // 按逗号分隔
-          const numbers = trimmedValue.split(',').map((num) => num.trim());
+        // 按逗号分隔
+        const numbers = trimmedValue.split(',').map((num) => num.trim());
 
-          // 检查每个箱号
-          for (const num of numbers) {
-            if (!num) return false; // 空字符串不允许
-
-            // 如果值为 "HATCH"，则跳过格式校验
-            if (num.toUpperCase() === 'HATCH') {
-              continue;
-            }
-
-            // 其他情况校验格式
-            if (!/^[A-Z]{4}\d{7}$/i.test(num)) {
-              return false;
-            }
+        // 检查每个箱号
+        for (const num of numbers) {
+          if (!num) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: '箱号不能为空',
+            });
+            return;
           }
 
-          return true;
-        },
-        {
-          message: '请输入正确的箱号格式（前四位为英文，后七位数字）',
-        },
-      ),
+          // 如果值为 "HATCH"，则跳过格式校验
+          if (num.toUpperCase() === 'HATCH') {
+            continue;
+          }
+
+          // 使用 validateContainerNo 进行校验
+          const error = validateContainerNo(num);
+          if (error) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: error,
+            });
+            return;
+          }
+        }
+      }),
     },
     {
       fieldName: 'operationPosition',
