@@ -36,39 +36,75 @@ const props = defineProps<Props>();
 const emit = defineEmits(['success', 'validate']);
 const vslCode = ref<string>();
 const vieVoyType = ref<string>();
-
-const vslNameState = reactive({
-  data: [],
-  value: [],
+interface LabelInValueType {
+  value: number | string;
+  label: string;
+}
+const vslNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const vslVoyState = reactive({
-  data: [],
-  value: [],
+const vslVoyState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const payerNameSeaState = reactive({
-  data: [],
-  value: [],
+const payerNameSeaState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
 
-const payerNameGateState = reactive({
-  data: [],
-  value: [],
+const payerNameGateState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const isoTypeState = reactive({
-  data: [],
-  value: [],
+const isoTypeState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
 });
-const isoLengthState = reactive({
-  data: [],
-  value: [],
+const isoLengthState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
   fetching: false,
+  data: [],
+});
+const applicantCompanyNameState = reactive<{
+  data: any[];
+  fetching: boolean;
+  value: LabelInValueType;
+}>({
+  value: { value: '', label: '' },
+  fetching: false,
+  data: [],
 });
 
 const profile = ref<SystemUserProfileApi.UserProfileRespVO>();
@@ -79,8 +115,36 @@ const contData = reactive<
 const contDataList = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
 >([]);
+const originalData = ref<{
+  containers: FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[];
+  form: FlowOverLimitWorkApi.AcceptancePlanFormVO | null;
+}>({
+  // 实现FlowOverLimitWorkApi.AcceptancePlanFormVO
+  form: {
+    id: '',
+    acptPlnNo: '',
+    acptPlnWebNo: '',
+    applicantCompanyName: '',
+    handlingPerson: '',
+    handlingPhoneNumber: '',
+    paymentTypeSea: '',
+    payerCodeSea: '',
+    paymentTypeGate: '',
+    payerCodeGate: '',
+    category: '',
+    vslName: '',
+    vslVoy: '',
+    plannedOperationTime: '',
+    billNo: '',
+    cargoName: '',
+    attachmentFile: '',
+    handlerRemark: '',
+    handlerConfirmation: '',
+  },
+  containers: [],
+});
 const fieldsChang = ref([]);
-const fieldsChanges = ref<string[]>([]);
+const fieldsChanges = ref([]);
 const selectKey = ref(0);
 
 // 主表单数据
@@ -177,7 +241,6 @@ const [Form, formApi] = useVbenForm({
   handleValuesChange: async (values: any, fieldsChanged: any) => {
     Object.assign(formData, values);
     fieldsChang.value = fieldsChanged;
-    handleFieldsChange(fieldsChanged);
   },
 });
 
@@ -233,9 +296,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         contSize: '',
         contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
       {
         serialNumber: '箱量 x 箱型',
@@ -243,9 +306,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         contSize: formattedContainerTypes,
         contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
@@ -314,7 +377,19 @@ const loadFormData = async () => {
     // 设置主表单数据
     if (data.acceptancePlanRespVO) {
       Object.assign(formData, data.acceptancePlanRespVO);
-      await formApi.setValues(data.acceptancePlanRespVO);
+      formData.plannedOperationTime =
+        data.acceptancePlanRespVO.plannedOperationTime.toString();
+      await formApi.setValues(formData);
+      originalData.value = {
+        form: data.acceptancePlanRespVO,
+        containers: data.acceptancePlanOverOperationContainerRespVOS,
+      };
+      originalData.value.form.billNo =
+        data?.acceptancePlanBillMessageRespVO?.billNo;
+      originalData.value.form.cargoName =
+        data?.acceptancePlanBillMessageRespVO?.cargoName;
+      originalData.value.containers =
+        data.acceptancePlanOverOperationContainerRespVOS;
 
       // 设置提单号和货名
       if (data.acceptancePlanBillMessageRespVO) {
@@ -334,11 +409,14 @@ const loadFormData = async () => {
         data.acceptancePlanRespVO.attachmentFile || '[]',
       );
 
-      fileList.value = fileListData.map((item) => {
+      fileList.value = fileListData.map((item: any) => {
         const parts = item.split('?');
 
         return parts[0];
       });
+      if (fileListData.length <= 0) {
+        await formApi.setFieldValue('attachmentFile', '');
+      }
 
       // 设置船舶信息
       if (data.acceptancePlanRespVO.vslName) {
@@ -384,6 +462,13 @@ const loadFormData = async () => {
           value: data.acceptancePlanRespVO.payerNameGate,
         };
       }
+      // 设置申请公司名称
+      if (data.acceptancePlanRespVO.applicantCompanyName) {
+        applicantCompanyNameState.value = {
+          label: data.acceptancePlanRespVO.applicantCompanyName,
+          value: data.acceptancePlanRespVO.applicantCompanyName,
+        };
+      }
     }
     // 设置箱信息
     if (data.acceptancePlanOverOperationContainerRespVOS) {
@@ -412,7 +497,10 @@ const loadFormData = async () => {
 
 const handleUpload = async (data: any) => {
   fileList.value = data;
-  await formApi.setFieldValue('attachmentFile', JSON.stringify(fileList.value));
+  await formApi.setFieldValue(
+    'attachmentFile',
+    fileList.value.length > 0 ? JSON.stringify(fileList.value) : '',
+  );
   await formApi.validateField('attachmentFile');
 };
 
@@ -426,25 +514,20 @@ const isoTypeSearch = async () => {
 
     if (lengthRes) {
       isoLengthState.data = lengthRes.map((item: any) => ({
-        label: item.containerLength,
-        value: item.containerLength,
+        label: item.contLength,
+        value: item.contLength,
       }));
     }
 
     if (typeRes) {
       isoTypeState.data = typeRes.map((item: any) => ({
-        label: item.containerType,
-        value: item.containerType,
+        label: item.contType,
+        value: item.contType,
       }));
     }
   } finally {
     isoTypeState.fetching = false;
   }
-};
-
-const handleFieldsChange = (fieldsChanged: any) => {
-  // 这里可以处理字段变化逻辑，如果需要的话
-  fieldsChanges.value = fieldsChanged;
 };
 
 // 表单验证方法
@@ -485,7 +568,6 @@ const getSaveData = () => {
   const contDataArray = [...gridApi.grid.getInsertRecords()].map((record) =>
     toRaw(record),
   );
-
   return {
     acceptancePlanSaveReqVO: {
       ...formData,
@@ -496,13 +578,15 @@ const getSaveData = () => {
       ...acceptancePlanOverOperationRespVO,
       isUpdate: fieldsChanges.value.length > 0,
     },
-    acceptancePlanOverOperationContainerSaveReqVOs: contDataArray.map((item) => ({
-      ...item,
-      id:
-        item.id && String(item.id).startsWith('row_')
-          ? String(item.id).replace('row_', '')
-          : item.id,
-    })),
+    acceptancePlanOverOperationContainerSaveReqVOs: contDataArray.map(
+      (item) => ({
+        ...item,
+        id:
+          item.id && String(item.id).startsWith('row_')
+            ? String(item.id).replace('row_', '')
+            : item.id,
+      }),
+    ),
     acceptancePlanBillMessageSaveReqVO: {
       ...acceptancePlanBillMessageVO,
       billNo: formData?.billNo,
@@ -512,9 +596,13 @@ const getSaveData = () => {
 };
 
 // 选择器相关方法
-const getPopupcont = (triggerNode: any) => triggerNode.parentNode;
+const getPopupContainer = (triggerNode: any) => triggerNode.parentNode;
 
 const handleVesselSearch = async (value: string) => {
+  vslNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   vslNameState.fetching = true;
   const res = await getVVd({ condition: value });
@@ -543,7 +631,10 @@ const vslNameSelect = async (value: any, option: any) => {
     }));
   }
 
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   await formApi.setFieldValue('vslVoy', '');
   vslVoyState.fetching = false;
 };
@@ -551,7 +642,10 @@ const vslNameSelect = async (value: any, option: any) => {
 const vslNameChange = async () => {
   await formApi.setFieldValue('vslName', '');
   await formApi.setFieldValue('vslVoy', '');
-  vslVoyState.value = [];
+  vslVoyState.value = {
+    label: '',
+    value: '',
+  };
   vslVoyState.data = [];
   selectKey.value++;
 };
@@ -561,6 +655,10 @@ const vslVoySelect = async (value: any) => {
 };
 
 const payerNameSeaSearch = async (value: string) => {
+  payerNameSeaState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   payerNameSeaState.fetching = true;
   const res = await getCustomerList({
@@ -589,6 +687,10 @@ const payerNameSeaChange = async () => {
 };
 
 const payerNameGateSearch = async (value: string) => {
+  payerNameGateState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
   if (!value) return;
   payerNameGateState.fetching = true;
   const res = await getCustomerList({
@@ -615,6 +717,36 @@ const payerNameGateChange = async () => {
   await formApi.setFieldValue('payerCodeGate', '');
   await formApi.setFieldValue('payerNameGate', '');
 };
+
+const applicantCompanyNameSearch = async (value: string) => {
+  applicantCompanyNameState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+  if (!value) return;
+  applicantCompanyNameState.fetching = true;
+  const res = await getCustomerList({
+    pageNo: 1,
+    pageSize: 100,
+    customerName: value,
+  });
+  if (res) {
+    applicantCompanyNameState.data = res.map((item: any) => ({
+      label: item.customerName,
+      value: item.customerName,
+      data: item,
+    }));
+  }
+  applicantCompanyNameState.fetching = false;
+};
+
+const applicantCompanyNameSelect = async (value: any) => {
+  await formApi.setFieldValue('applicantCompanyName', value.label);
+};
+
+const applicantCompanyNameChange = async () => {
+  await formApi.setFieldValue('applicantCompanyName', '');
+};
 const tempInputMap = ref<Record<number | string, string>>({});
 const handleContTypeInput = async (val: string, row: any) => {
   const $grid = gridApi.grid;
@@ -637,7 +769,14 @@ const vslVoyChange = async () => {
   await formApi.setFieldValue('vslVoy', '');
 };
 const handleVoyageSearch = async (value: string) => {
-  vslVoyState.value = value.toUpperCase();
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
+  vslVoyState.value = {
+    label: value.toUpperCase(),
+    value: value.toUpperCase(),
+  };
 };
 // 暴露方法给父组件（如果需要）
 defineExpose({
@@ -665,6 +804,41 @@ watch(
       loadProfile(); // 重新加载用户信息用于新建
     }
   },
+);
+watch(
+  () => ({ ...formData }), // 创建新对象触发深度监听
+  (newVal) => {
+    if (originalData.value.form && formData.id) {
+      if (
+        originalData.value.form[fieldsChang.value[0]] ===
+        newVal[fieldsChang.value[0]]
+      ) {
+        fieldsChanges.value = fieldsChanges.value.filter(
+          (item) => item !== fieldsChang.value[0],
+        );
+      } else {
+        if (fieldsChang.value[0] === 'contInfo') {
+          const newArr = [];
+          [...gridApi.grid.getInsertRecords()].map((record) => {
+            const rawRecord = toRaw(record) as any;
+            const { serialNumber, ...recordWithoutSerial } = rawRecord;
+            return newArr.push(recordWithoutSerial);
+          });
+          if (
+            JSON.stringify(newArr) !==
+            JSON.stringify(originalData.value.containers)
+          ) {
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        } else {
+          if (!fieldsChanges.value.includes(fieldsChang.value[0])) {
+            fieldsChanges.value.push(fieldsChang.value[0]);
+          }
+        }
+      }
+    }
+  },
+  { deep: true, immediate: false },
 );
 </script>
 
@@ -710,7 +884,7 @@ watch(
                 :options="isoLengthState.data"
                 v-model:value="row.contSize"
                 style="width: 100%"
-                :get-popup-container="getPopupcont"
+                :get-popup-container="getPopupContainer"
                 :list-height="100"
               />
             </template>
@@ -720,7 +894,7 @@ watch(
                 mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
                 v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
-                :get-popup-container="getPopupcont"
+                :get-popup-container="getPopupContainer"
                 :show-search="true"
                 :filter-option="true"
                 :list-height="100"
@@ -731,6 +905,25 @@ watch(
           </Grid>
         </div>
       </div>
+    </template>
+
+    <template #applicantCompanyName>
+      <Select
+        v-model:value="applicantCompanyNameState.value"
+        mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
+        label-in-value
+        placeholder="请输入申请公司名称"
+        style="width: 100%"
+        :filter-option="false"
+        :not-found-content="
+          applicantCompanyNameState.fetching ? undefined : null
+        "
+        :options="applicantCompanyNameState.data"
+        @search="applicantCompanyNameSearch"
+        allow-clear
+        @select="applicantCompanyNameSelect"
+        @change="applicantCompanyNameChange"
+      />
     </template>
 
     <template #payerNameSea>

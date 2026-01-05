@@ -52,9 +52,9 @@ const formattedContainerTypes = computed(() => {
 
   // 统计每种箱型的数量
   containerData.forEach((item) => {
-    if (item.containerType) {
-      const count = typeCountMap.get(item.containerType) || 0;
-      typeCountMap.set(item.containerType, count + 1);
+    if (item.contType) {
+      const count = typeCountMap.get(item.contType) || 0;
+      typeCountMap.set(item.contType, count + 1);
     }
   });
 
@@ -129,13 +129,13 @@ const [Grid] = useVbenVxeGrid({
     footerData: [
       {
         serialNumber: '箱量 x 箱型', // 前两列合并区域的内容
-        containerNo: '', // 被合并，留空
-        containerSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
-        containerType: '',
+        contNo: '', // 被合并，留空
+        contSize: formattedContainerTypes, // 剩余6列合并区域的内容（第2列字段）
+        contType: '',
         cargoWeight: '',
-        totalWeight: '',
-        cargoSize: '',
-        overLimitDetail: '',
+        contTotalWeight: '',
+        contCargoSize: '',
+        contOogDetails: '',
       },
     ],
   } as VxeTableGridOptions<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>,
@@ -166,6 +166,8 @@ const [FileGrid] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 const [Modal, modalApi] = useVbenModal({
+  showCancelButton: false,
+  showConfirmButton: false,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
       return;
