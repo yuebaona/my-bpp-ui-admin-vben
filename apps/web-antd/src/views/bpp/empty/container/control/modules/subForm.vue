@@ -50,7 +50,32 @@ const dischargeVslSchedule = reactive({
   data: [],
   value: [],
   fetching: false,
+  isComposing: false, // 标记是否在中文输入法组合状态
 });
+
+// 处理卸船船期输入，将英文部分转为大写，同时允许中文
+const handleDischargeVslScheduleInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+
+  if (dischargeVslSchedule.isComposing) {
+    return;
+  }
+  target.value = target.value.toUpperCase();
+  fetchDischargeVslSchedule(target.value);
+};
+
+// 处理卸船船期中文输入法组合开始
+const handleDischargeVslScheduleCompositionStart = () => {
+  dischargeVslSchedule.isComposing = true;
+};
+
+// 处理卸船船期中文输入法组合结束
+const handleDischargeVslScheduleCompositionEnd = (e: CompositionEvent) => {
+  dischargeVslSchedule.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase();
+  fetchDischargeVslSchedule(target.value);
+};
 
 const isoState = reactive({
   data: [],
@@ -380,13 +405,14 @@ const initOwnerData = async () => {
 };
 
 // 获取卸船船期
-const fetchdischargeVslSchedule = async (searchText: string) => {
+const fetchDischargeVslSchedule = async (searchText: string) => {
+  dischargeVslSchedule.fetching = true;
   try {
     if (!searchText || searchText.length < 2) {
       return;
     }
-    dischargeVslSchedule.fetching = true;
-    const result = await getVesselAndVoyage({ condition: searchText });
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getVesselAndVoyage({ condition: upperCaseValue });
     dischargeVslSchedule.data = result.map((item) => ({
       label: item,
       value: item,
@@ -963,7 +989,6 @@ const modalTitle = computed(() => {
           :filter-option="true"
           :list-height="150"
           allow-clear
-          @search="fetchdischargeVslSchedule"
           @change="
             (value) => {
               // 确保清除时将值设置为空字符串而不是undefined
@@ -972,6 +997,9 @@ const modalTitle = computed(() => {
               formApi.setFieldValue('dischargeVslSchedule', clearValue);
             }
           "
+          @input="handleDischargeVslScheduleInput"
+          @compositionstart="handleDischargeVslScheduleCompositionStart"
+          @compositionend="handleDischargeVslScheduleCompositionEnd"
         />
       </template>
       <!-- 箱区范围表格部分 -->

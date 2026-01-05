@@ -166,6 +166,8 @@ const [FileGrid] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 const [Modal, modalApi] = useVbenModal({
+  showCancelButton: false,
+  showConfirmButton: false,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
       return;
