@@ -2,15 +2,17 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message, Select } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getContainerOwnerListPage } from '#/api/bpp/common';
 import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 import {
   acceptancePlanColumns,
   acceptancePlanSearchSchema,
@@ -35,7 +37,7 @@ const formData = reactive<any[]>([
     dischargePort: '上海港',
     destinationPort: '苏州港',
     tradeType: '外贸',
-    owner: 'MSC',
+    owner: 'COS',
     size: '40尺',
     containerType: '干货箱',
     containerHeight: '高箱',
@@ -125,6 +127,28 @@ const formData = reactive<any[]>([
 
 // 编辑状态管理
 const editingRow = ref<null | string>(null);
+
+// 持箱人搜索选择器
+const {
+  state: ownerState,
+  search: ownerSearch,
+  handleInput: handleOwnerInput,
+  handleCompositionStart: handleOwnerCompositionStart,
+  handleCompositionEnd: handleOwnerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerOwnerListPage({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
+  },
+  labelField: 'ownerCode',
+  valueField: 'ownerCode',
+  errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
 
 // 提单信息管理模态框
 const [LadingBillModal, ladingBillModalApi] = useVbenModal({
@@ -227,7 +251,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editConfig: {
       mode: 'row',
       showIcon: false,
-      trigger: 'click',
+      trigger: 'manual',
     },
     toolbarConfig: {
       export: true,
@@ -274,9 +298,9 @@ function batchEdit() {
   editModalApi.setData(null).open();
 }
 
-/** 创建新申请 */
+/** 删除TO */
 function handleDeleteTO() {
-  formModalApi.setData(null).open();
+  // formModalApi.setData(null).open();
 }
 
 const handleClickReturn = () => {
@@ -289,28 +313,24 @@ function handleEdit(row: any) {
   gridApi.grid?.setEditRow(row);
 }
 
-// 保存编辑
+/** 保存编辑 */
 function handleSave(row: any) {
-  gridApi.grid
-    ?.commitEditRow(row.id)
-    .then(() => {
-      editingRow.value = null;
-      message.success('保存成功');
-    })
-    .catch(() => {
-      message.error('保存失败');
-    });
+  const index = formData.findIndex(item => item.id === row.id);
+  if (index !== -1) {
+    Object.assign(formData[index], row);
+  }
+  gridApi.grid?.clearEdit();
+  editingRow.value = null;
 }
 
-// 取消编辑
+/** 取消编辑 */
 function handleCancel(row: any) {
-  gridApi.grid?.clearActived(row);
+  gridApi.grid?.clearEdit(row);
   editingRow.value = null;
 }
 
 /** 处理点击提单号事件 */
 const handleClickPickupNo = () => {
-  // message.info('查看提单号信息');
   ladingBillModalApi.setData(null).open();
 };
 
@@ -347,6 +367,26 @@ function handleRefresh() {
           @compositionend="handleVesselNameCompositionEnd"
         />
       </template>
+      <template #owner_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.owner"
+            style="width: 100%"
+            placeholder="请输入持箱人"
+            :show-search="true"
+            :filter-option="false"
+            :not-found-content="ownerState.fetching ? undefined : null"
+            :options="ownerState.data"
+            allow-clear
+            @search="ownerSearch"
+            @focus="ownerSearch('')"
+            @input="handleOwnerInput"
+            @compositionstart="handleOwnerCompositionStart"
+            @compositionend="handleOwnerCompositionEnd"
+          />
+        </div>
+      </template>
+
       <template #toolbar-tools>
         <TableAction
           :actions="[

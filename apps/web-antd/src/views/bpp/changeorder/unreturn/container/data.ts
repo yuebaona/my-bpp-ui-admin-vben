@@ -312,7 +312,8 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '持箱人',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'owner_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'size',
