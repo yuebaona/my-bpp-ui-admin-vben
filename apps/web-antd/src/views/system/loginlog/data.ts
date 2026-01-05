@@ -53,7 +53,7 @@ export function useGridColumns(): VxeTableGridOptions['columns'] {
     },
     {
       field: 'logType',
-      title: '登录类型',
+      title: '操作类型',
       minWidth: 120,
       cellRender: {
         name: 'CellDict',
@@ -108,7 +108,7 @@ export function useDetailSchema(): DescriptionItemSchema[] {
     },
     {
       field: 'logType',
-      label: '登录类型',
+      label: '操作类型',
       render: (val) => {
         return h(DictTag, {
           type: DICT_TYPE.SYSTEM_LOGIN_TYPE,

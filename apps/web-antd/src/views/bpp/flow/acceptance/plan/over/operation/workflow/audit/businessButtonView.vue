@@ -62,8 +62,8 @@ const containerFormData = ref({
   auditOpinion: undefined,
   containerFormDataArray:[{
     id: undefined,
-    acceptancePlanNo: undefined,
-    containerNo: undefined,
+    acptPlnNo: undefined,
+    contNo: undefined,
     isSystemRateSea: undefined,
     isSystemRateGate: undefined,
     priceSea: undefined,
@@ -232,7 +232,7 @@ const columns = reactive([
   },
   {
     title: '箱号',
-    dataIndex: 'containerNo',
+    dataIndex: 'contNo',
     width: 120,
     align: 'center',
   },
@@ -278,8 +278,8 @@ watch(() => props.containerDataArray, async () => {
   props.containerDataArray.forEach((item, index) => {
     containerFormDataList.push({
       id: item.id,
-      acceptancePlanNo: item.acceptancePlanNo,
-      containerNo: item.containerNo,
+      acptPlnNo: item.acptPlnNo,
+      contNo: item.contNo,
       isSystemRateSea: item.isSystemRateSea,
       priceSea: item.priceSea,
       isSystemRateGate: item.isSystemRateGate,
@@ -330,7 +330,16 @@ onMounted(async () => {
                   :name="['containerFormDataArray', index, 'isSystemRateSea']"
                   :rules="[{required: true,message: '请填写是否使用系统费率', trigger: 'change'}]"
                 >
-                  <a-radio-group v-model:value="record.isSystemRateSea">
+                  <a-radio-group
+                    v-model:value="record.isSystemRateSea"
+                    @change="
+                      () => {
+                        if (record.isSystemRateSea) {
+                          record.priceSea = null;
+                        }
+                      }
+                    "
+                  >
                     <a-radio :value="true">是</a-radio>
                     <a-radio :value="false">否</a-radio>
                   </a-radio-group>
@@ -341,8 +350,13 @@ onMounted(async () => {
                 <a-form-item
                   :name="['containerFormDataArray', index, 'priceSea']"
                   :rules="[{required: !record.isSystemRateSea,message: '请填写海侧报价', trigger: 'change'}]"
-                  >
-                  <a-input v-model:value="record.priceSea" style="width: 120px;" placeholder="请输入" :disabled="record.isSystemRateSea"/>
+                >
+                  <a-input
+                    v-model:value="record.priceSea"
+                    style="width: 120px"
+                    placeholder="请输入"
+                    :disabled="record.isSystemRateSea"
+                  />
                   <span style="margin-left: 4px;">元</span>
                 </a-form-item>
               </template>
@@ -352,7 +366,7 @@ onMounted(async () => {
                   :name="['containerFormDataArray', index, 'isSystemRateGate']"
                   :rules="[{required: true,message: '请填写是否使用系统费率', trigger: 'change'}]"
                 >
-                  <a-radio-group v-model:value="record.isSystemRateGate">
+                  <a-radio-group v-model:value="record.isSystemRateGate" @change="() => {if(record.isSystemRateGate){record.priceGate = null}}">
                     <a-radio :value="true">是</a-radio>
                     <a-radio :value="false">否</a-radio>
                   </a-radio-group>
