@@ -1,14 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-// import type { DescriptionItemSchema } from '#/components/description';
-// import { h } from 'vue';
-//
-// import { Tag } from 'ant-design-vue';
-// import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-// import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
@@ -27,63 +21,11 @@ const loadDictData = async (dictTypes: string[]) => {
   }
 };
 loadDictData([
-  'system_rate',
-  'acceptance_plan_status',
-  'payment_method',
-  'import_export_type',
-  'on_site_operation_node',
-  'on_site_operation_category',
-  'driving_source',
-  'change_reason',
-  'spreader_type',
-  'actual_operation',
-]).then();
-// 定义受理状态选项配置
-// function getPlanStatusOptions(type: string) {
-//   const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
-//
-//   // 将字典数据转换为 CellTag 需要的格式
-//   return dictOptions.map((option) => ({
-//     value: option.value,
-//     label: option.label,
-//     color: option.colorType,
-//   }));
-// }
-// function createDictFilter(dictType: string) {
-//   return ({ option, row, column }: { column: any; option: any; row: any }) => {
-//     if (option.data) {
-//       const searchText = option.data.toLowerCase();
-//       const dictOptions = bppBaseDict.getBppBaseDictOptions(dictType) || [];
-//       const cellValue = `${row[column.field]}`.toLowerCase();
-//
-//       // 查找标签或值包含搜索文本的字典项
-//       const dictItem = dictOptions.find(
-//         (item) =>
-//           item.label.toLowerCase().includes(searchText) ||
-//           item.value.toLowerCase().includes(searchText),
-//       );
-//
-//       // 如果找到字典项，使用字典值匹配；否则使用原始搜索文本匹配
-//       const matchValue = dictItem ? dictItem.value.toLowerCase() : searchText;
-//       return cellValue.includes(matchValue);
-//     }
-//     return true;
-//   };
-// }
-
-// function renderTagDict(dictType: string, cellValue: string) {
-//   const options = getPlanStatusOptions(dictType);
-//   let color = '';
-//   let label = '';
-//   // eslint-disable-next-line array-callback-return
-//   options.find((item) => {
-//     if (item.value === cellValue) {
-//       color = item.color;
-//       label = item.label;
-//     }
-//   });
-//   return h(Tag, { color }, () => label);
-// }
+  'empty_container_control_main_status',
+  'empty_container_control_sub_status',
+  'trade_type',
+  'empty_container_control_main_operation_type',
+]);
 
 export function planInfoFormSchema(): VbenFormSchema[] {
   return [
@@ -305,7 +247,13 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       title: '内外贸',
       minWidth: 120,
       sortable: true,
-      editRender: { name: 'input' },
+      editRender: {
+        name: 'select',
+        options: [
+          { label: '内贸', value: 'DOMESTIC' },
+          { label: '外贸', value: 'FOREIGN' },
+        ],
+      },
     },
     {
       field: 'owner',
