@@ -7,9 +7,10 @@ import { reactive, ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message, Select } from "ant-design-vue";
+import { message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
 import {
   acceptancePlanColumns,
   acceptancePlanSearchSchema,
@@ -18,7 +19,6 @@ import BundleBox from '#/views/bpp/changeorder/unreturn/container/modules/bundle
 import Edit from '#/views/bpp/changeorder/unreturn/container/modules/edit.vue';
 import LadingBill from '#/views/bpp/changeorder/unreturn/container/modules/ladingBill.vue';
 import Return from '#/views/bpp/changeorder/unreturn/container/modules/return.vue';
-import { getVesselAndVoyage } from "#/api/bpp/empty/container/control";
 
 const formData = reactive<any[]>([
   {
@@ -212,7 +212,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
   gridOptions: {
     floatingFilterConfig: {
-      enabled: true,
+      enabled: false,
     },
     filterConfig: {
       showIcon: false,
@@ -341,9 +341,7 @@ function handleRefresh() {
           :filter-option="true"
           :list-height="150"
           allow-clear
-          @change="
-            (value) => formApi.setFieldValue('vesselName', value)
-          "
+          @change="(value) => formApi.setFieldValue('vesselName', value)"
           @input="handleVesselNameInput"
           @compositionstart="handleVesselNameCompositionStart"
           @compositionend="handleVesselNameCompositionEnd"
