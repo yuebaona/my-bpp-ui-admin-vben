@@ -83,6 +83,7 @@ const isoState = reactive({
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
   originalValue: [],
+  allOptions: [], // 存储所有可选选项
 });
 
 // 处理ISO输入，将小写字母转换为大写
@@ -93,7 +94,6 @@ const handleIsoInput = (e: Event) => {
     return;
   }
   target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  isoSearch(target.value);
 };
 
 // 处理ISO中文输入法组合开始
@@ -106,7 +106,6 @@ const handleIsoCompositionEnd = (e: CompositionEvent) => {
   isoState.isComposing = false;
   const target = e.target as HTMLInputElement;
   target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  isoSearch(target.value);
 };
 
 const ownerState = reactive({
@@ -115,6 +114,7 @@ const ownerState = reactive({
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
   originalValue: [],
+  allOptions: [], // 存储所有可选选项
 });
 
 // 处理持箱人输入，将小写字母转换为大写
@@ -124,7 +124,6 @@ const handleOwnerInput = (e: Event) => {
     return;
   }
   target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  ownerSearch(target.value);
 };
 
 // 处理持箱人中文输入法组合开始
@@ -137,7 +136,6 @@ const handleOwnerCompositionEnd = (e: CompositionEvent) => {
   ownerState.isComposing = false;
   const target = e.target as HTMLInputElement;
   target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-  ownerSearch(target.value);
 };
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
@@ -332,51 +330,78 @@ const deleteRow = async (row: any) => {
 };
 
 // ISO搜索函数
-const isoSearch = async (mainId: string) => {
-  isoState.fetching = true;
-  try {
-    const res = await getSubPlanIsoList(mainId);
-    if (res) {
-      isoState.data = res.map((item: any) => ({
-        label: item.contIso,
-        value: item.contIso,
-        data: item,
-      }));
+const isoSearch = async (searchText: string) => {
+  // 如果搜索文本为空，从后端获取所有选项
+  if (!searchText) {
+    isoState.fetching = true;
+    try {
+      const res = await getSubPlanIsoList(formData.mainId);
+      if (res) {
+        isoState.allOptions = res.map((item: any) => ({
+          label: item.contIso,
+          value: item.contIso,
+          data: item,
+        }));
+        isoState.data = [...isoState.allOptions];
+      }
+    } catch {
+      message.error('获取ISO数据失败');
+    } finally {
+      isoState.fetching = false;
     }
-  } catch {
-    message.error('获取ISO数据失败');
-  } finally {
-    isoState.fetching = false;
+  } else {
+    // 如果有搜索文本，在前端过滤已有选项
+    if (isoState.allOptions.length === 0) {
+      // 如果还没有获取过所有选项，先获取
+      await isoSearch('');
+    }
+    // 前端过滤选项
+    isoState.data = isoState.allOptions.filter((item) =>
+      item.label.toUpperCase().includes(searchText.toUpperCase()),
+    );
   }
 };
 
 // 初始化ISO数据
-const initIsoData = async (mainId: string) => {
-  await isoSearch(mainId);
+const initIsoData = async () => {
+  await isoSearch('');
 };
 
 // 持箱人搜索函数
-const ownerSearch = async (mainId: string) => {
-  ownerState.fetching = true;
-  try {
-    const res = await getSubPlanOwnerList(mainId);
-
-    if (res) {
-      ownerState.data = res.map((item: any) => ({
-        label: item.ownerCode,
-        value: item.ownerCode,
-        data: item,
-      }));
+const ownerSearch = async (searchText: string) => {
+  // 如果搜索文本为空，从后端获取所有选项
+  if (!searchText) {
+    ownerState.fetching = true;
+    try {
+      const res = await getSubPlanOwnerList(formData.mainId);
+      if (res) {
+        ownerState.allOptions = res.map((item: any) => ({
+          label: item.ownerCode,
+          value: item.ownerCode,
+          data: item,
+        }));
+        ownerState.data = [...ownerState.allOptions];
+      }
+    } catch {
+      message.error('获取持箱人数据失败');
+    } finally {
+      ownerState.fetching = false;
     }
-  } catch {
-    message.error('获取持箱人数据失败');
-  } finally {
-    ownerState.fetching = false;
+  } else {
+    // 如果有搜索文本，在前端过滤已有选项
+    if (ownerState.allOptions.length === 0) {
+      // 如果还没有获取过所有选项，先获取
+      await ownerSearch('');
+    }
+    // 前端过滤选项
+    ownerState.data = ownerState.allOptions.filter((item) =>
+      item.label.toUpperCase().includes(searchText.toUpperCase()),
+    );
   }
 };
 // 初始化持箱人数据
-const initOwnerData = async (mainId: string) => {
-  await ownerSearch(mainId);
+const initOwnerData = async () => {
+  await ownerSearch('');
 };
 
 // 获取卸船船期
@@ -429,16 +454,16 @@ const [Form, formApi] = useVbenForm({
       if (formData.isRelease === false) {
         formData.planQuantity = '';
         await formApi.setFieldValue('planQuantity', '');
-        formApi.updateSchema([
+        await formApi.updateSchema([
           { fieldName: 'planQuantity', componentProps: { disabled: true } },
         ]);
       } else if (formData.isRelease === true) {
-        formApi.updateSchema([
+        await formApi.updateSchema([
           { fieldName: 'planQuantity', componentProps: { disabled: false } },
         ]);
       }
     }
-    if (isChangeContIso || isChangeOwner || isChangePickupPlanNo) {
+    if ((isChangeContIso || isChangeOwner || isChangePickupPlanNo) && !formData.id) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       yardColumnsOptions.value = {};
@@ -448,7 +473,7 @@ const [Form, formApi] = useVbenForm({
       }
     }
     if (isChangeTradeType && !tradeTypeDisabled.value) {
-      formData.tradeType = values.tradeType;
+      formData.tradeType = values.tradeType || '';
     }
   },
 });
@@ -547,6 +572,9 @@ const debouncedConfirm = debounce(async () => {
     const data: EmptyContainerControlApi.subPlanVO = {
       ...formData,
       bayRangeList,
+      // 确保即使字段为空也能提交到后端
+      dischargeVslSchedule: formData.dischargeVslSchedule || '',
+      tradeType: formData.tradeType || '',
     } as EmptyContainerControlApi.subPlanVO;
 
     await (formData?.id ? updateSubPlan(data) : createSubPlan(data));
@@ -603,7 +631,11 @@ const [Modal, modalApi] = useVbenModal({
       if (data.mainId) {
         formData.mainId = data.mainId;
       }
-      if (data.planType === 'SUB' && data.mainPlanIsRelease !== null) {
+      if (
+        data.planType === 'SUB' &&
+        data.mainPlanIsRelease !== null &&
+        data.mainPlanIsRelease !== undefined
+      ) {
         formData.isRelease = !data.mainPlanIsRelease;
       }
       if (data.planType === 'SUB') {
@@ -747,11 +779,11 @@ const [Modal, modalApi] = useVbenModal({
       // 根据是否放箱的初始值设置计划箱量字段状态
       if (formData.isRelease === false) {
         formData.planQuantity = '';
-        formApi.updateSchema([
+        await formApi.updateSchema([
           { fieldName: 'planQuantity', componentProps: { disabled: true } },
         ]);
       } else {
-        formApi.updateSchema([
+        await formApi.updateSchema([
           {
             fieldName: 'planQuantity',
             componentProps: { disabled: false },
@@ -922,6 +954,8 @@ const modalTitle = computed(() => {
           show-search
           @change="isoStateChange"
           @input="handleIsoInput"
+          @search="isoSearch"
+          @focus="isoSearch('')"
           @compositionstart="handleIsoCompositionStart"
           @compositionend="handleIsoCompositionEnd"
         />
@@ -939,6 +973,8 @@ const modalTitle = computed(() => {
           show-search
           @change="ownerStateChange"
           @input="handleOwnerInput"
+          @search="ownerSearch"
+          @focus="ownerSearch('')"
           @compositionstart="handleOwnerCompositionStart"
           @compositionend="handleOwnerCompositionEnd"
         />
@@ -954,7 +990,12 @@ const modalTitle = computed(() => {
           :list-height="150"
           allow-clear
           @change="
-            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+            (value) => {
+              // 确保清除时将值设置为空字符串而不是undefined
+              const clearValue = value || '';
+              dischargeVslSchedule.value = clearValue;
+              formApi.setFieldValue('dischargeVslSchedule', clearValue);
+            }
           "
           @input="handleDischargeVslScheduleInput"
           @compositionstart="handleDischargeVslScheduleCompositionStart"
