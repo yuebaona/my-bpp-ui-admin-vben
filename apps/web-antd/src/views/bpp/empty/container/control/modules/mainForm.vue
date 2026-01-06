@@ -234,7 +234,7 @@ const isoSearch = async (value: string) => {
     const upperCaseValue = value.toUpperCase();
     const res = await getContainerIsoListPage({
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 100,
       contIso: upperCaseValue,
       queryType: 'ISO',
     });
