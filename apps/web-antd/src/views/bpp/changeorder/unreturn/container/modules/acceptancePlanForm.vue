@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -16,6 +16,7 @@ import {
 } from '#/api/bpp/common';
 import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import {
   acceptancePlanColumns,
   acceptancePlanSearchSchema,
@@ -25,17 +26,30 @@ import Edit from '#/views/bpp/changeorder/unreturn/container/modules/edit.vue';
 import LadingBill from '#/views/bpp/changeorder/unreturn/container/modules/ladingBill.vue';
 import Return from '#/views/bpp/changeorder/unreturn/container/modules/return.vue';
 
+const bppBaseDict = bppBaseDictStore();
+// 编辑状态管理
+const editingRow = ref<null | string>(null);
+
+/** 获取内外贸字典选项 */
+const tradeTypeOptions = computed(() => {
+  const dictData = bppBaseDict.getBppBaseDictOptions('trade_type') || [];
+  return dictData.map((item) => ({
+    label: item.label,
+    value: item.value,
+  }));
+});
+
 const formData = reactive<any[]>([
   {
     id: 1,
-    acceptancePlanNo: 'AP20240501001',
+    acptPlnNo: 'AP20240501001',
     transportOrdNo: 'TO20240501001',
     businessType: '进口',
-    containerNo: 'MSCU1234567',
-    instructionStatus: '已受理',
+    contNo: 'MSCU1234567',
+    orderStatus: '已受理',
     pickupNo: 'BOL20240501001',
     isLCL: '否',
-    cargo: '电子产品',
+    cargoName: '电子产品',
     vesselName: 'MSC OSCAR 001',
     dischargePort: '上海港',
     destinationPort: '苏州港',
@@ -46,31 +60,31 @@ const formData = reactive<any[]>([
     containerHeight: '高箱',
     iso: '45G1',
     empty: '重箱',
-    imdg: '非危',
-    unno: '',
-    isReefer: '否',
-    temperature: '',
-    vent: '',
+    imdgCode: '非危',
+    unNo: '1234',
+    isRefrigerated: '否',
+    refrigerationTemp: '',
+    ventilationPort: '',
     sealNo: 'SEAL12345',
-    weight: '20吨',
-    containerLevel: '一级',
-    damage: '否',
-    damageLevel: '',
-    overLimit: '否',
-    front: '0cm',
-    rear: '0cm',
-    left: '0cm',
-    right: '0cm',
-    pickup: '否',
-    PTI: '否',
-    PTITime: '',
-    relatePickupNo: '',
-    relateTO: '',
-    returnPort: '上海港',
-    payer: '货主',
-    payment: '预付',
-    title: '上海进出口有限公司',
-    oldContainerNo: '',
+    contWeightKg: '20吨',
+    contGrade: '一级',
+    isDamaged: '否',
+    damageGrade: '',
+    isOog: '否',
+    oogFront: '0cm',
+    oogBack: '0cm',
+    oogLeft: '0cm',
+    oogRight: '0cm',
+    isDirectLoadPick: '否',
+    isPtiValid: '否',
+    ptiExpiryDate: '',
+    relatedBillNo: '',
+    relatedToNo: '',
+    returnTerminal: '上海港',
+    payerCode: '货主',
+    paymentType: '预付',
+    invoiceTitle: '上海进出口有限公司',
+    oldContNo: '',
     newContainerNo: '',
     isBand: '否',
     subContainer: '',
@@ -78,14 +92,14 @@ const formData = reactive<any[]>([
   },
   {
     id: 2,
-    acceptancePlanNo: 'AP20240501002',
+    acptPlnNo: 'AP20240501002',
     transportOrdNo: 'TO20240501002',
     businessType: '出口',
-    containerNo: 'CMAU7654321',
-    instructionStatus: '已完成',
+    contNo: 'CMAU7654321',
+    orderStatus: '已完成',
     pickupNo: 'BOL20240501002',
     isLCL: '是',
-    cargo: '服装',
+    cargoName: '服装',
     vesselName: 'CMA CGM ALEXANDRIA 002',
     dischargePort: '宁波港',
     destinationPort: '洛杉矶港',
@@ -96,131 +110,37 @@ const formData = reactive<any[]>([
     containerHeight: '普箱',
     iso: '22G1',
     empty: '重箱',
-    imdg: '非危',
-    unno: '',
-    isReefer: '否',
-    temperature: '',
-    vent: '',
+    imdgCode: '非危',
+    unNo: '4554',
+    isRefrigerated: '否',
+    refrigerationTemp: '4',
+    ventilationPort: '',
     sealNo: 'SEAL67890',
-    weight: '15吨',
-    containerLevel: '二级',
-    damage: '否',
-    damageLevel: '',
-    overLimit: '否',
-    front: '0cm',
-    rear: '0cm',
-    left: '0cm',
-    right: '0cm',
-    pickup: '是',
-    PTI: '否',
-    PTITime: '',
-    relatePickupNo: 'BOL20240501003',
-    relateTO: 'TO20240501003',
-    returnPort: '宁波港',
-    payer: '货代',
-    payment: '到付',
-    title: '宁波服装出口有限公司',
-    oldContainerNo: '',
+    contWeightKg: '15吨',
+    contGrade: '二级',
+    isDamaged: '否',
+    damageGrade: '',
+    isOog: '否',
+    oogFront: '0cm',
+    oogBack: '0cm',
+    oogLeft: '0cm',
+    oogRight: '0cm',
+    isDirectLoadPick: '是',
+    isPtiValid: '否',
+    ptiExpiryDate: '',
+    relatedBillNo: 'BOL20240501003',
+    relatedToNo: 'TO20240501003',
+    returnTerminal: '宁波港',
+    payerCode: '货代',
+    paymentType: '到付',
+    invoiceTitle: '宁波服装出口有限公司',
+    oldContNo: '',
     newContainerNo: '',
     isBand: '是',
     subContainer: 'SUB001,SUB002',
     remark: '拼箱货物',
   },
 ]);
-
-// 编辑状态管理
-const editingRow = ref<null | string>(null);
-
-// 持箱人搜索选择器
-const {
-  state: ownerState,
-  search: ownerSearch,
-  handleInput: handleOwnerInput,
-  handleCompositionStart: handleOwnerCompositionStart,
-  handleCompositionEnd: handleOwnerCompositionEnd,
-} = useSearchSelect({
-  searchApi: async (value: string) => {
-    return await getContainerOwnerListPage({
-      pageNo: 1,
-      pageSize: 10,
-      ownerCode: value,
-    });
-  },
-  labelField: 'ownerCode',
-  valueField: 'ownerCode',
-  errorMessage: '获取持箱人数据失败',
-  toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
-});
-
-// 箱尺寸搜索选择器
-const {
-  state: sizeState,
-  search: sizeSearch,
-  handleInput: handleSizeInput,
-  handleCompositionStart: handleSizeCompositionStart,
-  handleCompositionEnd: handleSizeCompositionEnd,
-} = useSearchSelect({
-  searchApi: async (value: string) => {
-    return await getContainerIsoListPage({
-      pageNo: 1,
-      pageSize: 10,
-      contLength: value,
-      queryType: 'length',
-    });
-  },
-  labelField: 'contLength',
-  valueField: 'contLength',
-  errorMessage: '获取ISO数据失败',
-  toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
-});
-
-// 箱型搜索选择器
-const {
-  state: containerTypeState,
-  search: containerTypeSearch,
-  handleInput: handleContainerTypeInput,
-  handleCompositionStart: handleContainerTypeCompositionStart,
-  handleCompositionEnd: handleContainerTypeCompositionEnd,
-} = useSearchSelect({
-  searchApi: async (value: string) => {
-    return await getContainerIsoListPage({
-      pageNo: 1,
-      pageSize: 10,
-      contType: value,
-      queryType: 'type',
-    });
-  },
-  labelField: 'contType',
-  valueField: 'contType',
-  errorMessage: '获取箱型数据失败',
-  toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
-});
-
-// ISO搜索选择器
-const {
-  state: isoState,
-  search: isoSearch,
-  handleInput: handleIsoInput,
-  handleCompositionStart: handleIsoCompositionStart,
-  handleCompositionEnd: handleIsoCompositionEnd,
-} = useSearchSelect({
-  searchApi: async (value: string) => {
-    return await getContainerIsoListPage({
-      pageNo: 1,
-      pageSize: 10,
-      contIso: value,
-      queryType: 'ISO',
-    });
-  },
-  labelField: 'contIso',
-  valueField: 'contIso',
-  errorMessage: '获取ISO数据失败',
-  toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
-});
 
 // 提单信息管理模态框
 const [LadingBillModal, ladingBillModalApi] = useVbenModal({
@@ -244,6 +164,97 @@ const [ReturnModal, returnModalApi] = useVbenModal({
 const [EditModal, editModalApi] = useVbenModal({
   connectedComponent: Edit,
   destroyOnClose: true,
+});
+
+/** 持箱人搜索选择器 */
+const {
+  state: ownerState,
+  search: ownerSearch,
+  handleInput: handleOwnerInput,
+  handleCompositionStart: handleOwnerCompositionStart,
+  handleCompositionEnd: handleOwnerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerOwnerListPage({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
+  },
+  labelField: 'ownerCode',
+  valueField: 'ownerCode',
+  errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+/** 箱尺寸搜索选择器 */
+const {
+  state: sizeState,
+  search: sizeSearch,
+  handleInput: handleSizeInput,
+  handleCompositionStart: handleSizeCompositionStart,
+  handleCompositionEnd: handleSizeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contLength: value,
+      queryType: 'length',
+    });
+  },
+  labelField: 'contLength',
+  valueField: 'contLength',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+/** 箱型搜索选择器 */
+const {
+  state: containerTypeState,
+  search: containerTypeSearch,
+  handleInput: handleContainerTypeInput,
+  handleCompositionStart: handleContainerTypeCompositionStart,
+  handleCompositionEnd: handleContainerTypeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contType: value,
+      queryType: 'type',
+    });
+  },
+  labelField: 'contType',
+  valueField: 'contType',
+  errorMessage: '获取箱型数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+/** ISO搜索选择器 */
+const {
+  state: isoState,
+  search: isoSearch,
+  handleInput: handleIsoInput,
+  handleCompositionStart: handleIsoCompositionStart,
+  handleCompositionEnd: handleIsoCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contIso: value,
+      queryType: 'ISO',
+    });
+  },
+  labelField: 'contIso',
+  valueField: 'contIso',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
 });
 
 const vesselName = reactive({
@@ -434,7 +445,9 @@ function handleRefresh() {
           :filter-option="true"
           :list-height="150"
           allow-clear
-          @change="(value) => formApi.setFieldValue('vesselName', value)"
+          @change="
+            (value) => gridApi.formApi.setFieldValue('vesselName', value)
+          "
           @input="handleVesselNameInput"
           @compositionstart="handleVesselNameCompositionStart"
           @compositionend="handleVesselNameCompositionEnd"
@@ -466,10 +479,7 @@ function handleRefresh() {
             placeholder="请选择内外贸"
             style="width: 100%"
             allow-clear
-            :options="[
-              { label: '内贸', value: 'DOMESTIC' },
-              { label: '外贸', value: 'FOREIGN' },
-            ]"
+            :options="tradeTypeOptions"
             @change="
               () => {
                 if (editingRow === row.id) {
@@ -593,12 +603,12 @@ function handleRefresh() {
           />
         </template>
       </template>
-      <template #pickupNoAction="{ row }">
+      <template #pickupNoAction>
         <a-button type="primary" size="small" @click="handleClickPickupNo">
           提单信息管理
         </a-button>
       </template>
-      <template #boxAction="{ row }">
+      <template #boxAction>
         <a-button type="primary" size="small" @click="handleClickSubBox">
           捆绑箱维护
         </a-button>
