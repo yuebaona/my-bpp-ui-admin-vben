@@ -716,8 +716,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    border: true,
     resizableConfig: {
       isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isAllColumnDrag: true,
     },
     checkboxConfig: {
       highlight: true,
@@ -808,8 +810,10 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      border: true,
       resizableConfig: {
         isDblclickAutoWidth: true, // 启用双击自适应列宽
+        isAllColumnDrag: true,
       },
       checkboxConfig: {
         highlight: true,
