@@ -265,7 +265,7 @@ const ownerSearch = async (value: string) => {
     const upperCaseValue = value.toUpperCase();
     const res = await getContainerOwnerListPage({
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 100,
       ownerCode: upperCaseValue,
     });
 
