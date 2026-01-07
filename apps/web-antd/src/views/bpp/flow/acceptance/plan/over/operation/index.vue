@@ -1235,7 +1235,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
-    <AdvancedQueryModal class="w-2/5">
+    <AdvancedQueryModal class="w-2/5" title="高级查询">
       <AdvancedQuery
         :fields="fields"
         :operators-map="operatorsMap"
