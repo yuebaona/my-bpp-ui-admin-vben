@@ -62,6 +62,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
+// 刷新列表
+function handleRefresh() {
+  gridApi.query();
+}
+
 // 批量编辑
 const [BatchEditModal, batchEditModalApi] = useVbenModal({
   connectedComponent: BatchEdit,
