@@ -74,7 +74,10 @@ export const getContainerIsoList = (queryType: string) => {
 };
 // 分页获取集装箱ISO信息
 export const getContainerIsoListPage = (params: {
-  contIso: string;
+  contHeight?: string;
+  contIso?: string;
+  contLength?: string;
+  contType?: string;
   pageNo: number;
   pageSize: number;
   queryType: string;

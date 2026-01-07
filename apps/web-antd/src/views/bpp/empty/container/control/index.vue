@@ -286,7 +286,10 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
 
           if (formValues.planNo && result.list && result.list.length > 0) {
             const firstMainPlan = result.list[0];
-            if (firstMainPlan.planNo && formValues.planNo !== firstMainPlan.planNo) {
+            if (
+              firstMainPlan.planNo &&
+              formValues.planNo !== firstMainPlan.planNo
+            ) {
               selectedMainId.value = firstMainPlan.id.toString();
               hasSelectedMainPlan.value = true;
               subGridApi.query();
@@ -669,8 +672,8 @@ const openContainerAreaWindow = (
             :list-height="150"
             allow-clear
             @change="
-            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
-          "
+              (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+            "
             @input="handleDischargeVslScheduleInput"
             @compositionstart="handleDischargeVslScheduleCompositionStart"
             @compositionend="handleDischargeVslScheduleCompositionEnd"

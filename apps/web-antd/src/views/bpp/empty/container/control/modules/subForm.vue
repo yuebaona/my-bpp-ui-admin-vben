@@ -193,7 +193,7 @@ const transformStringToArray = (value: any): string[] => {
 
 const handleContainerAreaConfirm = async (
   positions: string[],
-  yardColumnsMap: Record<string, string[]>,
+  yardColumnsMap?: Record<string, string[]>,
 ) => {
   const $grid = gridApi.grid;
   if ($grid) {
@@ -213,7 +213,7 @@ const handleContainerAreaConfirm = async (
       const yardPosition = `${pos}`;
 
       // 保存该位置的可选列选项
-      if (yardColumnsMap[pos] && yardColumnsMap[pos].length > 0) {
+      if (yardColumnsMap && yardColumnsMap[pos] && yardColumnsMap[pos].length > 0) {
         yardColumnsOptions.value[pos] = yardColumnsMap[pos].map((col) => ({
           label: col,
           value: col,

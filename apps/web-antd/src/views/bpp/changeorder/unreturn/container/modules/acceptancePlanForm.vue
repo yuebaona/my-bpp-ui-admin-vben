@@ -2,14 +2,21 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
+import { Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+} from '#/api/bpp/common';
+import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import {
   acceptancePlanColumns,
   acceptancePlanSearchSchema,
@@ -19,52 +26,65 @@ import Edit from '#/views/bpp/changeorder/unreturn/container/modules/edit.vue';
 import LadingBill from '#/views/bpp/changeorder/unreturn/container/modules/ladingBill.vue';
 import Return from '#/views/bpp/changeorder/unreturn/container/modules/return.vue';
 
+const bppBaseDict = bppBaseDictStore();
+// 编辑状态管理
+const editingRow = ref<null | string>(null);
+
+/** 获取内外贸字典选项 */
+const tradeTypeOptions = computed(() => {
+  const dictData = bppBaseDict.getBppBaseDictOptions('trade_type') || [];
+  return dictData.map((item) => ({
+    label: item.label,
+    value: item.value,
+  }));
+});
+
 const formData = reactive<any[]>([
   {
     id: 1,
-    acceptancePlanNo: 'AP20240501001',
+    acptPlnNo: 'AP20240501001',
     transportOrdNo: 'TO20240501001',
     businessType: '进口',
-    containerNo: 'MSCU1234567',
-    instructionStatus: '已受理',
+    contNo: 'MSCU1234567',
+    orderStatus: '已受理',
     pickupNo: 'BOL20240501001',
     isLCL: '否',
-    cargo: '电子产品',
+    cargoName: '电子产品',
     vesselName: 'MSC OSCAR 001',
     dischargePort: '上海港',
     destinationPort: '苏州港',
-    tradeType: '外贸',
-    owner: 'MSC',
-    size: '40尺',
-    containerType: '干货箱',
+    tradeType: 'DOMESTIC',
+    owner: 'COS',
+    size: '40',
+    containerType: 'PF',
     containerHeight: '高箱',
     iso: '45G1',
     empty: '重箱',
-    imdg: '非危',
-    unno: '',
-    isReefer: '否',
-    temperature: '',
-    vent: '',
+    imdgCode: '非危',
+    unNo: '1234',
+    isRefrigerated: '否',
+    refrigerationTemp: '',
+    ventilationPort: '',
     sealNo: 'SEAL12345',
-    weight: '20吨',
-    containerLevel: '一级',
-    damage: '否',
-    damageLevel: '',
-    overLimit: '否',
-    front: '0cm',
-    rear: '0cm',
-    left: '0cm',
-    right: '0cm',
-    pickup: '否',
-    PTI: '否',
-    PTITime: '',
-    relatePickupNo: '',
-    relateTO: '',
-    returnPort: '上海港',
-    payer: '货主',
-    payment: '预付',
-    title: '上海进出口有限公司',
-    oldContainerNo: '',
+    contWeightKg: '20吨',
+    contGrade: '一级',
+    isDamaged: '否',
+    damageGrade: '',
+    isOog: '否',
+    oogFront: '0cm',
+    oogBack: '0cm',
+    oogLeft: '0cm',
+    oogRight: '0cm',
+    isDirectLoadPick: '否',
+    isPtiValid: '否',
+    ptiExpiryDate: '',
+    relatedBillNo: '',
+    relatedToNo: '',
+    returnTerminal: '上海港',
+    payerCode: '货主',
+    paymentType: '预付',
+    invoiceTitle: '上海进出口有限公司',
+    oldContNo: '',
     newContainerNo: '',
     isBand: '否',
     subContainer: '',
@@ -72,58 +92,55 @@ const formData = reactive<any[]>([
   },
   {
     id: 2,
-    acceptancePlanNo: 'AP20240501002',
+    acptPlnNo: 'AP20240501002',
     transportOrdNo: 'TO20240501002',
     businessType: '出口',
-    containerNo: 'CMAU7654321',
-    instructionStatus: '已完成',
+    contNo: 'CMAU7654321',
+    orderStatus: '已完成',
     pickupNo: 'BOL20240501002',
     isLCL: '是',
-    cargo: '服装',
+    cargoName: '服装',
     vesselName: 'CMA CGM ALEXANDRIA 002',
     dischargePort: '宁波港',
     destinationPort: '洛杉矶港',
-    tradeType: '外贸',
+    tradeType: 'FOREIGN',
     owner: 'CMA',
-    size: '20尺',
-    containerType: '干货箱',
+    size: '20',
+    containerType: 'HD',
     containerHeight: '普箱',
     iso: '22G1',
     empty: '重箱',
-    imdg: '非危',
-    unno: '',
-    isReefer: '否',
-    temperature: '',
-    vent: '',
+    imdgCode: '非危',
+    unNo: '4554',
+    isRefrigerated: '否',
+    refrigerationTemp: '4',
+    ventilationPort: '',
     sealNo: 'SEAL67890',
-    weight: '15吨',
-    containerLevel: '二级',
-    damage: '否',
-    damageLevel: '',
-    overLimit: '否',
-    front: '0cm',
-    rear: '0cm',
-    left: '0cm',
-    right: '0cm',
-    pickup: '是',
-    PTI: '否',
-    PTITime: '',
-    relatePickupNo: 'BOL20240501003',
-    relateTO: 'TO20240501003',
-    returnPort: '宁波港',
-    payer: '货代',
-    payment: '到付',
-    title: '宁波服装出口有限公司',
-    oldContainerNo: '',
+    contWeightKg: '15吨',
+    contGrade: '二级',
+    isDamaged: '否',
+    damageGrade: '',
+    isOog: '否',
+    oogFront: '0cm',
+    oogBack: '0cm',
+    oogLeft: '0cm',
+    oogRight: '0cm',
+    isDirectLoadPick: '是',
+    isPtiValid: '否',
+    ptiExpiryDate: '',
+    relatedBillNo: 'BOL20240501003',
+    relatedToNo: 'TO20240501003',
+    returnTerminal: '宁波港',
+    payerCode: '货代',
+    paymentType: '到付',
+    invoiceTitle: '宁波服装出口有限公司',
+    oldContNo: '',
     newContainerNo: '',
     isBand: '是',
     subContainer: 'SUB001,SUB002',
     remark: '拼箱货物',
   },
 ]);
-
-// 编辑状态管理
-const editingRow = ref<null | string>(null);
 
 // 提单信息管理模态框
 const [LadingBillModal, ladingBillModalApi] = useVbenModal({
@@ -149,6 +166,148 @@ const [EditModal, editModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
+/** 持箱人搜索选择器 */
+const {
+  state: ownerState,
+  search: ownerSearch,
+  handleInput: handleOwnerInput,
+  handleCompositionStart: handleOwnerCompositionStart,
+  handleCompositionEnd: handleOwnerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerOwnerListPage({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
+  },
+  labelField: 'ownerCode',
+  valueField: 'ownerCode',
+  errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+/** 箱尺寸搜索选择器 */
+const {
+  state: sizeState,
+  search: sizeSearch,
+  handleInput: handleSizeInput,
+  handleCompositionStart: handleSizeCompositionStart,
+  handleCompositionEnd: handleSizeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contLength: value,
+      queryType: 'length',
+    });
+  },
+  labelField: 'contLength',
+  valueField: 'contLength',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+/** 箱型搜索选择器 */
+const {
+  state: containerTypeState,
+  search: containerTypeSearch,
+  handleInput: handleContainerTypeInput,
+  handleCompositionStart: handleContainerTypeCompositionStart,
+  handleCompositionEnd: handleContainerTypeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contType: value,
+      queryType: 'type',
+    });
+  },
+  labelField: 'contType',
+  valueField: 'contType',
+  errorMessage: '获取箱型数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+/** ISO搜索选择器 */
+const {
+  state: isoState,
+  search: isoSearch,
+  handleInput: handleIsoInput,
+  handleCompositionStart: handleIsoCompositionStart,
+  handleCompositionEnd: handleIsoCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contIso: value,
+      queryType: 'ISO',
+    });
+  },
+  labelField: 'contIso',
+  valueField: 'contIso',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+const vesselName = reactive({
+  data: [],
+  value: '',
+  fetching: false,
+  isComposing: false, // 标记是否在中文输入法组合状态
+});
+
+// 处理卸船船期输入，将英文部分转为大写，同时允许中文
+const handleVesselNameInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+
+  if (vesselName.isComposing) {
+    return;
+  }
+  target.value = target.value.toUpperCase();
+  fetchVesselName(target.value);
+};
+
+// 处理卸船船期中文输入法组合开始
+const handleVesselNameCompositionStart = () => {
+  vesselName.isComposing = true;
+};
+
+// 处理卸船船期中文输入法组合结束
+const handleVesselNameCompositionEnd = (e: CompositionEvent) => {
+  vesselName.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase();
+  fetchVesselName(target.value);
+};
+
+// 获取卸船船期
+const fetchVesselName = async (searchText: string) => {
+  vesselName.fetching = true;
+  try {
+    if (!searchText || searchText.length < 2) {
+      return;
+    }
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getVesselAndVoyage({ condition: upperCaseValue });
+    vesselName.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    vesselName.data = [];
+  } finally {
+    vesselName.fetching = false;
+  }
+};
+
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
     schema: acceptancePlanSearchSchema(),
@@ -160,7 +319,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
   gridOptions: {
     floatingFilterConfig: {
-      enabled: true,
+      enabled: false,
     },
     filterConfig: {
       showIcon: false,
@@ -175,7 +334,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
     editConfig: {
       mode: 'row',
       showIcon: false,
-      trigger: 'click',
+      trigger: 'manual',
+      autoClear: false,
     },
     toolbarConfig: {
       export: true,
@@ -207,7 +367,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
-/** 超限作业申请选中操作 */
 const checkedIds = ref<number[]>([]);
 const acceptancePlanNo = ref<string[]>([]);
 function handleRowCheckboxChange({
@@ -223,9 +382,9 @@ function batchEdit() {
   editModalApi.setData(null).open();
 }
 
-/** 创建新申请 */
+/** 删除TO */
 function handleDeleteTO() {
-  formModalApi.setData(null).open();
+  // formModalApi.setData(null).open();
 }
 
 const handleClickReturn = () => {
@@ -238,28 +397,24 @@ function handleEdit(row: any) {
   gridApi.grid?.setEditRow(row);
 }
 
-// 保存编辑
+/** 保存编辑 */
 function handleSave(row: any) {
-  gridApi.grid
-    ?.commitEditRow(row.id)
-    .then(() => {
-      editingRow.value = null;
-      message.success('保存成功');
-    })
-    .catch(() => {
-      message.error('保存失败');
-    });
+  const index = formData.findIndex((item) => item.id === row.id);
+  if (index !== -1) {
+    Object.assign(formData[index], row);
+  }
+  gridApi.grid?.clearEdit();
+  editingRow.value = null;
 }
 
-// 取消编辑
+/** 取消编辑 */
 function handleCancel(row: any) {
-  gridApi.grid?.clearActived(row);
+  gridApi.grid?.clearEdit(row);
   editingRow.value = null;
 }
 
 /** 处理点击提单号事件 */
 const handleClickPickupNo = () => {
-  // message.info('查看提单号信息');
   ladingBillModalApi.setData(null).open();
 };
 
@@ -280,6 +435,120 @@ function handleRefresh() {
     <ReturnModal class="w-1/4" @success="handleRefresh" />
     <EditModal class="w-3/4" @success="handleRefresh" />
     <Grid>
+      <template #form-vesselName>
+        <Select
+          :options="vesselName.data"
+          v-model="vesselName.value"
+          style="width: 100%"
+          placeholder="请输入船名或航次"
+          :show-search="true"
+          :filter-option="true"
+          :list-height="150"
+          allow-clear
+          @change="
+            (value) => gridApi.formApi.setFieldValue('vesselName', value)
+          "
+          @input="handleVesselNameInput"
+          @compositionstart="handleVesselNameCompositionStart"
+          @compositionend="handleVesselNameCompositionEnd"
+        />
+      </template>
+      <template #owner_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.owner"
+            style="width: 100%"
+            placeholder="请输入持箱人"
+            :show-search="true"
+            :filter-option="false"
+            :not-found-content="ownerState.fetching ? undefined : null"
+            :options="ownerState.data"
+            allow-clear
+            @search="ownerSearch"
+            @focus="ownerSearch('')"
+            @input="handleOwnerInput"
+            @compositionstart="handleOwnerCompositionStart"
+            @compositionend="handleOwnerCompositionEnd"
+          />
+        </div>
+      </template>
+      <template #tradeType_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.tradeType"
+            placeholder="请选择内外贸"
+            style="width: 100%"
+            allow-clear
+            :options="tradeTypeOptions"
+            @change="
+              () => {
+                if (editingRow === row.id) {
+                  gridApi.grid?.setEditRow(row);
+                }
+              }
+            "
+            @mousedown.prevent
+            @click.stop
+          />
+        </div>
+      </template>
+      <template #size_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.size"
+            placeholder="请输入尺寸"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="sizeState.fetching ? undefined : null"
+            :options="sizeState.data"
+            @search="sizeSearch"
+            allow-clear
+            show-search
+            @focus="sizeSearch('')"
+            @input="handleSizeInput"
+            @compositionstart="handleSizeCompositionStart"
+            @compositionend="handleSizeCompositionEnd"
+          />
+        </div>
+      </template>
+      <template #containerType_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.containerType"
+            placeholder="请输入箱型"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="containerTypeState.fetching ? undefined : null"
+            :options="containerTypeState.data"
+            @search="containerTypeSearch"
+            allow-clear
+            show-search
+            @focus="containerTypeSearch('')"
+            @input="handleContainerTypeInput"
+            @compositionstart="handleContainerTypeCompositionStart"
+            @compositionend="handleContainerTypeCompositionEnd"
+          />
+        </div>
+      </template>
+      <template #iso_edit="{ row }">
+        <div v-if="editingRow === row.id">
+          <Select
+            v-model:value="row.iso"
+            placeholder="请输入ISO"
+            style="width: 100%"
+            :filter-option="false"
+            :not-found-content="isoState.fetching ? undefined : null"
+            :options="isoState.data"
+            @search="isoSearch"
+            allow-clear
+            show-search
+            @focus="isoSearch('')"
+            @input="handleIsoInput"
+            @compositionstart="handleIsoCompositionStart"
+            @compositionend="handleIsoCompositionEnd"
+          />
+        </div>
+      </template>
       <template #toolbar-tools>
         <TableAction
           :actions="[
@@ -334,12 +603,12 @@ function handleRefresh() {
           />
         </template>
       </template>
-      <template #pickupNoAction="{ row }">
+      <template #pickupNoAction>
         <a-button type="primary" size="small" @click="handleClickPickupNo">
           提单信息管理
         </a-button>
       </template>
-      <template #boxAction="{ row }">
+      <template #boxAction>
         <a-button type="primary" size="small" @click="handleClickSubBox">
           捆绑箱维护
         </a-button>
