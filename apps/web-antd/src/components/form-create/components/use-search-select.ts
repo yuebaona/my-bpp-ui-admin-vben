@@ -31,7 +31,17 @@ export interface SearchSelectConfig<T = any> {
   /**
    * 字符过滤正则表达式
    */
-  filterRegex?: RegExp;
+  filterRegex?: null | RegExp;
+  /**
+   * 查询模式
+   * - 'input': 至少输入指定长度字符后查询
+   * - 'click': 点击下拉框就查询
+   */
+  searchMode?: 'click' | 'input';
+  /**
+   * 最小搜索长度（仅在searchMode为'input'时生效）
+   */
+  minSearchLength?: number;
 }
 
 /**
@@ -81,6 +91,8 @@ export function useSearchSelect<T = any>(
     errorMessage,
     toUpperCase = true,
     filterRegex,
+    searchMode = 'click',
+    minSearchLength = 0,
   } = config;
 
   const state = reactive({
@@ -95,6 +107,10 @@ export function useSearchSelect<T = any>(
    * 搜索函数
    */
   const search = async (value: string) => {
+    if (searchMode === 'input' && value.length < minSearchLength) {
+      state.data = [];
+      return;
+    }
     state.fetching = true;
     try {
       let processedValue = value;

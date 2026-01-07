@@ -32,7 +32,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'person',
       label: '申请人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入申请人',
@@ -52,7 +52,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'company',
       label: '货主单位',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入货主单位',
@@ -62,7 +62,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'agentCompany',
       label: '货代单位',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入货代单位',
@@ -86,7 +86,7 @@ export function payInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'payer',
       label: '付费人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入付费人',
