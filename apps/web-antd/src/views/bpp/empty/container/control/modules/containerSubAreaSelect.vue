@@ -75,69 +75,83 @@ watch(
 const fetchYardRange = async () => {
   loading.value = true;
   try {
-    let response = await getSubPlanYardRange(props.mainId);
-    if (!response || response.length === 0) {
-      const params: EmptyContainerControlApi.yardRangeVO = {
-        ownerCodeList: props.ownerCodeList || [],
-        contIsoList: props.contIsoList || [],
-        tradeType: props.tradeType || '',
-      };
-      response = await getYardRange(params);
-    }
+    const response = await getSubPlanYardRange(props.mainId);
     yardPositionTreeData.value = [];
 
     if (response.length > 0) {
-      const treeMap = new Map<string, any>();
+      // 检查是否有包含"-"的 yard
+      const hasHyphenYard = response.some(
+        (item: any) => item.yard && item.yard.includes('-'),
+      );
+      if (hasHyphenYard) {
+        // 模式1：yard 包含"-"，按"-"分割构建树
+        const treeMap = new Map<string, any>();
+        response.forEach((item: any) => {
+          if (!item.yard) {
+            return;
+          }
+          const yardParts = item.yard.split('-');
 
-      response.forEach((item: any) => {
-        console.log('item:', item);
-        console.log('item.yard:', item.yard);
-        if (!item.yard) {
-          return;
-        }
-
-        const yardParts = item.yard.split('-');
-
-        if (yardParts.length === 0) {
-          return;
-        }
-
-        const firstLevelKey = yardParts[0];
-        if (!treeMap.has(firstLevelKey)) {
-          treeMap.set(firstLevelKey, {
-            title: firstLevelKey,
-            key: firstLevelKey,
-            children: [],
-          });
-        }
-
-        if (yardParts.length > 1) {
-          const firstLevelNode = treeMap.get(firstLevelKey);
-          const fullKey = item.yard;
-          const displayTitle = yardParts.slice(1).join('-');
-
-          const existingChild = firstLevelNode.children.find(
-            (child: any) => child.key === fullKey
-          );
-
-          if (!existingChild) {
-            firstLevelNode.children.push({
-              title: displayTitle,
-              key: fullKey,
+          if (yardParts.length === 0) {
+            return;
+          }
+          const firstLevelKey = yardParts[0];
+          if (!treeMap.has(firstLevelKey)) {
+            treeMap.set(firstLevelKey, {
+              title: firstLevelKey,
+              key: firstLevelKey,
+              children: [],
             });
           }
-        }
-      });
+          if (yardParts.length > 1) {
+            const firstLevelNode = treeMap.get(firstLevelKey);
+            const fullKey = item.yard;
+            const displayTitle = yardParts.slice(1).join('-');
 
-      // 转换 Map 为数组并过滤掉没有子节点的项（如果需要的话）
-      yardPositionTreeData.value = Array.from(treeMap.values())
-        .filter((item: any) => item.children.length > 0)
-        .map((item: any) => ({
-          ...item,
-          // 如果只有一级，则作为叶子节点处理
-          isLeaf: item.children.length === 0,
-        }));
+            const existingChild = firstLevelNode.children.find(
+              (child: any) => child.key === fullKey,
+            );
 
+            if (!existingChild) {
+              firstLevelNode.children.push({
+                title: displayTitle,
+                key: fullKey,
+              });
+            }
+          }
+        });
+        // 转换 Map 为数组并过滤掉没有子节点的项
+        yardPositionTreeData.value = [...treeMap.values()]
+          .filter((item: any) => item.children.length > 0)
+          .map((item: any) => ({
+            ...item,
+            isLeaf: item.children.length === 0,
+          }));
+      } else {
+        // 模式2：yard 不包含"-"，使用 yardBayList 构建树
+        yardPositionTreeData.value = response
+          .map((item: any) => {
+            if (
+              !item ||
+              !item.yard ||
+              !Array.isArray(item.yardBayList) ||
+              item.yardBayList.length === 0
+            ) {
+              return null;
+            }
+            return {
+              title: item.yard,
+              key: item.yard,
+              children: item.yardBayList.map((bay: string) => {
+                return {
+                  title: bay,
+                  key: `${item.yard}-${bay}`,
+                };
+              }),
+            };
+          })
+          .filter((item: any) => item !== null);
+      }
     } else {
       message.info('没有找到匹配的箱区数据');
     }
