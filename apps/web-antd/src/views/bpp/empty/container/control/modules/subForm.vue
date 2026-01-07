@@ -1,4 +1,3 @@
-[file name]: subForm.vue
 <script lang="ts" setup>
 // import type { UploadProps } from 'ant-design-vue';
 
@@ -213,7 +212,11 @@ const handleContainerAreaConfirm = async (
       const yardPosition = `${pos}`;
 
       // 保存该位置的可选列选项
-      if (yardColumnsMap && yardColumnsMap[pos] && yardColumnsMap[pos].length > 0) {
+      if (
+        yardColumnsMap &&
+        yardColumnsMap[pos] &&
+        yardColumnsMap[pos].length > 0
+      ) {
         yardColumnsOptions.value[pos] = yardColumnsMap[pos].map((col) => ({
           label: col,
           value: col,
