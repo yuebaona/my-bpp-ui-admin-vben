@@ -106,11 +106,10 @@ export function payInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'title',
       label: '发票抬头',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
-        disabled: true,
-        placeholder: '请输入发票抬头',
+        placeholder: '自动同步付费人信息',
       },
       rules: 'required',
     },

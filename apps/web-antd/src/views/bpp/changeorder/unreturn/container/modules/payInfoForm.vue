@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Select } from 'ant-design-vue';
-
+import { reactive, watch } from 'vue';
 import { useVbenForm } from '#/adapter/form';
 import { getCustomerList } from '#/api/bpp/common';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
@@ -8,11 +8,11 @@ import { payInfoFormSchema } from '#/views/bpp/changeorder/unreturn/container/da
 
 // 付费人搜索选择器
 const {
-  state: applicantState,
-  search: applicantSearch,
-  handleInput: handleApplicantInput,
-  handleCompositionStart: handleApplicantCompositionStart,
-  handleCompositionEnd: handleApplicantCompositionEnd,
+  state: payerState,
+  search: payerSearch,
+  handleInput: handlePayerInput,
+  handleCompositionStart: handlePayerCompositionStart,
+  handleCompositionEnd: handlePayerCompositionEnd,
 } = useSearchSelect({
   searchApi: async (value: string) => {
     return await getCustomerList({
@@ -22,7 +22,7 @@ const {
     });
   },
   labelField: 'customerName',
-  valueField: 'customerName',
+  valueField: 'customerCode',
   errorMessage: '获取申请人数据失败',
   toUpperCase: true,
   searchMode: 'input',
@@ -41,6 +41,17 @@ const [Form, formApi] = useVbenForm({
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
   actionWrapperClass: 'col-span-2 text-right',
 });
+
+// watch(
+//   () => payerState.value,
+//   (newValue) => {
+//     if (newValue) {
+//       formApi.setFieldValue('title', newValue);
+//     } else {
+//       formApi.setFieldValue('title', '');
+//     }
+//   },
+// );
 </script>
 
 <template>
@@ -48,18 +59,35 @@ const [Form, formApi] = useVbenForm({
     <Form>
       <template #payer>
         <Select
-          v-model:value="applicantState.value"
+          v-model:value="payerState.value"
           placeholder="请输入申请人"
           style="width: 100%"
           :filter-option="false"
-          :not-found-content="applicantState.fetching ? undefined : null"
-          :options="applicantState.data"
-          @search="applicantSearch"
+          :not-found-content="payerState.fetching ? undefined : null"
+          :options="payerState.data"
+          @search="payerSearch"
           allow-clear
           show-search
-          @input="handleApplicantInput"
-          @compositionstart="handleApplicantCompositionStart"
-          @compositionend="handleApplicantCompositionEnd"
+          @input="handlePayerInput"
+          @compositionstart="handlePayerCompositionStart"
+          @compositionend="handlePayerCompositionEnd"
+        />
+      </template>
+      <template #title>
+        <Select
+          v-model:value="payerState.value"
+          placeholder="请输入自动同步付费人信息"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerState.fetching ? undefined : null"
+          :options="payerState.data"
+          @search="payerSearch"
+          allow-clear
+          show-search
+          @input="handlePayerInput"
+          @compositionstart="handlePayerCompositionStart"
+          @compositionend="handlePayerCompositionEnd"
+          :disabled="true"
         />
       </template>
     </Form>
