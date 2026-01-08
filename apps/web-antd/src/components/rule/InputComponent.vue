@@ -88,6 +88,7 @@ const filterOption = (input: string, option: any) => {
       :filter-option="filterOption"
       show-search
       @change="handleSelectChange"
+      style="width: 150px"
     >
       <a-select-option
         v-for="opt of getOptionsByField(item.field)"
@@ -101,6 +102,6 @@ const filterOption = (input: string, option: any) => {
 </template>
 <style scoped lang="less">
 .rule-value {
-  width: 280px;
+  width: 100%;
 }
 </style>
