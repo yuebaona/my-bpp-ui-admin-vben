@@ -13,7 +13,7 @@ import {
 } from '#/api/bpp/flow/custom/config/form';
 import { $t } from '#/locales';
 import FormConfigModal from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
-import { inboxInfoFormSchema } from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/data';
+import { inboxInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 
 const customFormInfo = ref({
   formKey: 'inbox_Info',

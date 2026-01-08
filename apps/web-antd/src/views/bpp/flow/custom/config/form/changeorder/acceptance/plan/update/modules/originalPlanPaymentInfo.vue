@@ -13,7 +13,7 @@ import {
 } from '#/api/bpp/flow/custom/config/form';
 import { $t } from '#/locales';
 import FormConfigModal from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
-import { originalPlanPaymentInfoFormSchema } from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/data';
+import { originalPlanPaymentInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 const customFormInfo = ref({
   formKey: 'original_play_paymentInfo',
   formName: '原计划与付费信息',

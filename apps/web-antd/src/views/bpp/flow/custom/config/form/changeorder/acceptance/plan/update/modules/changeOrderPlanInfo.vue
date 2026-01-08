@@ -12,7 +12,7 @@ import {
 } from '#/api/bpp/flow/custom/config/form';
 import { $t } from '#/locales';
 import FormConfigModal from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
-import { changeOrderPlanInfoFormSchema } from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/data';
+import { changeOrderPlanInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 /**
  * 自己唯一的表单配置信息,formKey应该对应受理计划类型的字典类型值，formType对应受理计划字典数据的字典键值，formName应该是本组件的name，此处只是示例
  */

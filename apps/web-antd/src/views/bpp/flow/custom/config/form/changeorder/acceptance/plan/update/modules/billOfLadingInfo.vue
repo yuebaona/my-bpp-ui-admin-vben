@@ -13,7 +13,7 @@ import {
 } from '#/api/bpp/flow/custom/config/form';
 import { $t } from '#/locales';
 import FormConfigModal from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
-import { pickupBoxInfoFormSchema } from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/data';
+import { pickupBoxInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 
 const customFormInfo = ref({
   formKey: 'bill_of_ladingInfo',
