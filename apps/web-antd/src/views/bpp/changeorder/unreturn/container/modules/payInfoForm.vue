@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Select } from 'ant-design-vue';
-import { reactive, watch } from 'vue';
+
 import { useVbenForm } from '#/adapter/form';
 import { getCustomerList } from '#/api/bpp/common';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
@@ -60,7 +60,7 @@ const [Form, formApi] = useVbenForm({
       <template #payer>
         <Select
           v-model:value="payerState.value"
-          placeholder="请输入申请人"
+          placeholder="请输入付费人"
           style="width: 100%"
           :filter-option="false"
           :not-found-content="payerState.fetching ? undefined : null"
@@ -76,7 +76,7 @@ const [Form, formApi] = useVbenForm({
       <template #title>
         <Select
           v-model:value="payerState.value"
-          placeholder="请输入自动同步付费人信息"
+          placeholder="自动同步付费人信息"
           style="width: 100%"
           :filter-option="false"
           :not-found-content="payerState.fetching ? undefined : null"

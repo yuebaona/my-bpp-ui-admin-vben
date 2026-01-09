@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-// import type { VbenFormSchema } from '#/adapter/form';
-// import type { ChangeOrderUnreturnApi } from '#/api/bpp/changeorder/unreturn';
-
 import { reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
@@ -12,6 +9,7 @@ import { useVbenForm } from '#/adapter/form';
 import {
   getContainerIsoListPage,
   getContainerOwnerListPage,
+  getCustomerList,
 } from '#/api/bpp/common';
 import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
@@ -139,6 +137,29 @@ const {
   errorMessage: '获取箱高数据失败',
   toUpperCase: true,
   filterRegex: /[^A-Z0-9]/g,
+});
+
+// 付费人搜索选择器
+const {
+  state: payerState,
+  search: payerSearch,
+  handleInput: handlePayerInput,
+  handleCompositionStart: handlePayerCompositionStart,
+  handleCompositionEnd: handlePayerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getCustomerList({
+      pageNo: 1,
+      pageSize: 10,
+      customerName: value,
+    });
+  },
+  labelField: 'customerName',
+  valueField: 'customerCode',
+  errorMessage: '获取申请人数据失败',
+  toUpperCase: true,
+  searchMode: 'input',
+  minSearchLength: 2,
 });
 
 // 船名航次搜索选择器
@@ -271,6 +292,7 @@ const [Modal, modalApi] = useVbenModal({
           @search="isoSearch"
           allow-clear
           show-search
+          show-arrow
           @focus="isoSearch('')"
           @input="handleIsoInput"
           @compositionstart="handleIsoCompositionStart"
@@ -289,6 +311,7 @@ const [Modal, modalApi] = useVbenModal({
           @search="ownerSearch"
           allow-clear
           show-search
+          show-arrow
           @focus="ownerSearch('')"
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"
@@ -299,7 +322,7 @@ const [Modal, modalApi] = useVbenModal({
         <Select
           v-model:value="sizeState.value"
           mode="multiple"
-          placeholder="请输入持箱人"
+          placeholder="请输入尺寸"
           style="width: 100%"
           :filter-option="false"
           :not-found-content="sizeState.fetching ? undefined : null"
@@ -307,6 +330,7 @@ const [Modal, modalApi] = useVbenModal({
           @search="sizeSearch"
           allow-clear
           show-search
+          show-arrow
           @focus="sizeSearch('')"
           @input="handleSizeInput"
           @compositionstart="handleSizeCompositionStart"
@@ -325,6 +349,7 @@ const [Modal, modalApi] = useVbenModal({
           @search="containerTypeSearch"
           allow-clear
           show-search
+          show-arrow
           @focus="containerTypeSearch('')"
           @input="handleContainerTypeInput"
           @compositionstart="handleContainerTypeCompositionStart"
@@ -343,10 +368,44 @@ const [Modal, modalApi] = useVbenModal({
           @search="containerHeightSearch"
           allow-clear
           show-search
+          show-arrow
           @focus="containerHeightSearch('')"
           @input="handleContainerHeightInput"
           @compositionstart="handleContainerHeightCompositionStart"
           @compositionend="handleContainerHeightCompositionEnd"
+        />
+      </template>
+      <template #payer>
+        <Select
+          v-model:value="payerState.value"
+          placeholder="请输入付费人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerState.fetching ? undefined : null"
+          :options="payerState.data"
+          @search="payerSearch"
+          allow-clear
+          show-search
+          @input="handlePayerInput"
+          @compositionstart="handlePayerCompositionStart"
+          @compositionend="handlePayerCompositionEnd"
+        />
+      </template>
+      <template #title>
+        <Select
+          v-model:value="payerState.value"
+          placeholder="自动同步付费人信息"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerState.fetching ? undefined : null"
+          :options="payerState.data"
+          @search="payerSearch"
+          allow-clear
+          show-search
+          @input="handlePayerInput"
+          @compositionstart="handlePayerCompositionStart"
+          @compositionend="handlePayerCompositionEnd"
+          :disabled="true"
         />
       </template>
       <template #vslName>

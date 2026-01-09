@@ -416,7 +416,7 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
     },
     {
       field: 'returnTerminal',
-      title: '返厂码头',
+      title: '返场码头',
       minWidth: 120,
     },
     {
@@ -722,6 +722,11 @@ export function editFormSchema(): VbenFormSchema[] {
       fieldName: 'empty',
       label: '空重',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+        disabled: true,
+        placeholder: '请输入空重',
+      },
     },
     {
       fieldName: 'contSize',
@@ -905,11 +910,19 @@ export function editFormSchema(): VbenFormSchema[] {
       fieldName: 'returnPort',
       label: '返场码头',
       component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '请输入返场码头',
+      },
     },
     {
       fieldName: 'payer',
       label: '付费人',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入付费人',
+      },
     },
     {
       fieldName: 'payment',
@@ -919,7 +932,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'title',
       label: '发票抬头',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        placeholder: '自动同步付费人信息',
+      },
     },
     {
       fieldName: 'remark',
