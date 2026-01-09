@@ -22,6 +22,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
+    mainGateReleaseQuantity: string;
     dischargeVslSchedule: string;
   }
   // 子计划VO
@@ -43,6 +44,7 @@ export namespace EmptyContainerControlApi {
     planType: string;
     mainId: string;
     planNo: string;
+    mainGateReleaseQuantity: string;
     dischargeVslSchedule: string;
   }
 
@@ -197,7 +199,6 @@ export const getMainPlan = (id: number) => {
 export const getMainPlanPage = (data: pageVO) => {
   return requestClient.post('/bpp/flow/empty/container-control-main/page', {
     ...data,
-    planStatus: 'COMPLETED',
     planType: 'MAIN',
   });
 };
@@ -235,7 +236,6 @@ export const getSubPlan = (id: number) => {
 export const getSubPlanPage = (data: pageVO) => {
   return requestClient.post('/bpp/flow/empty/container-control-main/page', {
     ...data,
-    planStatus: 'COMPLETED',
     planType: 'SUB',
   });
 };
@@ -273,7 +273,12 @@ export const getStorageQuantity = (data: any) => {
 };
 
 // 强制完成
-export const forceComplete = (data: EmptyContainerControlApi.mainPlanVO) => {
+export const forceComplete = (data: {
+  forceList: Array<{
+    mainId: string;
+    mainGateReleaseQuantity: string;
+  }>;
+}) => {
   return requestClient.put(
     '/bpp/flow/empty/container-control-main/force/complete',
     data,

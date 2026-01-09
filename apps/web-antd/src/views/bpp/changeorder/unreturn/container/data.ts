@@ -716,7 +716,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'tradeType',
       label: '内外贸',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择内外贸',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'empty',
