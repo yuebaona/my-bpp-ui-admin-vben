@@ -1,6 +1,6 @@
 // 原计划与付费信息组件
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onActivated, onMounted, ref, watch } from "vue";
 
 import { useVbenModal, VbenButton } from '@vben/common-ui';
 
@@ -13,7 +13,10 @@ import {
 } from '#/api/bpp/flow/custom/config/form';
 import { $t } from '#/locales';
 import FormConfigModal from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/components/FormConfigModal.vue';
-import { originalPlanPaymentInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
+import {
+  changeOrderPlanInfoFormSchema,
+  originalPlanPaymentInfoFormSchema
+} from "#/views/bpp/changeorder/acceptance/plan/update/data";
 const customFormInfo = ref({
   formKey: 'original_play_paymentInfo',
   formName: '原计划与付费信息',
@@ -23,6 +26,15 @@ const customFormInfo = ref({
 });
 /** 表格展示用的行数据原始数据*/
 const localOriginalRows = ref<any[]>([]);
+// 定义 props 接口
+interface Props {
+  // 接收 planType
+  planType?: any;
+}
+// 定义 props
+const props = withDefaults(defineProps<Props>(), {
+  planType: () => [],
+});
 const [Form, FormApi] = useVbenForm({
   commonConfig: {
     componentProps: { class: 'w-full' },
@@ -49,8 +61,9 @@ const handleSuccess = async (resultData: []) => {
   FormApi.setState({ schema: resultData });
   await updateConfigForm(customFormInfo.value);
   message.success($t('ui.actionMessage.operationSuccess'));
+  show.value = false;
 };
-onMounted(async () => {
+const loadFormConfig = async ()=>{
   localOriginalRows.value = FormApi.getState()?.schema;
 
   const res = await selectByFormKeyNameType(customFormInfo.value);
@@ -73,14 +86,47 @@ onMounted(async () => {
       }
     });
     FormApi.setState({ schema });
+    show.value = false
+  }else{
+    FormApi.setState({schema:originalPlanPaymentInfoFormSchema()})
+    show.value = true
   }
+}
+const initialData = (newVal)=>{
+  customFormInfo.value = {
+    formKey: 'original_play_paymentInfo',
+    formName: '原计划与付费信息',
+    formType: 'originalPlanPaymentInfo',
+    formSchema: [],
+    id: '',
+  }
+  customFormInfo.value.formType = newVal;
+  formKey.value++;
+  loadFormConfig()
+}
+onActivated( () => {
+  loadFormConfig()
 });
+onMounted(()=>{
+  initialData(props.planType)
+})
+// 监听 planType 变化
+watch(() => props.planType, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    initialData(newVal)
+  }
+}, { deep: true });
+const formKey = ref(0)
+const show = ref(false)
 </script>
 
 <template>
   <Card title="原计划与付费信息">
     <template #extra>
-      <VbenButton @click="openModal">配置字段</VbenButton>
+      <div class="flex items-center">
+        <a-tag :bordered="false" color="warning" v-show="show">该类型字段还未配置请先进行配置</a-tag>
+        <VbenButton @click="openModal">配置字段</VbenButton>
+      </div>
     </template>
     <Form />
   </Card>

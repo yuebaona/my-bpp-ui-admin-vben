@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onActivated, onMounted, ref, watch } from "vue";
 
 import { useVbenModal, VbenButton } from '@vben/common-ui';
 
@@ -19,12 +19,23 @@ import { changeOrderPlanInfoFormSchema } from '#/views/bpp/changeorder/acceptanc
 const customFormInfo = ref({
   formKey: 'change_order_planInfo',
   formName: '改单计划信息',
-  formType: 'changeOrderPlanInfo',
+  formType: '',
   formSchema: [],
   id: '',
 });
 /** 表格展示用的行数据原始数据*/
 const localOriginalRows = ref<any[]>([]);
+
+// 定义 props 接口
+interface Props {
+  // 接收 planType
+  planType?: any;
+}
+
+// 定义 props
+const props = withDefaults(defineProps<Props>(), {
+  planType: () => [],
+});
 
 const [Form, FormApi] = useVbenForm({
   commonConfig: {
@@ -52,8 +63,9 @@ const handleSuccess = async (resultData: []) => {
   FormApi.setState({ schema: resultData });
   await updateConfigForm(customFormInfo.value);
   message.success($t('ui.actionMessage.operationSuccess'));
+  show.value = false;
 };
-onMounted(async () => {
+const loadFormConfig = async ()=>{
   localOriginalRows.value = FormApi.getState()?.schema;
 
   const res = await selectByFormKeyNameType(customFormInfo.value);
@@ -76,16 +88,49 @@ onMounted(async () => {
       }
     });
     FormApi.setState({ schema });
+    show.value = false
+  }else{
+    FormApi.setState({schema:changeOrderPlanInfoFormSchema()})
+    show.value = true
   }
+}
+const initialData = (newVal)=>{
+  customFormInfo.value = {
+    formKey: 'change_order_planInfo',
+    formName: '改单计划信息',
+    formType: '',
+    formSchema: [],
+    id: '',
+  }
+  customFormInfo.value.formType = newVal;
+  formKey.value++;
+  loadFormConfig()
+}
+onActivated( () => {
+   loadFormConfig()
 });
+onMounted(()=>{
+ initialData(props.planType)
+})
+// 监听 planType 变化
+watch(() => props.planType, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    initialData(newVal)
+  }
+}, { deep: true });
+const formKey = ref(0)
+const show = ref(false)
 </script>
 
 <template>
   <Card title="改单计划信息">
     <template #extra>
-      <VbenButton @click="openModal">配置字段</VbenButton>
+      <div class="flex items-center">
+        <a-tag :bordered="false" color="warning" v-show="show">该类型字段还未配置请先进行配置</a-tag>
+        <VbenButton @click="openModal">配置字段</VbenButton>
+      </div>
     </template>
-    <Form />
+    <Form  :key="formKey" />
   </Card>
   <Modal @success="handleSuccess" />
 </template>
