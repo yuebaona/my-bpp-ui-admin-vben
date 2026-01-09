@@ -3,7 +3,6 @@
 // import type { ChangeOrderCurrentHistoryApi } from '#/api/bpp/changeorder/current/history/container/index.ts';
 
 import { reactive, ref } from 'vue';
-
 import { useVbenModal } from '@vben/common-ui';
 
 import { message } from 'ant-design-vue';
@@ -12,13 +11,31 @@ import { useVbenForm } from '#/adapter/form';
 import { $t } from '#/locales';
 
 import { batchEditFormSchema } from '../data';
-
+import LadingBill from './ladingBill.vue';
 const emit = defineEmits(['success']);
 
 const selectedIds = ref<number[] | string[]>([]);
 const formData = reactive<any>({
   vesselName: '',
 });
+
+const showLadingBillModal = ref(false);
+
+// 打开提单号选择弹窗
+const openLadingBillModal = () => {
+  showLadingBillModal.value = true;
+};
+
+// 提单号选择成功回调
+const handleLadingBillSuccess = (data: any) => {
+  showLadingBillModal.value = false;
+  formApi.setFieldValue('pickupNo', data.pickupNo || 'BL001');
+};
+
+const schema = batchEditFormSchema();
+schema.find(
+  (item: any) => item.fieldName === 'pickupNo',
+).componentProps.onClick = openLadingBillModal;
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -29,7 +46,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: batchEditFormSchema(),
+  schema: schema,
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-3',
   handleValuesChange: async (values) => {
@@ -91,5 +108,9 @@ const [Modal, modalApi] = useVbenModal({
 <template>
   <Modal title="批量修改">
     <Form />
+    <LadingBill
+      v-model:visible="showLadingBillModal"
+      @success="handleLadingBillSuccess"
+    />
   </Modal>
 </template>

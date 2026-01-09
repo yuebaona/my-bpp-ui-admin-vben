@@ -91,7 +91,7 @@ const ownerSearch = async (value: string) => {
   try {
     const res = await getContainerOwnerListPage({
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 100,
       ownerCode: value.toUpperCase(),
     });
 
@@ -116,7 +116,7 @@ const isoSearch = async (value: string) => {
     const upperCaseValue = value.toUpperCase();
     const res = await getContainerIsoListPage({
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 100,
       contIso: upperCaseValue,
       queryType: 'ISO',
     });

@@ -65,7 +65,7 @@ export function boxInfoSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'importVoyageNo',
+      fieldName: 'owner',
       label: '持箱人',
       component: 'Input',
       componentProps: {
@@ -83,7 +83,7 @@ export function boxInfoSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'ownerList',
+      fieldName: 'pickupNo',
       label: '提单号',
       component: 'Input',
       componentProps: {
@@ -92,7 +92,7 @@ export function boxInfoSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'ownerList',
+      fieldName: 'containerStatus',
       label: '箱状态',
       component: 'Input',
       componentProps: {
@@ -120,7 +120,7 @@ export function boxInfoColumns(): VxeTableGridOptions['columns'] {
       minWidth: 80,
     },
     {
-      field: 'billOfLadingNo',
+      field: 'pickupNo',
       title: '提单号',
       minWidth: 80,
     },
@@ -130,7 +130,7 @@ export function boxInfoColumns(): VxeTableGridOptions['columns'] {
       minWidth: 80,
     },
     {
-      field: 'ownerCode',
+      field: 'owner',
       title: '持箱人',
       minWidth: 50,
     },
@@ -165,7 +165,7 @@ export function businessTypeInfoFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'originalApplicantPhone',
+      fieldName: 'containerStatus',
       component: 'Text',
       label: '状态',
       componentProps: {
@@ -236,7 +236,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'billOfLadingNo',
+      fieldName: 'pickupNo',
       component: 'Input',
       label: '提单号',
       componentProps: { placeholder: '请输入提单号' },
@@ -259,7 +259,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第二行
     {
-      fieldName: 'containerHolder',
+      fieldName: 'owner',
       component: 'Input',
       label: '持箱人',
       componentProps: { placeholder: '请输入持箱人' },
@@ -285,7 +285,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'transportMode',
+      fieldName: 'transportType',
       component: 'Input',
       label: '运输方式',
       componentProps: { placeholder: '请输入运输方式' },
@@ -360,7 +360,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
 
     // 第五行
     {
-      fieldName: 'containerType',
+      fieldName: 'contType',
       component: 'Input',
       label: '箱型',
       componentProps: { placeholder: '请输入箱型' },
@@ -409,7 +409,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'rightOver',
+      fieldName: 'right',
       component: 'Input',
       label: '右超',
       componentProps: { placeholder: '请输入右超' },
@@ -439,7 +439,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'heightOver',
+      fieldName: 'overHeight',
       component: 'Input',
       label: '超高',
       componentProps: { placeholder: '请输入超高' },
@@ -462,7 +462,7 @@ export function inboxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'ventilationPort',
+      fieldName: 'vent',
       component: 'Input',
       label: '通风口',
       componentProps: { placeholder: '请输入通风口' },
@@ -537,7 +537,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'pickupOrderNo',
+      fieldName: 'pickupNo',
       component: 'Input',
       label: '提单号',
       componentProps: {
@@ -579,7 +579,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'containerType',
+      fieldName: 'contType',
       component: 'Input',
       label: '箱型',
       componentProps: {
@@ -671,7 +671,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'isDamaged',
+      fieldName: 'damage',
       component: 'RadioGroup',
       label: '是否残损',
       componentProps: {
@@ -694,7 +694,7 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
 
     // 第五行
     {
-      fieldName: 'transportMode',
+      fieldName: 'transportType',
       component: 'Input',
       label: '运输方式',
       componentProps: {
@@ -793,331 +793,418 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
 export function boxlistColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', width: 40, fixed: 'left' },
-    // 复选框列
     { type: 'checkbox', width: 40, fixed: 'left' },
-    // 箱号
     {
       field: 'contNo',
       title: '箱号',
-      minWidth: 180,
+      minWidth: 120,
+      align: 'center',
+      fixed: 'left',
     },
-    // 修改箱号
     {
       field: 'editedContNo',
       title: '修改箱号',
-      minWidth: 200,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入修改箱号',
-          allowClear: true,
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
-    },
-
-    // 持箱人
-    {
-      field: 'ownerCode',
-      title: '持箱人',
       minWidth: 120,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入持箱人',
-          allowClear: true,
-        },
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 进口船名航次
     {
-      field: 'destinationPort',
+      field: 'owner',
+      title: '持箱人',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'importVesselName',
       title: '进口船名航次',
       minWidth: 120,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入进口船名航次',
-          allowClear: true,
-        },
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 出口船名航次
     {
-      field: 'containerHolder',
+      field: 'exportVesselName',
       title: '出口船名航次',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入出口船名航次',
-          allowClear: true,
-        },
+      minWidth: 120,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 始发港
     {
-      field: 'containerHolder',
+      field: 'originPort',
       title: '始发港',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入始发港',
-          allowClear: true,
-        },
+      minWidth: 100,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 装货港
     {
-      field: 'containerHolder',
+      field: 'loadPort',
       title: '装货港',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入装货港',
-          allowClear: true,
-        },
+      minWidth: 100,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 卸货港
     {
-      field: 'containerHolder',
+      field: 'dischargePort',
       title: '卸货港',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入卸货港',
-          allowClear: true,
-        },
+      minWidth: 100,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 下一卸货港
     {
-      field: 'containerHolder',
+      field: 'nextDischargePort',
       title: '下一卸货港',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入下一卸货港',
-          allowClear: true,
-        },
+      minWidth: 100,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 目的港
     {
-      field: 'containerHolder',
+      field: 'destinationPort',
       title: '目的港',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入目的港',
-          allowClear: true,
-        },
+      minWidth: 100,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 是否拼箱
     {
       field: 'isOverLimit',
       title: '拼箱',
       minWidth: 100,
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '是', value: 'true' },
-            { label: '否', value: 'false' },
-          ],
-        },
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
-      },
-      // 格式化显示值
-      formatter: ({ cellValue }) => {
-        return cellValue === 'yes' ? '是' : '否';
-      },
+      align: 'center',
     },
-
-    // 提单号
     {
-      field: 'containerHolder',
+      field: 'pickupNo',
       title: '提单号',
-      minWidth: 150,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '请输入提单号',
-          allowClear: true,
-        },
+      minWidth: 120,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 空重
     {
       field: 'isLCL',
       title: '空/重',
-      minWidth: 100,
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '空', value: 'empty' },
-            { label: '重', value: 'weight' },
-          ],
-        },
+      minWidth: 80,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
-      },
+      align: 'center',
     },
-
-    // 内贸/外贸
     {
       field: 'tradeType',
       title: '内/外贸',
-      minWidth: 100,
-      filters: [{ data: 'domestic' }, { data: 'foreign' }],
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '内贸', value: 'domestic' },
-            { label: '外贸', value: 'foreign' },
-          ],
-        },
+      minWidth: 80,
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
-      },
-      formatter: ({ cellValue }) => {
-        return cellValue === 'domestic' ? '内贸' : '外贸';
-      },
+      align: 'center',
     },
-
-    // 箱流向
     {
-      field: 'isRefrigerated',
+      field: 'containerFlow',
       title: '箱流向',
       minWidth: 100,
-      filters: [{ data: 'import' }, { data: 'export' }, { data: 'transfer' }],
-      filterRender: {
-        name: 'VxeSelect',
-        props: {
-          placeholder: '请选择',
-          allowClear: true,
-          options: [
-            { label: '进口', value: 'import' },
-            { label: '出口', value: 'export' },
-            { label: '中转', value: 'transfer' },
-          ],
-        },
+      editRender: {
+        name: 'input',
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}` === option.data;
-        }
-        return true;
+      align: 'center',
+    },
+    {
+      field: 'containerStatus',
+      title: '状态',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
       },
-      formatter: ({ cellValue }) => {
-        return cellValue === 'yes' ? '是' : '否';
+      align: 'center',
+    },
+    {
+      field: 'size',
+      title: '尺寸',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
       },
+      align: 'center',
+    },
+    {
+      field: 'contType',
+      title: '箱型',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'containerHeight',
+      title: '箱高',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'iso',
+      title: 'ISO',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'weight',
+      title: '箱重',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'vgm',
+      title: 'VGM',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'containerLevel',
+      title: '箱等级',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'damage',
+      title: '是否残损',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'damageLevel',
+      title: '残损等级',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'pti',
+      title: 'PTI有效',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'ptiTime',
+      title: '有效期',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'imdg',
+      title: '危品等级（IMDG）',
+      minWidth: 150,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'unno',
+      title: '危品联合国代码（UNNO）',
+      minWidth: 180,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'sealNo',
+      title: '铅封号',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'isRefrigerated',
+      title: '是否打冷',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'temperature',
+      title: '温度',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'vent',
+      title: '通风口',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'overLimit',
+      title: '是否超限箱',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'front',
+      title: '前超',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'rear',
+      title: '后超',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'left',
+      title: '左超',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'right',
+      title: '右超',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'overHeight',
+      title: '超高',
+      minWidth: 80,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'transportType',
+      title: '运输方式',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'isLandSeaTrade',
+      title: '是否陆海贸易新通道',
+      minWidth: 150,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'trainStation',
+      title: '火车站点',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'sourceFlow',
+      title: '来源/流向',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'customsType',
+      title: '报关方式',
+      minWidth: 100,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'emptyFlag',
+      title: '商品空箱标志',
+      minWidth: 140,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
+    },
+    {
+      field: 'transferFlag',
+      title: '国际中转箱标志',
+      minWidth: 140,
+      editRender: {
+        name: 'input',
+      },
+      align: 'center',
     },
   ];
 }
@@ -1125,27 +1212,27 @@ export function boxlistColumns(): VxeTableGridOptions['columns'] {
 export function batchEditFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'vesselName',
+      fieldName: 'owner',
       label: '持箱人',
       component: 'Input',
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'importVesselName',
       label: '进口船名航次',
       component: 'Input',
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'exportVesselName',
       label: '出口船名航次',
       component: 'Input',
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'originPort',
       label: '始发港',
       component: 'Input',
     },
     {
-      fieldName: 'vesselName',
+      fieldName: 'loadPort',
       label: '装货港',
       component: 'Input',
     },
@@ -1155,7 +1242,7 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'destinationPort',
+      fieldName: 'nextDischargePort',
       label: '下一卸货港',
       component: 'Input',
     },
@@ -1190,12 +1277,12 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'weight',
       label: '箱重',
       component: 'Input',
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'containerFlow',
       label: '箱流向',
       component: 'Input',
     },
@@ -1210,17 +1297,17 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'size',
       label: '尺寸',
       component: 'Input',
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'contType',
       label: '箱型',
       component: 'Input',
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'containerHeight',
       label: '箱高',
       component: 'Input',
     },
@@ -1233,17 +1320,17 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'vgm',
       label: 'VGM',
       component: 'Input',
     },
     {
-      fieldName: 'cargo',
+      fieldName: 'containerLevel',
       label: '箱等级',
       component: 'Input',
     },
     {
-      fieldName: 'isLCL',
+      fieldName: 'damage',
       label: '是否残损',
       component: 'RadioGroup',
       componentProps: {
@@ -1254,32 +1341,32 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owner',
+      fieldName: 'damageLevel',
       label: '残损等级',
       component: 'Input',
     },
     {
-      fieldName: 'empty',
+      fieldName: 'trainStation',
       label: '火车站点',
       component: 'Input',
     },
     {
-      fieldName: 'size',
+      fieldName: 'imdg',
       label: '危品等级（IMDG）',
       component: 'Input',
     },
     {
-      fieldName: 'containerType',
+      fieldName: 'unno',
       label: '危品联合国代码（UNNO）',
       component: 'Input',
     },
     {
-      fieldName: 'containerHeight',
+      fieldName: 'transportType',
       label: '运输方式',
       component: 'Input',
     },
     {
-      fieldName: 'isReefer',
+      fieldName: 'isRefrigerated',
       label: '是否打冷',
       component: 'RadioGroup',
       componentProps: {
@@ -1295,7 +1382,7 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'temperature',
+      fieldName: 'vent',
       label: '通风口',
       component: 'Input',
     },
@@ -1311,7 +1398,7 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'transportType',
+      fieldName: 'front',
       label: '前超',
       component: 'Input',
     },
@@ -1326,17 +1413,17 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'station',
+      fieldName: 'right',
       label: '右超',
       component: 'Input',
     },
     {
-      fieldName: 'vent',
+      fieldName: 'overHeight',
       label: '超高',
       component: 'Input',
     },
     {
-      fieldName: '',
+      fieldName: 'isLandSeaTrade',
       label: '是否陆海贸易新通道',
       component: 'RadioGroup',
       componentProps: {
@@ -1347,7 +1434,7 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'origin',
+      fieldName: 'sourceFlow',
       label: '来源/流向',
       component: 'Input',
     },
@@ -1355,6 +1442,86 @@ export function batchEditFormSchema(): VbenFormSchema[] {
       fieldName: 'customsType',
       label: '报关方式',
       component: 'Input',
+    },
+  ];
+}
+
+/** 提单信息管理表格列配置 */
+export function ladingBillColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      title: '序号',
+      type: 'seq',
+      field: 'serialNumber',
+      width: 50,
+      align: 'center',
+    },
+    {
+      type: 'checkbox',
+      field: 'checkbox',
+      width: 40,
+      fixed: 'left',
+    },
+    {
+      field: 'pickupNo',
+      title: '提单号',
+      minWidth: 120,
+      fixed: 'left',
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'cargo',
+      title: '货名',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'packageWeight',
+      title: '货件重',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'quantity',
+      title: '货件重',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'totalWeight',
+      title: '货总重',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'volume',
+      title: '货体积',
+      minWidth: 120,
+      sortable: true,
+      editRender: {
+        name: 'input',
+      },
+    },
+    {
+      field: 'operation',
+      title: '操作',
+      minWidth: 120,
+      slots: { default: 'operationAction' },
     },
   ];
 }

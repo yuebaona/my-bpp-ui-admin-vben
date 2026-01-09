@@ -2,7 +2,7 @@
 import { onActivated, ref } from 'vue';
 
 import { Affix } from 'ant-design-vue';
-
+import { Page } from '@vben/common-ui';
 import BoxInfo from '#/views/bpp/changeorder/current/history/container/modules/boxInfo.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPlanInfo.vue';
