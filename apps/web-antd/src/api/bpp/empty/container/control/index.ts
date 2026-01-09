@@ -170,6 +170,7 @@ interface pageVO {
   pickupPlanNo?: string;
   planType?: string;
   mainId?: string;
+  planStatus?: string;
 }
 // 创建主计划信息
 export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
@@ -196,6 +197,7 @@ export const getMainPlan = (id: number) => {
 export const getMainPlanPage = (data: pageVO) => {
   return requestClient.post('/bpp/flow/empty/container-control-main/page', {
     ...data,
+    planStatus: 'COMPLETED',
     planType: 'MAIN',
   });
 };
@@ -233,6 +235,7 @@ export const getSubPlan = (id: number) => {
 export const getSubPlanPage = (data: pageVO) => {
   return requestClient.post('/bpp/flow/empty/container-control-main/page', {
     ...data,
+    planStatus: 'COMPLETED',
     planType: 'SUB',
   });
 };

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -13,16 +13,34 @@ import {
 } from '#/api/bpp/common';
 import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { $t } from '#/locales';
 
 import { editFormSchema } from '../data';
 
 const emit = defineEmits(['success']);
 
-const formData = reactive<any[]>({
+const bppBaseDict = bppBaseDictStore();
+
+/** 通用的字典选项获取函数 */
+function useDictOptions(dictType: string) {
+  return computed(() => {
+    const dictData = bppBaseDict.getBppBaseDictOptions(dictType) || [];
+    return dictData.map((item) => ({
+      label: item.label,
+      value: item.value,
+    }));
+  });
+}
+
+/** 获取内外贸字典选项 */
+const tradeTypeOptions = useDictOptions('trade_type');
+
+const formData = reactive<any>({
   id: null,
   returnType: '',
   returnPort: '',
+  tradeType: undefined,
 });
 
 // ISO搜索选择器
@@ -283,7 +301,6 @@ const [Modal, modalApi] = useVbenModal({
       <template #contIso>
         <Select
           v-model:value="isoState.value"
-          mode="multiple"
           placeholder="请输入ISO"
           style="width: 100%"
           :filter-option="false"
@@ -292,7 +309,6 @@ const [Modal, modalApi] = useVbenModal({
           @search="isoSearch"
           allow-clear
           show-search
-          show-arrow
           @focus="isoSearch('')"
           @input="handleIsoInput"
           @compositionstart="handleIsoCompositionStart"
@@ -302,7 +318,6 @@ const [Modal, modalApi] = useVbenModal({
       <template #holderCode>
         <Select
           v-model:value="ownerState.value"
-          mode="multiple"
           placeholder="请输入持箱人"
           style="width: 100%"
           :filter-option="false"
@@ -311,7 +326,6 @@ const [Modal, modalApi] = useVbenModal({
           @search="ownerSearch"
           allow-clear
           show-search
-          show-arrow
           @focus="ownerSearch('')"
           @input="handleOwnerInput"
           @compositionstart="handleOwnerCompositionStart"
@@ -321,7 +335,6 @@ const [Modal, modalApi] = useVbenModal({
       <template #contSize>
         <Select
           v-model:value="sizeState.value"
-          mode="multiple"
           placeholder="请输入尺寸"
           style="width: 100%"
           :filter-option="false"
@@ -330,7 +343,6 @@ const [Modal, modalApi] = useVbenModal({
           @search="sizeSearch"
           allow-clear
           show-search
-          show-arrow
           @focus="sizeSearch('')"
           @input="handleSizeInput"
           @compositionstart="handleSizeCompositionStart"
@@ -340,7 +352,6 @@ const [Modal, modalApi] = useVbenModal({
       <template #contType>
         <Select
           v-model:value="containerTypeState.value"
-          mode="multiple"
           placeholder="请输入箱型"
           style="width: 100%"
           :filter-option="false"
@@ -349,7 +360,6 @@ const [Modal, modalApi] = useVbenModal({
           @search="containerTypeSearch"
           allow-clear
           show-search
-          show-arrow
           @focus="containerTypeSearch('')"
           @input="handleContainerTypeInput"
           @compositionstart="handleContainerTypeCompositionStart"
@@ -359,7 +369,6 @@ const [Modal, modalApi] = useVbenModal({
       <template #contHeight>
         <Select
           v-model:value="containerHeightState.value"
-          mode="multiple"
           placeholder="请输入箱高"
           style="width: 100%"
           :filter-option="false"
@@ -368,7 +377,6 @@ const [Modal, modalApi] = useVbenModal({
           @search="containerHeightSearch"
           allow-clear
           show-search
-          show-arrow
           @focus="containerHeightSearch('')"
           @input="handleContainerHeightInput"
           @compositionstart="handleContainerHeightCompositionStart"
@@ -406,6 +414,16 @@ const [Modal, modalApi] = useVbenModal({
           @compositionstart="handlePayerCompositionStart"
           @compositionend="handlePayerCompositionEnd"
           :disabled="true"
+        />
+      </template>
+      <template #tradeType>
+        <Select
+          v-model:value="formData.tradeType"
+          placeholder="请选择内外贸"
+          style="width: 100%"
+          allow-clear
+          :options="tradeTypeOptions"
+          @change="(value) => formApi.setFieldValue('tradeType', value)"
         />
       </template>
       <template #vslName>
