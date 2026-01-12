@@ -286,7 +286,10 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
 
           if (formValues.planNo && result.list && result.list.length > 0) {
             const firstMainPlan = result.list[0];
-            if (firstMainPlan.planNo && formValues.planNo !== firstMainPlan.planNo) {
+            if (
+              firstMainPlan.planNo &&
+              formValues.planNo !== firstMainPlan.planNo
+            ) {
               selectedMainId.value = firstMainPlan.id.toString();
               hasSelectedMainPlan.value = true;
               subGridApi.query();
@@ -379,7 +382,12 @@ function handleCreateSubPlan() {
 /** 强制完成 */
 const handleForceComplete = async () => {
   try {
-    const res = await forceComplete({ mainIdList: mainIdList.value });
+    const selectedRecords = mainGridApi.grid.getCheckboxRecords();
+    const forceList = selectedRecords.map((record) => ({
+      mainId: record.id.toString(),
+      mainGateReleaseQuantity: record.mainGateReleaseQuantity,
+    }));
+    const res = await forceComplete({ forceList });
     if (res) {
       message.success('成功强制完成！');
       await mainGridApi.query();
@@ -502,7 +510,7 @@ const handleIsoCompositionEnd = (e: CompositionEvent) => {
 
 const dischargeVslSchedule = reactive({
   data: [],
-  value: '',
+  value: undefined,
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
 });
@@ -661,7 +669,7 @@ const openContainerAreaWindow = (
         <template #form-dischargeVslSchedule>
           <Select
             :options="dischargeVslSchedule.data"
-            v-model="dischargeVslSchedule.value"
+            v-model:value="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
@@ -669,8 +677,9 @@ const openContainerAreaWindow = (
             :list-height="150"
             allow-clear
             @change="
-            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
-          "
+              (value) =>
+                mainGridApi.formApi.setFieldValue('dischargeVslSchedule', value)
+            "
             @input="handleDischargeVslScheduleInput"
             @compositionstart="handleDischargeVslScheduleCompositionStart"
             @compositionend="handleDischargeVslScheduleCompositionEnd"
