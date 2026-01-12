@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { onActivated, ref, watch } from "vue";
+import { onActivated, onMounted, ref, watch } from "vue";
+
 import { Page } from '@vben/common-ui';
+
 import { Affix } from 'ant-design-vue';
+
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import BillOfLadingInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/billOfLadingInfo.vue';
@@ -11,12 +14,9 @@ import ChangeOrderPlanInfo from '#/views/bpp/changeorder/acceptance/plan/update/
 import HeaderInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/headerInfo.vue';
 import InboxInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/inboxInfo.vue';
 import OriginalPlanPaymentInfo from '#/views/bpp/changeorder/acceptance/plan/update/modules/originalPlanPaymentInfo.vue';
-
+import { useRoute } from 'vue-router';
+const route = useRoute();
 const affix = ref(0);
-// 模拟父组件传递的参数
-const businessTypes = ref([
-  { label: '受理计划修改', value: 'acceptance_plan_modify' },
-]);
 const selectedBusinessType = ref('');
 const originalAcceptancePlanNo = ref('');
 // 使用字典 store
@@ -46,33 +46,36 @@ const loadDictData = async (dictTypes: string[]) => {
 };
 /** 获取字典数据 */
 const getDictDataList = async () => {
-  await loadDictData([
-    'acceptance_plan_type',
-  ]);
+  await loadDictData(['acceptance_plan_type']);
 };
-const handleSelectedBusinessType = (value)=>{
-  selectedBusinessType.value = value
-}
+const handleSelectedBusinessType = (value) => {
+  selectedBusinessType.value = value;
+};
 onActivated(async () => {
   // 强制更新Affix组件，使组件重新渲染
   affix.value++;
   await getDictDataList();
 });
-watch(selectedBusinessType, (newVal) => {
-}, { deep: true});
+onMounted(()=>{
+  const { planType } = route.query;
+  selectedBusinessType.value = planType;
+})
+watch(selectedBusinessType, (newVal) => {}, { deep: true });
 </script>
 
 <template>
   <Page auto-content-height>
     <Affix :offset-top="89" :key="affix">
       <HeaderInfo
-        :business-types="bppBaseDict.getBppBaseDictOptions('acceptance_plan_type')"
+        :business-types="
+          bppBaseDict.getBppBaseDictOptions('acceptance_plan_type')
+        "
         :selected-business-type="selectedBusinessType"
         status-text="待提交"
         :original-acceptance-plan-no="originalAcceptancePlanNo"
         original-acceptance-plan-type="提空返重"
         :button-display="buttonDisplay"
-        @update:selectedBusinessType = "handleSelectedBusinessType"
+        @update:selected-business-type="handleSelectedBusinessType"
       />
     </Affix>
     <div class="w-full">
@@ -80,25 +83,25 @@ watch(selectedBusinessType, (newVal) => {
         <div class="flex w-1/2 flex-col">
           <!-- 改单计划信息 -->
           <div>
-            <ChangeOrderPlanInfo :plan-type="selectedBusinessType"/>
+            <ChangeOrderPlanInfo :plan-type="selectedBusinessType" />
           </div>
           <!-- 改单付费信息 -->
           <div class="mt-2">
-            <ChangeOrderPaymentInfo :plan-type="selectedBusinessType"/>
+            <ChangeOrderPaymentInfo :plan-type="selectedBusinessType" />
           </div>
         </div>
         <!-- 原计划与付费信息 -->
         <div class="ml-2 w-1/2">
-          <OriginalPlanPaymentInfo :plan-type="selectedBusinessType"/>
+          <OriginalPlanPaymentInfo :plan-type="selectedBusinessType" />
         </div>
       </div>
       <!-- 提单信息 -->
       <div>
-        <BillOfLadingInfo :plan-type="selectedBusinessType"/>
+        <BillOfLadingInfo :plan-type="selectedBusinessType" />
       </div>
       <!-- 进箱信息 -->
       <div class="mt-2">
-        <InboxInfo :plan-type="selectedBusinessType"/>
+        <InboxInfo :plan-type="selectedBusinessType" />
       </div>
     </div>
     <div class="mt-2">
