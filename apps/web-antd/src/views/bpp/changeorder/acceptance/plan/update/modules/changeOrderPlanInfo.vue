@@ -65,7 +65,7 @@ const loadFormConfig = async ()=>{
     });
     FormApi.setState({ schema });
   }else{
-    FormApi.setState({schema:changeOrderPlanInfoFormSchema()})
+    FormApi.setState({ schema: changeOrderPlanInfoFormSchema() });
   }
 }
 const initialData = (newVal)=>{

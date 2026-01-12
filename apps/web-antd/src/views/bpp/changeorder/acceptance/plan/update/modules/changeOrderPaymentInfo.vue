@@ -11,6 +11,10 @@ import {
   selectByFormKeyNameType,
 } from '#/api/bpp/flow/custom/config/form';
 import { onActivated, onMounted, ref, watch } from "vue";
+// 定义 props
+const props = withDefaults(defineProps<Props>(), {
+  planType: () => [],
+});
 const customFormInfo = ref({
   formKey: 'change_order_paymentInfo',
   formName: '改单付费信息',
@@ -25,10 +29,6 @@ interface Props {
   // 接收 planType
   planType?: any;
 }
-// 定义 props
-const props = withDefaults(defineProps<Props>(), {
-  planType: () => [],
-});
 const [Form, FormApi] = useVbenForm({
   commonConfig: {
     componentProps: { class: 'w-full' },
@@ -83,12 +83,10 @@ const initialData = (newVal)=>{
   loadFormConfig()
 }
 onMounted(()=>{
-  console.log(props.planType)
   initialData(props.planType)
 })
 // 监听 planType 变化
 watch(() => props.planType, (newVal) => {
-  console.log(newVal)
   if (newVal && newVal.length > 0) {
     initialData(newVal)
   }

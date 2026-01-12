@@ -92,12 +92,10 @@ const initialData = (newVal)=>{
   loadFormConfig()
 }
 onMounted(()=>{
-  console.log(props.planType)
   initialData(props.planType)
 })
 // 监听 planType 变化
 watch(() => props.planType, (newVal) => {
-  console.log(newVal)
   if (newVal && newVal.length > 0) {
     initialData(newVal)
   }

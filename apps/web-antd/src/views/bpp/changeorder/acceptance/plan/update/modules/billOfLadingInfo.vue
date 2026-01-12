@@ -81,7 +81,7 @@ const initialData = (newVal)=>{
   formKey.value++;
   loadFormConfig()
 }
-onMounted(()=>{
+onMounted(() => {
   initialData(props.planType)
 })
 // 监听 planType 变化
