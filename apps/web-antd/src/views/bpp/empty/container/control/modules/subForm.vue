@@ -14,6 +14,7 @@ import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createSubPlan,
+  getMainPlan,
   getStorageQuantity,
   getSubPlanIsoList,
   getSubPlanOwnerList,
@@ -44,6 +45,9 @@ const containerAreaData = reactive<any[]>([]);
 const yardColumnsOptions = ref<
   Record<string, { label: string; value: string }[]>
 >({});
+
+// 存储主计划的 bayRangeList 映射：yardBay -> yardRaw
+const mainPlanBayRangeMap = ref<Record<string, string>>({});
 
 const dischargeVslSchedule = reactive({
   data: [],
@@ -190,10 +194,7 @@ const transformStringToArray = (value: any): string[] => {
   return [];
 };
 
-const handleContainerAreaConfirm = async (
-  positions: string[],
-  yardColumnsMap?: Record<string, string[]>,
-) => {
+const handleContainerAreaConfirm = async (positions: string[]) => {
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
@@ -211,18 +212,16 @@ const handleContainerAreaConfirm = async (
     const newRows = positions.map((pos) => {
       const yardPosition = `${pos}`;
 
-      // 保存该位置的可选列选项
-      if (
-        yardColumnsMap &&
-        yardColumnsMap[pos] &&
-        yardColumnsMap[pos].length > 0
-      ) {
-        yardColumnsOptions.value[pos] = yardColumnsMap[pos].map((col) => ({
+      // 使用主计划的 bayRangeList 限制列选项
+      const mainPlanYardRaw = mainPlanBayRangeMap.value[pos];
+      if (mainPlanYardRaw) {
+        const allowedColumns = mainPlanYardRaw.split(',').map((col) => col.trim());
+        yardColumnsOptions.value[pos] = allowedColumns.map((col) => ({
           label: col,
           value: col,
         }));
       } else {
-        // 如果没有返回特定的列信息，使用默认的A-J列
+        // 如果主计划也没有限制，使用默认的A-J列
         yardColumnsOptions.value[pos] = [
           { label: 'A', value: 'A' },
           { label: 'B', value: 'B' },
@@ -611,6 +610,7 @@ const [Modal, modalApi] = useVbenModal({
       });
       containerAreaData.splice(0);
       yardColumnsOptions.value = {};
+      mainPlanBayRangeMap.value = {};
       isoState.data = [];
       ownerState.data = [];
       isoState.value = [];
@@ -624,6 +624,7 @@ const [Modal, modalApi] = useVbenModal({
       // 清空现有数据
       containerAreaData.splice(0);
       yardColumnsOptions.value = {};
+      mainPlanBayRangeMap.value = {};
 
       const subPlanData = data.acceptancePlanRespVO || data;
       Object.assign(formData, subPlanData);
@@ -633,6 +634,20 @@ const [Modal, modalApi] = useVbenModal({
       }
       if (data.mainId) {
         formData.mainId = data.mainId;
+        // 获取主计划数据以限制堆场列选项
+        try {
+          const mainPlanData = await getMainPlan(data.mainId);
+          if (mainPlanData && mainPlanData.bayRangeList) {
+            // 创建 yardBay -> yardRaw 的映射
+            mainPlanData.bayRangeList.forEach((item: any) => {
+              if (item.yardBay && item.yardRaw) {
+                mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
+              }
+            });
+          }
+        } catch (error) {
+          console.error('获取主计划数据失败：', error);
+        }
       }
       if (
         data.planType === 'SUB' &&
@@ -701,7 +716,18 @@ const [Modal, modalApi] = useVbenModal({
                 // 从已有的数据中提取列信息（如果有）
                 const yardPosition = item.yardBay || item.yardPosition;
                 if (yardPosition && item.yardColumns) {
-                  yardColumnsOptions.value[yardPosition] = item.yardColumns.map(
+                  // 检查主计划是否有列限制
+                  const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
+                  let filteredColumns = item.yardColumns;
+                  if (mainPlanYardRaw) {
+                    const allowedColumns = mainPlanYardRaw
+                      .split(',')
+                      .map((col) => col.trim());
+                    filteredColumns = item.yardColumns.filter((col: string) =>
+                      allowedColumns.includes(col),
+                    );
+                  }
+                  yardColumnsOptions.value[yardPosition] = filteredColumns.map(
                     (col: string) => ({
                       label: col,
                       value: col,
@@ -723,7 +749,18 @@ const [Modal, modalApi] = useVbenModal({
                   const yardPosition = bayRange.yardBay || '';
                   if (yardPosition && bayRange.yardRaw) {
                     const columns = bayRange.yardRaw.split(',');
-                    yardColumnsOptions.value[yardPosition] = columns.map(
+                    // 检查主计划是否有列限制
+                    const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
+                    let filteredColumns = columns;
+                    if (mainPlanYardRaw) {
+                      const allowedColumns = mainPlanYardRaw
+                        .split(',')
+                        .map((col) => col.trim());
+                      filteredColumns = columns.filter((col) =>
+                        allowedColumns.includes(col),
+                      );
+                    }
+                    yardColumnsOptions.value[yardPosition] = filteredColumns.map(
                       (col) => ({
                         label: col,
                         value: col,
@@ -748,7 +785,18 @@ const [Modal, modalApi] = useVbenModal({
                 const yardPosition = subPlanData.bayRangeList.yardBay || '';
                 if (yardPosition && subPlanData.bayRangeList.yardRaw) {
                   const columns = subPlanData.bayRangeList.yardRaw.split(',');
-                  yardColumnsOptions.value[yardPosition] = columns.map(
+                  // 检查主计划是否有列限制
+                  const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
+                  let filteredColumns = columns;
+                  if (mainPlanYardRaw) {
+                    const allowedColumns = mainPlanYardRaw
+                      .split(',')
+                      .map((col) => col.trim());
+                    filteredColumns = columns.filter((col) =>
+                      allowedColumns.includes(col),
+                    );
+                  }
+                  yardColumnsOptions.value[yardPosition] = filteredColumns.map(
                     (col) => ({
                       label: col,
                       value: col,
