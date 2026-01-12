@@ -1556,9 +1556,6 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       title: '操作',
       width: 160,
       fixed: 'right',
-      slots: {
-        default: 'operation', // 对应模板中的 slot 名称
-      },
     },
   ];
 }

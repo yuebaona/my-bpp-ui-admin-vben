@@ -3,7 +3,7 @@ import { onActivated, onMounted, ref, watch } from "vue";
 
 import { Page } from '@vben/common-ui';
 
-import { Affix } from 'ant-design-vue';
+import { Affix,Card } from 'ant-design-vue';
 
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
@@ -56,28 +56,32 @@ onActivated(async () => {
   affix.value++;
   await getDictDataList();
 });
-onMounted(()=>{
+onMounted(() => {
   const { planType } = route.query;
-  selectedBusinessType.value = planType;
+  if (planType){
+    selectedBusinessType.value = planType;
+  }
 })
 watch(selectedBusinessType, (newVal) => {}, { deep: true });
 </script>
 
 <template>
-  <Page auto-content-height>
-    <Affix :offset-top="89" :key="affix">
-      <HeaderInfo
-        :business-types="
+  <Affix :offset-top="89" :key="affix">
+    <Card>
+    <HeaderInfo
+      :business-types="
           bppBaseDict.getBppBaseDictOptions('acceptance_plan_type')
         "
-        :selected-business-type="selectedBusinessType"
-        status-text="待提交"
-        :original-acceptance-plan-no="originalAcceptancePlanNo"
-        original-acceptance-plan-type="提空返重"
-        :button-display="buttonDisplay"
-        @update:selected-business-type="handleSelectedBusinessType"
-      />
-    </Affix>
+      :selected-business-type="selectedBusinessType"
+      status-text="待提交"
+      :original-acceptance-plan-no="originalAcceptancePlanNo"
+      original-acceptance-plan-type="提空返重"
+      :button-display="buttonDisplay"
+      @update:selected-business-type="handleSelectedBusinessType"
+    />
+    </Card>
+  </Affix>
+  <Page auto-content-height>
     <div class="w-full">
       <div class="mb-2 mt-2 flex">
         <div class="flex w-1/2 flex-col">

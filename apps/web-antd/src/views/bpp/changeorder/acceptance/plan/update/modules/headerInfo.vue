@@ -69,22 +69,25 @@ const filterOption = (input: string, option: any) => {
 </script>
 
 <template>
-  <div class="mb-2 flex flex-col gap-2 border-b-stone-300 bg-white p-3">
+  <div class="flex flex-col gap-2 border-b-stone-300">
     <div class="flex items-center justify-between">
       <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-10">
           <div class="flex items-center gap-2">
-            <label class="text-sm font-medium text-gray-700">业务类型：</label>
-            <Select
-              v-model:value="localSelectedValue"
-              style="width: 100%;flex:1"
-              placeholder="请选择受理计划类型"
-              :options="businessTypes"
-              :show-search="true"
-              :filter-option="filterOption"
-              @change="handleBusinessTypeChange"
-              allow-clear
-            ></Select>
+            <div class="text-sm font-medium text-gray-700">业务类型：</div>
+            <div>
+              <Select
+                v-model:value="localSelectedValue"
+                style="width:200px;"
+                placeholder="请选择受理计划类型"
+                :options="businessTypes"
+                :show-search="true"
+                :filter-option="filterOption"
+                @change="handleBusinessTypeChange"
+                allow-clear
+              ></Select>
+            </div>
+
           </div>
 
           <div class="flex items-center gap-2">

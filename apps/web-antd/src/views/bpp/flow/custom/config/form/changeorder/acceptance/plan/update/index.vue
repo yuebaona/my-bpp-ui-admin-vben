@@ -3,7 +3,7 @@ import { onActivated, onMounted, ref, watch } from "vue";
 
 import { Page } from '@vben/common-ui';
 
-import { Affix,Select } from "ant-design-vue";
+import { Affix,Select, Card } from "ant-design-vue";
 
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
@@ -49,22 +49,25 @@ watch(value, (newVal) => {
 </script>
 
 <template>
+  <Affix :offset-top="89">
+    <Card>
+      <div class="flex items-center">
+        <div>受理计划类型：</div>
+        <Select
+          v-model:value="value"
+          style="width: 100%;flex:1"
+          placeholder="请选择受理计划类型"
+          :options="bppBaseDict.getBppBaseDictOptions('acceptance_plan_type')"
+          :show-search="true"
+          :filter-option="filterOption"
+          allow-clear
+        ></Select>
+      </div>
+
+    </Card>
+  </Affix>
   <Page auto-content-height>
     <div class="w-full">
-      <Affix>
-        <div class="bg-white flex items-center p-5 mb-2">
-          <div>受理计划类型：</div>
-          <Select
-            v-model:value="value"
-            style="width: 100%;flex:1"
-            placeholder="请选择受理计划类型"
-            :options="bppBaseDict.getBppBaseDictOptions('acceptance_plan_type')"
-            :show-search="true"
-            :filter-option="filterOption"
-            allow-clear
-          ></Select>
-        </div>
-      </Affix>
       <div class="mb-2 flex">
         <div class="flex w-1/2 flex-col">
           <div>
