@@ -382,7 +382,12 @@ function handleCreateSubPlan() {
 /** 强制完成 */
 const handleForceComplete = async () => {
   try {
-    const res = await forceComplete({ mainIdList: mainIdList.value });
+    const selectedRecords = mainGridApi.grid.getCheckboxRecords();
+    const forceList = selectedRecords.map((record) => ({
+      mainId: record.id.toString(),
+      mainGateReleaseQuantity: record.mainGateReleaseQuantity,
+    }));
+    const res = await forceComplete({ forceList });
     if (res) {
       message.success('成功强制完成！');
       await mainGridApi.query();
