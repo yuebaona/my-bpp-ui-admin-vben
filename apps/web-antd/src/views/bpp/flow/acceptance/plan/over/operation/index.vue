@@ -912,7 +912,9 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
 
 const initiationTypeValue = ref<null | string>(null);
 
-const adcancedQueryModalOpen = () => {
+const advancedQueryModalOpen = async () => {
+  // 调用表单数据
+  // await getTableFieldInfoByTableName('acpt_pln');
   AdvancedQueryModalApi.open();
 };
 watch(
@@ -1037,7 +1039,7 @@ const queryResult = ref<any>(null);
 // 处理查询事件
 const handleQuery = (params: any) => {
   queryResult.value = params;
-  console.log(queryResult.value)
+  console.log(queryResult.value);
 };
 
 // 处理重置事件
@@ -1191,6 +1193,10 @@ const boxFloatingFilterColumns = ref<string[]>([
   'contTotalWeight',
   'contCargoSize',
   'contOogDetails',
+  'isSystemRateGate',
+  'priceGate',
+  'isSystemRateSea',
+  'priceSea'
 ]);
 const oogFloatingFilterColumns = ref<string[]>([
   'cheWorkChangeType',
@@ -1301,7 +1307,7 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
           />
         </template>
         <template #form-expand-before>
-          <advancedButton @click="adcancedQueryModalOpen" />
+          <advancedButton @click="advancedQueryModalOpen" />
         </template>
         <template #toolbar-tools>
           <TableAction

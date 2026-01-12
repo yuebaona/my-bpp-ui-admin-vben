@@ -440,6 +440,9 @@ export function contInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'contCargoSize',
       minWidth: 120,
       editRender: { name: 'input' },
+      slots: {
+        edit: 'contCargoSize',
+      },
     },
     {
       title: '超限明细CM',
@@ -1703,6 +1706,126 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       },
       slots: {
         floatingFilter: 'contOogDetails',
+      },
+    },
+    {
+      field: 'isSystemRateGate',
+      title: '陆侧是否系统费率',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      slots: {
+        floatingFilter: 'isSystemRateGate',
+      },
+    },
+    {
+      field: 'priceGate',
+      title: '陆侧报价金额',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      slots: {
+        floatingFilter: 'priceGate',
+      },
+    },
+    {
+      field: 'isSystemRateSea',
+      title: '海侧是否系统费率',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      slots: {
+        floatingFilter: 'isSystemRateSea',
+      },
+    },
+    {
+      field: 'priceSea',
+      title: '陆侧报价金额',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      slots: {
+        floatingFilter: 'priceSea',
       },
     },
   ];
