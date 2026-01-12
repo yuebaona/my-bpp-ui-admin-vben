@@ -24,7 +24,6 @@ export namespace CommonApi {
     noticeEmail: string;
     noticePhone: string;
   }
-
   export interface ContainerOwnerVO {
     id?: number;
     ownerCode?: string;
@@ -37,6 +36,17 @@ export namespace CommonApi {
   export interface isoVO {
     id?: number;
     contIso?: string;
+    isSpecial?: string;
+    containerType?: string;
+    containerTypeName?: string;
+    containerLength?: string;
+    containerHeight?: string;
+    isoCode?: string;
+  }
+
+  export interface ContainerVO {
+    id?: number;
+    vvd?: string;
     isSpecial?: string;
     containerType?: string;
     containerTypeName?: string;
@@ -66,6 +76,17 @@ export const getVVd = ({
     `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
+
+// 获取船名航次（联合查询）
+export const getVesselAndVoyage = (params: { condition: string }) => {
+  return requestClient.get<EmptyContainerControlApi.ContainerVO>(
+    '/bpp/flow/common/get-vvd-union',
+    {
+      params,
+    },
+  );
+};
+
 // 获取集装箱ISO信息
 export const getContainerIsoList = (queryType: string) => {
   return requestClient.get(
