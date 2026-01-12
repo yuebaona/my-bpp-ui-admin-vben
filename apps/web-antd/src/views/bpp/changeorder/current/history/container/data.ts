@@ -5,11 +5,12 @@ import type { VbenFormSchema } from '#/adapter/form';
 export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'applyCode',
-      component: 'Input',
+      fieldName: 'person',
+      component: 'Select',
       label: '申请人',
       componentProps: {
-        placeholder: '请输入订单编号',
+        allowClear: true,
+        placeholder: '请输入申请人',
       },
       rules: 'required',
     },
@@ -23,19 +24,21 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'applyTime',
-      component: 'Input',
+      fieldName: 'company',
+      component: 'Select',
       label: '货主单位',
       componentProps: {
+        allowClear: true,
         placeholder: '请输入货主单位',
       },
       rules: 'required',
     },
     {
-      fieldName: 'applyTime',
-      component: 'Input',
+      fieldName: 'agentCompany',
+      component: 'Select',
       label: '货代单位',
       componentProps: {
+        allowClear: true,
         placeholder: '请输入货代单位',
       },
       rules: 'required',
@@ -195,10 +198,11 @@ export function businessTypeInfoFormSchema(): VbenFormSchema[] {
 export function changeOrderPaymentInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'changePayer',
-      component: 'Input',
+      fieldName: 'payer',
+      component: 'Select',
       label: '付费人',
       componentProps: {
+        allowClear: true,
         placeholder: '',
       },
       rules: 'required',
@@ -208,6 +212,7 @@ export function changeOrderPaymentInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       label: '付费方式',
       componentProps: {
+        allowClear: true,
         placeholder: '',
       },
       rules: 'required',
@@ -217,6 +222,7 @@ export function changeOrderPaymentInfoFormSchema(): VbenFormSchema[] {
       component: 'Input',
       label: '发票抬头',
       componentProps: {
+        allowClear: true,
         placeholder: '',
         disabled: true,
       },
@@ -1219,12 +1225,20 @@ export function batchEditFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'importVesselName',
       label: '进口船名航次',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入进口船名航次',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'exportVesselName',
       label: '出口船名航次',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入出口船名航次',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'originPort',

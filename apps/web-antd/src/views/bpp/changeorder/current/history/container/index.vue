@@ -59,25 +59,31 @@ onActivated(() => {
         :button-display="buttonDisplay"
       />
     </Affix>
-    <div class="mb-2 w-screen">
-      <div class="mb-2 mt-2 flex">
-        <div class="flex w-3/5 flex-col">
+    <div class="mb-2 ">
+      <div class="mb-2 mt-2 flex flex-col md:flex-row">
+        <div class="flex w-full md:w-2/5 flex-col mb-4 md:mb-0">
+          <!-- 改单计划信息 -->
           <div>
             <ChangeOrderPlanInfo />
           </div>
+          <!-- 改单付费信息 -->
           <div class="mt-2">
             <ChangeOrderPaymentInfo />
           </div>
         </div>
         <!-- 箱信息 -->
-        <div class="ml-2 w-full">
+        <div class="ml-0 md:ml-2 w-full md:w-3/5">
           <BoxInfo @add-to-edit="handleAddToEdit" />
         </div>
       </div>
+      <div class="mb-2 mt-2 flex">
+        <div class="w-full">
+          <boxList
+            :selected-boxes="selectedBoxes"
+            @remove-from-edit="handleRemoveFromEdit"
+          />
+      </div>
+      </div>
     </div>
-    <boxList
-      :selected-boxes="selectedBoxes"
-      @remove-from-edit="handleRemoveFromEdit"
-    />
   </Page>
 </template>
