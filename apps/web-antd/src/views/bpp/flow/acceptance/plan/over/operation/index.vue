@@ -613,8 +613,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitOnEnter: true,
   },
   gridOptions: {
+    border: true,
     resizableConfig: {
       isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isAllColumnDrag: true,
     },
     checkboxConfig: {
       highlight: true,
@@ -634,8 +636,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
       keyField: 'id',
       isHover: true,
     },
+    printConfig: {
+      enabled: true,
+    },
     toolbarConfig: {
       search: true,
+      print: true,
       custom: true,
       // import: true,
       refresh: true,
@@ -710,8 +716,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    border: true,
     resizableConfig: {
       isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isAllColumnDrag: true,
     },
     checkboxConfig: {
       highlight: true,
@@ -802,8 +810,10 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      border: true,
       resizableConfig: {
         isDblclickAutoWidth: true, // 启用双击自适应列宽
+        isAllColumnDrag: true,
       },
       checkboxConfig: {
         highlight: true,
@@ -1027,6 +1037,7 @@ const queryResult = ref<any>(null);
 // 处理查询事件
 const handleQuery = (params: any) => {
   queryResult.value = params;
+  console.log(queryResult.value)
 };
 
 // 处理重置事件
