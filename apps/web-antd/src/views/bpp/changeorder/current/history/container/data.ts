@@ -1225,12 +1225,20 @@ export function batchEditFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'importVesselName',
       label: '进口船名航次',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入进口船名航次',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'exportVesselName',
       label: '出口船名航次',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入出口船名航次',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'originPort',
