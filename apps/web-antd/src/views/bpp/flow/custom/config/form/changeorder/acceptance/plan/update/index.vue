@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { onActivated, onMounted, ref, watch } from "vue";
+
 import { Page } from '@vben/common-ui';
 
+import { Affix,Select } from "ant-design-vue";
+
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import BillOfLadingInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/billOfLadingInfo.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/changeOrderPlanInfo.vue';
 import InboxInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/inboxInfo.vue';
 import OriginalPlanPaymentInfo from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/modules/originalPlanPaymentInfo.vue';
-import { Affix,Select } from "ant-design-vue";
-import { onActivated, onMounted, ref, watch } from "vue";
-import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import { getDictDataPage } from '#/api/bpp/base/dict/data';
 const affix = ref(0);
 const value = ref('BCNNNN');
 // 使用字典 store
@@ -42,8 +44,6 @@ onActivated(async() => {
   affix.value++;
   await getDictDataList();
 });
-onMounted(()=>{
-})
 watch(value, (newVal) => {
 }, { deep: true});
 </script>
@@ -62,7 +62,6 @@ watch(value, (newVal) => {
             :show-search="true"
             :filter-option="filterOption"
             allow-clear
-            defaultActiveFirstOption
           ></Select>
         </div>
       </Affix>

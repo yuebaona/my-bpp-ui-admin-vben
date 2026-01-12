@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults } from 'vue';
+import { defineEmits, defineProps, ref, withDefaults } from "vue";
 
 import { Button, Select } from 'ant-design-vue';
 
@@ -59,10 +59,14 @@ const emit = defineEmits([
   'executeModify', // 执行改单
   'executeModifyTos', // 提交TOS修改
 ]);
+const selectedBusinessType = ref('BCNNNN');
 
 // 处理业务类型变更
 const handleBusinessTypeChange = (value: string) => {
   emit('update:selectedBusinessType', value);
+};
+const filterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
 };
 </script>
 
@@ -73,12 +77,22 @@ const handleBusinessTypeChange = (value: string) => {
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-2">
             <label class="text-sm font-medium text-gray-700">业务类型：</label>
+<!--            <Select-->
+<!--              class="w-40"-->
+<!--              :value="selectedBusinessType"-->
+<!--              :options="businessTypes"-->
+<!--              @change="handleBusinessTypeChange"-->
+<!--            />-->
             <Select
-              class="w-40"
-              :value="selectedBusinessType"
+              v-model:value="selectedBusinessType"
+              style="width: 100%;flex:1"
+              placeholder="请选择受理计划类型"
               :options="businessTypes"
+              :show-search="true"
+              :filter-option="filterOption"
               @change="handleBusinessTypeChange"
-            />
+              allow-clear
+            ></Select>
           </div>
 
           <div class="flex items-center gap-2">

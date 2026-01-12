@@ -159,6 +159,7 @@ export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       component: 'Textarea',
       label: '备注',
+      rules: 'required',
       componentProps: { placeholder: '请输入备注', rows: 3 },
     },
   ];
