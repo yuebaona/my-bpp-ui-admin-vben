@@ -579,6 +579,7 @@ const getDictDataList = async () => {
     'spreader_type',
     'actual_operation',
     'initiation_type',
+    'mechanical_type'
   ]);
 };
 // 高级查询处理函数
@@ -1234,7 +1235,13 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
   'payerNameGate',
   'paymentTypeGate',
   'isSystemRate',
+  'plannedMachryType',
+  'createTime',
+  'priceGate',
+  'priceSea',
+  'isAllowedStacking',
   'conclusionTime',
+  'createTime'
 ]);
 </script>
 
