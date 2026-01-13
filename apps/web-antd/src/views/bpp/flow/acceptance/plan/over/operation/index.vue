@@ -4,7 +4,7 @@ import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/o
 
 import { onActivated, reactive, ref, watch } from 'vue';
 
-import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { alert, confirm, Page, useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
@@ -139,7 +139,8 @@ function handleCreate() {
 /** 撤销  */
 function handleRevoke() {
   if (acptPlnNo.value.length === 0) {
-    message.error($t('cxmo.message.revokeMessage'));
+    message.warning($t('cxmo.message.revokeMessage'));
+    showIconAlert($t('cxmo.message.revokeMessage'), 'warning');
     return;
   }
   const invalidNodes = new Set([
@@ -152,7 +153,8 @@ function handleRevoke() {
     invalidNodes.has(node),
   );
   if (!hasInvalidNode) {
-    message.error($t('cxmo.message.revokeVerifyMessage'));
+    message.warning($t('cxmo.message.revokeVerifyMessage'));
+    showIconAlert($t('cxmo.message.revokeVerifyMessage'), 'warning');
     return;
   }
   confirm({
@@ -195,7 +197,8 @@ function handleAudit(row: any) {
 /** 流程审核 */
 function handleViewDetail(row: any) {
   if (!row.processInstanceId) {
-    message.error($t('ui.actionMessage.noProcessInstance'));
+    message.warning($t('ui.actionMessage.noProcessInstance'));
+    showIconAlert($t('ui.actionMessage.noProcessInstance'), 'warning');
     return;
   }
   handleAudit({
@@ -254,7 +257,8 @@ const handleOnSiteOperation = async () => {
   });
 
   if (!initiationTypeValue.value) {
-    message.error('请选择发起类型');
+    message.warning('请选择发起类型');
+    showIconAlert($t('请选择发起类型'), 'warning');
     return;
   }
 
@@ -264,7 +268,8 @@ const handleOnSiteOperation = async () => {
   ) {
     case '客户发起': {
       if (currentSelected.length === 0) {
-        message.error($t('cxmo.message.boxMessage'));
+        message.warning($t('cxmo.message.boxMessage'));
+        showIconAlert($t('cxmo.message.boxMessage'), 'warning');
         return;
       }
 
@@ -276,7 +281,8 @@ const handleOnSiteOperation = async () => {
         invalidNodes.has(node),
       );
       if (hasInvalidNode) {
-        message.error($t('cxmo.message.iniOrComMessage'));
+        message.warning($t('cxmo.message.iniOrComMessage'));
+        showIconAlert($t('cxmo.message.iniOrComMessage'), 'warning');
         return;
       }
 
@@ -286,7 +292,8 @@ const handleOnSiteOperation = async () => {
         if (boxAcptPlnNos.length > 1) {
           const uniqueNos = new Set(boxAcptPlnNos);
           if (uniqueNos.size > 1) {
-            message.error('存在不同的受理编号，请检查');
+            message.warning('存在不同的受理编号，请检查');
+            showIconAlert($t('存在不同的受理编号，请检查'), 'warning');
             return;
           }
         }
@@ -295,7 +302,8 @@ const handleOnSiteOperation = async () => {
         if (vslCodes.length > 1) {
           const uniqueCodes = new Set(vslCodes);
           if (uniqueCodes.size > 1) {
-            message.error('存在不同的船代码，请检查');
+            message.warning('存在不同的船代码，请检查');
+            showIconAlert($t('存在不同的船代码，请检查'), 'warning');
             return;
           }
         }
@@ -304,7 +312,8 @@ const handleOnSiteOperation = async () => {
         if (vslVoys.length > 1) {
           const uniqueVoyages = new Set(vslVoys);
           if (uniqueVoyages.size > 1) {
-            message.error('存在不同的航次，请检查');
+            message.warning('存在不同的航次，请检查');
+            showIconAlert($t('存在不同的航次，请检查'), 'warning');
             return;
           }
         }
@@ -315,7 +324,8 @@ const handleOnSiteOperation = async () => {
         if (cheWorkChangeTypes.length > 1) {
           const uniqueTypes = new Set(cheWorkChangeTypes);
           if (uniqueTypes.size > 1) {
-            message.error('存在不同的吊具类型，请检查');
+            message.warning('存在不同的吊具类型，请检查');
+            showIconAlert($t('存在不同的吊具类型，请检查'), 'warning');
             return;
           }
         }
@@ -326,7 +336,8 @@ const handleOnSiteOperation = async () => {
         if (contOperationNodes.length > 1) {
           const uniqueNodes = new Set(contOperationNodes);
           if (uniqueNodes.size > 1) {
-            message.error('存在不同的现场作业节点，请检查');
+            message.warning('存在不同的现场作业节点，请检查');
+            showIconAlert($t('存在不同的现场作业节点，请检查'), 'warning');
             return;
           }
         }
@@ -337,7 +348,8 @@ const handleOnSiteOperation = async () => {
         if (plannedCheTypes.length > 1) {
           const uniqueTypes = new Set(plannedCheTypes);
           if (uniqueTypes.size > 1) {
-            message.error('存在不同的现场作业吊具，请检查');
+            message.warning('存在不同的现场作业吊具，请检查');
+            showIconAlert($t('存在不同的现场作业吊具，请检查'), 'warning');
             return;
           }
         }
@@ -381,7 +393,8 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
 
   if (currentSelected.length === 0) {
-    message.error($t('cxmo.message.boxMessage'));
+    message.warning($t('cxmo.message.boxMessage'));
+    showIconAlert($t('cxmo.message.boxMessage'), 'warning');
     return;
   }
 
@@ -395,7 +408,8 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   );
 
   if (hasInvalidNode) {
-    message.error($t('cxmo.message.iniOrComMessage'));
+    message.warning($t('cxmo.message.currentOperationNode'));
+    showIconAlert($t('cxmo.message.currentOperationNode'), 'warning');
     return;
   }
 
@@ -428,7 +442,8 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 
   // 判断是否选中箱
   if (currentSelected.length === 0) {
-    message.error($t('cxmo.message.boxMessage'));
+    message.warning($t('cxmo.message.boxMessage'));
+    showIconAlert($t('cxmo.message.boxMessage'), 'warning');
     return;
   }
 
@@ -441,7 +456,8 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
     invalidNodes.has(node),
   );
   if (hasInvalidNode) {
-    message.error($t('cxmo.message.iniOrComMessage'));
+    message.warning($t('cxmo.message.currentOperationNode'));
+    showIconAlert($t('cxmo.message.currentOperationNode'), 'warning');
     return;
   }
   const contNos = currentSelected.map((item) => item.contNo);
@@ -469,7 +485,8 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 const handleMachineSpreaderRecordDeleteList = async () => {
   // 判断是否选中变更记录
   if (machineSpreaderChangeRecordCheckedIds.value.length === 0) {
-    message.error($t('cxmo.message.spreaderChangeMessage'));
+    message.warning($t('cxmo.message.spreaderChangeMessage'));
+    showIconAlert($t('cxmo.message.spreaderChangeMessage'), 'warning');
     return;
   }
   confirm({
@@ -579,7 +596,7 @@ const getDictDataList = async () => {
     'spreader_type',
     'actual_operation',
     'initiation_type',
-    'mechanical_type'
+    'mechanical_type',
   ]);
 };
 // 高级查询处理函数
@@ -1197,7 +1214,7 @@ const boxFloatingFilterColumns = ref<string[]>([
   'isSystemRateGate',
   'priceGate',
   'isSystemRateSea',
-  'priceSea'
+  'priceSea',
 ]);
 const oogFloatingFilterColumns = ref<string[]>([
   'cheWorkChangeType',
@@ -1241,8 +1258,14 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
   'priceSea',
   'isAllowedStacking',
   'conclusionTime',
-  'createTime'
+  'createTime',
 ]);
+function showIconAlert(content: string, icon: string) {
+  alert({
+    content,
+    icon,
+  });
+}
 </script>
 
 <template>
