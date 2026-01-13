@@ -6,7 +6,7 @@ import { reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { message, Select } from 'ant-design-vue';
+import { Button, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -27,6 +27,7 @@ import {
 // import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
+import ContainerAreaSelect from '#/views/bpp/empty/container/control/modules/containerAreaSelect.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
 import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
@@ -43,6 +44,7 @@ const subPlanNo = ref<string[]>([]);
 const containerAreaClickRow =
   ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
 const popoverVisible = ref({});
+const bayRangeListValue = ref('');
 
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
@@ -67,6 +69,24 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
   destroyOnClose: true,
   closeOnClickModal: false,
 });
+
+// 控制箱区选择组件显隐藏
+const containerAreaVisible = ref(false);
+
+// 处理ContainerAreaSelect组件的确认事件
+const handleContainerAreaConfirm = async (positions: string[]) => {
+  // 将选择的箱区数组更新到搜索表单中
+  if (positions && positions.length > 0) {
+    const value = positions.join(',');
+    bayRangeListValue.value = value;
+    const currentValues = await mainGridApi.formApi.getValues();
+    await mainGridApi.formApi.setValues({
+      ...currentValues,
+      bayRangeList: value,
+    });
+  }
+  containerAreaVisible.value = false;
+};
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -627,6 +647,13 @@ const openContainerAreaWindow = (
     <!--    </AdvancedQueryModal>-->
     <LogQueryModal />
     <ChooseContainerModal class="w-3/5" />
+    <ContainerAreaSelect
+      v-model:visible="containerAreaVisible"
+      :owner-code-list="['ZGS']"
+      :cont-iso-list="['22G1']"
+      trade-type=""
+      @confirm="handleContainerAreaConfirm"
+    />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <MainGrid table-title="主计划">
@@ -683,6 +710,29 @@ const openContainerAreaWindow = (
             @compositionstart="handleDischargeVslScheduleCompositionStart"
             @compositionend="handleDischargeVslScheduleCompositionEnd"
           />
+        </template>
+        <template #form-bayRangeList>
+          <div class="flex w-full items-center">
+            <Button
+              type="default"
+              style="width: 100%"
+              @click="containerAreaVisible = true"
+              :disabled="false"
+            >
+              {{ bayRangeListValue || '选择箱区' }}
+            </Button>
+            <Button
+              v-if="bayRangeListValue"
+              type="link"
+              danger
+              @click="
+                bayRangeListValue = '';
+                mainGridApi.formApi.setValues({
+                  bayRangeList: '',
+                });
+              "
+            />
+          </div>
         </template>
         <template #bayRanges="{ row }">
           <a-popover

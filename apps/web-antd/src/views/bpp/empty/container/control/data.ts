@@ -476,17 +476,14 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '例如：B01-02-A',
+        placeholder: '选择箱区',
         allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9-]/g, '');
-          }, 10);
-        },
+        readonly: true,
+        showSearch: false,
+        disabled: true,
+        value: '',
       },
+      slot: true,
     },
     {
       fieldName: 'tradeType',

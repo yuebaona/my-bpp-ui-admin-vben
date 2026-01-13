@@ -36,45 +36,24 @@ const loading = ref(false);
 
 const yardPositionTreeData = ref<TreeProps['treeData']>([]);
 
-watch(
-  () => props.visible,
-  (newValue) => {
-    if (newValue) {
-      fetchYardRange();
-    }
-  },
-  { immediate: true },
-);
-
-watch(
-  () => props.selectedPositions,
-  (newValue) => {
-    if (props.visible && newValue) {
-      selectedYardPositions.value = [...newValue];
-    }
-  },
-  { immediate: true, deep: true },
-);
-
-watch(
-  [() => props.ownerCodeList, () => props.contIsoList, () => props.tradeType],
-  () => {
-    if (props.visible) {
-      fetchYardRange();
-    }
-  },
-  { deep: true },
-);
-
 // 获取堆场范围数据
 const fetchYardRange = async () => {
   loading.value = true;
   try {
-    const params: EmptyContainerControlApi.yardRangeVO = {
-      ownerCodeList: props.ownerCodeList || [],
-      contIsoList: props.contIsoList || [],
-      tradeType: props.tradeType || '',
-    };
+    const ownerCodeList = props.ownerCodeList || [];
+    const contIsoList = props.contIsoList || [];
+    const tradeType = props.tradeType || '';
+
+    // 检查是否需要传递参数
+    const hasRequiredParams = ownerCodeList.length > 0 || contIsoList.length > 0 || tradeType;
+
+    // 构建参数对象
+    const params: EmptyContainerControlApi.yardRangeVO = hasRequiredParams ? {
+      ownerCodeList,
+      contIsoList,
+      tradeType,
+    } : {};
+
     const response = await getYardRange(params);
     yardPositionTreeData.value = [];
 
@@ -112,6 +91,36 @@ const fetchYardRange = async () => {
   }
 };
 
+watch(
+  () => props.visible,
+  (newValue) => {
+    if (newValue) {
+      fetchYardRange();
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  () => props.selectedPositions,
+  (newValue) => {
+    if (props.visible && newValue) {
+      selectedYardPositions.value = [...newValue];
+    }
+  },
+  { immediate: true, deep: true },
+);
+
+watch(
+  [() => props.ownerCodeList, () => props.contIsoList, () => props.tradeType],
+  () => {
+    if (props.visible) {
+      fetchYardRange();
+    }
+  },
+  { deep: true },
+);
+
 const onTreeCheck = (checkedKeys: any) => {
   const leafKeys = checkedKeys.filter((key: string) => key.includes('-'));
   selectedYardPositions.value = leafKeys;
@@ -129,7 +138,9 @@ const clearSelectedPositions = () => {
 
 const handleConfirm = () => {
   emit('confirm', selectedYardPositions.value);
-  emit('update:visible', false);
+  setTimeout(() => {
+    emit('update:visible', false);
+  }, 100);
 };
 
 const handleCancel = () => {
