@@ -443,13 +443,18 @@ export function contInfoColumns(): VxeTableGridOptions['columns'] {
       editRender: { name: 'input' },
       slots: {
         edit: 'contCargoSize',
+        default:'contCargoSizeDefault'
       },
     },
     {
       title: '超限明细CM',
       field: 'contOogDetails',
-      minWidth: 120,
+      minWidth: 170,
       editRender: { name: 'input' },
+      slots: {
+        edit: 'contOogDetails',
+        default:'contOogDetailsDefault'
+      },
     },
     {
       title: '操作',
@@ -498,11 +503,17 @@ export function contInfoDetailColumns(): VxeTableGridOptions['columns'] {
       title: '货物尺寸CM',
       field: 'contCargoSize',
       minWidth: 120,
+      slots:{
+        default:'contCargoSizeDefault'
+      }
     },
     {
       title: '超限明细CM',
       field: 'contOogDetails',
       minWidth: 120,
+      slots:{
+        default:'contOogDetailsDefault'
+      }
     },
   ];
 }
@@ -1807,29 +1818,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       title: '货物尺寸CM',
       minWidth: 150,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-        events: {
-          input: (params: any) => {
-            const { $grid, column } = params;
-
-            $grid.saveFilterByEvent('input', column.field);
-          },
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
       slots: {
-        floatingFilter: 'contCargoSize',
+        // floatingFilter: 'contCargoSize',
+        default:'contCargoSize'
       },
     },
     {
@@ -1837,29 +1828,9 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       title: '超限明细CM',
       minWidth: 150,
       sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-        events: {
-          input: (params: any) => {
-            const { $grid, column } = params;
-
-            $grid.saveFilterByEvent('input', column.field);
-          },
-        },
-      },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
-      },
       slots: {
-        floatingFilter: 'contOogDetails',
+        // floatingFilter: 'contOogDetails',
+        default:'contOogDetails'
       },
     },
     {

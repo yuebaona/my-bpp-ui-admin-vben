@@ -32,6 +32,7 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
+import { getTableColumnList } from '#/api/bpp/advanced/query';
 
 import {
   acceptancePlanOvrOprColumns,
@@ -734,6 +735,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    cellConfig:{
+      height: '120px'
+    },
     border: true,
     resizableConfig: {
       isDblclickAutoWidth: true, // 启用双击自适应列宽
@@ -932,7 +936,9 @@ const initiationTypeValue = ref<null | string>(null);
 
 const advancedQueryModalOpen = async () => {
   // 调用表单数据
-  // await getTableFieldInfoByTableName('acpt_pln');
+  // const res = await getTableColumnList({
+  //   tableNameList:['acpt_pln','acpt_pln_oog_cont','che_chg_rec']
+  // });
   AdvancedQueryModalApi.open();
 };
 watch(
@@ -1209,8 +1215,8 @@ const boxFloatingFilterColumns = ref<string[]>([
   'contType',
   'contCargoWeight',
   'contTotalWeight',
-  'contCargoSize',
-  'contOogDetails',
+  // 'contCargoSize',
+  // 'contOogDetails',
   'isSystemRateGate',
   'priceGate',
   'isSystemRateSea',
@@ -1481,6 +1487,35 @@ function showIconAlert(content: string, icon: string) {
               clearable
               @change="changeNameFilter(option, column, 2)"
             />
+          </template>
+
+          <template #contCargoSize="{row}">
+            <div class="flex items-center justify-center">
+              <label>长：{{row.contCargoSize.contCargoLength || 0}}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>宽：{{row.contCargoSize.contCargoWidth || 0}}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>高：{{row.contCargoSize.contCargoHeight || 0}}</label>
+            </div>
+          </template>
+          <template #contOogDetails="{row}">
+            <div class="flex items-center justify-center">
+              <label>前超：{{row.contOogDetails.oogFront || 0}}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>后超：{{row.contOogDetails.oogBack || 0}}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>左超：{{row.contOogDetails.oogLeft || 0}}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>右超：{{row.contOogDetails.oogRight || 0}}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>超高：{{row.contOogDetails.oogHeight || 0}}</label>
+            </div>
           </template>
         </BoxGrid>
       </div>
