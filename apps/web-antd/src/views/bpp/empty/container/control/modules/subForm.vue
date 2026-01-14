@@ -711,111 +711,41 @@ const [Modal, modalApi] = useVbenModal({
           const $grid = gridApi.grid;
           if ($grid) {
             // 设置箱区范围数据
-            if (data.yardPositionResp) {
-              for (const item of data.yardPositionResp) {
-                // 从已有的数据中提取列信息（如果有）
-                const yardPosition = item.yardBay || item.yardPosition;
-                if (yardPosition && item.yardColumns) {
-                  // 检查主计划是否有列限制
-                  const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
-                  let filteredColumns = item.yardColumns;
-                  if (mainPlanYardRaw) {
-                    const allowedColumns = mainPlanYardRaw
-                      .split(',')
-                      .map((col) => col.trim());
-                    filteredColumns = item.yardColumns.filter((col: string) =>
-                      allowedColumns.includes(col),
-                    );
-                  }
-                  yardColumnsOptions.value[yardPosition] = filteredColumns.map(
-                    (col: string) => ({
-                      label: col,
-                      value: col,
-                    }),
-                  );
-                }
-
-                await $grid.insertAt(
-                  {
-                    ...item,
-                  },
-                  -1,
-                );
-              }
-            } else if (subPlanData.bayRangeList) {
-              // 如果是数组格式
+            if (subPlanData.bayRangeList) {
               if (Array.isArray(subPlanData.bayRangeList)) {
                 for (const bayRange of subPlanData.bayRangeList) {
                   const yardPosition = bayRange.yardBay || '';
-                  if (yardPosition && bayRange.yardRaw) {
-                    const columns = bayRange.yardRaw.split(',');
-                    // 检查主计划是否有列限制
+
+                  if (yardPosition) {
                     const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
-                    let filteredColumns = columns;
                     if (mainPlanYardRaw) {
                       const allowedColumns = mainPlanYardRaw
                         .split(',')
-                        .map((col) => col.trim());
-                      filteredColumns = columns.filter((col) =>
-                        allowedColumns.includes(col),
+                        .map((col) => col.trim())
+                        .filter(Boolean);
+                      yardColumnsOptions.value[yardPosition] = allowedColumns.map(
+                        (col) => ({
+                          label: col,
+                          value: col,
+                        }),
                       );
                     }
-                    yardColumnsOptions.value[yardPosition] = filteredColumns.map(
-                      (col) => ({
-                        label: col,
-                        value: col,
-                      }),
-                    );
                   }
+                  const yardColumns = bayRange.yardRaw
+                    ? bayRange.yardRaw.split(',').map(col => col.trim()).filter(Boolean)
+                    : [];
 
                   await $grid.insertAt(
                     {
                       yardPosition,
-                      yardColumns: bayRange.yardRaw
-                        ? bayRange.yardRaw.split(',')
-                        : [],
-                      totalCount: '',
-                      minStorageDays: '',
-                      maxStorageDays: '',
+                      yardColumns,
+                      totalCount: bayRange.totalCount || '',
+                      minDays: bayRange.minDays || '',
+                      maxDays: bayRange.maxDays || '',
                     },
                     -1,
                   );
                 }
-              } else {
-                const yardPosition = subPlanData.bayRangeList.yardBay || '';
-                if (yardPosition && subPlanData.bayRangeList.yardRaw) {
-                  const columns = subPlanData.bayRangeList.yardRaw.split(',');
-                  // 检查主计划是否有列限制
-                  const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
-                  let filteredColumns = columns;
-                  if (mainPlanYardRaw) {
-                    const allowedColumns = mainPlanYardRaw
-                      .split(',')
-                      .map((col) => col.trim());
-                    filteredColumns = columns.filter((col) =>
-                      allowedColumns.includes(col),
-                    );
-                  }
-                  yardColumnsOptions.value[yardPosition] = filteredColumns.map(
-                    (col) => ({
-                      label: col,
-                      value: col,
-                    }),
-                  );
-                }
-
-                await $grid.insertAt(
-                  {
-                    yardPosition,
-                    yardColumns: subPlanData.bayRangeList.yardRaw
-                      ? subPlanData.bayRangeList.yardRaw.split(',')
-                      : [],
-                    totalCount: '',
-                    minStorageDays: '',
-                    maxStorageDays: '',
-                  },
-                  -1,
-                );
               }
             }
           }

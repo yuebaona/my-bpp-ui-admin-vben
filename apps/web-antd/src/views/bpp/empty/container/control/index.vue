@@ -561,7 +561,7 @@ const handleIsoCompositionEnd = (e: CompositionEvent) => {
 
 const dischargeVslSchedule = reactive({
   data: [],
-  value: '',
+  value: undefined,
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
 });
@@ -738,7 +738,7 @@ onMounted(async () => {
         <template #form-dischargeVslSchedule>
           <Select
             :options="dischargeVslSchedule.data"
-            v-model="dischargeVslSchedule.value"
+            v-model:value="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
@@ -746,7 +746,8 @@ onMounted(async () => {
             :list-height="150"
             allow-clear
             @change="
-              (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+              (value) =>
+                mainGridApi.formApi.setFieldValue('dischargeVslSchedule', value)
             "
             @input="handleDischargeVslScheduleInput"
             @compositionstart="handleDischargeVslScheduleCompositionStart"

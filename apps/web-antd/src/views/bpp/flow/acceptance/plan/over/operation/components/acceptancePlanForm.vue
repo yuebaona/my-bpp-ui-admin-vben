@@ -249,10 +249,9 @@ const [Form, formApi] = useVbenForm({
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: contInfoColumns(),
-    height: 'auto',
+    height: '400px',
     keepSource: true,
     border: true,
-    showOverflow: false,
     autoWidth: true,
     rowConfig: {
       keyField: 'id',
@@ -852,7 +851,7 @@ watch(
     <template #contInfo>
       <div class="mt-4 w-full">
         <div class="table-cont">
-          <Grid :resizeable="true">
+          <Grid>
             <template #actions="{ row }">
               <TableAction
                 :actions="[
