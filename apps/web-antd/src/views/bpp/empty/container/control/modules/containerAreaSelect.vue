@@ -5,7 +5,7 @@ import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control
 
 import { computed, ref, watch } from 'vue';
 
-import { Button, Input, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
+import { Button, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
 
 import { getYardRange } from '#/api/bpp/empty/container/control';
 
@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const selectedYardPositions = ref<string[]>([]);
-const searchValue = ref('');
+// const searchValue = ref('');
 const loading = ref(false);
 
 const yardPositionTreeData = ref<TreeProps['treeData']>([]);
@@ -45,14 +45,17 @@ const fetchYardRange = async () => {
     const tradeType = props.tradeType || '';
 
     // 检查是否需要传递参数
-    const hasRequiredParams = ownerCodeList.length > 0 || contIsoList.length > 0 || tradeType;
+    const hasRequiredParams =
+      ownerCodeList.length > 0 || contIsoList.length > 0 || tradeType;
 
     // 构建参数对象
-    const params: EmptyContainerControlApi.yardRangeVO = hasRequiredParams ? {
-      ownerCodeList,
-      contIsoList,
-      tradeType,
-    } : {};
+    const params: EmptyContainerControlApi.yardRangeVO = hasRequiredParams
+      ? {
+          ownerCodeList,
+          contIsoList,
+          tradeType,
+        }
+      : {};
 
     const response = await getYardRange(params);
     yardPositionTreeData.value = [];
@@ -165,7 +168,7 @@ const modalVisible = computed({
       <!-- 左侧：堆场贝位树 -->
       <div class="flex-1 border-r pr-4">
         <div class="mb-2 font-medium">堆场贝位</div>
-        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />
+        <!--        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />-->
         <div style="max-height: 350px; overflow-y: auto">
           <Spin :spinning="loading">
             <Tree

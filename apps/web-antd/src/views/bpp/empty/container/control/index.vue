@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
@@ -73,18 +73,15 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
 // 控制箱区选择组件显隐藏
 const containerAreaVisible = ref(false);
 
-// 处理ContainerAreaSelect组件的确认事件
+// 箱区选择确认
 const handleContainerAreaConfirm = async (positions: string[]) => {
-  // 将选择的箱区数组更新到搜索表单中
-  if (positions && positions.length > 0) {
-    const value = positions.join(',');
-    bayRangeListValue.value = value;
-    const currentValues = await mainGridApi.formApi.getValues();
-    await mainGridApi.formApi.setValues({
-      ...currentValues,
-      bayRangeList: value,
-    });
-  }
+  const value = positions && positions.length > 0 ? positions.join(',') : '';
+  bayRangeListValue.value = value;
+  const currentValues = await mainGridApi.formApi.getValues();
+  await mainGridApi.formApi.setValues({
+    ...currentValues,
+    bayRangeList: value,
+  });
   containerAreaVisible.value = false;
 };
 
@@ -208,10 +205,17 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
     resetButtonOptions: {
-      onClick: () => {
+      onClick: async () => {
         ownerCodeList.value = [];
         contIsoList.value = [];
         dischargeVslSchedule.value = '';
+        bayRangeListValue.value = '';
+        await mainGridApi.formApi.setValues({ bayRangeList: '' });
+      },
+      onValuesChange: async (changedValues, allValues) => {
+        if (changedValues.bayRangeList !== undefined) {
+          bayRangeListValue.value = changedValues.bayRangeList;
+        }
       },
     },
   },
@@ -262,32 +266,59 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           }
           if (queryParams.bayRangeList) {
             const bayRangeInput = queryParams.bayRangeList;
-            const upperCaseInput = bayRangeInput.toUpperCase();
-            const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
-            if (hyphenCount === 1) {
-              queryParams.bayRangeList = [
-                {
-                  yardBay: upperCaseInput,
-                  yardRaw: '',
-                },
-              ];
-            } else if (hyphenCount >= 2) {
-              const parts = upperCaseInput.split(/-/);
-              const yardBay = parts.slice(0, 2).join('-');
-              const yardRaw = parts.slice(2).join('-');
-              queryParams.bayRangeList = [
-                {
-                  yardBay,
-                  yardRaw,
-                },
-              ];
-            } else if (upperCaseInput) {
-              queryParams.bayRangeList = [
-                {
-                  yardBay: upperCaseInput,
-                  yardRaw: '',
-                },
-              ];
+            if (bayRangeInput.includes(',')) {
+              const positions = bayRangeInput
+                .split(',')
+                .map((item) => item.trim().toUpperCase());
+              queryParams.bayRangeList = positions
+                .map((position) => {
+                  const parts = position.split(/-/);
+                  if (parts.length >= 2) {
+                    const yardBay = parts[0];
+                    const yardRaw = parts[1];
+                    return {
+                      yardBay,
+                      yardRaw,
+                    };
+                  } else if (position) {
+                    return {
+                      yardBay: position,
+                      yardRaw: '',
+                    };
+                  }
+                  return null;
+                })
+                .filter(Boolean);
+            } else {
+              // 箱区处理为分页查询接口所需格式
+              const upperCaseInput = bayRangeInput.toUpperCase();
+              const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
+              if (hyphenCount === 1) {
+                const parts = upperCaseInput.split(/-/);
+                queryParams.bayRangeList = [
+                  {
+                    yardBay: parts[0],
+                    yardRaw: parts[1],
+                  },
+                ];
+              } else if (hyphenCount >= 2) {
+                const parts = upperCaseInput.split(/-/);
+                const yardBay = parts.slice(0, 2).join('-');
+                const yardRaw = parts.slice(2).join('-');
+                queryParams.bayRangeList = [
+                  {
+                    yardBay,
+                    yardRaw,
+                  },
+                ];
+              } else if (upperCaseInput) {
+                queryParams.bayRangeList = [
+                  {
+                    yardBay: upperCaseInput,
+                    yardRaw: '',
+                  },
+                ];
+              }
             }
           }
           const result = await getMainPlanPage({
@@ -636,6 +667,17 @@ const openContainerAreaWindow = (
   containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
   popoverVisible.value[row.id] = true;
 };
+
+onMounted(async () => {
+  try {
+    const formValues = await mainGridApi.formApi.getValues();
+    if (formValues.bayRangeList) {
+      bayRangeListValue.value = formValues.bayRangeList;
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+  }
+});
 </script>
 
 <template>
