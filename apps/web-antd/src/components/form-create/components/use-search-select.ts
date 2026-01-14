@@ -53,6 +53,11 @@ export interface SearchSelectConfig<T = any> {
    * - false: 单选模式，value 为 string
    */
   multiple?: boolean;
+  /**
+   * 值变化时的回调更新
+   * @param value 当前选中的值
+   */
+  onChange?: (value: string | string[]) => void;
 }
 
 /**
@@ -85,6 +90,10 @@ export interface SearchSelectResult<T = any> {
    * 中文输入法组合结束处理函数
    */
   handleCompositionEnd: (e: CompositionEvent) => void;
+  /**
+   * 值变化时的处理函数
+   */
+  handleChange: (value: string | string[]) => void;
 }
 
 /**
@@ -106,6 +115,7 @@ export function useSearchSelect<T = any>(
     minSearchLength = 0,
     isStringArray = false,
     multiple = false,
+    onChange,
   } = config;
 
   const state = reactive({
@@ -115,6 +125,16 @@ export function useSearchSelect<T = any>(
     isComposing: false,
     originalValue: [],
   });
+
+  /**
+   * 值变化时的处理函数
+   */
+  const handleChange = (value: string | string[]) => {
+    state.value = value;
+    if (onChange) {
+      onChange(value);
+    }
+  };
 
   /**
    * 搜索函数
@@ -219,5 +239,6 @@ export function useSearchSelect<T = any>(
     handleInput,
     handleCompositionStart,
     handleCompositionEnd,
+    handleChange,
   };
 }
