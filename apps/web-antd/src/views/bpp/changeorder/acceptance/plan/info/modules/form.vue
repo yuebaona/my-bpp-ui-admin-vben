@@ -37,9 +37,12 @@ const [Modal] = useVbenModal({
     if (!valid) {
       return;
     }
+    const data = await formApi.getValues()
     await router.push({
       name: 'acceptancePlanUpdate',
-
+      query: {
+        planType: data.applicantPlanType,
+      },
     });
   },
 });
