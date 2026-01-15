@@ -120,7 +120,7 @@ function handleAddToEdit() {
 </script>
 
 <template>
-  <Card title="箱信息列表" class="w-4/5">
+  <Card title="箱信息列表" class="w-full">
     <Grid>
       <template #toolbar-tools>
         <TableAction
