@@ -18,6 +18,8 @@ export namespace BppBaseCustomerApi {
           status?: string; // 使用状态，INACTIVE 未使用；ACTIVE 使用中；OBSOLETE 已作废
           noticeEmail: string; // 通知邮箱
           noticePhone: string; // 客户通知电话
+          customerType: string; // 客户角色
+          paidPortFee: string; // 港务费月结
   }
 }
 
