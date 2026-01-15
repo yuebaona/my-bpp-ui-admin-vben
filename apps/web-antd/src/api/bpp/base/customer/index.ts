@@ -22,7 +22,7 @@ export namespace BppBaseCustomerApi {
 }
 
 // 客户基础信息url
-const PREFIX = '/sgc/bpp/base/customer'
+const PREFIX = '/bpp/base/customer'
 
 
 /** 查询客户基础信息分页 */
