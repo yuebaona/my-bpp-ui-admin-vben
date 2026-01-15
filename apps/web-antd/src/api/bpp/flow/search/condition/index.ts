@@ -1,5 +1,4 @@
 import type { PageParam, PageResult } from '@vben/request';
-import type { Dayjs } from 'dayjs';
 
 import { requestClient } from '#/api/request';
 
@@ -10,7 +9,7 @@ export namespace SearchConditionApi {
     formSource: string; // 归属页面
     condition: string; // 查询条件
     remark?: string; // 备注
-    deleteTime?: string | Dayjs; // 删除时间
+    deleteTime?: string; // 删除时间
   }
 }
 

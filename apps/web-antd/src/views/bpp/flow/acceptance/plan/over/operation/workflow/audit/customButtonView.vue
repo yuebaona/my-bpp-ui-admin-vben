@@ -52,17 +52,7 @@ const plannedMachryTypeArray = ref([]);
 const formRef = ref(null);
 
 // 下一步审批节点
-const nextNodeNameArray = ref([
-  {
-    name: '操作审批',
-  },
-  {
-    name: '技术审批',
-  },
-  {
-    name: '商务审批',
-  },
-]);
+const nextNodeNameArray = ref(['操作审批','技术审批','商务审批']);
 const formData = ref<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
   id: undefined,
   isAllowedStacking: undefined,
@@ -306,7 +296,7 @@ async function getDictData(dictType: string) {
 const formRules = ref({
   isAllowedStacking: { required: true, message: '请输入箱子是否需要落堆' },
   plannedMachryType: { required: true, message: '请输入机械类型' },
-  auditOpinion: { required: true, message: '请输入审批意见' },
+  // auditOpinion: { required: true, message: '请输入审批意见' },
   // 吊具类型校验规则
   plannedCheTypeRules: [
     {
@@ -330,7 +320,6 @@ async function initDictData() {
 
 /** 初始化用户数据 */
 const userList = ref([]);
-
 async function getUserList() {
   const userDataList = await getSimpleUserList();
   userList.value = userDataList.map(x => {
@@ -353,10 +342,56 @@ function checkJiShu() {
   }
   return true;
 }
+// 初始化下一个节点名称
+async function initNextNodeNameArray() {
+  // 节点ID
+  const taskDefinitionKey = props.todoTask?.taskDefinitionKey;
+  if ('客户提交>Activity__691508984151762843504116'.includes(taskDefinitionKey)) {
+    nextNodeNameArray.value = [
+      {
+        label:'操作审批',
+        value:'操作审批'
+      },
+      {
+        label:'技术审批',
+        value:'技术审批'
+      },
+      {
+        label:'商务审批',
+        value:'商务审批'
+      }
+    ];
+  }
+  if( '操作审批>Activity__527168378171762844215560'.includes(taskDefinitionKey)){
+    nextNodeNameArray.value = [
+      {
+        label:'技术审批',
+        value:'操作-技术审批'
+      },
+      {
+        label:'商务审批',
+        value:'操作-商务审批'
+      }
+    ];
+  }
+  if ('技术审批>Activity__748830456241762844475732'.includes(taskDefinitionKey)) {
+    nextNodeNameArray.value = [
+      {
+        label:'商务审批',
+        value:'技术-商务审批'
+      }
+    ];
+  }
+}
+// 下拉框过滤
+const transferFilterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+}
 onMounted(async () => {
   await getUserList();
   await initDictData();
   await getDetailData();
+  await initNextNodeNameArray();
 });
 </script>
 
@@ -373,8 +408,8 @@ onMounted(async () => {
           allow-clear
           placeholder="请选择下一步审批节点"
         >
-          <a-select-option :value="item.name" v-for="item in nextNodeNameArray" :key="item.value">
-            {{ item.name }}
+          <a-select-option :value="item.value" :label="item.label" v-for="item in nextNodeNameArray" :key="item.value">
+            {{ item.label }}
           </a-select-option>
         </a-select>
       </a-form-item>
@@ -438,7 +473,7 @@ onMounted(async () => {
         <a-textarea
           v-model:value="formData.auditOpinion"
           placeholder="请输入审核意见"
-          rows="4"
+          :rows="4"
         />
       </a-form-item>
       <a-form-item>
@@ -478,7 +513,7 @@ onMounted(async () => {
                       <a-textarea
                         v-model:value="returnFormData.returnReason"
                         placeholder="请输入退回理由"
-                        rows="4"
+                        :rows="4"
                       />
                     </a-form-item>
                     <a-form-item>
@@ -520,6 +555,8 @@ onMounted(async () => {
                         style="width: 100%"
                         placeholder="请选择用户"
                         :options="userList"
+                        :filter-option="transferFilterOption"
+                        show-search
                       ></a-select>
                     </a-form-item>
                     <a-form-item label="审核意见" name="auditOpinion"
@@ -530,7 +567,7 @@ onMounted(async () => {
                       <a-textarea
                         v-model:value="transferFormData.auditOpinion"
                         placeholder="请输入审核意见"
-                        rows="4"
+                        :rows="4"
                       />
                     </a-form-item>
                     <a-form-item>

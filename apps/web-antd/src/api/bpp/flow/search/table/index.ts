@@ -1,15 +1,13 @@
 import type { PageParam, PageResult } from '@vben/request';
 
-import dayjs from 'dayjs';
-
 import { requestClient } from '#/api/request';
 
 export namespace SearchTableColumnApi {
   /** 高级查询字段定义信息 */
   export interface TableColumn {
     id: number; // 编号
-    tableFieldInfoList?: array; // 数据库字段信息
-    tableNameList?: array; // 数据库表名集合
+    tableFieldInfoList?: []; // 数据库字段信息
+    tableNameList?: []; // 数据库表名集合
     tableName?: string; // 表名
     columnName?: string; // 字段名
     dataType?: string; // 字段类型
@@ -22,7 +20,7 @@ export namespace SearchTableColumnApi {
     dictType: string; // 字典类型
     example: string; // 数据示例
     htmlType?: string; // 显示类型
-    deleteTime?: dayjs | string; // 删除时间
+    deleteTime?: string; // 删除时间
   }
 }
 

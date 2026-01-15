@@ -1,7 +1,17 @@
 <script lang="ts" setup>
-import type {VxeTableGridOptions} from '#/adapter/vxe-table';
-import {ACTION_ICON, TableAction, useVbenVxeGrid} from '#/adapter/vxe-table';
-import type {SearchTableColumnApi} from '#/api/bpp/flow/search/table/index';
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { SearchTableColumnApi } from '#/api/bpp/flow/search/table/index';
+import type { SystemDictTypeApi } from '#/api/system/dict/type';
+
+import { onMounted, ref } from 'vue';
+
+import { confirm, Page, useVbenModal, VbenLoading } from '@vben/common-ui';
+import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
+
+import { Input, message, Select } from 'ant-design-vue';
+
+import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getSimpleDictTypeList } from '#/api/bpp/base/dict/type';
 import {
   createTableColumn,
   deleteTableColumn,
@@ -9,22 +19,13 @@ import {
   exportTableColumn,
   getTableColumnPage,
   getTableFieldInfoByTableName,
-  updateBatch
+  updateBatch,
 } from '#/api/bpp/flow/search/table/index';
-import { getByCondition } from '#/api/bpp/flow/search/condition/index';
-import {h, onMounted, ref} from 'vue';
+import { $t } from '#/locales';
 
-import {confirm, Page, useVbenModal, VbenLoading} from '@vben/common-ui';
-import {downloadFileFromBlobPart, isEmpty} from '@vben/utils';
-
-import {Input, message, Modal, Select} from 'ant-design-vue';
-import {$t} from '#/locales';
-import type {SystemDictTypeApi} from '#/api/system/dict/type';
-import { getSimpleDictTypeList } from '#/api/bpp/base/dict/type';
-import {useGridColumns, useGridFormSchema} from './data';
+import { useGridColumns, useGridFormSchema } from './data';
 import Form from './modules/form.vue';
 import ImportTable from './modules/import-table.vue';
-import {WarningOutlined} from "@vben/icons";
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
@@ -43,9 +44,9 @@ async function handleSave() {
   loadingText.value = '保存中。。。';
   vbenLoading.value = true;
   try {
-    const updateDataList = gridApi.grid.getData()
+    const updateDataList = gridApi.grid.getData();
     if (updateDataList) {
-      await updateBatch(updateDataList)
+      await updateBatch(updateDataList);
     }
   } finally {
     vbenLoading.value = false;
@@ -57,11 +58,13 @@ function handleImport() {
 }
 /** 刷新表格 */
 async function handleRefresh(tableNames) {
-  if(tableNames){
+  if (tableNames) {
     // 首先根据表名获取字段信息
-    const tableFieldInfoList = await getTableFieldInfoByTableName({tableNameList: tableNames});
+    const tableFieldInfoList = await getTableFieldInfoByTableName({
+      tableNameList: tableNames,
+    });
     // 再将字段信息入库
-    await createTableColumn({tableFieldInfoList: tableFieldInfoList});
+    await createTableColumn({ tableFieldInfoList });
   }
   gridApi.query();
 }
@@ -173,7 +176,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <VbenLoading v-if="vbenLoading" :spinning="true" :text="loadingText"/>
+    <VbenLoading v-if="vbenLoading" :spinning="true" :text="loadingText" />
     <Page auto-content-height>
       <ImportModal @success="handleRefresh" />
       <FormModal @success="handleRefresh" />
@@ -181,72 +184,74 @@ onMounted(async () => {
         <template #toolbar-tools>
           <TableAction
             :actions="[
-            {
-              label: '保存',
-              type: 'primary',
-              icon: ACTION_ICON.EDIT,
-              auth: ['search:table-column:create'],
-              onClick: handleSave,
-            },
-             {
-              label: $t('ui.actionTitle.create', ['高级查询']),
-              type: 'primary',
-              icon: ACTION_ICON.ADD,
-              auth: ['search:table-column:create'],
-              onClick: handleImport,
-            },
-            {
-              label: $t('ui.actionTitle.export'),
-              type: 'primary',
-              icon: ACTION_ICON.DOWNLOAD,
-              auth: ['search:table-column:export'],
-              onClick: handleExport,
-            },
-            {
-              label: $t('ui.actionTitle.deleteBatch'),
-              type: 'primary',
-              danger: true,
-              icon: ACTION_ICON.DELETE,
-              auth: ['search:table-column:delete'],
-              disabled: isEmpty(checkedIds),
-              onClick: handleDeleteBatch,
-            },
-          ]"
+              {
+                label: '保存',
+                type: 'primary',
+                icon: ACTION_ICON.EDIT,
+                auth: ['search:table-column:create'],
+                onClick: handleSave,
+              },
+              {
+                label: $t('ui.actionTitle.create', ['高级查询']),
+                type: 'primary',
+                icon: ACTION_ICON.ADD,
+                auth: ['search:table-column:create'],
+                onClick: handleImport,
+              },
+              {
+                label: $t('ui.actionTitle.export'),
+                type: 'primary',
+                icon: ACTION_ICON.DOWNLOAD,
+                auth: ['search:table-column:export'],
+                onClick: handleExport,
+              },
+              {
+                label: $t('ui.actionTitle.deleteBatch'),
+                type: 'primary',
+                danger: true,
+                icon: ACTION_ICON.DELETE,
+                auth: ['search:table-column:delete'],
+                disabled: isEmpty(checkedIds),
+                onClick: handleDeleteBatch,
+              },
+            ]"
           />
         </template>
         <template #actions="{ row }">
           <TableAction
             :actions="[
-            {
-              label: $t('common.edit'),
-              type: 'link',
-              icon: ACTION_ICON.EDIT,
-              auth: ['search:table-column:update'],
-              onClick: handleEdit.bind(null, row),
-            },
-            {
-              label: $t('common.delete'),
-              type: 'link',
-              danger: true,
-              icon: ACTION_ICON.DELETE,
-              auth: ['search:table-column:delete'],
-              popConfirm: {
-                title: $t('ui.actionMessage.deleteConfirm', [row.id]),
-                confirm: handleDelete.bind(null, row),
+              {
+                label: $t('common.edit'),
+                type: 'link',
+                icon: ACTION_ICON.EDIT,
+                auth: ['search:table-column:update'],
+                onClick: handleEdit.bind(null, row),
               },
-            },
-          ]"
+              {
+                label: $t('common.delete'),
+                type: 'link',
+                danger: true,
+                icon: ACTION_ICON.DELETE,
+                auth: ['search:table-column:delete'],
+                popConfirm: {
+                  title: $t('ui.actionMessage.deleteConfirm', [row.id]),
+                  confirm: handleDelete.bind(null, row),
+                },
+              },
+            ]"
           />
         </template>
         <!-- 字段描述 -->
         <template #columnComment="{ row }">
-          <Input v-model:value="row.columnComment"/>
+          <Input v-model:value="row.columnComment" />
         </template>
         <!-- 显示类型 -->
         <template #htmlType="{ row, column }">
-          <Select v-model:value="row.htmlType" class="w-full"
-                  allow-clear
-                  show-search
+          <Select
+            v-model:value="row.htmlType"
+            class="w-full"
+            allow-clear
+            show-search
           >
             <Select.Option
               v-for="option in column.params.options"
