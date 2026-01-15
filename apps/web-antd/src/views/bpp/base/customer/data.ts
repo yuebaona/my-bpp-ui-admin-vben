@@ -1,6 +1,6 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { BppBaseCustomerApi } from '#/api/bpp/customer';
+import type { BppBaseCustomerApi } from '#/api/bpp/base/customer';
 
 import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
@@ -201,6 +201,12 @@ export function useGridColumns(): VxeTableGridOptions<BppBaseCustomerApi.Custome
     {
       field: 'createTime',
       title: '创建时间',
+      minWidth: 120,
+      formatter: 'formatDateTime',
+    },
+    {
+      field: 'updateTime',
+      title: '更新时间',
       minWidth: 120,
       formatter: 'formatDateTime',
     },
