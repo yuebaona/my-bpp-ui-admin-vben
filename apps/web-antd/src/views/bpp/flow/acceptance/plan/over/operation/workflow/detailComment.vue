@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { Card, Flex, Tag } from 'ant-design-vue';
+import {onMounted, ref} from 'vue';
+import {Card, Flex, Tag} from 'ant-design-vue';
 import dayjs from 'dayjs';
-import { getTaskListByProcessInstanceId } from '#/api/bpm/task';
+import {getTaskListByProcessInstanceId} from '#/api/bpm/task';
 import {getDictDataPage} from '#/api/bpp/base/dict/data';
 
-defineOptions({ name: 'TaskComment' });
+defineOptions({ name: 'DetailComment' });
 /**
  * 参数
  */
@@ -25,11 +25,16 @@ const props = defineProps({
   processInstance: Object, //  流程实例信息
   processInstanceId: String, //  流程实例ID
   acceptancePlanOverOperationData: Object, //  单据对象
+  acceptancePlanOverOperationRespVO: Object, //  单据对象
   acceptancePlanData: Object, //  单据对象
   containerDataArray: Object //  单据对象
 });
 // 审批意见数据
 const taskCommentData = ref(null);
+// 作业吊具
+const cheType = ref('');
+// 作业费用
+const totalPriceSea = ref(0);
 const taskCommentDataList = ref([]);
 // 吊具类别
 const plannedCheTypeArray = ref();
@@ -146,6 +151,14 @@ const getplannedMachryType = (plannedMachryType: string)=>{
 onMounted(async () => {
   await getDetailData();
   await initDataType();
+  if (props.containerDataArray) {
+    cheType.value = props.containerDataArray.map(item => getPlannedCheType(item.plannedCheType)).join(',');
+    totalPriceSea.value = props.containerDataArray.reduce((sum, item) => {
+      // 先判断 priceSea 是否存在且为有效数字，否则按 0 处理
+      const validPrice = Number(item.priceSea) || 0;
+      return sum + validPrice;
+    }, 0);
+  }
 });
 </script>
 <!--审批意见组件-->
@@ -203,22 +216,38 @@ onMounted(async () => {
       <tbody>
       <tr>
         <!-- 合并3行的环节列 -->
-        <td class="section-cell" rowspan="3">{{ taskCommentData?.name }}</td>
+        <td class="section-cell" rowspan="4">{{ taskCommentData?.name }}</td>
         <td class="label-cell">审核结果</td>
         <td>
           <Tag color="processing" v-if="taskCommentData?.status==4">已取消</Tag>
-          <Tag color="processing" v-if="taskCommentData?.status==3">审批不通过</Tag>
-          <Tag color="success" v-if="taskCommentData?.status==2">同意</Tag>
+          <Tag color="processing" v-else-if="taskCommentData?.status==3">审批不通过</Tag>
+          <Tag color="success" v-else-if="taskCommentData?.status==2">同意</Tag>
           <Tag color="default" v-else-if="taskCommentData?.status==1">待审批</Tag>
           <Tag color="processing" v-else>审批中</Tag>
         </td>
+      </tr>
+      <tr v-if="taskCommentData?.name?.indexOf('操作') > -1">
+        <td class="label-cell">箱子是否落堆</td>
+        <td>{{ getIsAllowedStacking(acceptancePlanOverOperationData?.isAllowedStacking) }}</td>
+      </tr>
+      <tr v-if="taskCommentData?.name?.indexOf('技术') > -1">
+        <td class="label-cell">机械类型</td>
+        <td>{{ getplannedMachryType(acceptancePlanOverOperationRespVO?.plannedMachryType) }}</td>
+      </tr>
+      <tr v-if="taskCommentData?.name?.indexOf('技术') > -1">
+        <td class="label-cell">作业吊具</td>
+        <td>{{ cheType }}</td>
+      </tr>
+      <tr v-if="taskCommentData?.name?.indexOf('商务') > -1">
+        <td class="label-cell">作业费用</td>
+        <td>{{ totalPriceSea }}</td>
       </tr>
       <tr>
         <td class="label-cell">审核意见</td>
         <td>{{ taskCommentData?.reason }}</td>
       </tr>
       <tr>
-        <td class="label-cell" colspan="2">
+        <td class="label-cell" colspan="4">
           <span style="padding-right: 40px">
             审核人：{{ taskCommentData?.assigneeUserName }}
           </span>
@@ -246,7 +275,7 @@ onMounted(async () => {
         </td>
         <td class="handler-content-cell">
           <p style="width:100%">
-            {{ getplannedMachryType(acceptancePlanOverOperationData?.plannedMachryType) }}</p>
+            {{ getplannedMachryType(acceptancePlanOverOperationRespVO?.plannedMachryType) }}</p>
         </td>
       </tr>
       <tr>
@@ -256,7 +285,7 @@ onMounted(async () => {
         <td>
           <Flex>
             <Card v-for="item in containerDataArray" :key="item.contNo"
-                  style="width: 200px;margin-right: 5px">
+                  style="width: 200px;height: 120px;margin-right: 5px">
               <p>箱号：{{ item.contNo }}</p>
               <p>吊具类型：{{ getPlannedCheType(item.plannedCheType) }}</p>
             </Card>
@@ -331,7 +360,7 @@ onMounted(async () => {
 
 /* 项目列：右对齐、浅灰色 */
 .label-cell {
-  width: 90px;
+  width: 115px;
   color: #666;
   text-align: right;
 }

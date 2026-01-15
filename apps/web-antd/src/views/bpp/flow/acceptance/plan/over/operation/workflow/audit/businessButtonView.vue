@@ -299,6 +299,10 @@ async function getUserList(){
     }
   })
 }
+// 下拉框过滤
+const transferFilterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+}
 onMounted(async () => {
   await getUserList();
 });
@@ -392,7 +396,7 @@ onMounted(async () => {
             v-model:value="containerFormData.auditOpinion"
             placeholder="请输入审批意见"
             style="flex: 1; resize: none;"
-            rows="3"
+            :rows="3"
           />
         </a-form-item>
       </a-form>
@@ -400,7 +404,7 @@ onMounted(async () => {
     <Flex justify="end">
       <Space>
         <Button @click="closeTask">取消</Button>
-        <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
+        <Button type="primary" @click="passTask" :loading="buttonLoading">完结审批</Button>
         <!--退回-->
         <a-popover v-model:open="returnVisible" title="退回" trigger="manual">
           <template #content>
@@ -433,7 +437,7 @@ onMounted(async () => {
                   <a-textarea
                     v-model:value="returnFormData.returnReason"
                     placeholder="请输入退回理由"
-                    rows="4"
+                    :rows="4"
                   />
                 </a-form-item>
                 <a-form-item>
@@ -475,6 +479,8 @@ onMounted(async () => {
                     style="width: 100%"
                     placeholder="请选择用户"
                     :options="userList"
+                    :filter-option="transferFilterOption"
+                    show-search
                   ></a-select>
                 </a-form-item>
                 <a-form-item label="审核意见" name="auditOpinion"
@@ -485,7 +491,7 @@ onMounted(async () => {
                   <a-textarea
                     v-model:value="transferFormData.auditOpinion"
                     placeholder="请输入审核意见"
-                    rows="4"
+                    :rows="4"
                   />
                 </a-form-item>
                 <a-form-item>

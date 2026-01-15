@@ -1,25 +1,236 @@
 <script lang="ts" setup>
-// import type { VbenFormSchema } from '#/adapter/form';
-// import type { ChangeOrderUnreturnApi } from '#/api/bpp/changeorder/unreturn';
-
-import { reactive } from 'vue';
+import { computed, reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { message } from 'ant-design-vue';
+import { message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
+import {
+  getContainerIsoListPage,
+  getContainerOwnerListPage,
+  getCustomerList,
+} from '#/api/bpp/common';
+import { getVesselAndVoyage } from '#/api/bpp/empty/container/control';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { $t } from '#/locales';
 
 import { editFormSchema } from '../data';
 
 const emit = defineEmits(['success']);
 
-const formData = reactive<any[]>({
+const bppBaseDict = bppBaseDictStore();
+
+/** 通用的字典选项获取函数 */
+function useDictOptions(dictType: string) {
+  return computed(() => {
+    const dictData = bppBaseDict.getBppBaseDictOptions(dictType) || [];
+    return dictData.map((item) => ({
+      label: item.label,
+      value: item.value,
+    }));
+  });
+}
+
+/** 获取内外贸字典选项 */
+const tradeTypeOptions = useDictOptions('trade_type');
+
+const formData = reactive<any>({
   id: null,
   returnType: '',
   returnPort: '',
+  tradeType: undefined,
 });
+
+// ISO搜索选择器
+const {
+  state: isoState,
+  search: isoSearch,
+  handleInput: handleIsoInput,
+  handleCompositionStart: handleIsoCompositionStart,
+  handleCompositionEnd: handleIsoCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contIso: value,
+      queryType: 'ISO',
+    });
+  },
+  labelField: 'contIso',
+  valueField: 'contIso',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 持箱人搜索选择器
+const {
+  state: ownerState,
+  search: ownerSearch,
+  handleInput: handleOwnerInput,
+  handleCompositionStart: handleOwnerCompositionStart,
+  handleCompositionEnd: handleOwnerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerOwnerListPage({
+      pageNo: 1,
+      pageSize: 10,
+      ownerCode: value,
+    });
+  },
+  labelField: 'ownerCode',
+  valueField: 'ownerCode',
+  errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 箱尺寸搜索选择器
+const {
+  state: sizeState,
+  search: sizeSearch,
+  handleInput: handleSizeInput,
+  handleCompositionStart: handleSizeCompositionStart,
+  handleCompositionEnd: handleSizeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contLength: value,
+      queryType: 'length',
+    });
+  },
+  labelField: 'contLength',
+  valueField: 'contLength',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 箱型搜索选择器
+const {
+  state: containerTypeState,
+  search: containerTypeSearch,
+  handleInput: handleContainerTypeInput,
+  handleCompositionStart: handleContainerTypeCompositionStart,
+  handleCompositionEnd: handleContainerTypeCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contType: value,
+      queryType: 'type',
+    });
+  },
+  labelField: 'contType',
+  valueField: 'contType',
+  errorMessage: '获取箱型数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 箱高选择器
+const {
+  state: containerHeightState,
+  search: containerHeightSearch,
+  handleInput: handleContainerHeightInput,
+  handleCompositionStart: handleContainerHeightCompositionStart,
+  handleCompositionEnd: handleContainerHeightCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getContainerIsoListPage({
+      pageNo: 1,
+      pageSize: 10,
+      contHeight: value,
+      queryType: 'ISO',
+    });
+  },
+  labelField: 'contHeight',
+  valueField: 'contHeight',
+  errorMessage: '获取箱高数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+// 付费人搜索选择器
+const {
+  state: payerState,
+  search: payerSearch,
+  handleInput: handlePayerInput,
+  handleCompositionStart: handlePayerCompositionStart,
+  handleCompositionEnd: handlePayerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getCustomerList({
+      pageNo: 1,
+      pageSize: 10,
+      customerName: value,
+    });
+  },
+  labelField: 'customerName',
+  valueField: 'customerCode',
+  errorMessage: '获取申请人数据失败',
+  toUpperCase: true,
+  searchMode: 'input',
+  minSearchLength: 2,
+});
+
+// 船名航次搜索选择器
+const dischargeVslSchedule = reactive({
+  data: [],
+  value: [],
+  fetching: false,
+  isComposing: false, // 标记是否在中文输入法组合状态
+});
+
+// 处理卸船船期输入，将英文部分转为大写，同时允许中文
+const handleDischargeVslScheduleInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+
+  if (dischargeVslSchedule.isComposing) {
+    return;
+  }
+  target.value = target.value.toUpperCase();
+  fetchDischargeVslSchedule(target.value);
+};
+
+// 处理卸船船期中文输入法组合开始
+const handleDischargeVslScheduleCompositionStart = () => {
+  dischargeVslSchedule.isComposing = true;
+};
+
+// 处理卸船船期中文输入法组合结束
+const handleDischargeVslScheduleCompositionEnd = (e: CompositionEvent) => {
+  dischargeVslSchedule.isComposing = false;
+  const target = e.target as HTMLInputElement;
+  target.value = target.value.toUpperCase();
+  fetchDischargeVslSchedule(target.value);
+};
+
+// 获取卸船船期
+const fetchDischargeVslSchedule = async (searchText: string) => {
+  dischargeVslSchedule.fetching = true;
+  try {
+    if (!searchText || searchText.length < 2) {
+      return;
+    }
+    const upperCaseValue = searchText.toUpperCase();
+    const result = await getVesselAndVoyage({ condition: upperCaseValue });
+    dischargeVslSchedule.data = result.map((item) => ({
+      label: item,
+      value: item,
+    }));
+  } catch {
+    dischargeVslSchedule.data = [];
+  } finally {
+    dischargeVslSchedule.fetching = false;
+  }
+};
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -86,6 +297,153 @@ const [Modal, modalApi] = useVbenModal({
 
 <template>
   <Modal title="批量修改">
-    <Form />
+    <Form>
+      <template #contIso>
+        <Select
+          v-model:value="isoState.value"
+          placeholder="请输入ISO"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="isoState.fetching ? undefined : null"
+          :options="isoState.data"
+          @search="isoSearch"
+          allow-clear
+          show-search
+          @focus="isoSearch('')"
+          @input="handleIsoInput"
+          @compositionstart="handleIsoCompositionStart"
+          @compositionend="handleIsoCompositionEnd"
+        />
+      </template>
+      <template #holderCode>
+        <Select
+          v-model:value="ownerState.value"
+          placeholder="请输入持箱人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="ownerState.fetching ? undefined : null"
+          :options="ownerState.data"
+          @search="ownerSearch"
+          allow-clear
+          show-search
+          @focus="ownerSearch('')"
+          @input="handleOwnerInput"
+          @compositionstart="handleOwnerCompositionStart"
+          @compositionend="handleOwnerCompositionEnd"
+        />
+      </template>
+      <template #contSize>
+        <Select
+          v-model:value="sizeState.value"
+          placeholder="请输入尺寸"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="sizeState.fetching ? undefined : null"
+          :options="sizeState.data"
+          @search="sizeSearch"
+          allow-clear
+          show-search
+          @focus="sizeSearch('')"
+          @input="handleSizeInput"
+          @compositionstart="handleSizeCompositionStart"
+          @compositionend="handleSizeCompositionEnd"
+        />
+      </template>
+      <template #contType>
+        <Select
+          v-model:value="containerTypeState.value"
+          placeholder="请输入箱型"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="containerTypeState.fetching ? undefined : null"
+          :options="containerTypeState.data"
+          @search="containerTypeSearch"
+          allow-clear
+          show-search
+          @focus="containerTypeSearch('')"
+          @input="handleContainerTypeInput"
+          @compositionstart="handleContainerTypeCompositionStart"
+          @compositionend="handleContainerTypeCompositionEnd"
+        />
+      </template>
+      <template #contHeight>
+        <Select
+          v-model:value="containerHeightState.value"
+          placeholder="请输入箱高"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="containerHeightState.fetching ? undefined : null"
+          :options="containerHeightState.data"
+          @search="containerHeightSearch"
+          allow-clear
+          show-search
+          @focus="containerHeightSearch('')"
+          @input="handleContainerHeightInput"
+          @compositionstart="handleContainerHeightCompositionStart"
+          @compositionend="handleContainerHeightCompositionEnd"
+        />
+      </template>
+      <template #payer>
+        <Select
+          v-model:value="payerState.value"
+          placeholder="请输入付费人"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerState.fetching ? undefined : null"
+          :options="payerState.data"
+          @search="payerSearch"
+          allow-clear
+          show-search
+          @input="handlePayerInput"
+          @compositionstart="handlePayerCompositionStart"
+          @compositionend="handlePayerCompositionEnd"
+        />
+      </template>
+      <template #title>
+        <Select
+          v-model:value="payerState.value"
+          placeholder="自动同步付费人信息"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="payerState.fetching ? undefined : null"
+          :options="payerState.data"
+          @search="payerSearch"
+          allow-clear
+          show-search
+          @input="handlePayerInput"
+          @compositionstart="handlePayerCompositionStart"
+          @compositionend="handlePayerCompositionEnd"
+          :disabled="true"
+        />
+      </template>
+      <template #tradeType>
+        <Select
+          v-model:value="formData.tradeType"
+          placeholder="请选择内外贸"
+          style="width: 100%"
+          allow-clear
+          :options="tradeTypeOptions"
+          @change="(value) => formApi.setFieldValue('tradeType', value)"
+        />
+      </template>
+      <template #vslName>
+        <Select
+          :options="dischargeVslSchedule.data"
+          v-model:value="dischargeVslSchedule.value"
+          style="width: 100%"
+          placeholder="请输入船名或航次"
+          :show-search="true"
+          :filter-option="true"
+          :list-height="150"
+          allow-clear
+          @change="
+            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
+          "
+          @input="handleDischargeVslScheduleInput"
+          @compositionstart="handleDischargeVslScheduleCompositionStart"
+          @compositionend="handleDischargeVslScheduleCompositionEnd"
+        />
+      </template>
+    </Form>
   </Modal>
 </template>

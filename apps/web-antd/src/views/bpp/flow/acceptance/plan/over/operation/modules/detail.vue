@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
 import { handlePreview } from '#/utils/filePreview';
-import taskComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/taskComment.vue';
+import detailComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/DetailComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
@@ -306,9 +306,10 @@ const [Modal, modalApi] = useVbenModal({
     </div>
     <div>
       <!--审批记录-->
-      <taskComment
+      <detailComment
         :is-show-apply="false"
         :acceptance-plan-over-operation-data="formData"
+        :acceptance-plan-over-operation-resp-vO="acceptancePlanOverOperationRespVO"
         :process-instance-id="
           acceptancePlanOverOperationRespVO?.processInstanceId
         "
