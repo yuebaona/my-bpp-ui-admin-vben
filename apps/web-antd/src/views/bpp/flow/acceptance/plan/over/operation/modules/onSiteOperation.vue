@@ -159,12 +159,11 @@ const [Modal, modalApi] = useVbenModal({
         'endTimeBack',
         data?.endTimeBack?.toString() || null,
       );
-      const fileList = JSON.parse(formData.value.operationFile)?.map(file => {
-
+      const fileList = JSON.parse(formData.value.operationFile)?.map((file) => {
         const parts = file.split('?');
         return parts[0]; // 返回问号之前的部分
       });
-      await formApi.setFieldValue('operationFile',fileList)
+      await formApi.setFieldValue('operationFile', fileList);
     }
     if (data?.vslName || data.value?.vslName) {
       vslNameState.value = {
