@@ -150,6 +150,11 @@ const handleClickPickupNo = (row: any) => {
   currentRow.value = row;
   showLadingBillModal.value = true;
 };
+
+defineExpose({
+  gridApi,
+  modifyBoxes,
+});
 </script>
 <template>
   <BatchEditModal class="w-3/4" @success="handleRefresh" />

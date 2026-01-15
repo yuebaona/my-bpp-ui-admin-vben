@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onActivated, ref } from 'vue';
 
-import { Affix } from 'ant-design-vue';
+import { Affix, message } from 'ant-design-vue';
 import { Page } from '@vben/common-ui';
 import BoxInfo from '#/views/bpp/changeorder/current/history/container/modules/boxInfo.vue';
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPaymentInfo.vue';
@@ -11,6 +11,10 @@ import boxList from '#/views/bpp/changeorder/current/history/container/modules/s
 
 const affix = ref(0);
 const selectedBoxes = ref<any[]>([]);
+// 子组件引用
+const changeOrderPlanInfoRef = ref();
+const changeOrderPaymentInfoRef = ref();
+const boxListRef = ref();
 
 // 加入修改列表
 function handleAddToEdit(boxes: any[]) {
@@ -41,6 +45,66 @@ const buttonDisplay = ref({
   executeModify: true,
   executeModifyTos: false,
 });
+
+// 收集所有子组件的数据
+const collectAllData = () => {
+  try {
+    // 收集改单计划信息
+    const planInfo = changeOrderPlanInfoRef.value?.formApi?.getValues() || {};
+
+    // 收集改单付费信息
+    const paymentInfo = changeOrderPaymentInfoRef.value?.formApi?.getValues() || {};
+
+    // 收集修改的箱信息
+    const modifiedBoxes = selectedBoxes.value;
+
+    // 组合所有数据
+    const allData = {
+      planInfo,
+      paymentInfo,
+      modifiedBoxes,
+      businessType: selectedBusinessType.value,
+      originalAcceptancePlanNo: originalAcceptancePlanNo.value,
+    };
+
+    return allData;
+  } catch (error) {
+    console.error('收集数据失败:', error);
+    return null;
+  }
+};
+
+// 删除改单计划
+const handleDeleteModifyPlan = () => {
+  console.log('删除改单计划，收集的数据:', collectAllData());
+  // 这里可以执行删除改单计划的逻辑
+  message.warning('删除改单计划功能待实现');
+};
+
+// 暂存改单计划
+const handleSaveDraft = () => {
+  const data = collectAllData();
+  if (data) {
+    console.log('暂存数据:', data);
+    // 这里可以执行暂存数据的逻辑
+    message.success('数据暂存成功');
+  } else {
+    message.error('数据收集失败');
+  }
+};
+
+// 提交审核
+const handleSubmitAudit = () => {
+  const data = collectAllData();
+  if (data) {
+    console.log('提交审核数据:', data);
+    // 这里可以执行提交审核的逻辑
+    message.success('提交审核成功');
+  } else {
+    message.error('数据收集失败');
+  }
+};
+
 onActivated(() => {
   // 强制更新Affix组件，使组件重新渲染
   affix.value++;
@@ -57,6 +121,9 @@ onActivated(() => {
         :original-acceptance-plan-no="originalAcceptancePlanNo"
         original-acceptance-plan-type="提空返重"
         :button-display="buttonDisplay"
+        @delete-modify-plan="handleDeleteModifyPlan"
+        @save-draft="handleSaveDraft"
+        @submit-audit="handleSubmitAudit"
       />
     </Affix>
     <div class="mb-2 ">
@@ -64,11 +131,11 @@ onActivated(() => {
         <div class="flex w-full md:w-2/5 flex-col mb-4 md:mb-0">
           <!-- 改单计划信息 -->
           <div>
-            <ChangeOrderPlanInfo />
+            <ChangeOrderPlanInfo ref="changeOrderPlanInfoRef" />
           </div>
           <!-- 改单付费信息 -->
           <div class="mt-2">
-            <ChangeOrderPaymentInfo />
+            <ChangeOrderPaymentInfo ref="changeOrderPaymentInfoRef" />
           </div>
         </div>
         <!-- 箱信息 -->
@@ -79,6 +146,7 @@ onActivated(() => {
       <div class="mb-2 mt-2 flex">
         <div class="w-full">
           <boxList
+            ref="boxListRef"
             :selected-boxes="selectedBoxes"
             @remove-from-edit="handleRemoveFromEdit"
           />
