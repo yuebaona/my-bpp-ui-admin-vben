@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
-import {Card, Flex, Tag} from 'ant-design-vue';
+import { onMounted, ref } from 'vue';
+
+import { Card, Flex, Tag } from 'ant-design-vue';
 import dayjs from 'dayjs';
-import {getTaskListByProcessInstanceId} from '#/api/bpm/task';
-import {getDictDataPage} from '#/api/bpp/base/dict/data';
+
+import { getTaskListByProcessInstanceId } from '#/api/bpm/task';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
 
 defineOptions({ name: 'DetailComment' });
 /**
@@ -27,7 +29,7 @@ const props = defineProps({
   acceptancePlanOverOperationData: Object, //  单据对象
   acceptancePlanOverOperationRespVO: Object, //  单据对象
   acceptancePlanData: Object, //  单据对象
-  containerDataArray: Object //  单据对象
+  containerDataArray: Object, //  单据对象
 });
 // 审批意见数据
 const taskCommentData = ref(null);
@@ -42,17 +44,15 @@ const plannedCheTypeArray = ref();
 const plannedMachryTypeArray = ref();
 
 async function getDetailData() {
-  const taskCommentDataArray = await getTaskListByProcessInstanceId(props.processInstanceId);
+  const taskCommentDataArray = await getTaskListByProcessInstanceId(
+    props.processInstanceId,
+  );
   taskCommentDataList.value = mergeByName(taskCommentDataArray);
   taskCommentData.value = taskCommentDataArray[0];
 }
 
 function getIsAllowedStacking(isAllowedStacking: boolean) {
-  if (isAllowedStacking) {
-    return '是';
-  } else {
-    return '否';
-  }
+  return isAllowedStacking ? '是' : '否';
 }
 
 /**
@@ -103,7 +103,7 @@ function mergeByName(arr) {
       // 创建新对象
       const newItem = {};
       // 复制所有属性（除了 assigneeUser）
-      Object.keys(item).forEach(key => {
+      Object.keys(item).forEach((key) => {
         if (key !== 'assigneeUser') {
           newItem[key] = item[key];
         }
@@ -124,38 +124,44 @@ function mergeByName(arr) {
 }
 
 // 获取字典数据
-const initDataType = async () =>{
-  const dictData = await getDictDataPage({dictType: 'spreader_type'});
+const initDataType = async () => {
+  const dictData = await getDictDataPage({ dictType: 'spreader_type' });
   plannedCheTypeArray.value = dictData.list;
-  const mechanical = await getDictDataPage({dictType: 'mechanical_type'});
+  const mechanical = await getDictDataPage({ dictType: 'mechanical_type' });
   plannedMachryTypeArray.value = mechanical.list;
-}
+};
 
 // 获取字典数据,吊具类别
-const getPlannedCheType= (plannedCheType: string)=>{
-  if(plannedCheTypeArray.value && plannedCheType){
-    const dictData = plannedCheTypeArray.value.find(item=>plannedCheType == item.value);
+const getPlannedCheType = (plannedCheType: string) => {
+  if (plannedCheTypeArray.value && plannedCheType) {
+    const dictData = plannedCheTypeArray.value.find(
+      (item) => plannedCheType == item.value,
+    );
     return dictData?.label;
   }
   return plannedCheType;
-}
+};
 
 // 获取字典数据,机械类型类别
-const getplannedMachryType = (plannedMachryType: string)=>{
-  if(plannedMachryTypeArray.value && plannedMachryType){
-    const dictData = plannedMachryTypeArray.value.find(item=>plannedMachryType == item.value);
+const getplannedMachryType = (plannedMachryType: string) => {
+  if (plannedMachryTypeArray.value && plannedMachryType) {
+    const dictData = plannedMachryTypeArray.value.find(
+      (item) => plannedMachryType == item.value,
+    );
     return dictData?.label;
   }
   return plannedMachryType;
-}
+};
 onMounted(async () => {
   await getDetailData();
   await initDataType();
   if (props.containerDataArray) {
-    cheType.value = props.containerDataArray.map(item => getPlannedCheType(item.plannedCheType)).join(',');
+    cheType.value = props.containerDataArray
+      .map((item) => getPlannedCheType(item.plannedCheType))
+      .join(',');
     totalPriceSea.value = props.containerDataArray.reduce((sum, item) => {
       // 先判断 priceSea 是否存在且为有效数字，否则按 0 处理
-      const validPrice = Number(item.priceSea) || 0;
+      const validPrice = (Number(item.priceSea) || 0) + (Number(item.priceGate) || 0);
       return sum + validPrice;
     }, 0);
   }
@@ -163,135 +169,193 @@ onMounted(async () => {
 </script>
 <!--审批意见组件-->
 <template>
-  <div style="font-size: 16px;font-weight: 600;padding-top: 15px;padding-bottom: 15px">
+  <div
+    style="
+      font-size: 16px;
+      font-weight: 600;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    "
+  >
     审批记录
   </div>
 
   <Card v-if="isShowApply">
     <table class="handler-info-table">
       <tbody>
-      <!-- 经办人备注行 -->
-      <tr>
-        <td class="handler-label-cell">经办人备注</td>
-        <td class="handler-content-cell">{{ acceptancePlanData?.handlerRemark }}</td>
-      </tr>
-      <!-- 经办人确认行：内容+右侧信息 -->
-      <tr>
-        <td class="handler-label-cell">经办人确认</td>
-        <td class="handler-content-cell">
-          <p style="width:100%">{{ acceptancePlanData?.handlerConfirmation }}</p>
-          <p class="handler-right-info" style="padding-left: 20px;padding-top:20px">
-            经办人：{{ acceptancePlanData?.handlingPerson }}　
-            时间：{{ dayjs(acceptancePlanData?.createTime).format('YYYY-MM-DD HH:mm:ss') }}
-          </p>
-        </td>
-      </tr>
+        <!-- 经办人备注行 -->
+        <tr>
+          <td class="handler-label-cell">经办人备注</td>
+          <td class="handler-content-cell">
+            {{ acceptancePlanData?.handlerRemark }}
+          </td>
+        </tr>
+        <!-- 经办人确认行：内容+右侧信息 -->
+        <tr>
+          <td class="handler-label-cell">经办人确认</td>
+          <td class="handler-content-cell">
+            <p style="width: 100%">
+              {{ acceptancePlanData?.handlerConfirmation }}
+            </p>
+            <p
+              class="handler-right-info"
+              style="padding-left: 20px; padding-top: 20px"
+            >
+              经办人：{{ acceptancePlanData?.handlingPerson }}　 时间：{{
+                dayjs(acceptancePlanData?.createTime).format(
+                  'YYYY-MM-DD HH:mm:ss',
+                )
+              }}
+            </p>
+          </td>
+        </tr>
       </tbody>
     </table>
   </Card>
   <Card v-if="!isShowApply">
     <table class="handler-info-table">
       <tbody>
-      <!-- 经办人备注行 -->
-      <tr>
-        <td class="handler-label-cell">经办人备注</td>
-        <td class="handler-content-cell">{{ acceptancePlanOverOperationData?.handlerRemark }}</td>
-      </tr>
-      <!-- 经办人确认行：内容+右侧信息 -->
-      <tr>
-        <td class="handler-label-cell">经办人确认</td>
-        <td class="handler-content-cell">
-          <p style="width:100%">{{ acceptancePlanOverOperationData?.handlerConfirmation }}</p>
-          <p class="handler-right-info" style="padding-left: 20px;padding-top:20px">
-            经办人：{{ acceptancePlanOverOperationData?.handlingPerson }}　
-            时间：{{
-              dayjs(acceptancePlanOverOperationData?.createTime).format('YYYY-MM-DD HH:mm:ss')
-            }}
-          </p>
-        </td>
-      </tr>
+        <!-- 经办人备注行 -->
+        <tr>
+          <td class="handler-label-cell">经办人备注</td>
+          <td class="handler-content-cell">
+            {{ acceptancePlanOverOperationData?.handlerRemark }}
+          </td>
+        </tr>
+        <!-- 经办人确认行：内容+右侧信息 -->
+        <tr>
+          <td class="handler-label-cell">经办人确认</td>
+          <td class="handler-content-cell">
+            <p style="width: 100%">
+              {{ acceptancePlanOverOperationData?.handlerConfirmation }}
+            </p>
+            <p
+              class="handler-right-info"
+              style="padding-left: 20px; padding-top: 20px"
+            >
+              经办人：{{ acceptancePlanOverOperationData?.handlingPerson }}　
+              时间：{{
+                dayjs(acceptancePlanOverOperationData?.createTime).format(
+                  'YYYY-MM-DD HH:mm:ss',
+                )
+              }}
+            </p>
+          </td>
+        </tr>
       </tbody>
     </table>
     <table class="audit-table" v-for="taskCommentData in taskCommentDataList">
       <tbody>
-      <tr>
-        <!-- 合并3行的环节列 -->
-        <td class="section-cell" rowspan="4">{{ taskCommentData?.name }}</td>
-        <td class="label-cell">审核结果</td>
-        <td>
-          <Tag color="processing" v-if="taskCommentData?.status==4">已取消</Tag>
-          <Tag color="processing" v-else-if="taskCommentData?.status==3">审批不通过</Tag>
-          <Tag color="success" v-else-if="taskCommentData?.status==2">同意</Tag>
-          <Tag color="default" v-else-if="taskCommentData?.status==1">待审批</Tag>
-          <Tag color="processing" v-else>审批中</Tag>
-        </td>
-      </tr>
-      <tr v-if="taskCommentData?.name?.indexOf('操作') > -1">
-        <td class="label-cell">箱子是否落堆</td>
-        <td>{{ getIsAllowedStacking(acceptancePlanOverOperationData?.isAllowedStacking) }}</td>
-      </tr>
-      <tr v-if="taskCommentData?.name?.indexOf('技术') > -1">
-        <td class="label-cell">机械类型</td>
-        <td>{{ getplannedMachryType(acceptancePlanOverOperationRespVO?.plannedMachryType) }}</td>
-      </tr>
-      <tr v-if="taskCommentData?.name?.indexOf('技术') > -1">
-        <td class="label-cell">作业吊具</td>
-        <td>{{ cheType }}</td>
-      </tr>
-      <tr v-if="taskCommentData?.name?.indexOf('商务') > -1">
-        <td class="label-cell">作业费用</td>
-        <td>{{ totalPriceSea }}</td>
-      </tr>
-      <tr>
-        <td class="label-cell">审核意见</td>
-        <td>{{ taskCommentData?.reason }}</td>
-      </tr>
-      <tr>
-        <td class="label-cell" colspan="4">
-          <span style="padding-right: 40px">
-            审核人：{{ taskCommentData?.assigneeUserName }}
-          </span>
-          <span>
-            时间：{{ dayjs(taskCommentData?.endTime).format('YYYY-MM-DD HH:mm:ss') }}
-          </span>
-        </td>
-      </tr>
+        <tr>
+          <!-- 合并3行的环节列 -->
+          <td class="section-cell" rowspan="4">{{ taskCommentData?.name }}</td>
+          <td class="label-cell">审核结果</td>
+          <td>
+            <Tag color="processing" v-if="taskCommentData?.status == 4">
+              已取消
+            </Tag>
+            <Tag color="processing" v-else-if="taskCommentData?.status == 3">
+              审批不通过
+            </Tag>
+            <Tag color="success" v-else-if="taskCommentData?.status == 2">
+              同意
+            </Tag>
+            <Tag color="default" v-else-if="taskCommentData?.status == 1">
+              待审批
+            </Tag>
+            <Tag color="processing" v-else>审批中</Tag>
+          </td>
+        </tr>
+        <tr v-if="taskCommentData?.name?.indexOf('操作') > -1">
+          <td class="label-cell">箱子是否落堆</td>
+          <td>
+            {{
+              getIsAllowedStacking(
+                acceptancePlanOverOperationData?.isAllowedStacking,
+              )
+            }}
+          </td>
+        </tr>
+        <tr v-if="taskCommentData?.name?.indexOf('技术') > -1">
+          <td class="label-cell">机械类型</td>
+          <td>
+            {{
+              getplannedMachryType(
+                acceptancePlanOverOperationRespVO?.plannedMachryType,
+              )
+            }}
+          </td>
+        </tr>
+        <tr v-if="taskCommentData?.name?.indexOf('技术') > -1">
+          <td class="label-cell">作业吊具</td>
+          <td>{{ cheType }}</td>
+        </tr>
+        <tr v-if="taskCommentData?.name?.indexOf('商务') > -1">
+          <td class="label-cell">作业费用</td>
+          <td>{{ totalPriceSea }}</td>
+        </tr>
+        <tr>
+          <td class="label-cell">审核意见</td>
+          <td>{{ taskCommentData?.reason }}</td>
+        </tr>
+        <tr>
+          <td class="label-cell" colspan="4">
+            <span style="padding-right: 40px">
+              审核人：{{ taskCommentData?.assigneeUserName }}
+            </span>
+            <span>
+              时间：{{
+                dayjs(taskCommentData?.endTime).format('YYYY-MM-DD HH:mm:ss')
+              }}
+            </span>
+          </td>
+        </tr>
       </tbody>
     </table>
     <table class="handler-info-table">
       <tbody>
-      <!-- 经办人备注行 -->
-      <tr>
-        <td class="handler-label-cell">箱子是否需要落堆</td>
-        <td class="handler-content-cell" colspan="2">
-          {{ getIsAllowedStacking(acceptancePlanOverOperationData?.isAllowedStacking) }}
-        </td>
-      </tr>
-      <!-- 经办人确认行：内容+右侧信息 -->
-      <tr>
-        <td class="handler-label-cell" rowspan="2">变更道具相关</td>
-        <td class="label-cell">
-          机械类型
-        </td>
-        <td class="handler-content-cell">
-          <p style="width:100%">
-            {{ getplannedMachryType(acceptancePlanOverOperationRespVO?.plannedMachryType) }}</p>
-        </td>
-      </tr>
-      <tr>
-        <td class="label-cell">
-          作业吊具
-        </td>
-        <td>
-          <Flex>
-            <Card v-for="item in containerDataArray" :key="item.contNo"
-                  style="width: 200px;height: 120px;margin-right: 5px">
-              <p>箱号：{{ item.contNo }}</p>
-              <p>吊具类型：{{ getPlannedCheType(item.plannedCheType) }}</p>
-            </Card>
-          </Flex>
-        </td>
-      </tr>
+        <!-- 经办人备注行 -->
+        <tr>
+          <td class="handler-label-cell">箱子是否需要落堆</td>
+          <td class="handler-content-cell" colspan="2">
+            {{
+              getIsAllowedStacking(
+                acceptancePlanOverOperationData?.isAllowedStacking,
+              )
+            }}
+          </td>
+        </tr>
+        <!-- 经办人确认行：内容+右侧信息 -->
+        <tr>
+          <td class="handler-label-cell" rowspan="2">变更道具相关</td>
+          <td class="label-cell">机械类型</td>
+          <td class="handler-content-cell">
+            <p style="width: 100%">
+              {{
+                getplannedMachryType(
+                  acceptancePlanOverOperationRespVO?.plannedMachryType,
+                )
+              }}
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td class="label-cell">作业吊具</td>
+          <td>
+            <Flex>
+              <Card
+                v-for="item in containerDataArray"
+                :key="item.contNo"
+                style="margin-right: 3px;"
+              >
+                <p>箱号：{{ item.contNo }}</p>
+                <p v-if="item.priceSea">海侧报价：{{ item.priceSea }}</p>
+                <p v-if="item.priceGate">陆侧报价：{{ item.priceGate }}</p>
+                <p>吊具类型：{{ getPlannedCheType(item.plannedCheType) }}</p>
+              </Card>
+            </Flex>
+          </td>
+        </tr>
       </tbody>
     </table>
   </Card>
@@ -304,7 +368,7 @@ onMounted(async () => {
   border-collapse: collapse;
   font-size: 14px;
   color: #333;
-  font-family: "Microsoft YaHei", sans-serif;
+  font-family: 'Microsoft YaHei', sans-serif;
 }
 
 /* 单元格样式：边框、内边距、垂直居中 */
@@ -340,7 +404,7 @@ onMounted(async () => {
   border-collapse: collapse;
   font-size: 14px;
   color: #333;
-  font-family: "Microsoft YaHei", sans-serif;
+  font-family: 'Microsoft YaHei', sans-serif;
 }
 
 /* 单元格基础样式：边框、内边距、垂直居中 */
