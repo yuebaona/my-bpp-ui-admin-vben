@@ -54,7 +54,9 @@ export function deleteConfigFormList(ids: number[]) {
 
 /** 导出自定义表单配置信息 */
 export function exportConfigForm(params: any) {
-  return requestClient.download('/bpp/flow/custom/config/form/export-excel', {
+  return requestClient.download(
+    '/bpp/flow/custom/config/form/export-excel',
+    {
     params,
   });
 }

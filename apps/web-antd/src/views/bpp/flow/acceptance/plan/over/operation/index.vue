@@ -936,9 +936,46 @@ const initiationTypeValue = ref<null | string>(null);
 
 const advancedQueryModalOpen = async () => {
   // 调用表单数据
-  // const res = await getTableColumnList({
-  //   tableNameList:['acpt_pln','acpt_pln_oog_cont','che_chg_rec']
-  // });
+  const res = await getTableColumnList({
+    tableNameList: ['acpt_pln','acpt_pln_oog_cont','che_chg_rec']
+  });
+  const transformedData = await Promise.all(
+    res.map(async (item) => {
+      const result = {
+        fldName: item.columnName,
+        fldLabel: item.columnComment,
+        fldType: item.htmlType,
+        dictType: item.dictType,
+        tableName: item.tableName,
+        dataType: item.dataType,
+        isNullable: item.isNullable,
+        id: item.id,
+      };
+
+      // 如果是选择类型且有字典类型
+      if (item.htmlType === 'select' && item.dictType) {
+        try {
+          // 异步获取字典数据
+          bppBaseDict.setBppBaseDictCacheByData(
+            (
+              await getDictDataPage({
+                dictType: item.dictType,
+                pageNo: 1,
+                pageSize: 100,
+              })
+            ).list,
+            item.dictType,
+          );
+          result.options =bppBaseDict.getBppBaseDictOptions(item.dictType);
+        } catch (error) {
+          result.options = [];
+        }
+      }
+      return result;
+    })
+  );
+  console.log(transformedData);
+  fields.value = transformedData;
   AdvancedQueryModalApi.open();
 };
 watch(
