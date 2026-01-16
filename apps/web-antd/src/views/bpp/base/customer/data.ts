@@ -24,8 +24,7 @@ export function useFormSchema(): VbenFormSchema[] {
       rules: 'required',
       component: 'Input',
       componentProps: {
-        placeholder:
-          '请输入客户代码',
+        placeholder: '请输入客户代码',
       },
     },
     {
@@ -109,15 +108,13 @@ export function useFormSchema(): VbenFormSchema[] {
 /** 列表的搜索表单 */
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
-
     {
       fieldName: 'customerCode',
       label: '客户代码',
       component: 'Input',
       componentProps: {
         allowClear: true,
-        placeholder:
-          '请输入客户代码',
+        placeholder: '请输入客户代码',
       },
     },
     {
