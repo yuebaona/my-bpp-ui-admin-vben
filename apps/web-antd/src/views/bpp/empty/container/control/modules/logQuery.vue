@@ -5,11 +5,11 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 // import type { EmptyContainerControlApi } from '#/api/bpp/emptycontainercontrol';
 import type { LogQueryParams } from '#/api/bpp/empty/container/control';
 
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { message, Select } from 'ant-design-vue';
+import { Button, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -19,9 +19,16 @@ import {
 } from '#/api/bpp/common';
 import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
+import ContainerAreaSelect from './containerAreaSelect.vue';
 import { logQueryColumns, logQueryFormSchema } from '../data';
 
 const formValues = reactive({});
+
+// 控制箱区选择组件显隐藏
+const containerAreaVisible = ref(false);
+
+// 箱区范围值
+const bayRangeListValue = ref('');
 
 // 持箱人搜索状态
 const ownerState = reactive({
@@ -30,6 +37,16 @@ const ownerState = reactive({
   fetching: false,
   isComposing: false,
 });
+
+// 箱区选择确认
+const handleContainerAreaConfirm = async (positions: string[]) => {
+  const value = positions && positions.length > 0 ? positions.join(',') : '';
+  bayRangeListValue.value = value;
+  await formApi.setValues({
+    bayRangeList: value,
+  });
+  containerAreaVisible.value = false;
+};
 
 // 处理持箱人输入，将小写字母转换为大写
 const handleOwnerInput = (e: Event) => {
@@ -222,8 +239,10 @@ const [Modal, modalApi] = useVbenModal({
   onOpened() {
     ownerState.value = [];
     isoState.value = [];
+    bayRangeListValue.value = '';
     formApi.setFieldValue('owner', undefined);
     formApi.setFieldValue('iso', undefined);
+    formApi.setFieldValue('bayRangeList', '');
     handleQuery();
   },
   onConfirm: () => {
@@ -272,8 +291,38 @@ const [Modal, modalApi] = useVbenModal({
             @compositionend="handleIsoCompositionEnd"
           />
         </template>
+        <template #yardBay>
+          <div class="flex w-full items-center">
+            <Button
+              type="default"
+              style="width: 100%"
+              @click="containerAreaVisible = true"
+              :disabled="false"
+            >
+              {{ bayRangeListValue || '选择箱区' }}
+            </Button>
+            <Button
+              v-if="bayRangeListValue"
+              type="link"
+              danger
+              @click="
+                bayRangeListValue = '';
+                formApi.setValues({
+                  bayRangeList: '',
+                });
+              "
+            />
+          </div>
+        </template>
       </Form>
       <Grid />
+      <ContainerAreaSelect
+        v-model:visible="containerAreaVisible"
+        :owner-code-list="['ZGS']"
+        :cont-iso-list="['22G1']"
+        trade-type=""
+        @confirm="handleContainerAreaConfirm"
+      />
     </div>
   </Modal>
 </template>
