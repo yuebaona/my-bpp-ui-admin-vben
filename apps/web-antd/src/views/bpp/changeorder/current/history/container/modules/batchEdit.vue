@@ -54,6 +54,7 @@ const [Form, formApi] = useVbenForm({
 });
 
 const [Modal, modalApi] = useVbenModal({
+  closeOnClickModal: false,
   async onConfirm() {
     const formValues = await formApi.getValues();
     // Object.assign(formData, formValues);
