@@ -46,12 +46,9 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     // 提交表单
-    const data =
-      (await formApi.getValues()) as BppBaseCustomerApi.Customer;
+    const data = (await formApi.getValues()) as BppBaseCustomerApi.Customer;
     try {
-      await (formData.value?.id
-        ? updateCustomer(data)
-        : createCustomer(data));
+      await (formData.value?.id ? updateCustomer(data) : createCustomer(data));
       // 关闭并提示
       await modalApi.close();
       emit('success');
