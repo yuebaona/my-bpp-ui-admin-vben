@@ -1,13 +1,16 @@
+import { message } from 'ant-design-vue';
 export function validateContainerNo(containerNo: string): null | string {
   // 1. 基本格式验证
   if (!/^[A-Z]{4}\d{7}$/.test(containerNo)) {
-    return '箱号格式错误：前四位为字母，后七位为数字';
+    message.warning('箱号格式错误：前四位为字母，后七位为数字')
+    return
   }
 
   // 2. 第4位必须是U
   const categoryCode: string | undefined = containerNo[3] as string;
   if (!['U'].includes(categoryCode)) {
-    return '箱号第4位必须是U（集装箱）';
+    message.warning('箱号第4位必须是U（集装箱）')
+    return
   }
 
   // 3. 校验位验证
@@ -46,7 +49,8 @@ export function validateContainerNo(containerNo: string): null | string {
     const value = /\d/.test(char) ? Number.parseInt(char) : letterValues[char];
 
     if (value === undefined) {
-      return '箱号格式错误：包含无效字符';
+      message.warning('箱号格式错误：包含无效字符');
+      return
     }
 
     sum += value * 2 ** i;
@@ -59,8 +63,8 @@ export function validateContainerNo(containerNo: string): null | string {
 
   const providedCheckDigit = Number.parseInt(containerNo[10] as string);
   if (checkDigit !== providedCheckDigit) {
-    return `箱号校验位错误，正确的校验位应为：${checkDigit}`;
+    message.warning('箱号格式不正确请检查');
+    return
   }
-
   return null; // 校验通过
 }

@@ -5,6 +5,7 @@ import type { DescriptionItemSchema } from '#/components/description';
 import { h } from 'vue';
 
 import { Tag } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
@@ -209,14 +210,7 @@ export function onSiteOperationConfirmFormSchema(
           }
 
           // 使用 validateContainerNo 进行校验
-          const error = validateContainerNo(num);
-          if (error) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: error,
-            });
-            return;
-          }
+          validateContainerNo(num);
         }
       }),
     },
@@ -440,12 +434,20 @@ export function contInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'contCargoSize',
       minWidth: 120,
       editRender: { name: 'input' },
+      slots: {
+        edit: 'contCargoSize',
+        default: 'contCargoSizeDefault',
+      },
     },
     {
       title: '超限明细CM',
       field: 'contOogDetails',
-      minWidth: 120,
+      minWidth: 170,
       editRender: { name: 'input' },
+      slots: {
+        edit: 'contOogDetails',
+        default: 'contOogDetailsDefault',
+      },
     },
     {
       title: '操作',
@@ -494,11 +496,17 @@ export function contInfoDetailColumns(): VxeTableGridOptions['columns'] {
       title: '货物尺寸CM',
       field: 'contCargoSize',
       minWidth: 120,
+      slots: {
+        default: 'contCargoSizeDefault',
+      },
     },
     {
       title: '超限明细CM',
       field: 'contOogDetails',
       minWidth: 120,
+      slots: {
+        default: 'contOogDetailsDefault',
+      },
     },
   ];
 }
@@ -1383,6 +1391,114 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
+      field: 'priceGate',
+      title: '陆侧报价总金额',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterOption: (input: string, option: any) => {
+        return option.label.toLowerCase().includes(input.toLowerCase());
+      },
+      slots: {
+        floatingFilter: 'isSystemRate',
+      },
+    },
+    {
+      field: 'priceSea',
+      title: '海侧报价总金额',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterOption: (input: string, option: any) => {
+        return option.label.toLowerCase().includes(input.toLowerCase());
+      },
+      slots: {
+        floatingFilter: 'isSystemRate',
+      },
+    },
+    {
+      field: 'plannedMachryType',
+      title: '预判机械作业类型',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: createDictFilter('mechanical_type'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'mechanical_type',
+      },
+      slots: {
+        floatingFilter: 'isSystemRate',
+      },
+    },
+    {
+      field: 'isAllowedStacking',
+      title: '是否落堆',
+      minWidth: 200,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: createDictFilter('system_rate'),
+      slots: {
+        floatingFilter: 'isSystemRate',
+      },
+    },
+    {
       field: 'conclusionTime',
       title: '审结时间',
       minWidth: 180,
@@ -1404,8 +1520,53 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
         },
       },
       filterMethod: ({ option, row, column }) => {
+        const date = dayjs(row[column.field]);
+        let time;
+        if (date) {
+          time = date.format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return false;
+        }
         if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
+          return time.includes(option.data);
+        }
+        return true;
+      },
+      slots: {
+        floatingFilter: 'conclusionTime',
+      },
+    },
+    {
+      field: 'createTime',
+      title: '提交时间',
+      minWidth: 180,
+      formatter: 'formatDateTime',
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        const date = dayjs(row[column.field]);
+        let time;
+        if (date) {
+          time = date.format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return false;
+        }
+        if (option.data) {
+          return time.includes(option.data);
         }
         return true;
       },
@@ -1650,6 +1811,26 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       title: '货物尺寸CM',
       minWidth: 150,
       sortable: true,
+      slots: {
+        // floatingFilter: 'contCargoSize',
+        default: 'contCargoSize',
+      },
+    },
+    {
+      field: 'contOogDetails',
+      title: '超限明细CM',
+      minWidth: 150,
+      sortable: true,
+      slots: {
+        // floatingFilter: 'contOogDetails',
+        default: 'contOogDetails',
+      },
+    },
+    {
+      field: 'isSystemRateGate',
+      title: '陆侧是否系统费率',
+      minWidth: 150,
+      sortable: true,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
@@ -1665,19 +1846,18 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
           },
         },
       },
-      filterMethod: ({ option, row, column }) => {
-        if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
-        }
-        return true;
+      filterMethod: createDictFilter('system_rate'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'system_rate',
       },
       slots: {
-        floatingFilter: 'contCargoSize',
+        floatingFilter: 'isSystemRateGate',
       },
     },
     {
-      field: 'contOogDetails',
-      title: '超限明细CM',
+      field: 'priceGate',
+      title: '陆侧报价金额',
       minWidth: 150,
       sortable: true,
       filters: [{ data: '' }],
@@ -1702,7 +1882,66 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
         return true;
       },
       slots: {
-        floatingFilter: 'contOogDetails',
+        floatingFilter: 'priceGate',
+      },
+    },
+    {
+      field: 'isSystemRateSea',
+      title: '海侧是否系统费率',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: createDictFilter('system_rate'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'system_rate',
+      },
+      slots: {
+        floatingFilter: 'isSystemRateSea',
+      },
+    },
+    {
+      field: 'priceSea',
+      title: '陆侧报价金额',
+      minWidth: 150,
+      sortable: true,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
+      slots: {
+        floatingFilter: 'priceSea',
       },
     },
   ];
@@ -2061,8 +2300,15 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: ({ option, row, column }) => {
+        const date = dayjs(row[column.field]);
+        let time;
+        if (date) {
+          time = date.format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return false;
+        }
         if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
+          return time.includes(option.data);
         }
         return true;
       },
@@ -2092,8 +2338,15 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: ({ option, row, column }) => {
+        const date = dayjs(row[column.field]);
+        let time;
+        if (date) {
+          time = date.format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return false;
+        }
         if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
+          return time.includes(option.data);
         }
         return true;
       },
@@ -2183,8 +2436,15 @@ export function machineSpreaderChangeRecordGridColumns(): VxeTableGridOptions['c
         },
       },
       filterMethod: ({ option, row, column }) => {
+        const date = dayjs(row[column.field]);
+        let time;
+        if (date) {
+          time = date.format('YYYY-MM-DD HH:mm:ss');
+        } else {
+          return false;
+        }
         if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
+          return time.includes(option.data);
         }
         return true;
       },

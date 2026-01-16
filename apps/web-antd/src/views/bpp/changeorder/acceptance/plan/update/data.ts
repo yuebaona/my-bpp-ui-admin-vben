@@ -4,16 +4,16 @@ import type { VxeTableGridOptions } from "@vben/plugins/vxe-table";
 export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'applicantName',
+      fieldName: 'applyName',
       component: 'Input',
       label: '申请人',
       componentProps: {
-        placeholder: '请输入订单编号',
+        placeholder: '请输入申请编号',
       },
       rules: 'required',
     },
     {
-      fieldName: 'applicantPhone',
+      fieldName: 'applyPhone',
       component: 'Input',
       label: '申请人联系电话',
       componentProps: {
@@ -56,14 +56,14 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
 export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'applicantName',
+      fieldName: 'applyName',
       component: 'Input',
       label: '申请人',
       componentProps: { placeholder: '请输入申请人' },
       rules: 'required',
     },
     {
-      fieldName: 'applicantPhone',
+      fieldName: 'applyPhone',
       component: 'Input',
       label: '申请人电话',
       componentProps: { placeholder: '请输入申请人电话' },
@@ -87,7 +87,7 @@ export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'applicantPlanCount',
+      fieldName: 'applyPlanCount',
       component: 'InputNumber',
       label: '计划数量',
       componentProps: { placeholder: '请输入计划数量' },
@@ -159,6 +159,7 @@ export function originalPlanPaymentInfoFormSchema(): VbenFormSchema[] {
       fieldName: 'remark',
       component: 'Textarea',
       label: '备注',
+      rules: 'required',
       componentProps: { placeholder: '请输入备注', rows: 3 },
     },
   ];
@@ -1555,9 +1556,6 @@ export function inboxInfoColumns(): VxeTableGridOptions['columns'] {
       title: '操作',
       width: 160,
       fixed: 'right',
-      slots: {
-        default: 'operation', // 对应模板中的 slot 名称
-      },
     },
   ];
 }

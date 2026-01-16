@@ -166,6 +166,9 @@ const [Grid] = useVbenVxeGrid({
 });
 const [FileGrid] = useVbenVxeGrid({
   gridOptions: {
+    cellConfig:{
+      height: '180px'
+    },
     columns: attachmentDetailColumns(),
     height: '50px',
     keepSource: true,
@@ -287,6 +290,34 @@ watch(
       <Grid :key="gridKey">
         <template #serialNumber="{ row }">
           <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
+        </template>
+        <template #contCargoSizeDefault="{row}">
+          <div class="flex items-center justify-center">
+            <label>长：{{row.contCargoSize.contCargoLength || 0}}</label>
+          </div>
+          <div class="flex items-center justify-center">
+            <label>宽：{{row.contCargoSize.contCargoWidth || 0}}</label>
+          </div>
+          <div class="flex items-center justify-center">
+            <label>高：{{row.contCargoSize.contCargoHeight || 0}}</label>
+          </div>
+        </template>
+        <template #contOogDetailsDefault="{row}">
+          <div class="flex items-center justify-center">
+            <label>前超：{{row.contOogDetails.oogFront || 0}}</label>
+          </div>
+          <div class="flex items-center justify-center">
+            <label>后超：{{row.contOogDetails.oogBack || 0}}</label>
+          </div>
+          <div class="flex items-center justify-center">
+            <label>左超：{{row.contOogDetails.oogLeft || 0}}</label>
+          </div>
+          <div class="flex items-center justify-center">
+            <label>右超：{{row.contOogDetails.oogRight || 0}}</label>
+          </div>
+          <div class="flex items-center justify-center">
+            <label>超高：{{row.contOogDetails.oogHeight || 0}}</label>
+          </div>
         </template>
       </Grid>
     </div>
