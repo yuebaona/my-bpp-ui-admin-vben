@@ -161,7 +161,7 @@ const convertLevelDataToRuleData = (levelData: any[]): RuleData => {
             rule: item.operator || '',
             value: item.value || '',
             dbType: item.dbType || dbType,
-            isEnum: item.isEnum || isEnum
+            isEnum: item.isEnum || isEnum,
           }
         }) || [getDefaultItem()]
       })) || [getDefaultList()]
@@ -196,6 +196,7 @@ watch(
   () => props.ruleData,
   (newValue) => {
     if (newValue) {
+
       const convertedData = convertLevelDataToRuleData(newValue)
       Object.assign(rule, convertedData);
     }
@@ -275,11 +276,31 @@ function handleFieldChange(value: string, idx_level: number, idx_list: number, i
 function handleOperatorChange(value: string, idx_level: number, idx_list: number, idx_item: number) {
   const item = rule.conditions[idx_level].conditions[idx_list].conditions[idx_item]
   item.rule = value
+
   // 如果是空值判断，清空值
   if (['null', 'notnull'].includes(value)) {
     item.value = ''
   }
+
+  // 如果是 betweenAnd 运算符，将 dbType 设置为 dateRange
+  if (value === 'betweenAnd') {
+    const fieldType = getFieldType(item.field)
+    if (fieldType === 'date') {
+      item.dbType = 'dateRange'
+    } else {
+      // 如果不是日期类型，保持原类型
+      item.dbType = getDbTypeFromFieldType(fieldType)
+    }
+  } else {
+    // 其他运算符，恢复原始类型
+    const field = fields.value.find(f => f.fldName === item.field)
+    if (field) {
+      item.dbType = getDbTypeFromFieldType(field.fldType)
+    }
+  }
+  console.log(item)
 }
+
 
 // 处理值变化
 function handleValueChange(value: any, idx_level: number, idx_list: number, idx_item: number) {

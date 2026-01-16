@@ -24,6 +24,14 @@ const isSelect = computed(
 const DT_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const DT_MONTH_FORMAT = 'YYYY-MM';
 const getDTPickerType = computed(() => props.item.flexStr01 || 'date');
+const isDateRangePicker = computed(() => {
+  // 判断条件：dbType 是 date 且运算符是 betweenAnd
+  if (['dateRange'].includes(props.item.dbType || '') && props.item.rule === 'betweenAnd') {
+    return true;
+  }
+  // 可以添加其他条件
+  return false;
+});
 const getDTFormatType = computed(() => {
   return getDTPickerType.value === 'month' ? DT_MONTH_FORMAT : DT_FORMAT;
 });
@@ -78,6 +86,11 @@ const filterOption = (input: string, option: any) => {
       show-time
       class="rule-value"
       placeholder="请选择"
+      @change="handleDateChange"
+    />
+    <a-range-picker
+      v-if="isDateRangePicker"
+      show-time
       @change="handleDateChange"
     />
     <a-select
