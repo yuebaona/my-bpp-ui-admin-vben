@@ -2,11 +2,11 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { message, Select } from 'ant-design-vue';
+import { Button, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -27,6 +27,7 @@ import {
 // import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
+import ContainerAreaSelect from '#/views/bpp/empty/container/control/modules/containerAreaSelect.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
 import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
@@ -43,6 +44,7 @@ const subPlanNo = ref<string[]>([]);
 const containerAreaClickRow =
   ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
 const popoverVisible = ref({});
+const bayRangeListValue = ref('');
 
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
@@ -67,6 +69,21 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
   destroyOnClose: true,
   closeOnClickModal: false,
 });
+
+// 控制箱区选择组件显隐藏
+const containerAreaVisible = ref(false);
+
+// 箱区选择确认
+const handleContainerAreaConfirm = async (positions: string[]) => {
+  const value = positions && positions.length > 0 ? positions.join(',') : '';
+  bayRangeListValue.value = value;
+  const currentValues = await mainGridApi.formApi.getValues();
+  await mainGridApi.formApi.setValues({
+    ...currentValues,
+    bayRangeList: value,
+  });
+  containerAreaVisible.value = false;
+};
 
 const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -188,10 +205,17 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
     resetButtonOptions: {
-      onClick: () => {
+      onClick: async () => {
         ownerCodeList.value = [];
         contIsoList.value = [];
         dischargeVslSchedule.value = '';
+        bayRangeListValue.value = '';
+        await mainGridApi.formApi.setValues({ bayRangeList: '' });
+      },
+      onValuesChange: async (changedValues, allValues) => {
+        if (changedValues.bayRangeList !== undefined) {
+          bayRangeListValue.value = changedValues.bayRangeList;
+        }
       },
     },
   },
@@ -242,32 +266,59 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           }
           if (queryParams.bayRangeList) {
             const bayRangeInput = queryParams.bayRangeList;
-            const upperCaseInput = bayRangeInput.toUpperCase();
-            const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
-            if (hyphenCount === 1) {
-              queryParams.bayRangeList = [
-                {
-                  yardBay: upperCaseInput,
-                  yardRaw: '',
-                },
-              ];
-            } else if (hyphenCount >= 2) {
-              const parts = upperCaseInput.split(/-/);
-              const yardBay = parts.slice(0, 2).join('-');
-              const yardRaw = parts.slice(2).join('-');
-              queryParams.bayRangeList = [
-                {
-                  yardBay,
-                  yardRaw,
-                },
-              ];
-            } else if (upperCaseInput) {
-              queryParams.bayRangeList = [
-                {
-                  yardBay: upperCaseInput,
-                  yardRaw: '',
-                },
-              ];
+            if (bayRangeInput.includes(',')) {
+              const positions = bayRangeInput
+                .split(',')
+                .map((item) => item.trim().toUpperCase());
+              queryParams.bayRangeList = positions
+                .map((position) => {
+                  const parts = position.split(/-/);
+                  if (parts.length >= 2) {
+                    const yardBay = parts[0];
+                    const yardRaw = parts[1];
+                    return {
+                      yardBay,
+                      yardRaw,
+                    };
+                  } else if (position) {
+                    return {
+                      yardBay: position,
+                      yardRaw: '',
+                    };
+                  }
+                  return null;
+                })
+                .filter(Boolean);
+            } else {
+              // 箱区处理为分页查询接口所需格式
+              const upperCaseInput = bayRangeInput.toUpperCase();
+              const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
+              if (hyphenCount === 1) {
+                const parts = upperCaseInput.split(/-/);
+                queryParams.bayRangeList = [
+                  {
+                    yardBay: parts[0],
+                    yardRaw: parts[1],
+                  },
+                ];
+              } else if (hyphenCount >= 2) {
+                const parts = upperCaseInput.split(/-/);
+                const yardBay = parts.slice(0, 2).join('-');
+                const yardRaw = parts.slice(2).join('-');
+                queryParams.bayRangeList = [
+                  {
+                    yardBay,
+                    yardRaw,
+                  },
+                ];
+              } else if (upperCaseInput) {
+                queryParams.bayRangeList = [
+                  {
+                    yardBay: upperCaseInput,
+                    yardRaw: '',
+                  },
+                ];
+              }
             }
           }
           const result = await getMainPlanPage({
@@ -616,6 +667,17 @@ const openContainerAreaWindow = (
   containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
   popoverVisible.value[row.id] = true;
 };
+
+onMounted(async () => {
+  try {
+    const formValues = await mainGridApi.formApi.getValues();
+    if (formValues.bayRangeList) {
+      bayRangeListValue.value = formValues.bayRangeList;
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+  }
+});
 </script>
 
 <template>
@@ -627,6 +689,13 @@ const openContainerAreaWindow = (
     <!--    </AdvancedQueryModal>-->
     <LogQueryModal />
     <ChooseContainerModal class="w-3/5" />
+    <ContainerAreaSelect
+      v-model:visible="containerAreaVisible"
+      :owner-code-list="['ZGS']"
+      :cont-iso-list="['22G1']"
+      trade-type=""
+      @confirm="handleContainerAreaConfirm"
+    />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <MainGrid table-title="主计划">
@@ -684,6 +753,29 @@ const openContainerAreaWindow = (
             @compositionstart="handleDischargeVslScheduleCompositionStart"
             @compositionend="handleDischargeVslScheduleCompositionEnd"
           />
+        </template>
+        <template #form-bayRangeList>
+          <div class="flex w-full items-center">
+            <Button
+              type="default"
+              style="width: 100%"
+              @click="containerAreaVisible = true"
+              :disabled="false"
+            >
+              {{ bayRangeListValue || '选择箱区' }}
+            </Button>
+            <Button
+              v-if="bayRangeListValue"
+              type="link"
+              danger
+              @click="
+                bayRangeListValue = '';
+                mainGridApi.formApi.setValues({
+                  bayRangeList: '',
+                });
+              "
+            />
+          </div>
         </template>
         <template #bayRanges="{ row }">
           <a-popover
