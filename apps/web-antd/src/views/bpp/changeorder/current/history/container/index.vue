@@ -7,10 +7,12 @@ import BoxInfo from '#/views/bpp/changeorder/current/history/container/modules/b
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPlanInfo.vue';
 import HeaderInfo from '#/views/bpp/changeorder/current/history/container/modules/headerInfo.vue';
-import boxList from '#/views/bpp/changeorder/current/history/container/modules/singleBoxEdit .vue';
+import BoxList from '#/views/bpp/changeorder/current/history/container/modules/singleBoxEdit .vue';
 
 const affix = ref(0);
 const selectedBoxes = ref<any[]>([]);
+// 提交审核时间记录
+const submitAuditTime = ref<Date | null>(null);
 // 子组件引用
 const changeOrderPlanInfoRef = ref();
 const changeOrderPaymentInfoRef = ref();
@@ -43,7 +45,7 @@ const buttonDisplay = ref({
   saveDraft: true,
   submitAudit: true,
   executeModify: true,
-  executeModifyTos: false,
+  executeModifyTos: true,
 });
 
 // 收集所有子组件的数据
@@ -98,8 +100,38 @@ const handleSubmitAudit = () => {
   const data = collectAllData();
   if (data) {
     console.log('提交审核数据:', data);
+    // 记录提交审核时间
+    submitAuditTime.value = new Date();
     // 这里可以执行提交审核的逻辑
-    message.success('提交审核成功');
+    message.success('提交审核成功，1分钟内可提交TOS修改');
+  } else {
+    message.error('数据收集失败');
+  }
+};
+
+// 提交TOS修改
+const handleExecuteModifyTos = () => {
+  // 检查是否已提交审核
+  if (!submitAuditTime.value) {
+    message.warning('请先提交审核后再提交TOS修改');
+    return;
+  }
+
+  // 检查是否在提交审核后10分钟内
+  const now = new Date();
+  const timeDiff = now.getTime() - submitAuditTime.value.getTime();
+  const minutesDiff = timeDiff / (100 * 60);
+
+  if (minutesDiff > 1) {
+    message.warning('提交审核已超过1分钟，无法提交TOS修改，请重新提交审核');
+    return;
+  }
+
+  const data = collectAllData();
+  if (data) {
+    console.log('提交TOS修改数据:', data);
+    // 这里可以执行提交TOS修改的逻辑
+    message.success('提交TOS修改成功');
   } else {
     message.error('数据收集失败');
   }
@@ -124,6 +156,7 @@ onActivated(() => {
         @delete-modify-plan="handleDeleteModifyPlan"
         @save-draft="handleSaveDraft"
         @submit-audit="handleSubmitAudit"
+        @execute-modify-tos="handleExecuteModifyTos"
       />
     </Affix>
     <div class="mb-2 ">
@@ -145,7 +178,7 @@ onActivated(() => {
       </div>
       <div class="mb-2 mt-2 flex">
         <div class="w-full">
-          <boxList
+          <BoxList
             ref="boxListRef"
             :selected-boxes="selectedBoxes"
             @remove-from-edit="handleRemoveFromEdit"
