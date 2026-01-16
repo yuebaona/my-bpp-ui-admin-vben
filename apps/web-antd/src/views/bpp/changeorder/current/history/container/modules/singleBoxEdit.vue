@@ -50,6 +50,36 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '25',
+          value: 25,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       autoLoad: false,
