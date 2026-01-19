@@ -54,10 +54,43 @@ const handleDateChange = (value: any) => {
 const handleSelectChange = (value: string) => {
   emit('change', value);
 };
+const handleDateRangeChange = (value: string) =>{
+  emit('change',value)
+}
 
 const filterOption = (input: string, option: any) => {
   return option.title?.includes(input) || false;
 };
+const getDateRangeValue = computed(() => {
+  if (!props.item.value) {
+    return [undefined, undefined];
+  }
+
+  if (Array.isArray(props.item.value)) {
+    return props.item.value;
+  }
+
+  // 如果不是数组，尝试解析字符串
+  try {
+    if (typeof props.item.value === 'string') {
+      if (props.item.value.includes(',')) {
+        return props.item.value.split(',');
+      }
+      return [props.item.value, props.item.value];
+    }
+  } catch (e) {
+    console.error('解析日期范围值失败:', e);
+  }
+
+  return [undefined, undefined];
+});
+const getDateRangeFormat = computed(() => {
+  if (props.item.dbType === 'date') {
+    return DATE_FORMAT;
+  }
+  return DT_FORMAT;
+});
+
 </script>
 
 <template>
@@ -88,11 +121,16 @@ const filterOption = (input: string, option: any) => {
       placeholder="请选择"
       @change="handleDateChange"
     />
-    <a-range-picker
-      v-if="isDateRangePicker"
-      show-time
-      @change="handleDateChange"
-    />
+        <a-range-picker
+          v-if="isDateRangePicker"
+          :value="getDateRangeValue"
+          show-time
+          :format="getDateRangeFormat"
+          :value-format="getDateRangeFormat"
+          class="rule-value"
+          @change="handleDateRangeChange"
+          style="width: 100%"
+        />
     <a-select
       v-if="isSelect"
       :value="item.value"
