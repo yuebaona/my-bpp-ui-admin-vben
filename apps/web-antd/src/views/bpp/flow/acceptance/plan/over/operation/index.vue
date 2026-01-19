@@ -32,7 +32,7 @@ import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
-import { getTableColumnList, searchGenerated, searchConditionCreate, getByCondition, searchConditionUpdate} from '#/api/bpp/advanced/query';
+import { searchGenerated, searchConditionCreate, getByCondition, searchConditionUpdate} from '#/api/bpp/advanced/query';
 
 import {
   acceptancePlanOvrOprColumns,
@@ -41,6 +41,8 @@ import {
   useBoxGridColumns,
 } from './data';
 
+import { operatorsMap } from '#/components/advanced-query/types.ts'
+import { getFields } from '#/components/advanced-query/advancedQueryHelper.ts'
 interface OnSideOperation {
   oogContIds: string;
   initiationType: string;
@@ -934,62 +936,13 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
 
 const initiationTypeValue = ref<null | string>(null);
 const conditionList = ref<any>([]);
-const advancedQueryModalOpen = async () => {
+const advancedQueryModalOpen = async (tableNameList: string[]) => {
   // 获取历史数据
   conditionList.value = await getByCondition({})
   if (conditionList.value?.condition){
     defaultLevels.value =  [JSON.parse(conditionList.value.condition)]
   }
-  // 调用表单数据
-  const res = await getTableColumnList({
-    tableNameList: ['acpt_pln','acpt_pln_oog_cont','che_chg_rec']
-  });
-  const transformedData = await Promise.all(
-    res.map(async (item) => {
-      // 定义类型映射
-      const typeMap = {
-        'datetime': 'date',
-        'date': 'date',
-        'input': 'string',
-        'textarea': 'string',
-        'select': 'select',
-        'time': 'time',
-      };
-
-      const result = {
-        fldName: `${item.tableName}.${item.columnName}`,
-        fldLabel: item.columnComment,
-        fldType: typeMap[item.htmlType] || item.htmlType, // 使用映射后的类型
-        dictType: item.dictType,
-        tableName: item.tableName,
-        dataType: item.dataType,
-        isNullable: item.isNullable,
-        id: item.id,
-      };
-
-      // 如果是选择类型且有字典类型
-      if (item.htmlType === 'select' && item.dictType) {
-        try {
-          bppBaseDict.setBppBaseDictCacheByData(
-            (
-              await getDictDataPage({
-                dictType: item.dictType,
-                pageNo: 1,
-                pageSize: 100,
-              })
-            ).list,
-            item.dictType,
-          );
-          result.options = bppBaseDict.getBppBaseDictOptions(item.dictType);
-        } catch (error) {
-          result.options = [];
-        }
-      }
-
-      return result;
-    })
-  );
-  fields.value = transformedData;
+  fields.value = await getFields(tableNameList);
   AdvancedQueryModalApi.open();
 };
 watch(
@@ -1053,43 +1006,6 @@ const fields = ref([
   },
 ]);
 
-// 运算符映射
-const operatorsMap = reactive({
-  default: [
-    {
-      refCode: '=',
-      refName: '等于',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: '!=',
-      refName: '不等于',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    { refCode: '>', refName: '大于', supportedTypes: ['number', 'date'] },
-    { refCode: '>=', refName: '大于等于', supportedTypes: ['number', 'date'] },
-    { refCode: '<', refName: '小于', supportedTypes: ['number', 'date'] },
-    { refCode: '<=', refName: '小于等于', supportedTypes: ['number', 'date'] },
-    { refCode: 'like', refName: '包含', supportedTypes: ['string'] },
-    { refCode: 'notlike', refName: '不包含', supportedTypes: ['string'] },
-    {
-      refCode: 'null',
-      refName: '为空',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: 'isNull',
-      refName: '不为空',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: 'betweenAnd',
-      refName: '介于',
-      supportedTypes: ['dateRange','date'],
-    },
-  ],
-});
-
 // 默认层级数据 - 空查询条件
 const defaultLevels = ref([
   {
@@ -1119,8 +1035,11 @@ const queryResult = ref<any>(null);
 // 处理查询事件
 const handleQuery = async (params: any) => {
   queryResult.value = params;
-  await searchGenerated(params);
-  console.log(queryResult.value);
+  try {
+    await searchGenerated(params);
+    message.success($t('cxmo.action.success'));
+  }catch (e){}
+
 };
 
 // 处理重置事件
@@ -1130,18 +1049,23 @@ const handleReset = () => {
 
 // 处理保存模板事件
 const handleSaveTemplate = async (templateName: string) => {
-  if(conditionList?.value?.id){
-    await searchConditionUpdate({
-      id: conditionList.value.id,
-      condition: JSON.stringify(templateName),
-      formSource: conditionList.value.formSource,
-    })
-  }else{
-    await searchConditionCreate({
-      condition: JSON.stringify(templateName),
-      formSource: 'oog',
-    })
+  try {
+    if(conditionList?.value?.id){
+      await searchConditionUpdate({
+        id: conditionList.value.id,
+        condition: JSON.stringify(templateName),
+        formSource: conditionList.value.formSource,
+      })
+    }else{
+      await searchConditionCreate({
+        condition: JSON.stringify(templateName),
+        formSource: 'oog',
+      })
+    }
+    message.success($t('cxmo.action.success'));
+  }catch (e){
   }
+
 };
 // 监听超限作业申请选中的受理编号变化
 watch(
@@ -1413,7 +1337,7 @@ function showIconAlert(content: string, icon: string) {
           />
         </template>
         <template #form-expand-before>
-          <advancedButton @click="advancedQueryModalOpen" />
+          <advancedButton @click="advancedQueryModalOpen(['acpt_pln','acpt_pln_oog_cont','che_chg_rec'])" />
         </template>
         <template #toolbar-tools>
           <TableAction
