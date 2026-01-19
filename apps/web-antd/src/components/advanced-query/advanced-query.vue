@@ -3,18 +3,12 @@ import type {
   AdvancedQueryEmits,
   AdvancedQueryProps,
   DictItem,
-  LevelData,
+  RuleData
 } from './types';
-
-import { computed, ref, withDefaults } from 'vue';
-
+import { computed, ref, watch, onMounted } from 'vue';
 import { Button } from 'ant-design-vue';
+import Rule from '#/components/rule/index.vue';
 
-import rule from '#/components/rule/index.vue';
-
-import type { RuleData } from '#/components/rule/types.ts'
-
-// Props定义
 const props = withDefaults(defineProps<AdvancedQueryProps>(), {
   fields: () => [],
   operatorsMap: () => ({
@@ -22,125 +16,207 @@ const props = withDefaults(defineProps<AdvancedQueryProps>(), {
   }),
   defaultLevels: () => [
     {
-      relation: 'AND',
-      conditions: [],
-    },
+      relation: 'AND' as const,
+      conditions: []
+    }
   ],
 });
 
-// Emits定义
 const emit = defineEmits<AdvancedQueryEmits>();
 
 // 状态管理
-const activeTab = ref<'advanced' | 'general'>('advanced');
 const selectedTemplate = ref('');
-const conditionLevels = ref<LevelData[]>([...props.defaultLevels]);
+const ruleData = ref<RuleData>();
 
 // 计算属性
 const availableFields = computed(() => props.fields);
+const operators = computed(() => props.operatorsMap.default || []);
 
-// 方法定义
-const getOperators = (field: string) => {
-  if (!field) {
-    return props.operatorsMap.default || [];
+// 转换函数：将你的数据结构转换为 RuleData
+const convertDefaultLevelsToRuleData = (defaultLevels: any[]): RuleData => {
+
+  if (!defaultLevels || defaultLevels.length === 0) {
+    return getDefaultRuleData();
   }
-  return props.operatorsMap.default || [];
-};
-// 处理rule组件数据更新
-const updateConditionLevels = (newRuleData: any) => {
-  // 转换rule组件的数据格式到advanced-query的格式
-  if (Array.isArray(newRuleData)) {
-    conditionLevels.value = newRuleData;
+
+  const firstLevel = defaultLevels[0];
+  if (!firstLevel) {
+    return getDefaultRuleData();
   }
+
+  // 如果已经是 RuleData 格式
+  if (firstLevel.conditions && Array.isArray(firstLevel.conditions) &&
+    firstLevel.conditions.length > 0 &&
+    firstLevel.conditions[0].conditions) {
+    return { ...firstLevel };
+  }
+
+  // 处理你的数据结构
+  const result: RuleData = {
+    relation: firstLevel.relation || 'AND',
+    conditions: []
+  };
+
+  if (Array.isArray(firstLevel.conditions)) {
+    firstLevel.conditions.forEach((levelItem: any) => {
+      if (levelItem.relation && Array.isArray(levelItem.conditions)) {
+        const level: any = {
+          relation: levelItem.relation,
+          conditions: []
+        };
+
+        levelItem.conditions.forEach((listItem: any) => {
+          if (listItem.relation && Array.isArray(listItem.conditions)) {
+            const list: any = {
+              relation: listItem.relation,
+              conditions: []
+            };
+
+            listItem.conditions.forEach((item: any) => {
+              const ruleItem = {
+                id: item.id || generateId(),
+                field: item.field || '',
+                rule: item.rule || '',
+                value: item.value || '',
+                dbType: item.dbType || 'string',
+                isEnum: item.isEnum || '0'
+              };
+              list.conditions.push(ruleItem);
+            });
+
+            level.conditions.push(list);
+          }
+        });
+
+        result.conditions.push(level);
+      }
+    });
+  }
+  return result;
 };
-const ruleData = ref<RuleData>([]);
-// 处理rule组件变化事件
-const handleRuleChange = (data: any) => {
-  // 可以在这里添加额外的处理逻辑
+
+// 生成ID
+const generateId = (): string => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+// 获取默认 RuleData
+const getDefaultRuleData = (): RuleData => ({
+  relation: 'AND',
+  conditions: [
+    {
+      relation: 'AND',
+      conditions: [
+        {
+          relation: 'AND',
+          conditions: [
+            {
+              id: generateId(),
+              field: '',
+              rule: '',
+              value: '',
+              dbType: 'string',
+              isEnum: '0'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+});
+
+// 初始化
+onMounted(() => {
+  if (props.defaultLevels && props.defaultLevels.length > 0) {
+    ruleData.value = convertDefaultLevelsToRuleData(props.defaultLevels);
+  } else {
+    ruleData.value = getDefaultRuleData();
+  }
+});
+
+// 监听 props.defaultLevels 变化
+watch(
+  () => props.defaultLevels,
+  (newLevels) => {
+    if (newLevels && newLevels.length > 0) {
+      ruleData.value = convertDefaultLevelsToRuleData(newLevels);
+    } else {
+      ruleData.value = getDefaultRuleData();
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+// 处理规则变化
+const handleRuleChange = (data: RuleData) => {
   ruleData.value = data;
 };
 
-// 模板管理和操作按钮方法（保持原有逻辑）
-const saveAsTemplate = () => {
-  emit('saveTemplate', conditionLevels.value);
+// 操作按钮方法
+const handleSaveTemplate = () => {
+  if (!ruleData.value) {
+    return;
+  }
+  emit('saveTemplate', ruleData.value);
 };
 
-const saveTemplate = () => {
-  emit('saveTemplate', selectedTemplate.value);
-};
-
-const resetRules = () => {
-  conditionLevels.value = [...props.defaultLevels];
+const handleReset = () => {
+  ruleData.value = convertDefaultLevelsToRuleData([
+    {
+      relation: 'AND',
+      conditions: [
+        {
+          relation: 'AND',
+          conditions: [
+            {
+              relation: 'AND',
+              conditions: [
+                {
+                  field: '',
+                  operator: '',
+                  value: '',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+  selectedTemplate.value = '';
   emit('reset');
 };
 
-const resetAll = () => {
-  resetRules();
-  selectedTemplate.value = '';
-};
-
 const handleQuery = () => {
+  if (!ruleData.value) {
+    return;
+  }
   emit('query', ruleData.value);
 };
 </script>
 
 <template>
   <div class="advanced-query">
-    <!-- 选项卡区域 -->
-    <div class="query-tabs">
-      <div
-        class="tab-item"
-        :class="{ active: activeTab === 'general' }"
-        @click="activeTab = 'general'"
-      >
-        通用查询
-      </div>
-      <div
-        class="tab-item"
-        :class="{ active: activeTab === 'advanced' }"
-        @click="activeTab = 'advanced'"
-      >
-        高级查询
-      </div>
-    </div>
-
-    <!-- 高级查询内容 -->
-    <div v-if="activeTab === 'advanced'" class="query-content">
-      <div class="content-wrapper">
-        <!-- 左侧过滤模板 -->
-        <div class="filter-templates">
-          <div class="template-title">过滤模板</div>
-          <div class="template-list">
-            <div
-              v-for="template in templates"
-              :key="template.id"
-              class="template-item"
-              :class="{ active: selectedTemplate === template.id }"
-              @click="selectTemplate(template)"
-            >
-              {{ template.name }}
-            </div>
-          </div>
-        </div>
-
-        <!-- 右侧查询条件 -->
-        <div class="rule-area">
-          <rule
+    <div class="query-content">
+      <div class="rule-wrapper">
+        <div v-if="ruleData" class="rule-container">
+          <Rule
             :fields="availableFields"
-            :operators="getOperators('')"
-            :rule-data="conditionLevels"
-            @update:rule-data="updateConditionLevels"
+            :operators="operators"
+            :rule-data="ruleData"
+            @update:rule-data="(data) => ruleData = data"
             @change="handleRuleChange"
           />
         </div>
+        <div v-else class="loading">
+          加载中...
+        </div>
       </div>
 
-      <!-- 底部操作按钮 -->
+      <!-- 操作按钮 -->
       <div class="action-buttons">
-        <Button @click="resetRules">重置规则</Button>
-        <Button @click="saveAsTemplate">另存为</Button>
-        <Button @click="saveTemplate">保存</Button>
-        <Button @click="resetAll">重置</Button>
+        <Button @click="handleReset">重置</Button>
+        <Button @click="handleSaveTemplate">保存模板</Button>
         <Button type="primary" @click="handleQuery">查询</Button>
       </div>
     </div>
@@ -149,223 +225,51 @@ const handleQuery = () => {
 
 <style scoped lang="scss">
 .advanced-query {
-  width: 100%;
-}
-
-.query-tabs {
   display: flex;
-}
-
-.tab-item {
-  padding: 12px 24px;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s;
-}
-
-.tab-item.active {
-  color: #1890ff;
-  border-bottom-color: #1890ff;
-  background: white;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .query-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   padding: 20px;
 }
 
-.content-wrapper {
-  display: flex;
-  min-height: 400px;
-}
-
-.filter-templates {
-  width: 200px;
-  border-right: 1px solid #e8e8e8;
-  padding-right: 20px;
-}
-
-.template-title {
-  font-weight: bold;
-  margin-bottom: 12px;
-  color: #333;
-}
-
-.template-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.template-item {
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.rule-wrapper {
+  flex: 1;
+  min-height: 300px;
+  overflow: auto;
+  padding: 16px;
+  border-radius: 6px;
   border: 1px solid #e8e8e8;
-}
 
-.template-item:hover {
-  background-color: #f5f5f5;
-}
+  .rule-container {
+    height: 100%;
+  }
 
-.template-item.active {
-  background-color: #e6f7ff;
-  color: #1890ff;
-  border-color: #91d5ff;
-}
-
-.rule-area {
-  flex: 1;
-  padding-left: 20px;
-}
-
-.rule {
-  position: relative;
-  margin-bottom: 20px;
-  padding-left: 40px;
-}
-
-.rule.is-multiple {
-  border: 1px solid #d9d9d9;
-  padding: 15px;
-  border-radius: 4px;
-  margin-left: 0;
-}
-
-.rule-relation {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f2f4f6;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-.rule-relation.is-level {
-  left: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
-}
-
-.rule-relation.is-list {
-  left: -20px;
-  top: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-.rule-relation.is-item {
-  left: -15px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  font-size: 12px;
-}
-
-.rule-level {
-  position: relative;
-  margin-left: 20px;
-}
-
-.rule-level.is-multiple {
-  border-left: 1px solid #d9d9d9;
-  padding-left: 20px;
-}
-
-.rule-list {
-  position: relative;
-  margin-bottom: 10px;
-}
-
-.rule-list-inner {
-  padding: 10px;
-  background: #fafafa;
-  border-radius: 4px;
-}
-
-.rule-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  position: relative;
-}
-
-.rule-item-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.rule-item-field {
-  width: 200px;
-}
-
-.rule-item-operator {
-  width: 120px;
-}
-
-.rule-item-value {
-  width: 200px;
-}
-
-.rule-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.rule-icon:hover {
-  background-color: #f0f0f0;
-}
-
-.rule-icon.add {
-  color: #1890ff;
-}
-
-.rule-icon.delete {
-  color: #ff4d4f;
-}
-
-.rule-icon.list-add {
-  margin-top: 10px;
-  margin-left: 20px;
-}
-
-.rule-handler {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  border: 1px dashed #d9d9d9;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.3s;
-  color: #1890ff;
-}
-
-.rule-handler:hover {
-  border-color: #1890ff;
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #999;
+  }
 }
 
 .action-buttons {
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 20px;
   padding-top: 20px;
   border-top: 1px solid #e8e8e8;
+
+  button {
+    min-width: 80px;
+  }
 }
 </style>
