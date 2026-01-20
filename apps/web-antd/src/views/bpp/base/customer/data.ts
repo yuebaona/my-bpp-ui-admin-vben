@@ -207,11 +207,11 @@ export function useGridColumns(): VxeTableGridOptions<BppBaseCustomerApi.Custome
       minWidth: 120,
       formatter: 'formatDateTime',
     },
-    {
-      title: '操作',
-      width: 200,
-      fixed: 'right',
-      slots: { default: 'actions' },
-    },
+    // {
+    //   title: '操作',
+    //   width: 200,
+    //   fixed: 'right',
+    //   slots: { default: 'actions' },
+    // },
   ];
 }
