@@ -69,11 +69,6 @@ async function handleRefresh(tableNames) {
   gridApi.query();
 }
 
-/** 创建高级查询字段定义 */
-function handleCreate() {
-  formModalApi.setData(null).open();
-}
-
 /** 编辑高级查询字段定义 */
 function handleEdit(row: SearchTableColumnApi.TableColumn) {
   formModalApi.setData(row).open();
