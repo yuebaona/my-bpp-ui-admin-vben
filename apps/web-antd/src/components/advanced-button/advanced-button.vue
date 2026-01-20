@@ -44,7 +44,7 @@ const change = (index: number) => {
   <div>
     <Button type="default" :size="size" @click="click">
       <template #icon>
-        <IconifyIcon icon="majesticons:filter-line" style="font-size: 28px" />
+        <IconifyIcon icon="majesticons:filter-line" style="font-size: 25px" />
       </template>
     </Button>
     <Popover placement="bottomRight" trigger="click">
@@ -59,7 +59,7 @@ const change = (index: number) => {
       </template>
       <Button type="default" :size="size">
         <template #icon>
-          <IconifyIcon icon="mdi-light:chevron-down" style="font-size: 30px" />
+          <IconifyIcon icon="mdi-light:chevron-down" style="font-size: 25px" />
         </template>
       </Button>
     </Popover>
