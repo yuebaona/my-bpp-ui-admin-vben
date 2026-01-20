@@ -605,6 +605,7 @@ const getDictDataList = async () => {
     'actual_operation',
     'initiation_type',
     'mechanical_type',
+    'is_allowed_stacking'
   ]);
 };
 // 高级查询处理函数
@@ -719,7 +720,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
             const keys = Object.keys(result);
 
             // 保留 sql 和 params，其他置为 undefined
-            keys.forEach(key => {
+            keys.forEach((key) => {
               if (key !== 'sql' && key !== 'params') {
                 result[key] = undefined;
               }
@@ -1008,7 +1009,8 @@ const defaultLevels = ref([
 const queryResult = ref<any>(null);
 
 // 处理查询事件
-const handleQuery = async (params: any) => {
+const handleQuery = useDebounceFn(async (params: any) => {
+  AdvancedQueryModalApi.lock();
   queryResult.value = params;
   try {
     const res = await searchGenerated(params);
@@ -1018,9 +1020,10 @@ const handleQuery = async (params: any) => {
     };
     await gridApi.query(searchRespVO);
     await handleSaveTemplate(params);
+    AdvancedQueryModalApi.unlock();
     await AdvancedQueryModalApi.close();
   } catch {}
-};
+}, 300);
 
 // 处理重置事件
 const handleReset = () => {
@@ -1028,7 +1031,8 @@ const handleReset = () => {
 };
 
 // 处理保存模板事件
-const handleSaveTemplate = async (templateName: string) => {
+const handleSaveTemplate = useDebounceFn(async (templateName: string) => {
+  AdvancedQueryModalApi.lock();
   try {
     await (conditionList?.value?.id
       ? searchConditionUpdate({
@@ -1041,8 +1045,9 @@ const handleSaveTemplate = async (templateName: string) => {
           formSource: 'oog',
         }));
     message.success($t('cxmo.action.success'));
+    AdvancedQueryModalApi.unlock();
   } catch {}
-};
+}, 300);
 // 监听超限作业申请选中的受理编号变化
 watch(
   () => acptPlnNo.value,

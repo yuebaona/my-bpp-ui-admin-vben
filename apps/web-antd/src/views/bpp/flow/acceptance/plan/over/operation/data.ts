@@ -1493,9 +1493,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           },
         },
       },
-      filterMethod: createDictFilter('system_rate'),
+      filterMethod: createDictFilter('is_allowed_stacking'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'is_allowed_stacking',
+      },
       slots: {
-        floatingFilter: 'isSystemRate',
+        floatingFilter: 'isAllowedStacking',
       },
     },
     {
