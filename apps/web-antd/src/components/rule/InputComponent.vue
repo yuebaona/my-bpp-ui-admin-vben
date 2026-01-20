@@ -26,7 +26,10 @@ const DT_MONTH_FORMAT = 'YYYY-MM';
 const getDTPickerType = computed(() => props.item.flexStr01 || 'date');
 const isDateRangePicker = computed(() => {
   // 判断条件：dbType 是 date 且运算符是 betweenAnd
-  if (['dateRange'].includes(props.item.dbType || '') && props.item.rule === 'betweenAnd') {
+  if (
+    ['dateRange'].includes(props.item.dbType || '') &&
+    props.item.rule === 'betweenAnd'
+  ) {
     return true;
   }
   // 可以添加其他条件
@@ -54,9 +57,9 @@ const handleDateChange = (value: any) => {
 const handleSelectChange = (value: string) => {
   emit('change', value);
 };
-const handleDateRangeChange = (value: string) =>{
-  emit('change',value)
-}
+const handleDateRangeChange = (value: string) => {
+  emit('change', value);
+};
 
 const filterOption = (input: string, option: any) => {
   return option.title?.includes(input) || false;
@@ -78,8 +81,8 @@ const getDateRangeValue = computed(() => {
       }
       return [props.item.value, props.item.value];
     }
-  } catch (e) {
-    console.error('解析日期范围值失败:', e);
+  } catch (error) {
+    console.error('解析日期范围值失败:', error);
   }
 
   return [undefined, undefined];
@@ -90,7 +93,6 @@ const getDateRangeFormat = computed(() => {
   }
   return DT_FORMAT;
 });
-
 </script>
 
 <template>
@@ -121,16 +123,16 @@ const getDateRangeFormat = computed(() => {
       placeholder="请选择"
       @change="handleDateChange"
     />
-        <a-range-picker
-          v-if="isDateRangePicker"
-          :value="getDateRangeValue"
-          show-time
-          :format="getDateRangeFormat"
-          :value-format="getDateRangeFormat"
-          class="rule-value"
-          @change="handleDateRangeChange"
-          style="width: 100%"
-        />
+    <a-range-picker
+      v-if="isDateRangePicker"
+      :value="getDateRangeValue"
+      show-time
+      :format="getDateRangeFormat"
+      :value-format="getDateRangeFormat"
+      class="rule-value"
+      @change="handleDateRangeChange"
+      style="width: 100%"
+    />
     <a-select
       v-if="isSelect"
       :value="item.value"

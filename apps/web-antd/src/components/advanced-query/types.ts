@@ -105,17 +105,17 @@ export const operatorsMap = {
       supportedTypes: ['string', 'input', 'textarea'] as string[]
     },
     {
-      refCode: 'notlike',
+      refCode: 'notLike',
       refName: '不包含',
       supportedTypes: ['string', 'input', 'textarea'] as string[]
     },
     {
-      refCode: 'null',
+      refCode: 'isNull',
       refName: '为空',
       supportedTypes: ['string', 'number', 'date', 'select', 'input', 'textarea', 'datetime', 'time'] as string[],
     },
     {
-      refCode: 'isNull',
+      refCode: 'isNotNull',
       refName: '不为空',
       supportedTypes: ['string', 'number', 'date', 'select', 'input', 'textarea', 'datetime', 'time'] as string[],
     },
