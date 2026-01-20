@@ -342,11 +342,11 @@ onMounted(async () => {
         <tr>
           <td class="label-cell">作业吊具</td>
           <td>
-            <Flex>
+            <Flex wrap="wrap">
               <Card
                 v-for="item in containerDataArray"
                 :key="item.contNo"
-                style="margin-right: 3px;"
+                style="margin-right: 3px"
               >
                 <p>箱号：{{ item.contNo }}</p>
                 <p v-if="item.priceSea">海侧报价：{{ item.priceSea }}</p>
@@ -364,7 +364,6 @@ onMounted(async () => {
 /* 表格基础样式 */
 .handler-info-table {
   width: 100%;
-  max-width: 1200px;
   border-collapse: collapse;
   font-size: 14px;
   color: #333;
@@ -400,7 +399,6 @@ onMounted(async () => {
 /* 表格基础样式 */
 .audit-table {
   width: 100%;
-  max-width: 1200px;
   border-collapse: collapse;
   font-size: 14px;
   color: #333;
