@@ -711,10 +711,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           await getDictDataList();
+          const result = { ...formValues };
+
+          // 检查 sql 是否不为空
+          if (result.sql && result.sql.trim() !== '') {
+            // 获取所有键
+            const keys = Object.keys(result);
+
+            // 保留 sql 和 params，其他置为 undefined
+            keys.forEach(key => {
+              if (key !== 'sql' && key !== 'params') {
+                result[key] = undefined;
+              }
+            });
+          }
           return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...result,
           });
         },
       },
@@ -999,11 +1013,12 @@ const handleQuery = async (params: any) => {
   try {
     const res = await searchGenerated(params);
     const searchRespVO = {
-      sql:res.sql,
-      params: res.params
-    }
+      sql: res.sql,
+      params: res.params,
+    };
     await gridApi.query(searchRespVO);
-    message.success($t('cxmo.action.success'));
+    await handleSaveTemplate(params);
+    await AdvancedQueryModalApi.close();
   } catch {}
 };
 
