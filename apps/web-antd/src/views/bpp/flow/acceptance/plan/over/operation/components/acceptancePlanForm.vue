@@ -3,6 +3,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import type { SystemUserProfileApi } from '#/api/system/user/profile';
+
 import {
   computed,
   nextTick,
@@ -15,7 +16,7 @@ import {
 
 import { IconifyIcon } from '@vben/icons';
 
-import { Button, message, Select, Input } from 'ant-design-vue';
+import { Button, Input, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -256,8 +257,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
       keyField: 'id',
       isHover: true,
     },
-    cellConfig:{
-      height: '180px'
+    cellConfig: {
+      height: '180px',
     },
     editConfig: {
       mode: 'row',
@@ -270,11 +271,16 @@ const [Grid, gridApi] = useVbenVxeGrid({
         { required: true, content: '必须填写' },
         {
           validator({ cellValue }) {
-            const error = validateContainerNo(cellValue);
-            if (error) {
-              return new Error(error);
-            }
-          },
+            return new Promise((resolve, reject) => {
+              if (!cellValue) {
+                resolve(true); // 必填项已由上面的规则处理
+                return;
+              }
+
+              validateContainerNo(cellValue);
+              resolve(true);
+            });
+          }
         },
       ],
       contSize: [{ required: true, message: '必须填写' }],
@@ -325,19 +331,21 @@ const [Grid, gridApi] = useVbenVxeGrid({
 const addNewRow = async () => {
   const $grid = gridApi.grid;
   if ($grid) {
-    const record = { contNo: '',
+    const record = {
+      contNo: '',
       contCargoSize: {
         contCargoLength: 0,
         contCargoWidth: 0,
-        contCargoHeight: 0
+        contCargoHeight: 0,
       },
       contOogDetails: {
         oogFront: 0,
         oogBack: 0,
         oogLeft: 0,
         oogRight: 0,
-        oogHeight: 0
-      }};
+        oogHeight: 0,
+      },
+    };
     const { row: newRow } = await $grid.insertAt(record, null);
     await nextTick();
     await $grid.setEditRow(newRow, true);
@@ -801,7 +809,7 @@ const handleVoyageSearch = async (value: string) => {
 const refreshRow = async (row: any) => {
   const $grid = gridApi.grid;
   if ($grid) {
-    await $grid.setRow(row,{...row});
+    await $grid.setRow(row, { ...row });
   }
 };
 // 暴露方法给父组件（如果需要）
@@ -931,65 +939,102 @@ watch(
             <template #contCargoSize="{ row }">
               <div class="flex items-center">
                 <label>长：</label>
-                <Input suffix="CM" v-model:value="row.contCargoSize.contCargoLength"  @change="() => refreshRow(row)"/>
+                <Input
+                  suffix="CM"
+                  v-model:value="row.contCargoSize.contCargoLength"
+                  @change="() => refreshRow(row)"
+                />
               </div>
               <div class="flex items-center">
                 <label>宽：</label>
-                <Input suffix="CM" v-model:value="row.contCargoSize.contCargoWidth" @change="() => refreshRow(row)"/>
+                <Input
+                  suffix="CM"
+                  v-model:value="row.contCargoSize.contCargoWidth"
+                  @change="() => refreshRow(row)"
+                />
               </div>
               <div class="flex items-center">
                 <label>高：</label>
-                <Input suffix="CM" v-model:value="row.contCargoSize.contCargoHeight" @change="() => refreshRow(row)"/>
+                <Input
+                  suffix="CM"
+                  v-model:value="row.contCargoSize.contCargoHeight"
+                  @change="() => refreshRow(row)"
+                />
               </div>
             </template>
-            <template #contCargoSizeDefault="{row}">
+            <template #contCargoSizeDefault="{ row }">
               <div class="flex items-center justify-center">
-                <label>长：{{row.contCargoSize.contCargoLength || 0}}</label>
+                <label>长：{{ row.contCargoSize.contCargoLength || 0 }}</label>
               </div>
               <div class="flex items-center justify-center">
-                <label>宽：{{row.contCargoSize.contCargoWidth || 0}}</label>
+                <label>宽：{{ row.contCargoSize.contCargoWidth || 0 }}</label>
               </div>
               <div class="flex items-center justify-center">
-                <label>高：{{row.contCargoSize.contCargoHeight || 0}}</label>
+                <label>高：{{ row.contCargoSize.contCargoHeight || 0 }}</label>
               </div>
             </template>
             <template #contOogDetails="{ row }">
               <div class="flex items-center">
                 <label>前超：</label>
-                <Input class="flex-1" suffix="CM"  v-model:value="row.contOogDetails.oogFront"  @change="() => refreshRow(row)"/>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogFront"
+                  @change="() => refreshRow(row)"
+                />
               </div>
               <div class="flex items-center">
                 <label>后超：</label>
-                <Input class="flex-1" suffix="CM" v-model:value="row.contOogDetails.oogBack"  @change="() => refreshRow(row)"/>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogBack"
+                  @change="() => refreshRow(row)"
+                />
               </div>
               <div class="flex items-center">
                 <label>左超：</label>
-                <Input class="flex-1" suffix="CM" v-model:value="row.contOogDetails.oogLeft"  @change="() => refreshRow(row)"/>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogLeft"
+                  @change="() => refreshRow(row)"
+                />
               </div>
               <div class="flex items-center">
                 <label>右超：</label>
-                <Input class="flex-1"suffix="CM" v-model:value="row.contOogDetails.oogRight"  @change="() => refreshRow(row)"/>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogRight"
+                  @change="() => refreshRow(row)"
+                />
               </div>
               <div class="flex items-center">
                 <label>超高：</label>
-                <Input class="flex-1" suffix="CM" v-model:value="row.contOogDetails.oogHeight"  @change="() => refreshRow(row)"/>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogHeight"
+                  @change="() => refreshRow(row)"
+                />
               </div>
             </template>
-            <template #contOogDetailsDefault="{row}">
+            <template #contOogDetailsDefault="{ row }">
               <div class="flex items-center justify-center">
-                <label>前超：{{row.contOogDetails.oogFront || 0}}</label>
+                <label>前超：{{ row.contOogDetails.oogFront || 0 }}</label>
               </div>
               <div class="flex items-center justify-center">
-                <label>后超：{{row.contOogDetails.oogBack || 0}}</label>
+                <label>后超：{{ row.contOogDetails.oogBack || 0 }}</label>
               </div>
               <div class="flex items-center justify-center">
-                <label>左超：{{row.contOogDetails.oogLeft || 0}}</label>
+                <label>左超：{{ row.contOogDetails.oogLeft || 0 }}</label>
               </div>
               <div class="flex items-center justify-center">
-                <label>右超：{{row.contOogDetails.oogRight || 0}}</label>
+                <label>右超：{{ row.contOogDetails.oogRight || 0 }}</label>
               </div>
               <div class="flex items-center justify-center">
-                <label>超高：{{row.contOogDetails.oogHeight || 0}}</label>
+                <label>超高：{{ row.contOogDetails.oogHeight || 0 }}</label>
               </div>
             </template>
           </Grid>

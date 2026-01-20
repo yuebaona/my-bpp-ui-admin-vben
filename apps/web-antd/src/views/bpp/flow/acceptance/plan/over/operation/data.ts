@@ -210,14 +210,7 @@ export function onSiteOperationConfirmFormSchema(
           }
 
           // 使用 validateContainerNo 进行校验
-          const error = validateContainerNo(num);
-          if (error) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: error,
-            });
-            return;
-          }
+          validateContainerNo(num);
         }
       }),
     },
@@ -443,7 +436,7 @@ export function contInfoColumns(): VxeTableGridOptions['columns'] {
       editRender: { name: 'input' },
       slots: {
         edit: 'contCargoSize',
-        default:'contCargoSizeDefault'
+        default: 'contCargoSizeDefault',
       },
     },
     {
@@ -453,7 +446,7 @@ export function contInfoColumns(): VxeTableGridOptions['columns'] {
       editRender: { name: 'input' },
       slots: {
         edit: 'contOogDetails',
-        default:'contOogDetailsDefault'
+        default: 'contOogDetailsDefault',
       },
     },
     {
@@ -503,17 +496,17 @@ export function contInfoDetailColumns(): VxeTableGridOptions['columns'] {
       title: '货物尺寸CM',
       field: 'contCargoSize',
       minWidth: 120,
-      slots:{
-        default:'contCargoSizeDefault'
-      }
+      slots: {
+        default: 'contCargoSizeDefault',
+      },
     },
     {
       title: '超限明细CM',
       field: 'contOogDetails',
       minWidth: 120,
-      slots:{
-        default:'contOogDetailsDefault'
-      }
+      slots: {
+        default: 'contOogDetailsDefault',
+      },
     },
   ];
 }
@@ -1500,9 +1493,13 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
           },
         },
       },
-      filterMethod: createDictFilter('system_rate'),
+      filterMethod: createDictFilter('is_allowed_stacking'),
+      cellRender: {
+        name: 'CellTagDict',
+        props: 'is_allowed_stacking',
+      },
       slots: {
-        floatingFilter: 'isSystemRate',
+        floatingFilter: 'isAllowedStacking',
       },
     },
     {
@@ -1820,7 +1817,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       sortable: true,
       slots: {
         // floatingFilter: 'contCargoSize',
-        default:'contCargoSize'
+        default: 'contCargoSize',
       },
     },
     {
@@ -1830,7 +1827,7 @@ export function useBoxGridColumns(): VxeTableGridOptions['columns'] {
       sortable: true,
       slots: {
         // floatingFilter: 'contOogDetails',
-        default:'contOogDetails'
+        default: 'contOogDetails',
       },
     },
     {
