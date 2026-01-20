@@ -160,6 +160,10 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       if (error?.data?.code === 401) {
         return;
       }
+      if (errorMessage.includes('bpm-server')) {
+        console.error('工作流模块未启用',errorMessage)
+        return;
+      }
       // 如果没有错误信息，则会根据状态码进行提示
       message.error(errorMessage || msg);
       // 换成弹框提示
