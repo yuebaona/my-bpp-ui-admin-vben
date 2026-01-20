@@ -3,7 +3,7 @@
 import { Card } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { inboxInfoColumns } from '#/views/bpp/flow/custom/config/form/changeorder/acceptance/plan/update/data';
+import { inboxInfoColumns } from '#/views/bpp/changeorder/acceptance/plan/update/data';
 
 const [Grid] = useVbenVxeGrid({
   gridOptions: {
