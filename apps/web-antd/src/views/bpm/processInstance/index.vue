@@ -32,7 +32,10 @@ function handleRefresh() {
 function handleDetail(row: BpmProcessInstanceApi.ProcessInstance) {
   router.push({
     name: 'BpmProcessInstanceDetail',
-    query: { id: row.id },
+    query: {
+      id: row.id,
+      formPagePath: '/bpm/task/my',
+    },
   });
 }
 

@@ -32,6 +32,7 @@
     "revokeMessage": "Please check the data that needs to be undone/revoked.",
     "boxMessage": "Please check the boxes that needs to be processed.",
     "iniOrComMessage": "Please select the statuses where the on-site work node is neither Initialized nor Completed.",
+    "currentOperationNode": "Current operation node does not support this action.",
     "spreaderChangeMessage": "Please select the spreader(s) to be changed.",
     "revokeVerifyMessage": "The acceptance status must be one of the following: INITIALIZATION, REVIEWING, CONFIRMED, or REJECTED.",
     "searchMessage": "Please enter the container number or vessel name/voyage."

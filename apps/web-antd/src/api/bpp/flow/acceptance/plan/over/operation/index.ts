@@ -87,8 +87,18 @@ export namespace FlowOverLimitWorkApi {
     contType: string;
     contCargoWeight: number;
     contTotalWeight: number;
-    contCargoSize: string;
-    contOogDetails: string;
+    contCargoSize: {
+      contCargoHeight: number;
+      contCargoLength: number;
+      contCargoWidth: number;
+    };
+    contOogDetails: {
+      oogBack: number;
+      oogFront: number;
+      oogHeight: number;
+      oogLeft: number;
+      oogRight: number;
+    };
     contPhysicalStatus: string;
     contOperationNode: string;
     acptPlnNo: string;
@@ -241,7 +251,10 @@ export const confirmMachineSpreaderChangeRecord = (
 export const updateMachineSpreaderRecord = (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
-  return requestClient.put('/bpp/flow/machine-spreader-record/update', data);
+  return requestClient.put(
+    '/bpp/flow/machine-spreader-record/update',
+    data,
+  );
 };
 // 删除机械吊具变更操作记录
 export const deleteMachineSpreaderRecord = (id: number | string) => {
