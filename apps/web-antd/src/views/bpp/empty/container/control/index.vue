@@ -271,7 +271,10 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           }
           if (queryParams.bayRangeList) {
             const bayRangeInput = queryParams.bayRangeList;
-            if (bayRangeInput.includes(',')) {
+            if (bayRangeInput.trim() == '') {
+              // 空字符串时，传递空数组
+              queryParams.bayRangeList = [];
+            } else if (bayRangeInput.includes(',')) {
               const positions = bayRangeInput
                 .split(',')
                 .map((item) => item.trim().toUpperCase());
@@ -323,8 +326,12 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
                     yardRaw: '',
                   },
                 ];
+              } else {
+                queryParams.bayRangeList = [];
               }
             }
+          } else {
+            queryParams.bayRangeList = [];
           }
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
