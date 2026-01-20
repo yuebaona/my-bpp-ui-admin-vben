@@ -703,8 +703,6 @@ onMounted(async () => {
     <ChooseContainerModal class="w-3/5" />
     <ContainerAreaSelect
       v-model:visible="containerAreaVisible"
-      :owner-code-list="['ZGS']"
-      :cont-iso-list="['22G1']"
       trade-type=""
       :selected-positions="selectedPositions"
       @confirm="handleContainerAreaConfirm"
