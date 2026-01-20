@@ -30,6 +30,9 @@ const containerAreaVisible = ref(false);
 // 箱区范围值
 const bayRangeListValue = ref('');
 
+// 传给箱区选择组件的已选箱区
+const selectedPositions = ref<string[]>([]);
+
 // 持箱人搜索状态
 const ownerState = reactive({
   data: [],
@@ -40,10 +43,11 @@ const ownerState = reactive({
 
 // 箱区选择确认
 const handleContainerAreaConfirm = async (positions: string[]) => {
+  selectedPositions.value = [...positions];
   const value = positions && positions.length > 0 ? positions.join(',') : '';
   bayRangeListValue.value = value;
   await formApi.setValues({
-    bayRangeList: value,
+    yardBay: value,
   });
   containerAreaVisible.value = false;
 };
@@ -166,6 +170,13 @@ const [Form, formApi] = useVbenForm({
   actionWrapperClass: 'col-span-1 text-right',
   handleValuesChange: (values) => {
     Object.assign(formValues, values);
+    if (values.yardBay !== undefined) {
+      if (values.yardBay) {
+        selectedPositions.value = values.yardBay.split(',');
+      } else {
+        selectedPositions.value = [];
+      }
+    }
   },
   handleSubmit: async () => {
     await handleQuery();
@@ -177,8 +188,11 @@ const [Form, formApi] = useVbenForm({
     ownerState.data = [];
     isoState.value = [];
     isoState.data = [];
+    bayRangeListValue.value = '';
+    selectedPositions.value = [];
     await formApi.setFieldValue('owner', undefined);
     await formApi.setFieldValue('iso', undefined);
+    await formApi.setFieldValue('yardBay', undefined);
     await handleQuery();
   },
 });
@@ -242,7 +256,7 @@ const [Modal, modalApi] = useVbenModal({
     bayRangeListValue.value = '';
     formApi.setFieldValue('owner', undefined);
     formApi.setFieldValue('iso', undefined);
-    formApi.setFieldValue('bayRangeList', '');
+    formApi.setFieldValue('yardBay', '');
     handleQuery();
   },
   onConfirm: () => {
@@ -298,6 +312,7 @@ const [Modal, modalApi] = useVbenModal({
               style="width: 100%"
               @click="containerAreaVisible = true"
               :disabled="false"
+              :title="bayRangeListValue || '选择箱区'"
             >
               {{ bayRangeListValue || '选择箱区' }}
             </Button>
@@ -308,7 +323,7 @@ const [Modal, modalApi] = useVbenModal({
               @click="
                 bayRangeListValue = '';
                 formApi.setValues({
-                  bayRangeList: '',
+                  yardBay: '',
                 });
               "
             />
@@ -321,6 +336,7 @@ const [Modal, modalApi] = useVbenModal({
         :owner-code-list="['ZGS']"
         :cont-iso-list="['22G1']"
         trade-type=""
+        :selected-positions="selectedPositions"
         @confirm="handleContainerAreaConfirm"
       />
     </div>

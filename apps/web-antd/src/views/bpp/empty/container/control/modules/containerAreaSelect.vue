@@ -107,8 +107,12 @@ watch(
 watch(
   () => props.selectedPositions,
   (newValue) => {
-    if (props.visible && newValue) {
+    if (Array.isArray(newValue)) {
       selectedYardPositions.value = [...newValue];
+    } else if (newValue) {
+      selectedYardPositions.value = [newValue];
+    } else {
+      selectedYardPositions.value = [];
     }
   },
   { immediate: true, deep: true },

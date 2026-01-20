@@ -483,7 +483,7 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
         disabled: true,
         value: '',
       },
-      formItemClass: 'col-span-2',
+      // formItemClass: 'col-span-2',
       slot: true,
     },
     {

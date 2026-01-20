@@ -46,6 +46,9 @@ const containerAreaClickRow =
 const popoverVisible = ref({});
 const bayRangeListValue = ref('');
 
+// 传给箱区选择组件的已选箱区
+const selectedPositions = ref<string[]>([]);
+
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
 //   showConfirmButton: false,
@@ -75,6 +78,7 @@ const containerAreaVisible = ref(false);
 
 // 箱区选择确认
 const handleContainerAreaConfirm = async (positions: string[]) => {
+  selectedPositions.value = [...positions];
   const value = positions && positions.length > 0 ? positions.join(',') : '';
   bayRangeListValue.value = value;
   const currentValues = await mainGridApi.formApi.getValues();
@@ -210,6 +214,7 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
         contIsoList.value = [];
         dischargeVslSchedule.value = '';
         bayRangeListValue.value = '';
+        selectedPositions.value = [];
         await mainGridApi.formApi.setValues({ bayRangeList: '' });
       },
       onValuesChange: async (changedValues, allValues) => {
@@ -694,6 +699,7 @@ onMounted(async () => {
       :owner-code-list="['ZGS']"
       :cont-iso-list="['22G1']"
       trade-type=""
+      :selected-positions="selectedPositions"
       @confirm="handleContainerAreaConfirm"
     />
     <!-- 主计划列表 -->
@@ -761,6 +767,7 @@ onMounted(async () => {
               style="width: 100%"
               @click="containerAreaVisible = true"
               :disabled="false"
+              :title="bayRangeListValue || '选择箱区'"
             >
               {{ bayRangeListValue || '选择箱区' }}
             </Button>
