@@ -208,9 +208,6 @@ const handleQuery = () => {
             @change="handleRuleChange"
           />
         </div>
-        <div v-else class="loading">
-          加载中...
-        </div>
       </div>
 
       <!-- 操作按钮 -->
