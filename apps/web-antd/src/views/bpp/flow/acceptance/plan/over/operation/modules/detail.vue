@@ -14,7 +14,7 @@ import dayjs from 'dayjs';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { useDescription } from '#/components/description';
 import { handlePreview } from '#/utils/filePreview';
-import detailComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/DetailComment.vue';
+import detailComment from '#/views/bpp/flow/acceptance/plan/over/operation/workflow/detailComment.vue';
 
 import {
   acceptancePlanOvrOprDetailSchema,
