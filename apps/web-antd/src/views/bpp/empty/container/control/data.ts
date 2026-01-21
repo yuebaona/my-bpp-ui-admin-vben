@@ -974,7 +974,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'operationTimestamp',
+      field: 'createTime',
       title: '操作时间',
       minWidth: 150,
       formatter: 'formatDateTime',
