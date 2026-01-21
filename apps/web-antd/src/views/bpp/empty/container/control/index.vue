@@ -212,7 +212,7 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
       onClick: async () => {
         ownerCodeList.value = [];
         contIsoList.value = [];
-        dischargeVslSchedule.value = '';
+        dischargeVslSchedule.value = undefined;
         bayRangeListValue.value = '';
         selectedPositions.value = [];
         await mainGridApi.formApi.setValues({ bayRangeList: '' });
@@ -271,7 +271,7 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           }
           if (queryParams.bayRangeList) {
             const bayRangeInput = queryParams.bayRangeList;
-            if (bayRangeInput.trim() == '') {
+            if (bayRangeInput.trim() === '') {
               // 空字符串时，传递空数组
               queryParams.bayRangeList = [];
             } else if (bayRangeInput.includes(',')) {
@@ -280,15 +280,7 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
                 .map((item) => item.trim().toUpperCase());
               queryParams.bayRangeList = positions
                 .map((position) => {
-                  const parts = position.split(/-/);
-                  if (parts.length >= 2) {
-                    const yardBay = parts[0];
-                    const yardRaw = parts[1];
-                    return {
-                      yardBay,
-                      yardRaw,
-                    };
-                  } else if (position) {
+                  if (position) {
                     return {
                       yardBay: position,
                       yardRaw: '',
@@ -298,28 +290,9 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
                 })
                 .filter(Boolean);
             } else {
-              // 箱区处理为分页查询接口所需格式
+              // 处理单个箱区的情况
               const upperCaseInput = bayRangeInput.toUpperCase();
-              const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
-              if (hyphenCount === 1) {
-                const parts = upperCaseInput.split(/-/);
-                queryParams.bayRangeList = [
-                  {
-                    yardBay: parts[0],
-                    yardRaw: parts[1],
-                  },
-                ];
-              } else if (hyphenCount >= 2) {
-                const parts = upperCaseInput.split(/-/);
-                const yardBay = parts.slice(0, 2).join('-');
-                const yardRaw = parts.slice(2).join('-');
-                queryParams.bayRangeList = [
-                  {
-                    yardBay,
-                    yardRaw,
-                  },
-                ];
-              } else if (upperCaseInput) {
+              if (upperCaseInput) {
                 queryParams.bayRangeList = [
                   {
                     yardBay: upperCaseInput,

@@ -247,10 +247,10 @@ export const deleteSubPlan = (id: number) => {
 };
 
 // 日志分页查询
-export const getLogQueryPage = (params: LogQueryParams) => {
-  return requestClient.get<PageResult<EmptyContainerControlApi.mainLogVO>>(
+export const getLogQueryPage = (data: LogQueryParams) => {
+  return requestClient.post<PageResult<EmptyContainerControlApi.mainLogVO>>(
     '/bpp/flow/empty/container-control-main-log/page',
-    { params },
+    data,
   );
 };
 
@@ -288,7 +288,7 @@ export const forceComplete = (data: {
 // 获取箱区范围
 export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/bay/list',
+    '/bpp/flow/common/get-yard-bay-list',
     data,
   );
 };

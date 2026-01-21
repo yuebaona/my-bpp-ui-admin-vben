@@ -221,12 +221,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }) => {
-          const params: LogQueryParams = {
+          const data: LogQueryParams = {
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
           };
-          const res = await getLogQueryPage(params);
+          const res = await getLogQueryPage(data);
           return {
             list: res.list,
             total: res.total,
