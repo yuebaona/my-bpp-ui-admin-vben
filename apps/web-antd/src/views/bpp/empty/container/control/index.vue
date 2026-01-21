@@ -111,15 +111,46 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          if (!hasSelectedMainPlan.value) {
+          const mainFormValues = await mainGridApi.formApi.getValues();
+          const noFilterConditions = !hasSelectedMainPlan.value
+            && !mainFormValues.tradeType
+            && !mainFormValues.pickupPlanNo
+            && !mainFormValues.bayRangeList
+            && ownerCodeList.value.length === 0
+            && contIsoList.value.length === 0
+            && !dischargeVslSchedule.value;
+
+          if (noFilterConditions) {
             return { total: 0, list: [] };
           }
           if (selectedMainId.value) {
             formValues.mainId = selectedMainId.value;
           }
-          const mainFormValues = await mainGridApi.formApi.getValues();
           if (mainFormValues.planNo) {
             formValues.planNo = mainFormValues.planNo;
+          }
+          if (mainFormValues.tradeType) {
+            formValues.tradeType = mainFormValues.tradeType;
+          }
+          if (mainFormValues.pickupPlanNo) {
+            formValues.pickupPlanNo = mainFormValues.pickupPlanNo;
+          }
+          if (mainFormValues.bayRangeList) {
+            formValues.bayRangeList = [
+              {
+                yardBay: mainFormValues.bayRangeList,
+                yardRaw: '',
+              }
+            ]
+          }
+          if (ownerCodeList.value) {
+            formValues.ownerCodeList = ownerCodeList.value;
+          }
+          if (contIsoList.value) {
+            formValues.contIsoList = contIsoList.value;
+          }
+          if (dischargeVslSchedule.value) {
+            formValues.dischargeVslSchedule = dischargeVslSchedule.value;
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
@@ -216,6 +247,11 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
         bayRangeListValue.value = '';
         selectedPositions.value = [];
         await mainGridApi.formApi.setValues({ bayRangeList: '' });
+        await mainGridApi.formApi.resetForm();
+        checkedMainIds.value = [];
+        selectedMainId.value = null;
+        hasSelectedMainPlan.value = false;
+        subGridApi.query();
       },
       onValuesChange: async (changedValues, allValues) => {
         if (changedValues.bayRangeList !== undefined) {
@@ -732,6 +768,7 @@ onMounted(async () => {
             :filter-option="false"
             :list-height="150"
             allow-clear
+            show-arrow
             @search="fetchOwnerCodeList"
             @focus="fetchOwnerCodeList('')"
             @input="handleOwnerInput"
@@ -750,6 +787,7 @@ onMounted(async () => {
             :filter-option="false"
             :list-height="150"
             allow-clear
+            show-arrow
             @search="fetchContIsoList"
             @input="handleIsoInput"
             @focus="fetchContIsoList('')"
