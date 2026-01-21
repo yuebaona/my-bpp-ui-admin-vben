@@ -44,20 +44,19 @@ const fetchYardRange = async () => {
     const contIsoList = props.contIsoList;
     const tradeType = props.tradeType || '';
 
-    // 检查是否需要传递参数
-    const hasRequiredParams =
-      ownerCodeList.length > 0 || contIsoList.length > 0 || tradeType;
+    const data: EmptyContainerControlApi.yardRangeVO = {};
 
-    // 构建参数对象
-    const params: EmptyContainerControlApi.yardRangeVO = hasRequiredParams
-      ? {
-          ownerCodeList,
-          contIsoList,
-          tradeType,
-        }
-      : {};
+    if (ownerCodeList && ownerCodeList.length > 0) {
+      data.ownerCodeList = ownerCodeList;
+    }
+    if (contIsoList && contIsoList.length > 0) {
+      data.contIsoList = contIsoList;
+    }
+    if (tradeType) {
+      data.tradeType = tradeType;
+    }
 
-    const response = await getYardRange(params);
+    const response = await getYardRange(data);
     yardPositionTreeData.value = [];
 
     if (response.length > 0) {
@@ -87,7 +86,7 @@ const fetchYardRange = async () => {
       message.info('没有找到匹配的箱区数据');
     }
   } catch (error) {
-    message.error('获取箱区范围失败，请稍后重试');
+    // message.error('获取箱区范围失败，请稍后重试');
     console.error('获取箱区范围失败:', error);
   } finally {
     loading.value = false;
