@@ -136,12 +136,40 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
             formValues.pickupPlanNo = mainFormValues.pickupPlanNo;
           }
           if (mainFormValues.bayRangeList) {
-            formValues.bayRangeList = [
-              {
-                yardBay: mainFormValues.bayRangeList,
-                yardRaw: '',
+            const bayRangeInput = mainFormValues.bayRangeList;
+            if (bayRangeInput.trim() === '') {
+              formValues.bayRangeList = [];
+            } else if (bayRangeInput.includes(',')) {
+              const positions = bayRangeInput
+                .split(',')
+                .map((item) => item.trim().toUpperCase());
+              formValues.bayRangeList = positions
+                .map((position) => {
+                  if (position) {
+                    return {
+                      yardBay: position,
+                      yardRaw: '',
+                    };
+                  }
+                  return null;
+                })
+                .filter(Boolean);
+            } else {
+              // 处理单个箱区的情况
+              const upperCaseInput = bayRangeInput.toUpperCase();
+              if (upperCaseInput) {
+                formValues.bayRangeList = [
+                  {
+                    yardBay: upperCaseInput,
+                    yardRaw: '',
+                  },
+                ];
+              } else {
+                formValues.bayRangeList = [];
               }
-            ]
+            }
+          } else {
+            formValues.bayRangeList = [];
           }
           if (ownerCodeList.value) {
             formValues.ownerCodeList = ownerCodeList.value;
