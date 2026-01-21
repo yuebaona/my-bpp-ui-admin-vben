@@ -605,7 +605,7 @@ const getDictDataList = async () => {
     'actual_operation',
     'initiation_type',
     'mechanical_type',
-    'is_allowed_stacking'
+    'is_allowed_stacking',
   ]);
 };
 // 高级查询处理函数
@@ -1247,6 +1247,11 @@ function showIconAlert(content: string, icon: string) {
     icon,
   });
 }
+const advancedChange = (index: any) => {
+  if (index === 0) {
+    advancedQueryModalOpen(['acpt_pln', 'acpt_pln_oog_cont', 'che_chg_rec']);
+  }
+};
 </script>
 
 <template>
@@ -1326,6 +1331,7 @@ function showIconAlert(content: string, icon: string) {
                 'che_chg_rec',
               ])
             "
+            @change="advancedChange"
           />
         </template>
         <template #toolbar-tools>
