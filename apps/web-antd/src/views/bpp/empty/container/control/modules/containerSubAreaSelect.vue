@@ -227,7 +227,7 @@ const modalVisible = computed({
       <!-- 左侧：堆场贝位树 -->
       <div class="flex-1 border-r pr-4">
         <div class="mb-2 font-medium">堆场贝位</div>
-        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />
+<!--        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />-->
         <div style="max-height: 350px; overflow-y: auto">
           <Spin :spinning="loading">
             <Tree

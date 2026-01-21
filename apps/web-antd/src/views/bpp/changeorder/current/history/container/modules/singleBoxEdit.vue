@@ -7,8 +7,11 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { boxlistColumns } from '#/views/bpp/changeorder/current/history/container/data';
+import {
+  singleBoxlistColumns
+} from '#/views/bpp/changeorder/current/history/container/data';
 import BatchEdit from '#/views/bpp/changeorder/current/history/container/modules/batchEdit.vue';
+import LadingBill from './ladingBill.vue';
 // 定义接收选中箱信息的props
 const props = defineProps<{
   selectedBoxes?: any[];
@@ -16,6 +19,8 @@ const props = defineProps<{
 const emit = defineEmits(['removeFromEdit']);
 // 存储已选择的箱信息
 const modifyBoxes = ref<any[]>([]);
+const showLadingBillModal = ref(false);
+const currentRow = ref<any>(null);
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
@@ -25,7 +30,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     filterConfig: {
       showIcon: false,
     },
-    columns: boxlistColumns(),
+    columns: singleBoxlistColumns(),
     height: '300px',
     keepSource: true,
     rowConfig: {
@@ -47,6 +52,36 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '25',
+          value: 25,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     proxyConfig: {
       autoLoad: false,
@@ -62,16 +97,23 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
-// 刷新列表
-function handleRefresh() {
-  gridApi.query();
-}
-
 // 批量编辑
 const [BatchEditModal, batchEditModalApi] = useVbenModal({
   connectedComponent: BatchEdit,
   destroyOnClose: true,
 });
+
+// 提单号选择成功回调
+const handleLadingBillSuccess = (data: any) => {
+  showLadingBillModal.value = false;
+  message.success('提单信息操作成功');
+  currentRow.value = null;
+};
+
+// 刷新列表
+function handleRefresh() {
+  gridApi.query();
+}
 
 watch(
   () => props.selectedBoxes,
@@ -113,7 +155,6 @@ function handleRemove() {
     message.warning('请至少选择一条箱信息');
     return;
   }
-
   const selectedIds = selectedRows.map((row: any) => row.id);
   modifyBoxes.value = modifyBoxes.value.filter(
     (box) => !selectedIds.includes(box.id),
@@ -136,10 +177,33 @@ function handleBatchEdit() {
   batchEditModalApi.setData(selectedIds).open();
   console.log('批量修改选中的ID:', selectedIds);
 }
+
+const handleClickPickupNo = (row: any) => {
+  currentRow.value = row;
+  showLadingBillModal.value = true;
+};
+
+defineExpose({
+  gridApi,
+  modifyBoxes,
+});
 </script>
 <template>
   <BatchEditModal class="w-3/4" @success="handleRefresh" />
+  <LadingBill
+    v-model:visible="showLadingBillModal"
+    :current-row="currentRow"
+    @success="handleLadingBillSuccess"
+  />
   <Grid table-title="单箱修改">
+    <template #pickupNo="{ row }">
+      <span
+        class="text-blue-500 cursor-pointer"
+        @click="handleClickPickupNo(row)"
+      >
+        {{ row.pickupNo }}
+      </span>
+    </template>
     <template #toolbar-tools>
       <div class="flex items-center space-x-2">
         <div class="flex items-center">
