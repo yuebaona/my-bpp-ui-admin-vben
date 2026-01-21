@@ -7,7 +7,7 @@ import BoxInfo from '#/views/bpp/changeorder/current/history/container/modules/b
 import ChangeOrderPaymentInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPaymentInfo.vue';
 import ChangeOrderPlanInfo from '#/views/bpp/changeorder/current/history/container/modules/changeOrderPlanInfo.vue';
 import HeaderInfo from '#/views/bpp/changeorder/current/history/container/modules/headerInfo.vue';
-import BoxList from '#/views/bpp/changeorder/current/history/container/modules/singleBoxEdit .vue';
+import BoxList from '#/views/bpp/changeorder/current/history/container/modules/singleBoxEdit.vue';
 
 const affix = ref(0);
 const selectedBoxes = ref<any[]>([]);
