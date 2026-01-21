@@ -112,13 +112,15 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           const mainFormValues = await mainGridApi.formApi.getValues();
-          const noFilterConditions = !hasSelectedMainPlan.value
-            && !mainFormValues.tradeType
-            && !mainFormValues.pickupPlanNo
-            && !mainFormValues.bayRangeList
-            && ownerCodeList.value.length === 0
-            && contIsoList.value.length === 0
-            && !dischargeVslSchedule.value;
+          const noFilterConditions =
+            !hasSelectedMainPlan.value &&
+            !mainFormValues.tradeType &&
+            !mainFormValues.pickupPlanNo &&
+            !mainFormValues.bayRangeList &&
+            !mainFormValues.createTime &&
+            ownerCodeList.value.length === 0 &&
+            contIsoList.value.length === 0 &&
+            !dischargeVslSchedule.value;
 
           if (noFilterConditions) {
             return { total: 0, list: [] };
@@ -179,6 +181,13 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
           }
           if (dischargeVslSchedule.value) {
             formValues.dischargeVslSchedule = dischargeVslSchedule.value;
+          }
+          if (mainFormValues.createTime && mainFormValues.createTime.length > 0) {
+            formValues.createTime = mainFormValues.createTime
+              .map((time: string) => {
+                return time ? new Date(time).getTime() : null;
+              })
+              .filter(Boolean);
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
