@@ -82,6 +82,7 @@ function closeForm() {
 function openTaskModal() {
   openTask.value = true;
   buttonKey.value++;
+  taskKey.value++;
   modalApi.open();
 }
 
@@ -90,7 +91,6 @@ const taskKey = ref(0);
 // 关闭窗口
 function closeCallBack() {
   openTask.value = false;
-  taskKey.value++;
   modalApi.close();
 }
 
@@ -178,6 +178,7 @@ onMounted(() => {
   <Modal
     :open="openTask"
     :width="1200"
+    style="top: 20px"
     class="w-1/2"
     title="提交审核"
     :closable="false"

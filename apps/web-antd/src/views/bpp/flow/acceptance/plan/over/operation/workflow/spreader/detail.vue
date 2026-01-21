@@ -12,6 +12,7 @@ import { confirm } from '@vben/common-ui';
 import dayjs from "dayjs";
 import {router} from "#/router";
 import { useGlobalTaskStore } from '#/store/globalTaskStore';
+import {getDictDataPage} from "#/api/bpp/base/dict/data";
 
 const emit = defineEmits(['close-form']);
 const authStore = useAuthStore();
@@ -42,7 +43,7 @@ const props = defineProps({
   activityNodes: {
     type: Object,
   },
-  containerDataArray: {
+  contDataArray: {
     type: Object,
   },
   // 流程实例信息
@@ -53,19 +54,19 @@ const props = defineProps({
 const transferVisible = ref(false);
 const buttonLoading = ref(false);
 const formRef = ref(null);
-const machineSpreaderRecord = ref(null);
+const machCheRecord = ref(null);
 const transferFormRef = ref(null);
 const transferFormData = ref({
   assigneeUserId: undefined,
   auditOpinion: undefined,
 });
 // 超限受理集装箱表信息
-const containerFormData = ref({
+const contFormData = ref({
   auditOpinion: undefined,
-  containerFormDataArray: [{
+  contFormDataArray: [{
     id: undefined,
     acceptancePlanNo: undefined,
-    containerNo: undefined,
+    contNo: undefined,
     isSystemRate: undefined,
     quotePrice: undefined,
   }]
@@ -100,16 +101,16 @@ async function passTask() {
     buttonLoading.value = true;
     await formRef.value.validate();
     // 修改单据数据
-    const machineSpreaderRecordData = containerFormData.value.containerFormDataArray[0];
+    const machineSpreaderRecordData = contFormData.value.contFormDataArray[0];
     await machineSpreaderRecordUpdateProcess(machineSpreaderRecordData)
     //流程变量
     let variables = {
-      entity: machineSpreaderRecord.value,
+      entity: machCheRecord.value,
     }
     // 审批通过数据
     const data = {
       id: props.todoTask?.id,
-      reason: containerFormData.value.auditOpinion,
+      reason: contFormData.value.auditOpinion,
       variables, // 审批通过, 把修改的字段值赋于流程实例变量
       nextAssignees: {}, // 下个自选节点选择的审批人信息
     } as any;
@@ -134,7 +135,7 @@ async function passTask() {
 
 // 拒绝
 function noPassTask() {
-  if (!containerFormData.value.auditOpinion) {
+  if (!contFormData.value.auditOpinion) {
     message.error('请填写审批意见！');
     return;
   }
@@ -151,7 +152,7 @@ function noPassTask() {
       // 审批不通过数据
       const data = {
         id: taskId,
-        reason: containerFormData.value.auditOpinion,
+        reason: contFormData.value.auditOpinion,
       };
       await rejectTask(data);
       message.success('拒绝成功,流程已结束！');
@@ -207,7 +208,7 @@ const columns = reactive([
   },
   {
     title: '箱号',
-    dataIndex: 'containerNo',
+    dataIndex: 'contNo',
     width: 120,
     align: 'center',
   },
@@ -225,14 +226,14 @@ const columns = reactive([
   },
 ]);
 watch(() => props.businessKey, async () => {
-    machineSpreaderRecord.value = await getMachineSpreaderRecord(props.businessKey)
-    containerFormData.value.containerFormDataArray = [
+    machCheRecord.value = await getMachineSpreaderRecord(props.businessKey)
+    contFormData.value.contFormDataArray = [
       {
-        id: machineSpreaderRecord.value.id,
-        acceptancePlanNo: machineSpreaderRecord.value.acceptancePlanNo,
-        containerNo: machineSpreaderRecord.value.containerNo,
-        isSystemRate: machineSpreaderRecord.value.isSystemRate,
-        quotePrice: machineSpreaderRecord.value.quotePrice,
+        id: machCheRecord.value.id,
+        acceptancePlanNo: machCheRecord.value.acceptancePlanNo,
+        contNo: machCheRecord.value.contNo,
+        isSystemRate: machCheRecord.value.isSystemRate,
+        quotePrice: machCheRecord.value.quotePrice,
       }
     ];
 }, {immediate: true, deep: true})
@@ -248,9 +249,42 @@ async function getUserList() {
     }
   })
 }
-
+async function initDictData(dictType){
+  const res = await getDictDataPage({
+    pageNo: 1,
+    pageSize: 100,
+    dictType: dictType
+  });
+  return res.list;
+}
+const cheWorkChangeType = ref([])
+const operationSource = ref([])
+const changeReason = ref([])
+const cheType = ref([])
+function getDictLabel(dictValue) {
+  const cheWorkChangeTypeData = cheWorkChangeType.value.find(x => x.value == dictValue)
+  if(cheWorkChangeTypeData){
+    return cheWorkChangeTypeData.label
+  }
+  const operationSourceData = operationSource.value.find(x => x.value == dictValue)
+  if(operationSourceData){
+    return operationSourceData.label
+  }
+  const changeReasonData = changeReason.value.find(x => x.value == dictValue)
+  if(changeReasonData){
+    return changeReasonData.label
+  }
+  const cheTypeData = cheType.value.find(x => x.value == dictValue)
+  if(cheTypeData){
+    return cheTypeData.label
+  }
+}
 onMounted(async () => {
   await getUserList();
+  cheWorkChangeType.value = await initDictData('on_site_operation_category')
+  operationSource.value = await initDictData('change_reason')
+  changeReason.value = await initDictData('driving_source')
+  cheType.value = await initDictData('spreader_type')
 });
 </script>
 
@@ -261,59 +295,59 @@ onMounted(async () => {
     <Descriptions layout="horizontal" :column="2" bordered
                   :labelStyle="{textAlign: 'right',width: '200px',backgroundColor: 'RGB(246, 247, 249)'}">
       <Descriptions.Item label="申请时间">
-        {{ dayjs(machineSpreaderRecord?.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+        {{ dayjs(machCheRecord?.createTime).format('YYYY-MM-DD HH:mm:ss') }}
       </Descriptions.Item>
-      <Descriptions.Item label="经办人">{{ machineSpreaderRecord?.creatorName }}</Descriptions.Item>
-      <Descriptions.Item label="现场作业类别">{{ machineSpreaderRecord?.machineSpreaderChangeType }}</Descriptions.Item>
-      <Descriptions.Item label="驱动源">{{ machineSpreaderRecord?.operationSource }}</Descriptions.Item>
-      <Descriptions.Item label="变更原因">{{ machineSpreaderRecord?.changeReason }}</Descriptions.Item>
+      <Descriptions.Item label="经办人">{{ machCheRecord?.creatorName }}</Descriptions.Item>
+      <Descriptions.Item label="现场作业类别">{{ getDictLabel(machCheRecord?.cheWorkChangeType) }}</Descriptions.Item>
+      <Descriptions.Item label="驱动源">{{ getDictLabel(machCheRecord?.operationSource) }}</Descriptions.Item>
+      <Descriptions.Item label="变更原因">{{ getDictLabel(machCheRecord?.changeReason) }}</Descriptions.Item>
       <Descriptions.Item label="现场图片">
         <Flex>
           <ImagePreviewGroup>
             <Image
-              v-for="(item,index) in machineSpreaderRecord?.operationFile?JSON.parse(machineSpreaderRecord?.operationFile):[]"
+              v-for="(item,index) in machCheRecord?.operationFile?JSON.parse(machCheRecord?.operationFile):[]"
                    :width="80"
                    :height="80"
-                   :key="item"3
-                   :src="item" />
+                   :key="item"
+                    :src="item?.indexOf('?')>-1?item.split('?')[0]:''"/>
           </ImagePreviewGroup>
         </Flex>
       </Descriptions.Item>
-      <Descriptions.Item label="作业船名">{{ machineSpreaderRecord?.vesselName }}</Descriptions.Item>
-      <Descriptions.Item label="作业航次">{{ machineSpreaderRecord?.vesselVoyage }}</Descriptions.Item>
-      <Descriptions.Item label="箱号">{{ machineSpreaderRecord?.containerNo }}</Descriptions.Item>
-      <Descriptions.Item label="作业位置">{{ machineSpreaderRecord?.operationPosition }}</Descriptions.Item>
-      <Descriptions.Item label="作业机械号">{{ machineSpreaderRecord?.machineNo }}</Descriptions.Item>
-      <Descriptions.Item label="实际吊具类型">{{ machineSpreaderRecord?.spreaderType }}</Descriptions.Item>
+      <Descriptions.Item label="作业船名">{{ machCheRecord?.vslName }}</Descriptions.Item>
+      <Descriptions.Item label="作业航次">{{ machCheRecord?.vslVoy }}</Descriptions.Item>
+      <Descriptions.Item label="箱号">{{ machCheRecord?.contNo }}</Descriptions.Item>
+      <Descriptions.Item label="作业位置">{{ machCheRecord?.operationPosition }}</Descriptions.Item>
+      <Descriptions.Item label="作业机械号">{{ machCheRecord?.machNo }}</Descriptions.Item>
+      <Descriptions.Item label="实际吊具类型">{{ getDictLabel(machCheRecord?.cheType) }}</Descriptions.Item>
       <Descriptions.Item label="更换吊具开始时间">
-        {{ dayjs(machineSpreaderRecord?.startTime).format('YYYY-MM-DD HH:mm:ss') }}
+        {{ dayjs(machCheRecord?.startTime).format('YYYY-MM-DD HH:mm:ss') }}
       </Descriptions.Item>
       <Descriptions.Item label="更换吊具结束时间">
-        {{ dayjs(machineSpreaderRecord?.endTime).format('YYYY-MM-DD HH:mm:ss') }}
+        {{ dayjs(machCheRecord?.endTime).format('YYYY-MM-DD HH:mm:ss') }}
       </Descriptions.Item>
       <Descriptions.Item label="换回原吊具开始时间">
-        {{ dayjs(machineSpreaderRecord?.startTimeBack).format('YYYY-MM-DD HH:mm:ss') }}
+        {{ dayjs(machCheRecord?.startTimeBack).format('YYYY-MM-DD HH:mm:ss') }}
       </Descriptions.Item>
       <Descriptions.Item label="换回原吊具结束时间">
-        {{ dayjs(machineSpreaderRecord?.endTimeBack).format('YYYY-MM-DD HH:mm:ss') }}
+        {{ dayjs(machCheRecord?.endTimeBack).format('YYYY-MM-DD HH:mm:ss') }}
       </Descriptions.Item>
       <Descriptions.Item label="备注" :span="2">
-        {{ machineSpreaderRecord?.remark }}
+        {{ machCheRecord?.remark }}
       </Descriptions.Item>
     </Descriptions>
     <!-- 商务报价模块 -->
     <a-divider orientation="left">商务报价</a-divider>
     <Card>
-      <div class="form-container">
+      <div>
         <a-form
           ref="formRef"
-          :model="containerFormData"
+          :model="contFormData"
         >
           <a-form-item>
             <!-- 表格（含合并表头） -->
             <a-table
               :columns="columns"
-              :data-source="containerFormData.containerFormDataArray"
+              :data-source="contFormData.contFormDataArray"
               bordered
               :pagination="false"
               :scroll="{ x: 'auto' }"
@@ -325,7 +359,7 @@ onMounted(async () => {
                 <!-- 是否使用系统费率 -->
                 <template v-if="column.dataIndex === 'isSystemRate'">
                   <a-form-item
-                    :name="['containerFormDataArray', index, 'isSystemRate']"
+                    :name="['contFormDataArray', index, 'isSystemRate']"
                     :rules="[{required: true,message: '请填写是否使用系统费率', trigger: 'change'}]"
                   >
                     <a-radio-group v-model:value="record.isSystemRate">
@@ -337,7 +371,7 @@ onMounted(async () => {
                 <!-- 报价金额 -->
                 <template v-if="column.dataIndex === 'quotePrice'">
                   <a-form-item
-                    :name="['containerFormDataArray', index, 'quotePrice']"
+                    :name="['contFormDataArray', index, 'quotePrice']"
                     :rules="[{required: true,message: '请填写报价金额', trigger: 'change'}]"
                   >
                     <a-input v-model:value="record.quotePrice" style="width: 230px;"
@@ -352,7 +386,7 @@ onMounted(async () => {
                        :rules="[{required: true,message: '请填写审批意见', trigger: 'change'}]"
           >
             <a-textarea
-              v-model:value="containerFormData.auditOpinion"
+              v-model:value="contFormData.auditOpinion"
               placeholder="请输入审批意见"
               style="flex: 1; resize: none;"
               :rows="3"
@@ -364,67 +398,69 @@ onMounted(async () => {
     <Flex justify="end" style="margin-top: 10px;">
       <Space>
         <Button @click="cancelTask">取消</Button>
-        <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
-        <Button
-          type="primary"
-          danger
-          @click="noPassTask"
-          :loading="buttonLoading"
-        >拒绝
-        </Button>
-        <a-popover v-model:open="transferVisible" title="转办" trigger="click">
-          <template #content>
-            <a-card style="width: 500px; height: 246px">
-              <a-form
-                ref="transferFormRef"
-                :model="transferFormData"
-              >
-                <a-form-item label="转办给" name="assigneeUserId"
-                             :rules="[
-                                   { required: true, message: '请选择转办用户' }
-                                 ]"
-                >
-                  <a-select
-                    v-model:value="transferFormData.assigneeUserId"
-                    style="width: 100%"
-                    placeholder="请选择用户"
-                    clearable
-                    :options="userList"
-                  ></a-select>
-                </a-form-item>
-                <a-form-item label="审核意见" name="auditOpinion"
-                             :rules="[
-                                   { required: true, message: '请输入审核意见' }
-                                 ]"
-                >
-                  <a-textarea
-                    v-model:value="transferFormData.auditOpinion"
-                    placeholder="请输入审核意见"
-                    :rows="4"
-                  />
-                </a-form-item>
-                <a-form-item>
-                  <Flex justify="center">
-                    <Space>
-                      <Button @click="()=>{
-                                transferVisible=false;
-                                transferFormData.assigneeUserId=undefined;
-                                transferFormData.auditOpinion=null;
-                                }"
-                              :loading="buttonLoading">取消
-                      </Button>
-                      <Button type="primary" @click="doTransferTask" :loading="buttonLoading">确定
-                      </Button>
-                    </Space>
-                  </Flex>
-                </a-form-item>
-              </a-form>
-            </a-card>
-          </template>
-          <Button type="primary" color="pink" @click="openTransferTask" :loading="buttonLoading">
-            转办
+        <div v-if="props.todoTask?.id">
+          <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
+          <Button
+            type="primary"
+            danger
+            @click="noPassTask"
+            :loading="buttonLoading"
+          >拒绝
           </Button>
-        </a-popover>
+          <a-popover v-model:open="transferVisible" title="转办" trigger="click">
+            <template #content>
+              <a-card style="width: 500px; height: 246px">
+                <a-form
+                  ref="transferFormRef"
+                  :model="transferFormData"
+                >
+                  <a-form-item label="转办给" name="assigneeUserId"
+                               :rules="[
+                                     { required: true, message: '请选择转办用户' }
+                                   ]"
+                  >
+                    <a-select
+                      v-model:value="transferFormData.assigneeUserId"
+                      style="width: 100%"
+                      placeholder="请选择用户"
+                      clearable
+                      :options="userList"
+                    ></a-select>
+                  </a-form-item>
+                  <a-form-item label="审核意见" name="auditOpinion"
+                               :rules="[
+                                     { required: true, message: '请输入审核意见' }
+                                   ]"
+                  >
+                    <a-textarea
+                      v-model:value="transferFormData.auditOpinion"
+                      placeholder="请输入审核意见"
+                      :rows="4"
+                    />
+                  </a-form-item>
+                  <a-form-item>
+                    <Flex justify="center">
+                      <Space>
+                        <Button @click="()=>{
+                                  transferVisible=false;
+                                  transferFormData.assigneeUserId=undefined;
+                                  transferFormData.auditOpinion=null;
+                                  }"
+                                :loading="buttonLoading">取消
+                        </Button>
+                        <Button type="primary" @click="doTransferTask" :loading="buttonLoading">确定
+                        </Button>
+                      </Space>
+                    </Flex>
+                  </a-form-item>
+                </a-form>
+              </a-card>
+            </template>
+            <Button type="primary" color="pink" @click="openTransferTask" :loading="buttonLoading">
+              转办
+            </Button>
+          </a-popover>
+        </div>
       </Space>
     </Flex>
   </Card>

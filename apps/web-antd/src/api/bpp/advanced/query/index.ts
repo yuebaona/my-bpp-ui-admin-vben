@@ -53,3 +53,35 @@ export const getTableColumnList = (params: any) => {
     { params },
   );
 };
+// 生成高级查询
+export const searchGenerated = (
+  data: any
+) => {
+  return requestClient.post(
+    '/bpp/flow/search/generated',
+    data,
+  );
+};
+// 创建高级查询条件
+export const searchConditionCreate= (
+  data: any
+) => {
+  return requestClient.post(
+    '/bpp/flow/search/condition/create',
+    data,
+  );
+};
+export const getByCondition = (params: any) => {
+  return requestClient.get(
+    `/bpp/flow/search/condition/getByCondition`,
+    { params },
+  );
+};
+export const searchConditionUpdate = (
+  data: any
+) => {
+  return requestClient.put(
+    '/bpp/flow/search/condition/update',
+    data,
+  );
+};

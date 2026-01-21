@@ -40,8 +40,8 @@ const yardPositionTreeData = ref<TreeProps['treeData']>([]);
 const fetchYardRange = async () => {
   loading.value = true;
   try {
-    const ownerCodeList = props.ownerCodeList || [];
-    const contIsoList = props.contIsoList || [];
+    const ownerCodeList = props.ownerCodeList;
+    const contIsoList = props.contIsoList;
     const tradeType = props.tradeType || '';
 
     // 检查是否需要传递参数
@@ -107,8 +107,12 @@ watch(
 watch(
   () => props.selectedPositions,
   (newValue) => {
-    if (props.visible && newValue) {
+    if (Array.isArray(newValue)) {
       selectedYardPositions.value = [...newValue];
+    } else if (newValue) {
+      selectedYardPositions.value = [newValue];
+    } else {
+      selectedYardPositions.value = [];
     }
   },
   { immediate: true, deep: true },

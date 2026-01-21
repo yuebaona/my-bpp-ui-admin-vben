@@ -1,20 +1,36 @@
 <script setup lang="ts">
-import {onMounted, reactive, ref} from 'vue';
+import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import {Button, Card, Flex, FormItem, message, Select, SelectOption, Space} from "ant-design-vue";
-import {confirm} from '@vben/common-ui';
+import { onMounted, reactive, ref } from 'vue';
+
+import { confirm } from '@vben/common-ui';
+
 import {
-  type FlowOverLimitWorkApi,
-  getAcceptancePlanOverOperation,
+  Button,
+  Card,
+  Flex,
+  message,
+  Select,
+  SelectOption,
+  Space,
+} from 'ant-design-vue';
+
+import {
+  approveTask,
+  getTaskListByReturn,
+  rejectTask,
+  returnTask,
+  transferTask,
+} from '#/api/bpm/task';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import {
   acceptancePlanOverRejectProgress,
+  getAcceptancePlanOverOperation,
   startProgressAcceptancePlanOverOperation,
-} from "#/api/bpp/flow/acceptance/plan/over/operation";
-import {getDictDataPage} from '#/api/bpp/base/dict/data';
-import {approveTask, getTaskListByReturn, rejectTask, transferTask,returnTask } from '#/api/bpm/task';
-import {getSimpleUserList} from '#/api/system/user';
+} from '#/api/bpp/flow/acceptance/plan/over/operation';
+import { getSimpleUserList } from '#/api/system/user';
 
 defineOptions({ name: 'CustomButtonView' });
-const emit = defineEmits(['close-form','submit-form']);
 /**
  * 参数
  */
@@ -44,6 +60,7 @@ const props = defineProps({
     type: Object,
   },
 });
+const emit = defineEmits(['close-form', 'submit-form']);
 const transferVisible = ref(false);
 const buttonLoading = ref(false);
 const plannedCheTypeArray = ref([]);
@@ -52,35 +69,27 @@ const plannedMachryTypeArray = ref([]);
 const formRef = ref(null);
 
 // 下一步审批节点
-const nextNodeNameArray = ref([
-  {
-    name: '操作审批',
-  },
-  {
-    name: '技术审批',
-  },
-  {
-    name: '商务审批',
-  },
-]);
+const nextNodeNameArray = ref([]);
 const formData = ref<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>({
   id: undefined,
   isAllowedStacking: undefined,
   plannedMachryType: undefined,
   acptPlnNo: undefined,
   processInstanceId: undefined,
-  auditOpinion: undefined,
+  auditOpinion: '同意',
   nodeName: undefined,
-  acceptancePlanOverOperationOtherProcessReqVOS: [{
-    id: undefined,
-    containerNo: undefined,
-    plannedCheType: undefined,
-  }],
+  acceptancePlanOverOperationOtherProcessReqVOS: [
+    {
+      id: undefined,
+      containerNo: undefined,
+      plannedCheType: undefined,
+    },
+  ],
 });
 const transferFormRef = ref(null);
 const transferFormData = ref({
   id: undefined,
-  auditOpinion: undefined,
+  auditOpinion: '同意',
 });
 // 退回节点
 const returnList = ref([] as any);
@@ -98,10 +107,11 @@ async function getDetailData() {
   const overFormData = businessData.acceptancePlanOverOperationRespVO;
   formData.value.id = overFormData.id;
   formData.value.isAllowedStacking = overFormData.isAllowedStacking;
-  formData.value.plannedMachryType = overFormData.plannedMachryType||'QC';
+  formData.value.plannedMachryType = overFormData.plannedMachryType || 'QC';
   formData.value.acptPlnNo = overFormData.acptPlnNo;
   formData.value.processInstanceId = overFormData.processInstanceId;
-  formData.value.acceptancePlanOverOperationOtherProcessReqVOS = businessData.acceptancePlanOverOperationContainerRespVOS;
+  formData.value.acceptancePlanOverOperationOtherProcessReqVOS =
+    businessData.acceptancePlanOverOperationContainerRespVOS;
 }
 
 // 取消任务，关闭弹窗
@@ -119,9 +129,9 @@ async function passTask() {
     buttonLoading.value = true;
     await formRef.value.validate();
     // 修改单据数据
-    await startProgressAcceptancePlanOverOperation(formData.value)
+    await startProgressAcceptancePlanOverOperation(formData.value);
     // 流程变量
-    let variables = {
+    const variables = {
       entity: {
         nodeName: formData.value.nodeName,
       },
@@ -139,12 +149,12 @@ async function passTask() {
     setTimeout(() => {
       submitFormCallBack();
     }, 500);
-  } catch (e) {
-    const res = JSON.stringify(e);
-    if (res.indexOf('errorFields') > -1) {
+  } catch (error) {
+    const res = JSON.stringify(error);
+    if (res.includes('errorFields')) {
       message.error('有字段未填写。');
     } else {
-      message.error('审批失败' + res);
+      message.error(`审批失败${res}`);
     }
   } finally {
     buttonLoading.value = false;
@@ -179,8 +189,8 @@ async function noPassTask() {
       setTimeout(() => {
         submitFormCallBack();
       }, 500);
-    } catch (e) {
-      message.error('拒绝失败' + JSON.stringify(e));
+    } catch (error) {
+      message.error(`拒绝失败${JSON.stringify(error)}`);
     } finally {
       buttonLoading.value = false;
     }
@@ -198,7 +208,7 @@ async function openReturnTask() {
       returnFormData.value.id = props.todoTask?.id;
       returnVisible.value = true;
     }
-  } catch (e) {
+  } catch {
     returnVisible.value = false;
     message.warning('当前没有可退回的节点!');
   }
@@ -222,8 +232,8 @@ async function doReturnTask() {
     setTimeout(() => {
       submitFormCallBack();
     }, 500);
-  } catch (e) {
-    message.error(`退回失败 + ${JSON.stringify(e)}`);
+  } catch (error) {
+    message.error(`退回失败 + ${JSON.stringify(error)}`);
   } finally {
     buttonLoading.value = false;
   }
@@ -251,8 +261,8 @@ async function doTransferTask() {
     setTimeout(() => {
       submitFormCallBack();
     }, 500);
-  } catch (e) {
-    message.error('转办失败' + JSON.stringify(e));
+  } catch (error) {
+    message.error(`转办失败${JSON.stringify(error)}`);
   } finally {
     buttonLoading.value = false;
   }
@@ -264,7 +274,7 @@ const columns = reactive([
     title: '序号',
     dataIndex: 'index',
     // 自定义序号生成逻辑
-    customRender: ({index}) => index + 1,
+    customRender: ({ index }) => index + 1,
     width: 80,
     align: 'center',
   },
@@ -286,13 +296,17 @@ function changeRadio(e) {
   const value = e.target.value;
   if (value) {
     // 选择"是"时，过滤出'RMG_QC'选项并设为默认值
-    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(x => x.value === 'RMG_QC');
+    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(
+      (x) => x.value === 'RMG_QC',
+    );
     if (plannedMachryTypeArray.value.length > 0) {
       formData.value.plannedMachryType = plannedMachryTypeArray.value[0].value;
     }
   } else {
     // 选择"否"时，过滤出'QC'选项并设为默认值
-    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(x => x.value === 'QC');
+    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(
+      (x) => x.value === 'QC',
+    );
     if (plannedMachryTypeArray.value.length > 0) {
       formData.value.plannedMachryType = plannedMachryTypeArray.value[0].value;
     }
@@ -300,13 +314,13 @@ function changeRadio(e) {
 }
 
 async function getDictData(dictType: string) {
-  const dictData = await getDictDataPage({dictType: dictType});
+  const dictData = await getDictDataPage({ dictType });
   return dictData.list;
 }
 const formRules = ref({
   isAllowedStacking: { required: true, message: '请输入箱子是否需要落堆' },
   plannedMachryType: { required: true, message: '请输入机械类型' },
-  auditOpinion: { required: true, message: '请输入审批意见' },
+  // auditOpinion: { required: true, message: '请输入审批意见' },
   // 吊具类型校验规则
   plannedCheTypeRules: [
     {
@@ -323,21 +337,22 @@ async function initDictData() {
   const mechanical = await getDictData('mechanical_type');
   initplannedMachryTypeArray.value = mechanical;
   plannedMachryTypeArray.value = mechanical;
-  if(!formData.isAllowedStacking){
-    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(x => x.value === 'QC')
+  if (!formData.value.isAllowedStacking) {
+    plannedMachryTypeArray.value = initplannedMachryTypeArray.value.filter(
+      (x) => x.value === 'QC',
+    );
   }
 }
 
 /** 初始化用户数据 */
 const userList = ref([]);
-
 async function getUserList() {
   const userDataList = await getSimpleUserList();
-  userList.value = userDataList.map(x => {
+  userList.value = userDataList.map((x) => {
     return {
       label: x.nickname,
       value: x.id,
-    }
+    };
   });
 }
 /**
@@ -353,34 +368,90 @@ function checkJiShu() {
   }
   return true;
 }
+// 初始化下一个节点名称
+async function initNextNodeNameArray() {
+  // 节点ID
+  const taskDefinitionKey = props.todoTask?.taskDefinitionKey;
+  if (
+    '客户提交>Activity__691508984151762843504116'.includes(taskDefinitionKey)
+  ) {
+    nextNodeNameArray.value = [
+      {
+        label: '操作审批',
+        value: '操作审批',
+      },
+      {
+        label: '技术审批',
+        value: '技术审批',
+      },
+      {
+        label: '商务审批',
+        value: '商务审批',
+      },
+    ];
+  }
+  if (
+    '操作审批>Activity__527168378171762844215560'.includes(taskDefinitionKey)
+  ) {
+    nextNodeNameArray.value = [
+      {
+        label: '技术审批',
+        value: '操作-技术审批',
+      },
+      {
+        label: '商务审批',
+        value: '操作-商务审批',
+      },
+    ];
+  }
+  if (
+    '技术审批>Activity__748830456241762844475732'.includes(taskDefinitionKey)
+  ) {
+    nextNodeNameArray.value = [
+      {
+        label: '商务审批',
+        value: '技术-商务审批',
+      },
+    ];
+  }
+}
+// 下拉框过滤
+const transferFilterOption = (input: string, option: any) => {
+  return option.label.toLowerCase().includes(input.toLowerCase());
+};
 onMounted(async () => {
   await getUserList();
   await initDictData();
   await getDetailData();
+  await initNextNodeNameArray();
 });
 </script>
 
 <template>
   <Card>
-    <a-form
-      ref="formRef"
-      :rules="formRules"
-      :model="formData"
-    >
+    <a-form ref="formRef" :rules="formRules" :model="formData">
       <a-form-item label="下一步审批节点" name="nodeName" v-if="checkJiShu()">
         <a-select
           v-model:value="formData.nodeName"
           allow-clear
           placeholder="请选择下一步审批节点"
         >
-          <a-select-option :value="item.name" v-for="item in nextNodeNameArray" :key="item.value">
-            {{ item.name }}
+          <a-select-option
+            :value="item.value"
+            :label="item.label"
+            v-for="item in nextNodeNameArray"
+            :key="item.value"
+          >
+            {{ item.label }}
           </a-select-option>
         </a-select>
       </a-form-item>
       <!-- 箱子是否需要落堆（单选） -->
       <a-form-item label="箱子是否需要落堆" name="isAllowedStacking">
-        <a-radio-group v-model:value="formData.isAllowedStacking" @change="changeRadio">
+        <a-radio-group
+          v-model:value="formData.isAllowedStacking"
+          @change="changeRadio"
+        >
           <a-radio :value="true">是</a-radio>
           <a-radio :value="false">否</a-radio>
         </a-radio-group>
@@ -392,29 +463,37 @@ onMounted(async () => {
           allow-clear
           placeholder="请选择机械类型"
         >
-          <a-select-option :value="item.value" v-for="item in plannedMachryTypeArray"
-                           :key="item.value">
+          <a-select-option
+            :value="item.value"
+            v-for="item in plannedMachryTypeArray"
+            :key="item.value"
+          >
             {{ item.label }}
           </a-select-option>
         </a-select>
       </a-form-item>
       <!-- 作业吊具（动态表格） -->
-      <a-form-item label="作业吊具"
-      >
+      <a-form-item label="作业吊具">
         <div class="table-container">
           <a-table
             :columns="columns"
-            :data-source="formData.acceptancePlanOverOperationOtherProcessReqVOS"
+            :data-source="
+              formData.acceptancePlanOverOperationOtherProcessReqVOS
+            "
             bordered
             :pagination="false"
             :scroll="{ x: 'auto' }"
             :row-key="(record) => record.index"
           >
             <!-- 作业吊具列：下拉选择器 -->
-            <template #bodyCell="{ column, record,index }">
+            <template #bodyCell="{ column, record, index }">
               <template v-if="column.dataIndex === 'plannedCheType'">
                 <a-form-item
-                  :name="['acceptancePlanOverOperationOtherProcessReqVOS', index, 'plannedCheType']"
+                  :name="[
+                    'acceptancePlanOverOperationOtherProcessReqVOS',
+                    index,
+                    'plannedCheType',
+                  ]"
                   :rules="formRules.plannedCheTypeRules"
                 >
                   <a-select
@@ -422,8 +501,12 @@ onMounted(async () => {
                     style="width: 180px"
                     allow-clear
                   >
-                    <a-select-option :value="item.value" v-for="item in plannedCheTypeArray"
-                                     :key="item.value">{{ item.label }}
+                    <a-select-option
+                      :value="item.value"
+                      v-for="item in plannedCheTypeArray"
+                      :key="item.value"
+                    >
+                      {{ item.label }}
                     </a-select-option>
                   </a-select>
                 </a-form-item>
@@ -438,24 +521,29 @@ onMounted(async () => {
         <a-textarea
           v-model:value="formData.auditOpinion"
           placeholder="请输入审核意见"
-          rows="4"
+          :rows="4"
         />
       </a-form-item>
       <a-form-item>
         <Flex justify="end">
           <Space>
             <Button @click="closeTask()">取消</Button>
-            <Button type="primary" @click="passTask" :loading="buttonLoading">通过</Button>
+            <Button type="primary" @click="passTask" :loading="buttonLoading">
+              通过
+            </Button>
             <!--退回-->
-            <a-popover v-model:open="returnVisible" title="退回" trigger="manual">
+            <a-popover
+              v-model:open="returnVisible"
+              title="退回"
+              trigger="manual"
+            >
               <template #content>
                 <a-card style="width: 500px; height: 250px">
-                  <a-form
-                    ref="returnFormRef"
-                    :model="returnFormData"
-                  >
-                    <a-form-item label="退回节点" name="targetTaskDefinitionKey"
-                                 :rules="[{ required: true, message: '请选择退回节点' }]"
+                  <a-form ref="returnFormRef" :model="returnFormData">
+                    <a-form-item
+                      label="退回节点"
+                      name="targetTaskDefinitionKey"
+                      :rules="[{ required: true, message: '请选择退回节点' }]"
                     >
                       <Select
                         v-model:value="returnFormData.targetTaskDefinitionKey"
@@ -472,78 +560,39 @@ onMounted(async () => {
                         </SelectOption>
                       </Select>
                     </a-form-item>
-                    <a-form-item label="退回理由" name="returnReason"
-                                 :rules="[{ required: true, message: '请输入退回理由' }]"
+                    <a-form-item
+                      label="退回理由"
+                      name="returnReason"
+                      :rules="[{ required: true, message: '请输入退回理由' }]"
                     >
                       <a-textarea
                         v-model:value="returnFormData.returnReason"
                         placeholder="请输入退回理由"
-                        rows="4"
+                        :rows="4"
                       />
                     </a-form-item>
                     <a-form-item>
                       <Flex justify="center">
                         <Space>
                           <Button
-                            @click="()=>{
-                                  returnVisible = false;
-                                  returnFormData.id = undefined;
-                                  returnFormData.returnReason = undefined;
-                                  returnFormData.targetTaskDefinitionKey = undefined;
-                                }"
-                            :loading="buttonLoading">取消</Button>
-                          <Button type="primary" @click="doReturnTask" :loading="buttonLoading">确定</Button>
-                        </Space>
-                      </Flex>
-                    </a-form-item>
-                  </a-form>
-                </a-card>
-              </template>
-<!--              <Button style="background-color:#ff9900;color: #ffffff" @click.prevent="openReturnTask" :loading="buttonLoading">退回</Button>-->
-            </a-popover>
-            <Button type="primary" danger @click="noPassTask" :loading="buttonLoading">拒绝</Button>
-            <!--转办-->
-            <a-popover v-model:open="transferVisible" title="转办" trigger="click">
-              <template #content>
-                <a-card style="width: 500px;height: 246px">
-                  <a-form
-                    ref="transferFormRef"
-                    :model="transferFormData"
-                  >
-                    <a-form-item label="转办给" name="assigneeUserId"
-                                 :rules="[
-                                   { required: true, message: '请选择转办用户' }
-                                 ]"
-                    >
-                      <a-select
-                        v-model:value="transferFormData.assigneeUserId"
-                        style="width: 100%"
-                        placeholder="请选择用户"
-                        :options="userList"
-                      ></a-select>
-                    </a-form-item>
-                    <a-form-item label="审核意见" name="auditOpinion"
-                                 :rules="[
-                                   { required: true, message: '请输入审核意见' }
-                                 ]"
-                    >
-                      <a-textarea
-                        v-model:value="transferFormData.auditOpinion"
-                        placeholder="请输入审核意见"
-                        rows="4"
-                      />
-                    </a-form-item>
-                    <a-form-item>
-                      <Flex justify="center">
-                        <Space>
-                          <Button @click="()=>{
-                                transferVisible=false;
-                                transferFormData.assigneeUserId=undefined;
-                                transferFormData.auditOpinion=null;
-                                }"
-                                  :loading="buttonLoading">取消
+                            @click="
+                              () => {
+                                returnVisible = false;
+                                returnFormData.id = undefined;
+                                returnFormData.returnReason = undefined;
+                                returnFormData.targetTaskDefinitionKey =
+                                  undefined;
+                              }
+                            "
+                            :loading="buttonLoading"
+                          >
+                            取消
                           </Button>
-                          <Button type="primary" @click="doTransferTask" :loading="buttonLoading">
+                          <Button
+                            type="primary"
+                            @click="doReturnTask"
+                            :loading="buttonLoading"
+                          >
                             确定
                           </Button>
                         </Space>
@@ -552,8 +601,85 @@ onMounted(async () => {
                   </a-form>
                 </a-card>
               </template>
-              <Button type="primary" color="pink" @click="openTransferTask"
-                      :loading="buttonLoading">转办
+              <!--              <Button style="background-color:#ff9900;color: #ffffff" @click.prevent="openReturnTask" :loading="buttonLoading">退回</Button>-->
+            </a-popover>
+            <Button
+              type="primary"
+              danger
+              @click="noPassTask"
+              :loading="buttonLoading"
+            >
+              拒绝
+            </Button>
+            <!--转办-->
+            <a-popover
+              v-model:open="transferVisible"
+              title="转办"
+              trigger="click"
+            >
+              <template #content>
+                <a-card style="width: 500px; height: 246px">
+                  <a-form ref="transferFormRef" :model="transferFormData">
+                    <a-form-item
+                      label="转办给"
+                      name="assigneeUserId"
+                      :rules="[{ required: true, message: '请选择转办用户' }]"
+                    >
+                      <a-select
+                        v-model:value="transferFormData.assigneeUserId"
+                        style="width: 100%"
+                        placeholder="请选择用户"
+                        :options="userList"
+                        :filter-option="transferFilterOption"
+                        show-search
+                      />
+                    </a-form-item>
+                    <a-form-item
+                      label="审核意见"
+                      name="auditOpinion"
+                      :rules="[{ required: true, message: '请输入审核意见' }]"
+                    >
+                      <a-textarea
+                        v-model:value="transferFormData.auditOpinion"
+                        placeholder="请输入审核意见"
+                        :rows="4"
+                      />
+                    </a-form-item>
+                    <a-form-item>
+                      <Flex justify="center">
+                        <Space>
+                          <Button
+                            @click="
+                              () => {
+                                transferVisible = false;
+                                transferFormData.assigneeUserId = undefined;
+                                transferFormData.auditOpinion = null;
+                              }
+                            "
+                            :loading="buttonLoading"
+                          >
+                            取消
+                          </Button>
+                          <Button
+                            type="primary"
+                            @click="doTransferTask"
+                            :loading="buttonLoading"
+                          >
+                            确定
+                          </Button>
+                        </Space>
+                      </Flex>
+                    </a-form-item>
+                  </a-form>
+                </a-card>
+              </template>
+              <Button
+                type="primary"
+                color="pink"
+                @click="openTransferTask"
+                :loading="buttonLoading"
+              >
+                转办
               </Button>
             </a-popover>
           </Space>

@@ -46,6 +46,9 @@ const containerAreaClickRow =
 const popoverVisible = ref({});
 const bayRangeListValue = ref('');
 
+// 传给箱区选择组件的已选箱区
+const selectedPositions = ref<string[]>([]);
+
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
 //   showConfirmButton: false,
@@ -75,6 +78,7 @@ const containerAreaVisible = ref(false);
 
 // 箱区选择确认
 const handleContainerAreaConfirm = async (positions: string[]) => {
+  selectedPositions.value = [...positions];
   const value = positions && positions.length > 0 ? positions.join(',') : '';
   bayRangeListValue.value = value;
   const currentValues = await mainGridApi.formApi.getValues();
@@ -208,8 +212,9 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
       onClick: async () => {
         ownerCodeList.value = [];
         contIsoList.value = [];
-        dischargeVslSchedule.value = '';
+        dischargeVslSchedule.value = undefined;
         bayRangeListValue.value = '';
+        selectedPositions.value = [];
         await mainGridApi.formApi.setValues({ bayRangeList: '' });
       },
       onValuesChange: async (changedValues, allValues) => {
@@ -266,21 +271,16 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           }
           if (queryParams.bayRangeList) {
             const bayRangeInput = queryParams.bayRangeList;
-            if (bayRangeInput.includes(',')) {
+            if (bayRangeInput.trim() === '') {
+              // 空字符串时，传递空数组
+              queryParams.bayRangeList = [];
+            } else if (bayRangeInput.includes(',')) {
               const positions = bayRangeInput
                 .split(',')
                 .map((item) => item.trim().toUpperCase());
               queryParams.bayRangeList = positions
                 .map((position) => {
-                  const parts = position.split(/-/);
-                  if (parts.length >= 2) {
-                    const yardBay = parts[0];
-                    const yardRaw = parts[1];
-                    return {
-                      yardBay,
-                      yardRaw,
-                    };
-                  } else if (position) {
+                  if (position) {
                     return {
                       yardBay: position,
                       yardRaw: '',
@@ -290,36 +290,21 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
                 })
                 .filter(Boolean);
             } else {
-              // 箱区处理为分页查询接口所需格式
+              // 处理单个箱区的情况
               const upperCaseInput = bayRangeInput.toUpperCase();
-              const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
-              if (hyphenCount === 1) {
-                const parts = upperCaseInput.split(/-/);
-                queryParams.bayRangeList = [
-                  {
-                    yardBay: parts[0],
-                    yardRaw: parts[1],
-                  },
-                ];
-              } else if (hyphenCount >= 2) {
-                const parts = upperCaseInput.split(/-/);
-                const yardBay = parts.slice(0, 2).join('-');
-                const yardRaw = parts.slice(2).join('-');
-                queryParams.bayRangeList = [
-                  {
-                    yardBay,
-                    yardRaw,
-                  },
-                ];
-              } else if (upperCaseInput) {
+              if (upperCaseInput) {
                 queryParams.bayRangeList = [
                   {
                     yardBay: upperCaseInput,
                     yardRaw: '',
                   },
                 ];
+              } else {
+                queryParams.bayRangeList = [];
               }
             }
+          } else {
+            queryParams.bayRangeList = [];
           }
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
@@ -691,9 +676,8 @@ onMounted(async () => {
     <ChooseContainerModal class="w-3/5" />
     <ContainerAreaSelect
       v-model:visible="containerAreaVisible"
-      :owner-code-list="['ZGS']"
-      :cont-iso-list="['22G1']"
       trade-type=""
+      :selected-positions="selectedPositions"
       @confirm="handleContainerAreaConfirm"
     />
     <!-- 主计划列表 -->
@@ -761,6 +745,7 @@ onMounted(async () => {
               style="width: 100%"
               @click="containerAreaVisible = true"
               :disabled="false"
+              :title="bayRangeListValue || '选择箱区'"
             >
               {{ bayRangeListValue || '选择箱区' }}
             </Button>

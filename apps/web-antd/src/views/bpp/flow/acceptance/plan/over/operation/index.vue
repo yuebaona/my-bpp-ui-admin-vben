@@ -12,6 +12,12 @@ import { useDebounceFn } from '@vueuse/core';
 import { Input, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  getByCondition,
+  searchConditionCreate,
+  searchConditionUpdate,
+  searchGenerated,
+} from '#/api/bpp/advanced/query';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { getCustomerList, getVVd } from '#/api/bpp/common';
 import {
@@ -27,12 +33,13 @@ import {
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { getFields } from '#/components/advanced-query/advancedQueryHelper.ts';
+import { operatorsMap } from '#/components/advanced-query/types.ts';
 import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
 import Form from '#/views/bpp/flow/acceptance/plan/over/operation/modules/form.vue';
 import OnSiteOperation from '#/views/bpp/flow/acceptance/plan/over/operation/modules/onSiteOperation.vue';
-import { getTableColumnList } from '#/api/bpp/advanced/query';
 
 import {
   acceptancePlanOvrOprColumns,
@@ -598,6 +605,7 @@ const getDictDataList = async () => {
     'actual_operation',
     'initiation_type',
     'mechanical_type',
+    'is_allowed_stacking'
   ]);
 };
 // 高级查询处理函数
@@ -704,10 +712,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           await getDictDataList();
+          const result = { ...formValues };
+
+          // 检查 sql 是否不为空
+          if (result.sql && result.sql.trim() !== '') {
+            // 获取所有键
+            const keys = Object.keys(result);
+
+            // 保留 sql 和 params，其他置为 undefined
+            keys.forEach((key) => {
+              if (key !== 'sql' && key !== 'params') {
+                result[key] = undefined;
+              }
+            });
+          }
           return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...result,
           });
         },
       },
@@ -735,8 +757,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
-    cellConfig:{
-      height: '120px'
+    cellConfig: {
+      height: '120px',
     },
     border: true,
     resizableConfig: {
@@ -933,49 +955,14 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   });
 
 const initiationTypeValue = ref<null | string>(null);
-
-const advancedQueryModalOpen = async () => {
-  // 调用表单数据
-  const res = await getTableColumnList({
-    tableNameList: ['acpt_pln','acpt_pln_oog_cont','che_chg_rec']
-  });
-  const transformedData = await Promise.all(
-    res.map(async (item) => {
-      const result = {
-        fldName: item.columnName,
-        fldLabel: item.columnComment,
-        fldType: item.htmlType,
-        dictType: item.dictType,
-        tableName: item.tableName,
-        dataType: item.dataType,
-        isNullable: item.isNullable,
-        id: item.id,
-      };
-
-      // 如果是选择类型且有字典类型
-      if (item.htmlType === 'select' && item.dictType) {
-        try {
-          // 异步获取字典数据
-          bppBaseDict.setBppBaseDictCacheByData(
-            (
-              await getDictDataPage({
-                dictType: item.dictType,
-                pageNo: 1,
-                pageSize: 100,
-              })
-            ).list,
-            item.dictType,
-          );
-          result.options =bppBaseDict.getBppBaseDictOptions(item.dictType);
-        } catch (error) {
-          result.options = [];
-        }
-      }
-      return result;
-    })
-  );
-  console.log(transformedData);
-  fields.value = transformedData;
+const conditionList = ref<any>([]);
+const advancedQueryModalOpen = async (tableNameList: string[]) => {
+  // 获取历史数据
+  conditionList.value = await getByCondition({});
+  if (conditionList.value?.condition) {
+    defaultLevels.value = [JSON.parse(conditionList.value.condition)];
+  }
+  fields.value = await getFields(tableNameList);
   AdvancedQueryModalApi.open();
 };
 watch(
@@ -993,83 +980,7 @@ watch(
   { immediate: true },
 );
 // 字段配置
-const fields = ref([
-  {
-    fldName: 'name',
-    fldLabel: '姓名',
-    fldType: 'string',
-    options: [],
-  },
-  {
-    fldName: 'age',
-    fldLabel: '年龄',
-    fldType: 'number',
-    options: [],
-  },
-  {
-    fldName: 'gender',
-    fldLabel: '性别',
-    fldType: 'select',
-    options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' },
-    ],
-  },
-  {
-    fldName: 'birthday',
-    fldLabel: '生日',
-    fldType: 'date',
-    options: [],
-  },
-  {
-    fldName: 'department',
-    fldLabel: '部门',
-    fldType: 'select',
-    options: [
-      { label: '技术部', value: 'tech' },
-      { label: '市场部', value: 'market' },
-      { label: '人事部', value: 'hr' },
-    ],
-  },
-  {
-    fldName: 'salary',
-    fldLabel: '薪资',
-    fldType: 'number',
-    options: [],
-  },
-]);
-
-// 运算符映射
-const operatorsMap = reactive({
-  default: [
-    {
-      refCode: 'eq',
-      refName: '等于',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: 'ne',
-      refName: '不等于',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    { refCode: 'gt', refName: '大于', supportedTypes: ['number', 'date'] },
-    { refCode: 'ge', refName: '大于等于', supportedTypes: ['number', 'date'] },
-    { refCode: 'lt', refName: '小于', supportedTypes: ['number', 'date'] },
-    { refCode: 'le', refName: '小于等于', supportedTypes: ['number', 'date'] },
-    { refCode: 'like', refName: '包含', supportedTypes: ['string'] },
-    { refCode: 'notlike', refName: '不包含', supportedTypes: ['string'] },
-    {
-      refCode: 'null',
-      refName: '为空',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: 'notnull',
-      refName: '不为空',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-  ],
-});
+const fields = ref();
 
 // 默认层级数据 - 空查询条件
 const defaultLevels = ref([
@@ -1098,10 +1009,21 @@ const defaultLevels = ref([
 const queryResult = ref<any>(null);
 
 // 处理查询事件
-const handleQuery = (params: any) => {
+const handleQuery = useDebounceFn(async (params: any) => {
+  AdvancedQueryModalApi.lock();
   queryResult.value = params;
-  console.log(queryResult.value);
-};
+  try {
+    const res = await searchGenerated(params);
+    const searchRespVO = {
+      sql: res.sql,
+      params: res.params,
+    };
+    await gridApi.query(searchRespVO);
+    await handleSaveTemplate(params);
+    AdvancedQueryModalApi.unlock();
+    await AdvancedQueryModalApi.close();
+  } catch {}
+}, 300);
 
 // 处理重置事件
 const handleReset = () => {
@@ -1109,7 +1031,23 @@ const handleReset = () => {
 };
 
 // 处理保存模板事件
-const handleSaveTemplate = (templateName: string) => {};
+const handleSaveTemplate = useDebounceFn(async (templateName: string) => {
+  AdvancedQueryModalApi.lock();
+  try {
+    await (conditionList?.value?.id
+      ? searchConditionUpdate({
+          id: conditionList.value.id,
+          condition: JSON.stringify(templateName),
+          formSource: conditionList.value.formSource,
+        })
+      : searchConditionCreate({
+          condition: JSON.stringify(templateName),
+          formSource: 'oog',
+        }));
+    message.success($t('cxmo.action.success'));
+    AdvancedQueryModalApi.unlock();
+  } catch {}
+}, 300);
 // 监听超限作业申请选中的受理编号变化
 watch(
   () => acptPlnNo.value,
@@ -1314,7 +1252,7 @@ function showIconAlert(content: string, icon: string) {
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
-    <AdvancedQueryModal class="w-2/5" title="高级查询">
+    <AdvancedQueryModal class="w-1/2" title="高级查询">
       <AdvancedQuery
         :fields="fields"
         :operators-map="operatorsMap"
@@ -1380,7 +1318,15 @@ function showIconAlert(content: string, icon: string) {
           />
         </template>
         <template #form-expand-before>
-          <advancedButton @click="advancedQueryModalOpen" />
+          <advancedButton
+            @click="
+              advancedQueryModalOpen([
+                'acpt_pln',
+                'acpt_pln_oog_cont',
+                'che_chg_rec',
+              ])
+            "
+          />
         </template>
         <template #toolbar-tools>
           <TableAction
@@ -1526,32 +1472,32 @@ function showIconAlert(content: string, icon: string) {
             />
           </template>
 
-          <template #contCargoSize="{row}">
+          <template #contCargoSize="{ row }">
             <div class="flex items-center justify-center">
-              <label>长：{{row.contCargoSize.contCargoLength || 0}}</label>
+              <label>长：{{ row.contCargoSize.contCargoLength || 0 }}</label>
             </div>
             <div class="flex items-center justify-center">
-              <label>宽：{{row.contCargoSize.contCargoWidth || 0}}</label>
+              <label>宽：{{ row.contCargoSize.contCargoWidth || 0 }}</label>
             </div>
             <div class="flex items-center justify-center">
-              <label>高：{{row.contCargoSize.contCargoHeight || 0}}</label>
+              <label>高：{{ row.contCargoSize.contCargoHeight || 0 }}</label>
             </div>
           </template>
-          <template #contOogDetails="{row}">
+          <template #contOogDetails="{ row }">
             <div class="flex items-center justify-center">
-              <label>前超：{{row.contOogDetails.oogFront || 0}}</label>
+              <label>前超：{{ row.contOogDetails.oogFront || 0 }}</label>
             </div>
             <div class="flex items-center justify-center">
-              <label>后超：{{row.contOogDetails.oogBack || 0}}</label>
+              <label>后超：{{ row.contOogDetails.oogBack || 0 }}</label>
             </div>
             <div class="flex items-center justify-center">
-              <label>左超：{{row.contOogDetails.oogLeft || 0}}</label>
+              <label>左超：{{ row.contOogDetails.oogLeft || 0 }}</label>
             </div>
             <div class="flex items-center justify-center">
-              <label>右超：{{row.contOogDetails.oogRight || 0}}</label>
+              <label>右超：{{ row.contOogDetails.oogRight || 0 }}</label>
             </div>
             <div class="flex items-center justify-center">
-              <label>超高：{{row.contOogDetails.oogHeight || 0}}</label>
+              <label>超高：{{ row.contOogDetails.oogHeight || 0 }}</label>
             </div>
           </template>
         </BoxGrid>
