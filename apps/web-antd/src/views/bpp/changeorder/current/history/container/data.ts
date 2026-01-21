@@ -795,8 +795,8 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-/** 进箱信息列表的字段 */
-export function boxlistColumns(): VxeTableGridOptions['columns'] {
+/** 单箱修改列表的字段 */
+export function singleBoxlistColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', width: 40, fixed: 'left' },
     { type: 'checkbox', width: 40, fixed: 'left' },

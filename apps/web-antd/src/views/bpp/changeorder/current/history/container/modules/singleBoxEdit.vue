@@ -7,7 +7,9 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { boxlistColumns } from '#/views/bpp/changeorder/current/history/container/data';
+import {
+  singleBoxlistColumns
+} from '#/views/bpp/changeorder/current/history/container/data';
 import BatchEdit from '#/views/bpp/changeorder/current/history/container/modules/batchEdit.vue';
 import LadingBill from './ladingBill.vue';
 // 定义接收选中箱信息的props
@@ -28,7 +30,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     filterConfig: {
       showIcon: false,
     },
-    columns: boxlistColumns(),
+    columns: singleBoxlistColumns(),
     height: '300px',
     keepSource: true,
     rowConfig: {
