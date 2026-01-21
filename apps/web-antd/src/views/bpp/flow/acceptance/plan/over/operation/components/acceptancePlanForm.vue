@@ -276,11 +276,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
                 resolve(true); // 必填项已由上面的规则处理
                 return;
               }
-
               validateContainerNo(cellValue);
               resolve(true);
             });
-          }
+          },
         },
       ],
       contSize: [{ required: true, message: '必须填写' }],
