@@ -1362,35 +1362,6 @@ export function acceptancePlanOvrOprColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'isSystemRate',
-      title: '是否系统费率',
-      minWidth: 200,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          placeholder: '',
-          allowClear: true,
-        },
-        events: {
-          input: (params: any) => {
-            const { $grid, column } = params;
-
-            $grid.saveFilterByEvent('input', column.field);
-          },
-        },
-      },
-      filterMethod: createDictFilter('system_rate'),
-      cellRender: {
-        name: 'CellTagDict',
-        props: 'system_rate',
-      },
-      slots: {
-        floatingFilter: 'isSystemRate',
-      },
-    },
-    {
       field: 'priceGate',
       title: '陆侧报价总金额',
       minWidth: 200,
