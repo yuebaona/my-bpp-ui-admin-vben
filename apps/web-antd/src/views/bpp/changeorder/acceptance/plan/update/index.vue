@@ -66,6 +66,7 @@ watch(selectedBusinessType, (newVal) => {}, { deep: true });
 </script>
 
 <template>
+  <div>
   <Affix :offset-top="89" :key="affix">
     <Card>
     <HeaderInfo
@@ -113,4 +114,5 @@ watch(selectedBusinessType, (newVal) => {}, { deep: true });
       <BoxList />
     </div>
   </Page>
+  </div>
 </template>
