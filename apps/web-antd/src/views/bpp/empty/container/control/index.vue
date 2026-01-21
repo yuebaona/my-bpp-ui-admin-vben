@@ -418,21 +418,60 @@ function handleCreateSubPlan() {
 /** 强制完成 */
 const handleForceComplete = async () => {
   try {
-    const selectedRecords = mainGridApi.grid.getCheckboxRecords();
-    const forceList = selectedRecords.map((record) => ({
-      mainId: record.id.toString(),
-      mainGateReleaseQuantity: record.mainGateReleaseQuantity,
-    }));
+    // 获取选中的主计划记录
+    const selectedMainRecords = mainGridApi.grid.getCheckboxRecords();
+    // 获取选中的子计划记录
+    const selectedSubRecords = subGridApi.grid.getCheckboxRecords();
+
+    // 检查是否同时选中了主计划和子计划
+    if (selectedMainRecords.length > 0 && selectedSubRecords.length > 0) {
+      message.warning('主计划和子计划只能同时选一个');
+      return;
+    }
+
+    // 检查是否没有选中任何记录
+    if (selectedMainRecords.length === 0 && selectedSubRecords.length === 0) {
+      message.warning('请至少选中一条记录！');
+      return;
+    }
+
+    let forceList = [];
+
+    // 处理选中的主计划
+    if (selectedMainRecords.length > 0) {
+      forceList = selectedMainRecords.map((record) => ({
+        mainId: record.id.toString(),
+        mainGateReleaseQuantity: record.mainGateReleaseQuantity,
+      }));
+    }
+
+    // 处理选中的子计划
+    if (selectedSubRecords.length > 0) {
+      forceList = selectedSubRecords.map((record) => ({
+        mainId: record.id.toString(),
+        mainGateReleaseQuantity: record.mainGateReleaseQuantity || '',
+      }));
+    }
+
     const res = await forceComplete({ forceList });
     if (res) {
       message.success('成功强制完成！');
+
+      // 刷新主计划和子计划表格
       await mainGridApi.query();
+      await subGridApi.query();
+
+      // 清空选中状态
       mainIdList.value = [];
       checkedMainIds.value = [];
+      checkedSubIds.value = [];
 
+      // 取消所有行勾选
       if (mainGridApi?.grid) {
-        // 取消所有行勾选
         await mainGridApi.grid.setAllCheckboxRow(false);
+      }
+      if (subGridApi?.grid) {
+        await subGridApi.grid.setAllCheckboxRow(false);
       }
     } else {
       const errorMsg = res?.msg || '强制完成失败，请重试';
@@ -440,7 +479,6 @@ const handleForceComplete = async () => {
     }
   } catch (error) {
     console.error('强制完成接口调用异常：', error);
-    message.error('网络异常或接口报错，强制完成操作失败！');
   }
 };
 
