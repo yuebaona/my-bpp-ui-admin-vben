@@ -631,7 +631,7 @@ const handleVesselSearch = async (value: string) => {
   };
   if (!value) return;
   vslNameState.fetching = true;
-  const res = await getVVd({ condition: value });
+  const res = await getVVd({ condition: vslNameState.value.value});
   if (res) {
     vslNameState.data = res.map((item: any) => ({
       label: item.vieVslName,
