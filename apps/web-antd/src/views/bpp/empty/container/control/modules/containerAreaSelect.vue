@@ -14,12 +14,12 @@ interface Props {
   ownerCodeList?: [];
   contIsoList?: [];
   tradeType?: string;
-  selectedPositions?: string[];
+  selectedPositions?: Array<{yardBay: string, yardRaw?: string}>;
 }
 
 interface Emits {
   (e: 'update:visible', value: boolean): void;
-  (e: 'confirm', positions: string[]): void;
+  (e: 'confirm', positions: Array<{yardBay: string}>): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,7 +30,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits<Emits>();
 
-const selectedYardPositions = ref<string[]>([]);
+const selectedYardPositions = ref<Array<{yardBay: string, yardRaw?: string}>>([]);
+const isConfirming = ref(false);
 // const searchValue = ref('');
 const loading = ref(false);
 
@@ -100,8 +101,13 @@ watch(
       fetchYardRange();
     }
   },
-  { immediate: true },
+  { immediate: false },
 );
+
+// 获取已选贝位的yardBay列表，用于Tree组件的checkedKeys
+const checkedKeys = computed(() => {
+  return selectedYardPositions.value.map(item => item.yardBay);
+});
 
 watch(
   () => props.selectedPositions,
@@ -129,12 +135,27 @@ watch(
 
 const onTreeCheck = (checkedKeys: any) => {
   const leafKeys = checkedKeys.filter((key: string) => key.includes('-'));
-  selectedYardPositions.value = leafKeys;
+  // 构建新的selectedYardPositions数组，保留已有的yardRaw数据
+  const newSelectedPositions: Array<{yardBay: string, yardRaw?: string}> = [];
+
+  leafKeys.forEach((yardBay: string) => {
+    // 查找是否已存在该yardBay的记录
+    const existingItem = selectedYardPositions.value.find(item => item.yardBay === yardBay);
+    if (existingItem) {
+      // 保留已有的yardRaw数据
+      newSelectedPositions.push(existingItem);
+    } else {
+      // 新建记录，yardRaw默认为空
+      newSelectedPositions.push({ yardBay, yardRaw: '' });
+    }
+  });
+
+  selectedYardPositions.value = newSelectedPositions;
 };
 
-const removeSelectedPosition = (position: string) => {
+const removeSelectedPosition = (position: {yardBay: string, yardRaw?: string}) => {
   selectedYardPositions.value = selectedYardPositions.value.filter(
-    (item) => item !== position,
+    (item) => item.yardBay !== position.yardBay,
   );
 };
 
@@ -143,9 +164,11 @@ const clearSelectedPositions = () => {
 };
 
 const handleConfirm = () => {
-  emit('confirm', selectedYardPositions.value);
+  // emit('confirm', selectedYardPositions.value);
+  // emit('update:visible', false); // 立即关闭，不等待
+  emit('update:visible', false);
   setTimeout(() => {
-    emit('update:visible', false);
+    emit('confirm', selectedYardPositions.value);
   }, 100);
 };
 
@@ -175,7 +198,7 @@ const modalVisible = computed({
         <div style="max-height: 350px; overflow-y: auto">
           <Spin :spinning="loading">
             <Tree
-              v-model:checked-keys="selectedYardPositions"
+              v-model:checked-keys="checkedKeys"
               checkable
               :tree-data="yardPositionTreeData"
               :default-expand-all="true"
@@ -199,12 +222,12 @@ const modalVisible = computed({
         >
           <Tag
             v-for="position in selectedYardPositions"
-            :key="position"
+            :key="position.yardBay"
             closable
             color="blue"
             @close="removeSelectedPosition(position)"
           >
-            {{ position }}
+            {{ position.yardBay }}
           </Tag>
         </div>
       </div>
