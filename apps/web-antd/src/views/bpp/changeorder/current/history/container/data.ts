@@ -59,7 +59,7 @@ export function changeOrderPlanInfoFormSchema(): VbenFormSchema[] {
 export function boxInfoSearchFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'planNo',
+      fieldName: 'contNo',
       label: '集装箱号',
       component: 'Input',
       componentProps: {
@@ -77,7 +77,7 @@ export function boxInfoSearchFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'bayRangeList',
+      fieldName: 'vesselVoyage',
       label: '船名航次',
       component: 'Input',
       componentProps: {
@@ -795,8 +795,8 @@ export function pickupBoxInfoFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-/** 进箱信息列表的字段 */
-export function boxlistColumns(): VxeTableGridOptions['columns'] {
+/** 单箱修改列表的字段 */
+export function singleBoxlistColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', width: 40, fixed: 'left' },
     { type: 'checkbox', width: 40, fixed: 'left' },
@@ -901,10 +901,7 @@ export function boxlistColumns(): VxeTableGridOptions['columns'] {
       field: 'pickupNo',
       title: '提单号',
       minWidth: 120,
-      editRender: {
-        name: 'input',
-      },
-      align: 'center',
+      slots: { default: 'pickupNo' },
     },
     {
       field: 'isLCL',

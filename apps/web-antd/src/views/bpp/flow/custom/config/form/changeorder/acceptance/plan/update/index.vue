@@ -49,6 +49,7 @@ watch(value, (newVal) => {
 </script>
 
 <template>
+  <div>
   <Affix :offset-top="89">
     <Card>
       <div class="flex items-center">
@@ -91,4 +92,5 @@ watch(value, (newVal) => {
       </div>
     </div>
   </Page>
+  </div>
 </template>

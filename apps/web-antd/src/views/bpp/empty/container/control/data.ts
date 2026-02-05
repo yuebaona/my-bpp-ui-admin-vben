@@ -476,17 +476,15 @@ export function PlanSearchFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '例如：B01-02-A',
+        placeholder: '选择箱区',
         allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9-]/g, '');
-          }, 10);
-        },
+        readonly: true,
+        showSearch: false,
+        disabled: true,
+        value: '',
       },
+      // formItemClass: 'col-span-2',
+      slot: true,
     },
     {
       fieldName: 'tradeType',
@@ -892,17 +890,14 @@ export function logQueryFormSchema(): VbenFormSchema[] {
       label: '箱区',
       component: 'Input',
       componentProps: {
-        placeholder: '例如：B01-02-A',
+        placeholder: '选择箱区',
         allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9-]/g, '');
-          }, 10);
-        },
+        readonly: true,
+        showSearch: false,
+        disabled: true,
+        value: '',
       },
+      slot: true,
     },
     {
       fieldName: 'createTime',
@@ -979,7 +974,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
     },
     {
-      field: 'operationTimestamp',
+      field: 'createTime',
       title: '操作时间',
       minWidth: 150,
       formatter: 'formatDateTime',

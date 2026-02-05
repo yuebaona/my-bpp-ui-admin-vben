@@ -13,13 +13,13 @@ export interface SearchSelectConfig<T = any> {
    */
   searchApi: (value: string) => Promise<T[]>;
   /**
-   * 标签字段名
+   * 标签字段名（可选，适应纯字符串数组）
    */
-  labelField: keyof T;
+  labelField?: keyof T;
   /**
-   * 值字段名
+   * 值字段名（可选，适应纯字符串数组）
    */
-  valueField: keyof T;
+  valueField?: keyof T;
   /**
    * 错误消息
    */
@@ -42,6 +42,22 @@ export interface SearchSelectConfig<T = any> {
    * 最小搜索长度（仅在searchMode为'input'时生效）
    */
   minSearchLength?: number;
+  /**
+   * API返回的数据是否为字符串数组（如 ["选项1", "选项2"]）
+   * 如果为true，则labelField和valueField不需要配置，直接使用字符串本身
+   */
+  isStringArray?: boolean;
+  /**
+   *  isStringArray为true下，选择是否为多选模式
+   * - true: 多选模式，value 为 string[]
+   * - false: 单选模式，value 为 string
+   */
+  multiple?: boolean;
+  /**
+   * 值变化时的回调更新
+   * @param value 当前选中的值
+   */
+  onChange?: (value: string | string[]) => void;
 }
 
 /**
@@ -56,7 +72,7 @@ export interface SearchSelectResult<T = any> {
     fetching: boolean;
     isComposing: boolean;
     originalValue: string[];
-    value: string[];
+    value: string | string[];
   };
   /**
    * 搜索函数
@@ -74,6 +90,10 @@ export interface SearchSelectResult<T = any> {
    * 中文输入法组合结束处理函数
    */
   handleCompositionEnd: (e: CompositionEvent) => void;
+  /**
+   * 值变化时的处理函数
+   */
+  handleChange: (value: string | string[]) => void;
 }
 
 /**
@@ -93,15 +113,28 @@ export function useSearchSelect<T = any>(
     filterRegex,
     searchMode = 'click',
     minSearchLength = 0,
+    isStringArray = false,
+    multiple = false,
+    onChange,
   } = config;
 
   const state = reactive({
     data: [],
-    value: [],
+    value: multiple ? [] : undefined,
     fetching: false,
     isComposing: false,
     originalValue: [],
   });
+
+  /**
+   * 值变化时的处理函数
+   */
+  const handleChange = (value: string | string[]) => {
+    state.value = value;
+    if (onChange) {
+      onChange(value);
+    }
+  };
 
   /**
    * 搜索函数
@@ -126,11 +159,19 @@ export function useSearchSelect<T = any>(
       const res = await searchApi(processedValue);
 
       if (res) {
-        state.data = res.map((item: T) => ({
-          label: String(item[labelField]),
-          value: String(item[valueField]),
-          data: item,
-        }));
+        if (isStringArray) {
+          state.data = (res as string[]).map((item: string) => ({
+            label: item,
+            value: item,
+            data: item,
+          }));
+        } else {
+          state.data = res.map((item: T) => ({
+            label: String(item[labelField as keyof T]),
+            value: String(item[valueField as keyof T]),
+            data: item,
+          }));
+        }
       }
     } catch (error) {
       console.error(error);
@@ -198,5 +239,6 @@ export function useSearchSelect<T = any>(
     handleInput,
     handleCompositionStart,
     handleCompositionEnd,
+    handleChange,
   };
 }

@@ -257,56 +257,21 @@ const {
   filterRegex: /[^A-Z0-9]/g,
 });
 
-const vesselName = reactive({
-  data: [],
-  value: '',
-  fetching: false,
-  isComposing: false, // 标记是否在中文输入法组合状态
+const {
+  state: vesselNameState,
+  handleInput: handleVesselNameInput,
+  handleCompositionStart: handleVesselNameCompositionStart,
+  handleCompositionEnd: handleVesselNameCompositionEnd,
+} = useSearchSelect({
+  searchApi: async (value: string) => {
+    return await getVesselAndVoyage({ condition: value });
+  },
+  errorMessage: '获取船名航次数据失败',
+  toUpperCase: true,
+  isStringArray: true,
+  searchMode: 'input',
+  minSearchLength: 2,
 });
-
-// 处理卸船船期输入，将英文部分转为大写，同时允许中文
-const handleVesselNameInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-
-  if (vesselName.isComposing) {
-    return;
-  }
-  target.value = target.value.toUpperCase();
-  fetchVesselName(target.value);
-};
-
-// 处理卸船船期中文输入法组合开始
-const handleVesselNameCompositionStart = () => {
-  vesselName.isComposing = true;
-};
-
-// 处理卸船船期中文输入法组合结束
-const handleVesselNameCompositionEnd = (e: CompositionEvent) => {
-  vesselName.isComposing = false;
-  const target = e.target as HTMLInputElement;
-  target.value = target.value.toUpperCase();
-  fetchVesselName(target.value);
-};
-
-// 获取卸船船期
-const fetchVesselName = async (searchText: string) => {
-  vesselName.fetching = true;
-  try {
-    if (!searchText || searchText.length < 2) {
-      return;
-    }
-    const upperCaseValue = searchText.toUpperCase();
-    const result = await getVesselAndVoyage({ condition: upperCaseValue });
-    vesselName.data = result.map((item) => ({
-      label: item,
-      value: item,
-    }));
-  } catch {
-    vesselName.data = [];
-  } finally {
-    vesselName.fetching = false;
-  }
-};
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -437,8 +402,8 @@ function handleRefresh() {
     <Grid>
       <template #form-vesselName>
         <Select
-          :options="vesselName.data"
-          v-model="vesselName.value"
+          :options="vesselNameState.data"
+          v-model="vesselNameState.value"
           style="width: 100%"
           placeholder="请输入船名或航次"
           :show-search="true"

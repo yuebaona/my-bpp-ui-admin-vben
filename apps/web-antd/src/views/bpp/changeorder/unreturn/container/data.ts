@@ -129,7 +129,7 @@ export function acceptancePlanSearchSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'acceptancePlanNo',
+      fieldName: 'acptPlnNo',
       label: '受理计划号',
       component: 'Input',
       componentProps: {
