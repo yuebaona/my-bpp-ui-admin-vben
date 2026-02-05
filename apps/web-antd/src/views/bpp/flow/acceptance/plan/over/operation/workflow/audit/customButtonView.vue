@@ -67,6 +67,7 @@ const plannedCheTypeArray = ref([]);
 const initplannedMachryTypeArray = ref([]);
 const plannedMachryTypeArray = ref([]);
 const formRef = ref(null);
+const isAuditOpinionRequired = ref(false);
 
 // 下一步审批节点
 const nextNodeNameArray = ref([]);
@@ -123,9 +124,22 @@ function submitFormCallBack() {
   emit('close-form');
   emit('submit-form');
 }
+
+// 作业吊具是否存在其他
+const setPlannedCheType = async () => {
+  // 是否存在其他
+  const isExistOther = formData.value.acceptancePlanOverOperationOtherProcessReqVOS.find((item) => item.plannedCheType == 'OH');
+  isAuditOpinionRequired.value = false;
+  if(isExistOther){
+    isAuditOpinionRequired.value = true;
+  }
+}
+
+
 // 审批通过
 async function passTask() {
   try {
+    await setPlannedCheType();
     buttonLoading.value = true;
     await formRef.value.validate();
     // 修改单据数据
@@ -320,7 +334,7 @@ async function getDictData(dictType: string) {
 const formRules = ref({
   isAllowedStacking: { required: true, message: '请输入箱子是否需要落堆' },
   plannedMachryType: { required: true, message: '请输入机械类型' },
-  // auditOpinion: { required: true, message: '请输入审批意见' },
+  // auditOpinion: { required: isAuditOpinionRequired.value, message: '请输入审批意见', trigger: 'blur' },
   // 吊具类型校验规则
   plannedCheTypeRules: [
     {
@@ -421,8 +435,8 @@ const transferFilterOption = (input: string, option: any) => {
 };
 onMounted(async () => {
   await getUserList();
-  await initDictData();
   await getDetailData();
+  await initDictData();
   await initNextNodeNameArray();
 });
 </script>
@@ -517,7 +531,9 @@ onMounted(async () => {
       </a-form-item>
 
       <!-- 审核意见（文本域） -->
-      <a-form-item label="审核意见" name="auditOpinion">
+      <a-form-item label="审核意见" name="auditOpinion"
+                   :rules="{ required: isAuditOpinionRequired, message: '请输入审核意见' }"
+      >
         <a-textarea
           v-model:value="formData.auditOpinion"
           placeholder="请输入审核意见"
