@@ -38,6 +38,8 @@ const loading = ref(false);
 
 const yardPositionTreeData = ref<TreeProps['treeData']>([]);
 
+const expandedKeys = ref<string[]>([]);
+
 // 获取堆场范围数据
 const fetchYardRange = async () => {
   loading.value = true;
@@ -100,6 +102,9 @@ watch(
   (newValue) => {
     if (newValue) {
       fetchYardRange();
+    } else {
+      // 模态框关闭时，重置展开状态
+      expandedKeys.value = [];
     }
   },
   { immediate: false },
@@ -206,9 +211,9 @@ const modalVisible = computed({
           <Spin :spinning="loading">
             <Tree
               v-model:checked-keys="checkedKeys"
+              v-model:expanded-keys="expandedKeys"
               checkable
               :tree-data="yardPositionTreeData"
-              :default-expand-all="true"
               @check="onTreeCheck"
             />
           </Spin>
