@@ -107,7 +107,6 @@ const selectContainerArea = async () => {
   const formValues = await formApi.getValues();
   const $grid = gridApi.grid;
   const currentGridData = $grid.getTableData().fullData;
-  console.log('currenGridData', currentGridData);
 
   formData.bayRangeList = currentGridData.map((item) => ({
     yardBay: item.yardPosition,
@@ -128,6 +127,7 @@ const selectContainerArea = async () => {
 const handleContainerAreaConfirm = async (
   positions: Array<{ yardBay: string; yardRaw?: string }>,
 ) => {
+  gridApi.setLoading(true);
   containerAreaModalVisible.value = false;
   const $grid = gridApi.grid;
   if ($grid) {
@@ -141,6 +141,14 @@ const handleContainerAreaConfirm = async (
     });
     containerAreaData.splice(0);
     const newRows = positions.map((pos) => {
+      // 检查是否存在旧数据
+      const existingRow = existingRowsMap.get(pos.yardBay);
+      if (existingRow) {
+        return {
+          ...existingRow,
+          yardPosition: pos.yardBay,
+        };
+      }
       return {
         yardPosition: pos.yardBay,
         yardRaw: pos.yardRaw,
@@ -148,7 +156,6 @@ const handleContainerAreaConfirm = async (
         totalCount: 0,
         minDays: 0,
         maxDays: 0,
-        isNew: true,
       };
     });
 
@@ -200,11 +207,15 @@ const handleContainerAreaConfirm = async (
           }
         });
         $grid.reloadData(containerAreaData);
+        // 关闭加载状态
+        gridApi.setLoading(false);
       }
       // containerAreaModalVisible.value = false;
     } catch (error) {
       console.error('批量查询堆存数据失败:', error);
       message.warning('堆存查询失败或异常，请重试');
+      // 关闭加载状态
+      gridApi.setLoading(false);
     }
   }
 };
@@ -280,6 +291,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: containerAreaRangeColumns(),
     height: '300px',
+    loading: false,
+    // virtualYConfig: {
+    //   enabled: true,
+    //   gt: 20,
+    //   preSize: 20,
+    // },
     keepSource: true,
     border: true,
     showOverflow: false,
@@ -311,10 +328,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 // 表单提交实现防抖
 const debouncedConfirm = debounce(async () => {
-  // if (containerAreaData.length === 0) {
-  //   message.warning('请至少添加一条箱区范围数据');
-  //   return;
-  // }
   if (isSubmitting.value) {
     return;
   }
@@ -453,7 +466,6 @@ const [Modal, modalApi] = useVbenModal({
                 totalCount: bayRange.totalCount ?? 0,
                 minDays: bayRange.minDays ?? 0,
                 maxDays: bayRange.maxDays ?? 0,
-                isNew: false,
               }),
             );
             // 同时更新containerAreaData
@@ -679,6 +691,7 @@ const modalTitle = computed(() => {
                   v-model:value="row.yardColumns"
                   mode="multiple"
                   placeholder="请选择堆场列"
+                  :loading="loadingMap.get(row.yardPosition)"
                   :options="[
                     { label: 'A', value: 'A' },
                     { label: 'B', value: 'B' },
@@ -697,17 +710,9 @@ const modalTitle = computed(() => {
                     (value) => {
                       console.log('row.yardColumns', row.yardColumns);
                       row.yardColumns = [...value].sort();
-                      const index = containerAreaData.findIndex(
-                        (item) => item.yardPosition === row.yardPosition,
-                      );
-                      if (index !== -1) {
-                        containerAreaData[index].yardColumns = [...value];
-                        containerAreaData[index].yardRaw = [...value].join(',');
-                      }
                       getStorageConditionSearch(row);
                     }
                   "
-                  :loading="loadingMap.get(row.yardPosition)"
                 />
               </template>
               <template #actions="{ row }">
