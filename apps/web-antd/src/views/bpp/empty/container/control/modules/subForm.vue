@@ -590,6 +590,7 @@ const debouncedConfirm = debounce(async () => {
 }, 300);
 
 const [Modal, modalApi] = useVbenModal({
+  draggable: true,
   onConfirm: debouncedConfirm,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {

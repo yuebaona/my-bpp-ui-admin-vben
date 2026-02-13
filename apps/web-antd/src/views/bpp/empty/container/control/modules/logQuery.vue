@@ -254,6 +254,7 @@ const handleQuery = async () => {
 };
 
 const [Modal, modalApi] = useVbenModal({
+  draggable: true,
   title: '日志查询',
   fullscreen: false,
   class: 'w-[95vw] max-w-[1450px]',
