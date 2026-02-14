@@ -1006,8 +1006,8 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       field: 'isRelease',
       title: '是否放箱',
       minWidth: 100,
-      formatter: (value) => {
-        return `${value ? 'Y' : 'N'}`;
+      formatter: (cellValue) => {
+        return cellValue === true || cellValue === 'true' ? 'Y' : 'N';
       },
     },
     {
@@ -1019,6 +1019,11 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       field: 'mainGateReleaseQuantity',
       title: '可放总箱量',
       minWidth: 100,
+    },
+    {
+      field: 'dischargeVslSchedule',
+      title: '卸船船期',
+      minWidth: 200,
     },
   ];
 }

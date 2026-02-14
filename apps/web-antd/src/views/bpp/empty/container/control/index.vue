@@ -436,6 +436,16 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
+    if (!ownerCodeList.value || ownerCodeList.value.length === 0) {
+      message.warning('请选择持箱人');
+      return;
+    }
+
+    if (!contIsoList.value || contIsoList.value.length === 0) {
+      message.warning('请选择ISO');
+      return;
+    }
+
     if (ownerCodeList.value && ownerCodeList.value.length > 1) {
       message.warning('持箱人只能选择一个');
       return;
@@ -444,6 +454,7 @@ async function handleChooseContainer() {
       message.warning('ISO只能选择一个');
       return;
     }
+
     const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,
