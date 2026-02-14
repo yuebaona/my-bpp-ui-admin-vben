@@ -1020,5 +1020,10 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       title: '可放总箱量',
       minWidth: 100,
     },
+    {
+      field: 'dischargeVslSchedule',
+      title: '卸船船期',
+      minWidth: 200,
+    },
   ];
 }
