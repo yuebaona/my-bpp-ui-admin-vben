@@ -441,6 +441,13 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
+    if (
+      (contIsoList.value && contIsoList.value.length === 0) ||
+      (ownerCodeList.value && ownerCodeList.value.length === 0)
+    ) {
+      message.warning('请至少同时选择ISO和持箱人后再使用闸口模拟选箱');
+      return;
+    }
     if (ownerCodeList.value && ownerCodeList.value.length > 1) {
       message.warning('持箱人只能选择一个');
       return;
