@@ -47,7 +47,7 @@ const popoverVisible = ref({});
 const bayRangeListValue = ref('');
 
 // 传给箱区选择组件的已选箱区
-const selectedPositions = ref<string[]>([]);
+const selectedPositions = ref<Array<{ yardBay: string; yardRaw?: string }>>([]);
 
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
@@ -77,9 +77,14 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
 const containerAreaVisible = ref(false);
 
 // 箱区选择确认
-const handleContainerAreaConfirm = async (positions: string[]) => {
-  selectedPositions.value = [...positions];
-  const value = positions && positions.length > 0 ? positions.join(',') : '';
+const handleContainerAreaConfirm = async (
+  positions: Array<{ yardBay: string; yardRaw?: string }>,
+) => {
+  selectedPositions.value = positions;
+  const value =
+    positions && positions.length > 0
+      ? positions.map((pos) => pos.yardBay).join(',')
+      : '';
   bayRangeListValue.value = value;
   const currentValues = await mainGridApi.formApi.getValues();
   await mainGridApi.formApi.setValues({
