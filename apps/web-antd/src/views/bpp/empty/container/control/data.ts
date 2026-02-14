@@ -1006,8 +1006,8 @@ export function gatePlanColumns(): VxeTableGridOptions['columns'] {
       field: 'isRelease',
       title: '是否放箱',
       minWidth: 100,
-      formatter: (value) => {
-        return `${value ? 'Y' : 'N'}`;
+      formatter: (cellValue) => {
+        return cellValue === true || cellValue === 'true' ? 'Y' : 'N';
       },
     },
     {
