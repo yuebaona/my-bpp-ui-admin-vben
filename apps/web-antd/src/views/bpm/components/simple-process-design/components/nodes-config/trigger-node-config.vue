@@ -348,7 +348,7 @@ function getShowText(): string {
   return showText;
 }
 
-/** 显示触发器节点配置， 由父组件传过来 */
+/** 显示触发器节点配置，由父组件传过来 */
 function showTriggerNodeConfig(node: SimpleFlowNode) {
   nodeName.value = node.name;
   originalSetting = node.triggerSetting
@@ -383,7 +383,7 @@ onMounted(() => {
 });
 </script>
 <template>
-  <Drawer class="w-1/3">
+  <Drawer class="w-2/5">
     <template #title>
       <div class="config-header">
         <Input

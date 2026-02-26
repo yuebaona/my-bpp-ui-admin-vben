@@ -56,8 +56,7 @@ async function fetchTenantList() {
     }
     // 如果还是没有租户，使用列表中的第一个
     if (!tenantId && tenantList.value?.[0]?.id) {
-      // tenantId = tenantList.value[0].id;
-      tenantId = 151;
+      tenantId = tenantList.value[0].id;
     }
 
     // 设置选中的租户编号

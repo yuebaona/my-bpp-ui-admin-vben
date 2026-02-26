@@ -17,6 +17,8 @@ import {
   useUploadFileRule,
   useUploadImageRule,
   useUploadImagesRule,
+  useIframeRule,
+  useAreaSelectRule,
 } from './rules';
 
 /** 编码表单 Conf */
@@ -160,6 +162,8 @@ export async function useFormCreateDesigner(designer: Ref) {
   const uploadFileRule = useUploadFileRule();
   const uploadImageRule = useUploadImageRule();
   const uploadImagesRule = useUploadImagesRule();
+  const iframeRule = useIframeRule();
+  const areaSelectRule = useAreaSelectRule();
 
   /** 构建表单组件 */
   function buildFormComponents() {
@@ -172,6 +176,8 @@ export async function useFormCreateDesigner(designer: Ref) {
       uploadFileRule,
       uploadImageRule,
       uploadImagesRule,
+      iframeRule,
+      areaSelectRule,
     ];
     components.forEach((component) => {
       // 插入组件规则
@@ -189,6 +195,14 @@ export async function useFormCreateDesigner(designer: Ref) {
     name: 'UserSelect',
     label: '用户选择器',
     icon: 'icon-eye',
+    props: [
+      {
+        type: 'switch',
+        field: 'defaultCurrentUser',
+        title: '默认选中当前用户',
+        value: false,
+      },
+    ],
   });
   const deptSelectRule = useSelectRule({
     name: 'DeptSelect',
@@ -204,6 +218,12 @@ export async function useFormCreateDesigner(designer: Ref) {
           { label: '部门编号', value: 'id' },
           { label: '部门名称', value: 'name' },
         ],
+      },
+      {
+        type: 'switch',
+        field: 'defaultCurrentDept',
+        title: '默认选中当前部门',
+        value: false,
       },
     ],
   });

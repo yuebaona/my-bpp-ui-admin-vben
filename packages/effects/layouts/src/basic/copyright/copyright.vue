@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { $t } from '@vben/locales';
+
+import {$t} from "@vben/locales";
 
 interface Props {
   companyName?: string;
