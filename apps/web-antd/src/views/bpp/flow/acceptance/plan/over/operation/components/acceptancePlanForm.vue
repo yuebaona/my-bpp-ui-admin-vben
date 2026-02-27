@@ -268,20 +268,57 @@ const [Grid, gridApi] = useVbenVxeGrid({
     },
     editRules: {
       contNo: [
-        { required: true, content: '必须填写' },
         {
-          validator({ cellValue }) {
+          required: true,
+          message: '必须填写'
+        },
+        {
+          validator({ cellValue, rowIndex }) {
             return new Promise((resolve, reject) => {
               if (!cellValue) {
-                resolve(true); // 必填项已由上面的规则处理
+                resolve(true);
                 return;
               }
+              const currentContNo = cellValue.trim().toUpperCase();
 
-              validateContainerNo(cellValue);
-              resolve(true);
+              try {
+                validateContainerNo(currentContNo);
+              } catch (error) {
+                reject(new Error('箱号格式不正确'));
+                return;
+              }
+              let insertRecords = gridApi.grid.getInsertRecords();
+
+              const contNoCountMap = new Map();
+
+              insertRecords.forEach((record, index) => {
+                if (record.contNo) {
+                  const contNo = record.contNo.trim().toUpperCase();
+                  contNoCountMap.set(contNo, (contNoCountMap.get(contNo) || 0) + 1);
+                }
+              });
+              const count = contNoCountMap.get(currentContNo) || 0;
+
+              if (count > 1) {
+                // 找到重复的所有行号
+                let duplicateRowIndices = [];
+                insertRecords = gridApi.grid.getInsertRecords();
+                // 将顺序反转
+                insertRecords = insertRecords.reverse();
+                insertRecords.forEach((record, index) => {
+                  if (record.contNo && record.contNo.trim().toUpperCase() == currentContNo && index != rowIndex) {
+                    duplicateRowIndices.push(index+1); // 转换为用户看到的行号
+                  }
+                });
+
+                const currentRowNum = rowIndex + 1;
+                reject(new Error(`箱号重复，当前是第${currentRowNum}行，与第${duplicateRowIndices.join('、')}行箱号相同`));
+              } else {
+                resolve(true);
+              }
             });
           }
-        },
+        }
       ],
       contSize: [{ required: true, message: '必须填写' }],
       contType: [{ required: true, message: '必须填写' }],
@@ -632,7 +669,7 @@ const handleVesselSearch = async (value: string) => {
   };
   if (!value) return;
   vslNameState.fetching = true;
-  const res = await getVVd({ condition: value });
+  const res = await getVVd({ condition: vslNameState.value.value});
   if (res) {
     vslNameState.data = res.map((item: any) => ({
       label: item.vieVslName,

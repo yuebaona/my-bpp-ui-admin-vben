@@ -231,6 +231,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
             pageSize: page.pageSize,
             ...formValues,
           };
+          // 将 createTime 从字符串转换为时间戳
+          if (data.createTime && data.createTime.length === 2) {
+            data.createTime = [
+              new Date(data.createTime[0]).getTime().toString(),
+              new Date(data.createTime[1]).getTime().toString()
+            ];
+          }
           const res = await getLogQueryPage(data);
           return {
             list: res.list,
@@ -252,6 +259,7 @@ const handleQuery = async () => {
 };
 
 const [Modal, modalApi] = useVbenModal({
+  draggable: true,
   title: '日志查询',
   fullscreen: false,
   class: 'w-[95vw] max-w-[1450px]',

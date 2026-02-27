@@ -118,6 +118,7 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
         query: async ({ page }, formValues) => {
           const mainFormValues = await mainGridApi.formApi.getValues();
           const noFilterConditions =
+            !selectedMainId.value &&
             !hasSelectedMainPlan.value &&
             !mainFormValues.tradeType &&
             !mainFormValues.pickupPlanNo &&
@@ -131,68 +132,79 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
             return { total: 0, list: [] };
           }
           if (selectedMainId.value) {
+            // 当选中主计划时，只传递mainId，清除所有其他搜索条件
             formValues.mainId = selectedMainId.value;
-          }
-          if (mainFormValues.planNo) {
-            formValues.planNo = mainFormValues.planNo;
-          }
-          if (mainFormValues.tradeType) {
-            formValues.tradeType = mainFormValues.tradeType;
-          }
-          if (mainFormValues.pickupPlanNo) {
-            formValues.pickupPlanNo = mainFormValues.pickupPlanNo;
-          }
-          if (mainFormValues.bayRangeList) {
-            const bayRangeInput = mainFormValues.bayRangeList;
-            if (bayRangeInput.trim() === '') {
-              formValues.bayRangeList = [];
-            } else if (bayRangeInput.includes(',')) {
-              const positions = bayRangeInput
-                .split(',')
-                .map((item) => item.trim().toUpperCase());
-              formValues.bayRangeList = positions
-                .map((position) => {
-                  if (position) {
-                    return {
-                      yardBay: position,
+            formValues.planNo = undefined;
+            formValues.tradeType = undefined;
+            formValues.pickupPlanNo = undefined;
+            formValues.bayRangeList = [];
+            formValues.ownerCodeList = [];
+            formValues.contIsoList = [];
+            formValues.dischargeVslSchedule = undefined;
+            formValues.createTime = undefined;
+          } else {
+            // 当未选中主计划时，使用搜索栏的条件
+            if (mainFormValues.planNo) {
+              formValues.planNo = mainFormValues.planNo;
+            }
+            if (mainFormValues.tradeType) {
+              formValues.tradeType = mainFormValues.tradeType;
+            }
+            if (mainFormValues.pickupPlanNo) {
+              formValues.pickupPlanNo = mainFormValues.pickupPlanNo;
+            }
+            if (mainFormValues.bayRangeList) {
+              const bayRangeInput = mainFormValues.bayRangeList;
+              if (bayRangeInput.trim() === '') {
+                formValues.bayRangeList = [];
+              } else if (bayRangeInput.includes(',')) {
+                const positions = bayRangeInput
+                  .split(',')
+                  .map((item) => item.trim().toUpperCase());
+                formValues.bayRangeList = positions
+                  .map((position) => {
+                    if (position) {
+                      return {
+                        yardBay: position,
+                        yardRaw: '',
+                      };
+                    }
+                    return null;
+                  })
+                  .filter(Boolean);
+              } else {
+                // 处理单个箱区的情况
+                const upperCaseInput = bayRangeInput.toUpperCase();
+                if (upperCaseInput) {
+                  formValues.bayRangeList = [
+                    {
+                      yardBay: upperCaseInput,
                       yardRaw: '',
-                    };
-                  }
-                  return null;
+                    },
+                  ];
+                } else {
+                  formValues.bayRangeList = [];
+                }
+              }
+            } else {
+              formValues.bayRangeList = [];
+            }
+            if (ownerCodeList.value) {
+              formValues.ownerCodeList = ownerCodeList.value;
+            }
+            if (contIsoList.value) {
+              formValues.contIsoList = contIsoList.value;
+            }
+            if (dischargeVslSchedule.value) {
+              formValues.dischargeVslSchedule = dischargeVslSchedule.value;
+            }
+            if (mainFormValues.createTime && mainFormValues.createTime.length > 0) {
+              formValues.createTime = mainFormValues.createTime
+                .map((time: string) => {
+                  return time ? new Date(time).getTime() : null;
                 })
                 .filter(Boolean);
-            } else {
-              // 处理单个箱区的情况
-              const upperCaseInput = bayRangeInput.toUpperCase();
-              if (upperCaseInput) {
-                formValues.bayRangeList = [
-                  {
-                    yardBay: upperCaseInput,
-                    yardRaw: '',
-                  },
-                ];
-              } else {
-                formValues.bayRangeList = [];
-              }
             }
-          } else {
-            formValues.bayRangeList = [];
-          }
-          if (ownerCodeList.value) {
-            formValues.ownerCodeList = ownerCodeList.value;
-          }
-          if (contIsoList.value) {
-            formValues.contIsoList = contIsoList.value;
-          }
-          if (dischargeVslSchedule.value) {
-            formValues.dischargeVslSchedule = dischargeVslSchedule.value;
-          }
-          if (mainFormValues.createTime && mainFormValues.createTime.length > 0) {
-            formValues.createTime = mainFormValues.createTime
-              .map((time: string) => {
-                return time ? new Date(time).getTime() : null;
-              })
-              .filter(Boolean);
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
@@ -458,6 +470,7 @@ async function handleChooseContainer() {
       message.warning('ISO只能选择一个');
       return;
     }
+
     const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,

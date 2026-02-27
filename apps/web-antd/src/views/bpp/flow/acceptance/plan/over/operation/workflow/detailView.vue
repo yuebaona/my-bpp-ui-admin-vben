@@ -4,7 +4,7 @@ import type { fileVo } from '../data.ts';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
 
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onActivated, onMounted, reactive, ref, watch } from "vue";
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -12,8 +12,10 @@ import { Image, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { getAcceptancePlanOverOperation } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { useDescription } from '#/components/description';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { handlePreview } from '#/utils/filePreview';
 
 import {
@@ -21,7 +23,6 @@ import {
   attachmentDetailColumns,
   contInfoDetailColumns,
 } from '../data.ts';
-
 /**
  * 参数
  */
@@ -32,6 +33,21 @@ const props = defineProps({
     default: '1',
   },
 });
+const bppBaseDict = bppBaseDictStore();
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
 // 箱信息数据
 const containerData = reactive<
   FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO[]
@@ -104,7 +120,8 @@ const handleDownload = async (row: any) => {
     message.success('下载完成！');
   } catch (error) {
     message.error(`下载失败：${error.message}`);
-  } finally {}
+  } finally {
+  }
 };
 const [Descriptions] = useDescription({
   componentProps: {
@@ -166,8 +183,8 @@ const [Grid] = useVbenVxeGrid({
 });
 const [FileGrid] = useVbenVxeGrid({
   gridOptions: {
-    cellConfig:{
-      height: '180px'
+    cellConfig: {
+      height: '180px',
     },
     columns: attachmentDetailColumns(),
     height: '50px',
@@ -274,6 +291,9 @@ watch(
   },
   { immediate: true }, // 可选：初始值时立即执行一次
 );
+onMounted(() => {
+  loadDictData(['system_rate', 'payment_method', 'import_export_type']);
+});
 </script>
 <template>
   <Descriptions :data="formData" />
@@ -291,32 +311,32 @@ watch(
         <template #serialNumber="{ row }">
           <span v-if="row.serialNumber !== 'BUTTON'">箱量 x 箱型</span>
         </template>
-        <template #contCargoSizeDefault="{row}">
+        <template #contCargoSizeDefault="{ row }">
           <div class="flex items-center justify-center">
-            <label>长：{{row.contCargoSize.contCargoLength || 0}}</label>
+            <label>长：{{ row.contCargoSize.contCargoLength || 0 }}</label>
           </div>
           <div class="flex items-center justify-center">
-            <label>宽：{{row.contCargoSize.contCargoWidth || 0}}</label>
+            <label>宽：{{ row.contCargoSize.contCargoWidth || 0 }}</label>
           </div>
           <div class="flex items-center justify-center">
-            <label>高：{{row.contCargoSize.contCargoHeight || 0}}</label>
+            <label>高：{{ row.contCargoSize.contCargoHeight || 0 }}</label>
           </div>
         </template>
-        <template #contOogDetailsDefault="{row}">
+        <template #contOogDetailsDefault="{ row }">
           <div class="flex items-center justify-center">
-            <label>前超：{{row.contOogDetails.oogFront || 0}}</label>
+            <label>前超：{{ row.contOogDetails.oogFront || 0 }}</label>
           </div>
           <div class="flex items-center justify-center">
-            <label>后超：{{row.contOogDetails.oogBack || 0}}</label>
+            <label>后超：{{ row.contOogDetails.oogBack || 0 }}</label>
           </div>
           <div class="flex items-center justify-center">
-            <label>左超：{{row.contOogDetails.oogLeft || 0}}</label>
+            <label>左超：{{ row.contOogDetails.oogLeft || 0 }}</label>
           </div>
           <div class="flex items-center justify-center">
-            <label>右超：{{row.contOogDetails.oogRight || 0}}</label>
+            <label>右超：{{ row.contOogDetails.oogRight || 0 }}</label>
           </div>
           <div class="flex items-center justify-center">
-            <label>超高：{{row.contOogDetails.oogHeight || 0}}</label>
+            <label>超高：{{ row.contOogDetails.oogHeight || 0 }}</label>
           </div>
         </template>
       </Grid>

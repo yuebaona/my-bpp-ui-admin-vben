@@ -234,7 +234,7 @@ const handleVesselSearch = async (value: any) => {
   vslNameState.data = [];
   vslNameState.fetching = true;
   const res = await getVVd({
-    condition: value,
+    condition: vslNameState.value.value,
   });
   if (res) {
     vslNameState.data = res.map((item: any) => ({
