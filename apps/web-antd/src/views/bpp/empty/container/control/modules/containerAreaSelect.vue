@@ -175,8 +175,6 @@ const clearSelectedPositions = () => {
 };
 
 const handleConfirm = () => {
-  // emit('confirm', selectedYardPositions.value);
-  // emit('update:visible', false); // 立即关闭，不等待
   emit('update:visible', false);
   // 然后再发出确认事件，执行数据处理逻辑
   setTimeout(() => {

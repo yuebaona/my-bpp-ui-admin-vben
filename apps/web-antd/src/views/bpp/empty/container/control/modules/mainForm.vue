@@ -217,6 +217,7 @@ const handleContainerAreaConfirm = async (
       // 关闭加载状态
       gridApi.setLoading(false);
     }
+    gridApi.setLoading(false);
   }
 };
 
@@ -226,11 +227,10 @@ const deleteRow = async (row: any) => {
   if ($grid) {
     await $grid.remove([row]);
 
-    formData.bayRangeList = containerAreaData.map((item) => ({
+    formData.bayRangeList = $grid.getTableData().fullData.map((item) => ({
       yardBay: item.yardPosition,
       yardRaw:
         item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item,
     }));
   }
 };
@@ -368,8 +368,10 @@ const debouncedConfirm = debounce(async () => {
       formData.contIsoList = [formData.contIsoList];
     }
 
-    const $grid = gridApi.grid;
-    const bayRangeList = formData.bayRangeList;
+    const bayRangeList = containerAreaData.map((item) => ({
+      yardBay: item.yardPosition,
+      yardRaw: item.yardColumns ? item.yardColumns.join(',') : '',
+    }));
 
     const data: EmptyContainerControlApi.mainPlanVO = {
       ...formData,
