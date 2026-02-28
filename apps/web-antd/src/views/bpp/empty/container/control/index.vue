@@ -602,6 +602,7 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
       mainId: row.mainId,
       planType: 'SUB',
       mainPlanTradeType: mainPlanRes.tradeType,
+      mainPlanBayRangeList: mainPlanRes.bayRangeList,
     })
     .open();
 };

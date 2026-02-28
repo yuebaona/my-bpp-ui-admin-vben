@@ -645,19 +645,27 @@ const [Modal, modalApi] = useVbenModal({
       }
       if (data.mainId) {
         formData.mainId = data.mainId;
-        // 获取主计划数据以限制堆场列选项
-        try {
-          const mainPlanData = await getMainPlan(data.mainId);
-          if (mainPlanData && mainPlanData.bayRangeList) {
-            // 创建 yardBay -> yardRaw 的映射
-            mainPlanData.bayRangeList.forEach((item: any) => {
-              if (item.yardBay && item.yardRaw) {
-                mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
-              }
-            });
+        // 优先使用传入的主计划 bayRangeList 数据，避免重复调用接口
+        if (data.mainPlanBayRangeList && Array.isArray(data.mainPlanBayRangeList)) {
+          data.mainPlanBayRangeList.forEach((item: any) => {
+            if (item.yardBay && item.yardRaw) {
+              mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
+            }
+          });
+        } else {
+          // 如果没有传入，则通过接口获取（兼容旧逻辑）
+          try {
+            const mainPlanData = await getMainPlan(data.mainId);
+            if (mainPlanData && mainPlanData.bayRangeList) {
+              mainPlanData.bayRangeList.forEach((item: any) => {
+                if (item.yardBay && item.yardRaw) {
+                  mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
+                }
+              });
+            }
+          } catch (error) {
+            console.error('获取主计划数据失败：', error);
           }
-        } catch (error) {
-          console.error('获取主计划数据失败：', error);
         }
       }
       if (
