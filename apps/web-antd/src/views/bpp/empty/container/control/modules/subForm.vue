@@ -760,7 +760,7 @@ const [Modal, modalApi] = useVbenModal({
               );
             }
           }
-          await updateStorageCondition();
+          // await updateStorageCondition();
         } finally {
           modalApi.unlock();
         }
