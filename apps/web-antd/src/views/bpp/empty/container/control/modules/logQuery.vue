@@ -217,6 +217,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       enabled: true,
       pageSize: 10,
+      pageSizes: [10, 20, 50, 100],
+      maxPageSize: 100,
     },
     toolbarConfig: {
       custom: false,
