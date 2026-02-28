@@ -112,6 +112,8 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [10, 20, 50, 100],
+      maxPageSize: 100,
     },
     proxyConfig: {
       ajax: {
@@ -333,6 +335,8 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [10, 20, 50, 100],
+      maxPageSize: 100,
     },
     editRules: {
       applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
