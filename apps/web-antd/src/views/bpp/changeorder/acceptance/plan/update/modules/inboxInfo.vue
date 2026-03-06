@@ -18,6 +18,7 @@ const customFormInfo = ref({
   formType: 'inboxInfo',
   formSchema: [],
   id: '',
+  formVisible: true,
 });
 /** 表格展示用的行数据原始数据*/
 const localOriginalRows = ref<any[]>([]);
@@ -56,8 +57,10 @@ const loadFormConfig = async ()=>{
   localOriginalRows.value = FormApi.getState()?.schema;
 
   const res = await selectByFormKeyNameType(customFormInfo.value);
+  console.log('res', res);
   if (res?.id) {
     customFormInfo.value.id = res.id;
+    customFormInfo.value.formVisible = true;
   }
   if (res?.formSchema) {
     const schema = JSON.parse(res.formSchema);
@@ -86,6 +89,7 @@ const initialData = (newVal)=>{
     formType: 'inboxInfo',
     formSchema: [],
     id: '',
+    formVisible: true,
   }
   customFormInfo.value.formType = newVal;
   formKey.value++;
