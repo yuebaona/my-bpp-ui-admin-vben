@@ -257,7 +257,7 @@ export const getLogQueryPage = (data: LogQueryParams) => {
 // 查询卸船船期
 export const getVesselAndVoyage = (params: { condition: string }) => {
   return requestClient.get<EmptyContainerControlApi.VesselAndVoyageResponse>(
-    '/bpp/flow/common/get-vvd-union',
+    '/bpp/comb/vessel-voyage/get-vvd-union',
     {
       params,
     },

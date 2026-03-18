@@ -73,14 +73,14 @@ export const getVVd = ({
   inOutFlag?: string;
 }) => {
   return requestClient.get(
-    `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
+    `/bpp/comb/vessel-voyage/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
 
 // 获取船名航次（联合查询）
 export const getVesselAndVoyage = (params: { condition: string }) => {
   return requestClient.get<EmptyContainerControlApi.ContainerVO>(
-    '/bpp/flow/common/get-vvd-union',
+    '/bpp/comb/vessel-voyage/get-vvd-union',
     {
       params,
     },
