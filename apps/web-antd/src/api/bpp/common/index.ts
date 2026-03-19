@@ -115,7 +115,7 @@ export const getContainerOwnerListPage = (params: {
   pageSize: number;
 }) => {
   return requestClient.get<PageResult<CommonApi.ContainerOwnerVO>>(
-    '/bpp/flow/common/get-container-owner-list',
+    '/bpp/base/container-owner/get-container-owner-list',
     { params },
   );
 };
