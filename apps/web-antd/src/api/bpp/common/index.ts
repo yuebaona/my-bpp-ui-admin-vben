@@ -90,7 +90,7 @@ export const getVesselAndVoyage = (params: { condition: string }) => {
 // 获取集装箱ISO信息
 export const getContainerIsoList = (queryType: string) => {
   return requestClient.get(
-    `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
+    `/bpp/base/container-iso-info/get-container-iso-list?queryType=${queryType}`,
   );
 };
 // 分页获取集装箱ISO信息
@@ -104,7 +104,7 @@ export const getContainerIsoListPage = (params: {
   queryType: string;
 }) => {
   return requestClient.get<PageResult<CommonApi.isoVO>>(
-    `/bpp/flow/common/get-container-iso-list`,
+    `/bpp/base/container-iso-info/get-container-iso-list`,
     { params },
   );
 };
