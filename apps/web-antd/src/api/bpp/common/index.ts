@@ -58,7 +58,7 @@ export namespace CommonApi {
 // 获取客户基础信息
 export const getCustomerList = (params: PageParam) => {
   return requestClient.get<PageResult<CommonApi.CustomerVO>>(
-    '/bpp/flow/common/get-customer-list',
+    '/bpp/base/customer/get-customer-list',
     { params },
   );
 };
