@@ -123,7 +123,7 @@ export const createAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/create',
+    '/bpp/sea/acceptance-plan-over-operation/create',
     data,
   );
 };
@@ -135,7 +135,7 @@ export const startProgressAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/other-process',
+    '/bpp/sea/acceptance-plan-over-operation/other-process',
     data,
   );
 };
@@ -145,21 +145,21 @@ export const updateAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
 ) => {
   return requestClient.put(
-    '/bpp/flow/acceptance-plan-over-operation/update',
+    '/bpp/sea/acceptance-plan-over-operation/update',
     data,
   );
 };
 // 查询超限受理计划信息详情
 export const getAcceptancePlanOverOperation = (id: number) => {
   return requestClient.get(
-    `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
+    `/bpp/sea/acceptance-plan-over-operation/get?id=${id}`,
   );
 };
 // 超限受理计划信息分页查询
 export const getAcceptancePlanOverOperationPage = (params: PageParam) => {
   return requestClient.get<
     PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>
-  >('/bpp/flow/acceptance-plan-over-operation/page', { params });
+  >('/bpp/sea/acceptance-plan-over-operation/page', { params });
 };
 // 超限受理计划信息箱分页查询
 export const getAcceptancePlanOverOperationContainerPage = (
