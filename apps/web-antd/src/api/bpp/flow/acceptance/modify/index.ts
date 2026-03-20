@@ -32,7 +32,7 @@ export namespace AcceptanceModifyAcceptancePlanModifyInfoApi {
 /** 查询改单受理原计划信息分页 */
 export function getAcceptancePlanModifyInfoPage(params: PageParam) {
   return requestClient.get<PageResult<AcceptanceModifyAcceptancePlanModifyInfoApi.AcceptancePlanModifyInfo>>(
-    '/bpp/gate/acpt-pln-modify-info/page',
+    '/bpp/flow/acpt-pln-modify-info/page',
     { params },
   );
 }
@@ -40,7 +40,7 @@ export function getAcceptancePlanModifyInfoPage(params: PageParam) {
 /** 查询改单受理原计划信息详情 */
 export function getAcceptancePlanModifyDetail(params: PageParam) {
   return requestClient.get<AcceptanceModifyAcceptancePlanModifyInfoApi.AcceptancePlanModifyInfo>(
-    '/bpp/gate/acpt-pln-modify-info/get-modify-detail',
+    '/bpp/flow/acpt-pln-modify-info/get-modify-detail',
     { params },
   );
 }
@@ -48,33 +48,33 @@ export function getAcceptancePlanModifyDetail(params: PageParam) {
 /** 查询改单受理原计划信息详情 */
 export function getAcceptancePlanModifyInfo(id: number) {
   return requestClient.get<AcceptanceModifyAcceptancePlanModifyInfoApi.AcceptancePlanModifyInfo>(
-    `/bpp/gate/acpt-pln-modify-info/get?id=${id}`,
+    `/bpp/flow/acpt-pln-modify-info/get?id=${id}`,
   );
 }
 
 /** 新增改单受理原计划信息 */
 export function createAcceptancePlanModifyInfo(data: AcceptanceModifyAcceptancePlanModifyInfoApi.AcceptancePlanModifyInfo) {
-  return requestClient.post('/bpp/gate/acpt-pln-modify-info/create', data);
+  return requestClient.post('/bpp/flow/acpt-pln-modify-info/create', data);
 }
 
 /** 修改改单受理原计划信息 */
 export function updateAcceptancePlanModifyInfo(data: AcceptanceModifyAcceptancePlanModifyInfoApi.AcceptancePlanModifyInfo) {
-  return requestClient.put('/bpp/gate/acpt-pln-modify-info/update', data);
+  return requestClient.put('/bpp/flow/acpt-pln-modify-info/update', data);
 }
 
 /** 删除改单受理原计划信息 */
 export function deleteAcceptancePlanModifyInfo(id: number) {
-  return requestClient.delete(`/bpp/gate/acpt-pln-modify-info/delete?id=${id}`);
+  return requestClient.delete(`/bpp/flow/acpt-pln-modify-info/delete?id=${id}`);
 }
 
 /** 批量删除改单受理原计划信息 */
 export function deleteAcceptancePlanModifyInfoList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/acpt-pln-modify-info/delete-list?ids=${ids.join(',')}`,
+    `/bpp/flow/acpt-pln-modify-info/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出改单受理原计划信息 */
 export function exportAcceptancePlanModifyInfo(params: any) {
-  return requestClient.download('/bpp/gate/acpt-pln-modify-info/export-excel', { params });
+  return requestClient.download('/bpp/flow/acpt-pln-modify-info/export-excel', { params });
 }
