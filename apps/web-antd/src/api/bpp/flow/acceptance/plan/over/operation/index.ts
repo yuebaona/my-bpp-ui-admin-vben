@@ -232,7 +232,7 @@ export const getAcceptancePlanOverOperationContainerPage = (
 ) => {
   return requestClient.get<
     PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>
-  >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
+  >('/bpp/sea/acceptance-plan-over-operation-container/page', { params });
 };
 // 获得机械吊具变更操作记录分页
 export const getMachineSpreaderChangeRecordPage = (data: any) => {
@@ -243,7 +243,7 @@ export const confirmMachineSpreaderChangeRecord = (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation-container/confirm',
+    '/bpp/sea/acceptance-plan-over-operation-container/confirm',
     data,
   );
 };
@@ -265,13 +265,13 @@ export const deleteMachineSpreaderRecord = (id: number | string) => {
 // 现场无此操作（实际无作业）
 export const acceptancePlanOverOperationContainerNoOperation = (ids: any) => {
   return requestClient.post(
-    `/bpp/flow/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
+    `/bpp/sea/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
   );
 };
 // 无需变更吊具（停止后续作业）
 export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
   return requestClient.post(
-    `/bpp/flow/acceptance-plan-over-operation-container/complete?ids=${ids}`,
+    `/bpp/sea/acceptance-plan-over-operation-container/complete?ids=${ids}`,
   );
 };
 // 批量删除机械吊具变更操作记录(无变更作业)
