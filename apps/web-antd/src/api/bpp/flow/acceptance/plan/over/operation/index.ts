@@ -236,7 +236,7 @@ export const getAcceptancePlanOverOperationContainerPage = (
 };
 // 获得机械吊具变更操作记录分页
 export const getMachineSpreaderChangeRecordPage = (data: any) => {
-  return requestClient.post('/bpp/flow/machine-spreader-record/page', data);
+  return requestClient.post('/bpp/sea/machine-spreader-record/page', data);
 };
 // 现场操作确认
 export const confirmMachineSpreaderChangeRecord = (
@@ -252,14 +252,14 @@ export const updateMachineSpreaderRecord = (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
   return requestClient.put(
-    '/bpp/flow/machine-spreader-record/update',
+    '/bpp/sea/machine-spreader-record/update',
     data,
   );
 };
 // 删除机械吊具变更操作记录
 export const deleteMachineSpreaderRecord = (id: number | string) => {
   return requestClient.delete(
-    `/bpp/flow/machine-spreader-record/delete?id=${id}`,
+    `/bpp/sea/machine-spreader-record/delete?id=${id}`,
   );
 };
 // 现场无此操作（实际无作业）
@@ -277,13 +277,13 @@ export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
 // 批量删除机械吊具变更操作记录(无变更作业)
 export const machineSpreaderRecordDeleteList = (ids: any) => {
   return requestClient.delete(
-    `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
+    `/bpp/sea/machine-spreader-record/delete-list?ids=${ids}`,
   );
 };
 // 获得机械吊具变更操作记录
 export const getMachineSpreaderRecord = async (id: any) => {
   return await requestClient.get(
-    `/bpp/flow/machine-spreader-record/get?id=${id}`,
+    `/bpp/sea/machine-spreader-record/get?id=${id}`,
   );
 };
 // 修改机械吊具变更操作记录
@@ -291,7 +291,7 @@ export const machineSpreaderRecordUpdateProcess = async (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
   return await requestClient.put(
-    `/bpp/flow/machine-spreader-record/update-process`,
+    `/bpp/sea/machine-spreader-record/update-process`,
     data,
   );
 };
