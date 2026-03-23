@@ -18,7 +18,7 @@ export namespace FieldEditRuleHeadApi {
 /** 查询业务字段规则校验分页 */
 export function getEditRuleHeadPage(params: PageParam) {
   return requestClient.get<PageResult<FieldEditRuleHeadApi.EditRuleHead>>(
-    '/bpp/flow/field/edit-rule-head/page',
+    '/bpp/common/field-edit-rule-head/page',
     { params },
   );
 }
@@ -26,7 +26,7 @@ export function getEditRuleHeadPage(params: PageParam) {
 /** 查询列表数据 */
 export function getEditRuleHeadList(params: PageParam) {
   return requestClient.get<PageResult<FieldEditRuleHeadApi.EditRuleHead>>(
-    '/bpp/flow/field/edit-rule-head/list',
+    '/bpp/common/field-edit-rule-head/list',
     {params},
   );
 }
@@ -34,35 +34,35 @@ export function getEditRuleHeadList(params: PageParam) {
 /** 查询业务字段规则校验详情 */
 export function getEditRuleHead(id: number) {
   return requestClient.get<FieldEditRuleHeadApi.EditRuleHead>(
-    `/bpp/flow/field/edit-rule-head/get?id=${id}`,
+    `/bpp/common/field-edit-rule-head/get?id=${id}`,
   );
 }
 
 /** 新增业务字段规则校验 */
 export function createEditRuleHead(data: FieldEditRuleHeadApi.EditRuleHead) {
-  return requestClient.post('/bpp/flow/field/edit-rule-head/create', data);
+  return requestClient.post('/bpp/common/field-edit-rule-head/create', data);
 }
 
 /** 修改业务字段规则校验 */
 export function updateEditRuleHead(data: FieldEditRuleHeadApi.EditRuleHead) {
-  return requestClient.put('/bpp/flow/field/edit-rule-head/update', data);
+  return requestClient.put('/bpp/common/field-edit-rule-head/update', data);
 }
 
 /** 删除业务字段规则校验 */
 export function deleteEditRuleHead(id: number) {
-  return requestClient.delete(`/bpp/flow/field/edit-rule-head/delete?id=${id}`);
+  return requestClient.delete(`/bpp/common/field-edit-rule-head/delete?id=${id}`);
 }
 
 /** 批量删除业务字段规则校验 */
 export function deleteEditRuleHeadList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/flow/field/edit-rule-head/delete-list?ids=${ids.join(',')}`,
+    `/bpp/common/field-edit-rule-head/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出业务字段规则校验 */
 export function exportEditRuleHead(params: any) {
-  return requestClient.download('/bpp/flow/field/edit-rule-head/export-excel', { params });
+  return requestClient.download('/bpp/common/field-edit-rule-head/export-excel', { params });
 }
 
 
