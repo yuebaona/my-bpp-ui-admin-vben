@@ -129,7 +129,7 @@ const localRows = ref<TableRow[]>([]);
 function buildTableRows(list?: RawFormField[]): TableRow[] {
   if (!Array.isArray(list)) return [];
   return list.map((raw, idx) => {
-    const visible = raw.dependencies ? !!raw.dependencies.show() : true;
+    const visible = raw.dependencies ? !!raw.dependencies.show : true;
     const disabled = Boolean(raw.disabled);
     return {
       ...raw,
@@ -146,7 +146,7 @@ function buildTableRows(list?: RawFormField[]): TableRow[] {
  */
 function syncVisible(row: TableRow, checked: boolean) {
   row.visible = checked;
-  row.dependencies = { triggerFields: [''], show: () => checked };
+  row.dependencies = { triggerFields: [''], show: checked };
 }
 
 /**

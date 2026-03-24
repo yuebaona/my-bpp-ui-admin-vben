@@ -36,6 +36,36 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '25',
+          value: 25,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '1000',
+          value: 1000,
+        },
+        {
+          label: '10000',
+          value: 10_000,
+        },
+        {
+          label: '全部',
+          value: -1,
+        },
+      ],
     },
     editRules: {
       // applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
@@ -49,7 +79,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               id: '1',
               contNo: 'CONT1',
               vesselVoyage: 'COSCO SHIPPING 001',
-              billOfLadingNo: 'TD1',
+              pickupNo: 'TD1',
               sealNo: 'PL12345',
               ownerCode: '111',
               containerFlow: '进口',
@@ -59,7 +89,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               id: '2',
               contNo: 'CONT2',
               vesselVoyage: 'MAERSK 002',
-              billOfLadingNo: 'TD2',
+              pickupNo: 'TD2',
               sealNo: 'PL67890',
               ownerCode: '222',
               containerFlow: '出口',
@@ -69,7 +99,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               id: '3',
               contNo: 'CONT3',
               vesselVoyage: 'HAPAG LLOYD 003',
-              billOfLadingNo: 'TD3',
+              pickupNo: 'TD3',
               sealNo: 'PL13579',
               ownerCode: '333',
               containerFlow: '中转',
@@ -79,7 +109,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               id: '4',
               contNo: 'CONT4',
               vesselVoyage: 'OOCL 004',
-              billOfLadingNo: 'TD4',
+              pickupNo: 'TD4',
               sealNo: 'PL24680',
               ownerCode: '444',
               containerFlow: '进口',
@@ -89,7 +119,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               id: '5',
               contNo: 'CONT5',
               vesselVoyage: 'YANG MING 005',
-              billOfLadingNo: 'TD5',
+              pickupNo: 'TD5',
               sealNo: 'PL97531',
               ownerCode: '555',
               containerFlow: '出口',
@@ -120,7 +150,7 @@ function handleAddToEdit() {
 </script>
 
 <template>
-  <Card title="箱信息列表" class="w-4/5">
+  <Card title="箱信息列表" class="w-full">
     <Grid>
       <template #toolbar-tools>
         <TableAction

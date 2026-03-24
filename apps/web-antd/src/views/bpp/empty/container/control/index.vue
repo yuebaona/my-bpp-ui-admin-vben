@@ -2,11 +2,11 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 
-import { message, Select } from 'ant-design-vue';
+import { Button, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -27,6 +27,7 @@ import {
 // import { AdvancedQuery } from '#/components/advanced-query';
 import ChooseContainer from '#/views/bpp/empty/container/control/modules/chooseContainer.vue';
 import ContainerAreaDisplay from '#/views/bpp/empty/container/control/modules/containerAreaDisplay.vue';
+import ContainerAreaSelect from '#/views/bpp/empty/container/control/modules/containerAreaSelect.vue';
 import LogQuery from '#/views/bpp/empty/container/control/modules/logQuery.vue';
 import MainForm from '#/views/bpp/empty/container/control/modules/mainForm.vue';
 import SubForm from '#/views/bpp/empty/container/control/modules/subForm.vue';
@@ -43,6 +44,10 @@ const subPlanNo = ref<string[]>([]);
 const containerAreaClickRow =
   ref<EmptyContainerControlApi.containerAreaDisplayVO | null>(null);
 const popoverVisible = ref({});
+const bayRangeListValue = ref('');
+
+// 传给箱区选择组件的已选箱区
+const selectedPositions = ref<string[]>([]);
 
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
@@ -68,6 +73,22 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
   closeOnClickModal: false,
 });
 
+// 控制箱区选择组件显隐藏
+const containerAreaVisible = ref(false);
+
+// 箱区选择确认
+const handleContainerAreaConfirm = async (positions: string[]) => {
+  selectedPositions.value = [...positions];
+  const value = positions && positions.length > 0 ? positions.join(',') : '';
+  bayRangeListValue.value = value;
+  const currentValues = await mainGridApi.formApi.getValues();
+  await mainGridApi.formApi.setValues({
+    ...currentValues,
+    bayRangeList: value,
+  });
+  containerAreaVisible.value = false;
+};
+
 const [SubGrid, subGridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: subPlanColumns(),
@@ -90,15 +111,95 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          if (!hasSelectedMainPlan.value) {
+          const mainFormValues = await mainGridApi.formApi.getValues();
+          const noFilterConditions =
+            !selectedMainId.value &&
+            !hasSelectedMainPlan.value &&
+            !mainFormValues.tradeType &&
+            !mainFormValues.pickupPlanNo &&
+            !mainFormValues.bayRangeList &&
+            !mainFormValues.createTime &&
+            ownerCodeList.value.length === 0 &&
+            contIsoList.value.length === 0 &&
+            !dischargeVslSchedule.value;
+
+          if (noFilterConditions) {
             return { total: 0, list: [] };
           }
           if (selectedMainId.value) {
+            // 当选中主计划时，只传递mainId，清除所有其他搜索条件
             formValues.mainId = selectedMainId.value;
-          }
-          const mainFormValues = await mainGridApi.formApi.getValues();
-          if (mainFormValues.planNo) {
-            formValues.planNo = mainFormValues.planNo;
+            formValues.planNo = undefined;
+            formValues.tradeType = undefined;
+            formValues.pickupPlanNo = undefined;
+            formValues.bayRangeList = [];
+            formValues.ownerCodeList = [];
+            formValues.contIsoList = [];
+            formValues.dischargeVslSchedule = undefined;
+            formValues.createTime = undefined;
+          } else {
+            // 当未选中主计划时，使用搜索栏的条件
+            if (mainFormValues.planNo) {
+              formValues.planNo = mainFormValues.planNo;
+            }
+            if (mainFormValues.tradeType) {
+              formValues.tradeType = mainFormValues.tradeType;
+            }
+            if (mainFormValues.pickupPlanNo) {
+              formValues.pickupPlanNo = mainFormValues.pickupPlanNo;
+            }
+            if (mainFormValues.bayRangeList) {
+              const bayRangeInput = mainFormValues.bayRangeList;
+              if (bayRangeInput.trim() === '') {
+                formValues.bayRangeList = [];
+              } else if (bayRangeInput.includes(',')) {
+                const positions = bayRangeInput
+                  .split(',')
+                  .map((item) => item.trim().toUpperCase());
+                formValues.bayRangeList = positions
+                  .map((position) => {
+                    if (position) {
+                      return {
+                        yardBay: position,
+                        yardRaw: '',
+                      };
+                    }
+                    return null;
+                  })
+                  .filter(Boolean);
+              } else {
+                // 处理单个箱区的情况
+                const upperCaseInput = bayRangeInput.toUpperCase();
+                if (upperCaseInput) {
+                  formValues.bayRangeList = [
+                    {
+                      yardBay: upperCaseInput,
+                      yardRaw: '',
+                    },
+                  ];
+                } else {
+                  formValues.bayRangeList = [];
+                }
+              }
+            } else {
+              formValues.bayRangeList = [];
+            }
+            if (ownerCodeList.value) {
+              formValues.ownerCodeList = ownerCodeList.value;
+            }
+            if (contIsoList.value) {
+              formValues.contIsoList = contIsoList.value;
+            }
+            if (dischargeVslSchedule.value) {
+              formValues.dischargeVslSchedule = dischargeVslSchedule.value;
+            }
+            if (mainFormValues.createTime && mainFormValues.createTime.length > 0) {
+              formValues.createTime = mainFormValues.createTime
+                .map((time: string) => {
+                  return time ? new Date(time).getTime() : null;
+                })
+                .filter(Boolean);
+            }
           }
           const result = await getSubPlanPage({
             pageNo: page.currentPage,
@@ -188,10 +289,23 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
     resetButtonOptions: {
-      onClick: () => {
+      onClick: async () => {
         ownerCodeList.value = [];
         contIsoList.value = [];
-        dischargeVslSchedule.value = '';
+        dischargeVslSchedule.value = undefined;
+        bayRangeListValue.value = '';
+        selectedPositions.value = [];
+        await mainGridApi.formApi.setValues({ bayRangeList: '' });
+        await mainGridApi.formApi.resetForm();
+        checkedMainIds.value = [];
+        selectedMainId.value = null;
+        hasSelectedMainPlan.value = false;
+        subGridApi.query();
+      },
+      onValuesChange: async (changedValues, allValues) => {
+        if (changedValues.bayRangeList !== undefined) {
+          bayRangeListValue.value = changedValues.bayRangeList;
+        }
       },
     },
   },
@@ -242,33 +356,40 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
           }
           if (queryParams.bayRangeList) {
             const bayRangeInput = queryParams.bayRangeList;
-            const upperCaseInput = bayRangeInput.toUpperCase();
-            const hyphenCount = (upperCaseInput.match(/-/g) || []).length;
-            if (hyphenCount === 1) {
-              queryParams.bayRangeList = [
-                {
-                  yardBay: upperCaseInput,
-                  yardRaw: '',
-                },
-              ];
-            } else if (hyphenCount >= 2) {
-              const parts = upperCaseInput.split(/-/);
-              const yardBay = parts.slice(0, 2).join('-');
-              const yardRaw = parts.slice(2).join('-');
-              queryParams.bayRangeList = [
-                {
-                  yardBay,
-                  yardRaw,
-                },
-              ];
-            } else if (upperCaseInput) {
-              queryParams.bayRangeList = [
-                {
-                  yardBay: upperCaseInput,
-                  yardRaw: '',
-                },
-              ];
+            if (bayRangeInput.trim() === '') {
+              // 空字符串时，传递空数组
+              queryParams.bayRangeList = [];
+            } else if (bayRangeInput.includes(',')) {
+              const positions = bayRangeInput
+                .split(',')
+                .map((item) => item.trim().toUpperCase());
+              queryParams.bayRangeList = positions
+                .map((position) => {
+                  if (position) {
+                    return {
+                      yardBay: position,
+                      yardRaw: '',
+                    };
+                  }
+                  return null;
+                })
+                .filter(Boolean);
+            } else {
+              // 处理单个箱区的情况
+              const upperCaseInput = bayRangeInput.toUpperCase();
+              if (upperCaseInput) {
+                queryParams.bayRangeList = [
+                  {
+                    yardBay: upperCaseInput,
+                    yardRaw: '',
+                  },
+                ];
+              } else {
+                queryParams.bayRangeList = [];
+              }
             }
+          } else {
+            queryParams.bayRangeList = [];
           }
           const result = await getMainPlanPage({
             pageNo: page.currentPage,
@@ -286,7 +407,10 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
 
           if (formValues.planNo && result.list && result.list.length > 0) {
             const firstMainPlan = result.list[0];
-            if (firstMainPlan.planNo && formValues.planNo !== firstMainPlan.planNo) {
+            if (
+              firstMainPlan.planNo &&
+              formValues.planNo !== firstMainPlan.planNo
+            ) {
               selectedMainId.value = firstMainPlan.id.toString();
               hasSelectedMainPlan.value = true;
               subGridApi.query();
@@ -324,6 +448,16 @@ function handleCreateMainPlan() {
 /** 闸口模拟选箱 */
 async function handleChooseContainer() {
   try {
+    if (!ownerCodeList.value || ownerCodeList.value.length === 0) {
+      message.warning('请选择持箱人');
+      return;
+    }
+
+    if (!contIsoList.value || contIsoList.value.length === 0) {
+      message.warning('请选择ISO');
+      return;
+    }
+
     if (ownerCodeList.value && ownerCodeList.value.length > 1) {
       message.warning('持箱人只能选择一个');
       return;
@@ -332,6 +466,7 @@ async function handleChooseContainer() {
       message.warning('ISO只能选择一个');
       return;
     }
+
     const formValues = await mainGridApi.formApi.getValues();
     const searchParams = {
       ...formValues,
@@ -379,16 +514,60 @@ function handleCreateSubPlan() {
 /** 强制完成 */
 const handleForceComplete = async () => {
   try {
-    const res = await forceComplete({ mainIdList: mainIdList.value });
+    // 获取选中的主计划记录
+    const selectedMainRecords = mainGridApi.grid.getCheckboxRecords();
+    // 获取选中的子计划记录
+    const selectedSubRecords = subGridApi.grid.getCheckboxRecords();
+
+    // 检查是否同时选中了主计划和子计划
+    if (selectedMainRecords.length > 0 && selectedSubRecords.length > 0) {
+      message.warning('主计划和子计划只能同时选一个');
+      return;
+    }
+
+    // 检查是否没有选中任何记录
+    if (selectedMainRecords.length === 0 && selectedSubRecords.length === 0) {
+      message.warning('请至少选中一条记录！');
+      return;
+    }
+
+    let forceList = [];
+
+    // 处理选中的主计划
+    if (selectedMainRecords.length > 0) {
+      forceList = selectedMainRecords.map((record) => ({
+        mainId: record.id.toString(),
+        mainGateReleaseQuantity: record.mainGateReleaseQuantity,
+      }));
+    }
+
+    // 处理选中的子计划
+    if (selectedSubRecords.length > 0) {
+      forceList = selectedSubRecords.map((record) => ({
+        mainId: record.id.toString(),
+        mainGateReleaseQuantity: record.mainGateReleaseQuantity || '',
+      }));
+    }
+
+    const res = await forceComplete({ forceList });
     if (res) {
       message.success('成功强制完成！');
+
+      // 刷新主计划和子计划表格
       await mainGridApi.query();
+      await subGridApi.query();
+
+      // 清空选中状态
       mainIdList.value = [];
       checkedMainIds.value = [];
+      checkedSubIds.value = [];
 
+      // 取消所有行勾选
       if (mainGridApi?.grid) {
-        // 取消所有行勾选
         await mainGridApi.grid.setAllCheckboxRow(false);
+      }
+      if (subGridApi?.grid) {
+        await subGridApi.grid.setAllCheckboxRow(false);
       }
     } else {
       const errorMsg = res?.msg || '强制完成失败，请重试';
@@ -396,7 +575,6 @@ const handleForceComplete = async () => {
     }
   } catch (error) {
     console.error('强制完成接口调用异常：', error);
-    message.error('网络异常或接口报错，强制完成操作失败！');
   }
 };
 
@@ -502,7 +680,7 @@ const handleIsoCompositionEnd = (e: CompositionEvent) => {
 
 const dischargeVslSchedule = reactive({
   data: [],
-  value: '',
+  value: undefined,
   fetching: false,
   isComposing: false, // 标记是否在中文输入法组合状态
 });
@@ -608,6 +786,17 @@ const openContainerAreaWindow = (
   containerAreaClickRow.value = JSON.parse(JSON.stringify(row));
   popoverVisible.value[row.id] = true;
 };
+
+onMounted(async () => {
+  try {
+    const formValues = await mainGridApi.formApi.getValues();
+    if (formValues.bayRangeList) {
+      bayRangeListValue.value = formValues.bayRangeList;
+    }
+  } catch (error) {
+    console.error('获取数据失败:', error);
+  }
+});
 </script>
 
 <template>
@@ -619,6 +808,12 @@ const openContainerAreaWindow = (
     <!--    </AdvancedQueryModal>-->
     <LogQueryModal />
     <ChooseContainerModal class="w-3/5" />
+    <ContainerAreaSelect
+      v-model:visible="containerAreaVisible"
+      trade-type=""
+      :selected-positions="selectedPositions"
+      @confirm="handleContainerAreaConfirm"
+    />
     <!-- 主计划列表 -->
     <div class="h-3/5 w-full">
       <MainGrid table-title="主计划">
@@ -633,6 +828,7 @@ const openContainerAreaWindow = (
             :filter-option="false"
             :list-height="150"
             allow-clear
+            show-arrow
             @search="fetchOwnerCodeList"
             @focus="fetchOwnerCodeList('')"
             @input="handleOwnerInput"
@@ -651,6 +847,7 @@ const openContainerAreaWindow = (
             :filter-option="false"
             :list-height="150"
             allow-clear
+            show-arrow
             @search="fetchContIsoList"
             @input="handleIsoInput"
             @focus="fetchContIsoList('')"
@@ -661,7 +858,7 @@ const openContainerAreaWindow = (
         <template #form-dischargeVslSchedule>
           <Select
             :options="dischargeVslSchedule.data"
-            v-model="dischargeVslSchedule.value"
+            v-model:value="dischargeVslSchedule.value"
             style="width: 100%"
             placeholder="请输入船名或航次"
             :show-search="true"
@@ -669,12 +866,37 @@ const openContainerAreaWindow = (
             :list-height="150"
             allow-clear
             @change="
-            (value) => formApi.setFieldValue('dischargeVslSchedule', value)
-          "
+              (value) =>
+                mainGridApi.formApi.setFieldValue('dischargeVslSchedule', value)
+            "
             @input="handleDischargeVslScheduleInput"
             @compositionstart="handleDischargeVslScheduleCompositionStart"
             @compositionend="handleDischargeVslScheduleCompositionEnd"
           />
+        </template>
+        <template #form-bayRangeList>
+          <div class="flex w-full items-center">
+            <Button
+              type="default"
+              style="width: 100%"
+              @click="containerAreaVisible = true"
+              :disabled="false"
+              :title="bayRangeListValue || '选择箱区'"
+            >
+              {{ bayRangeListValue || '选择箱区' }}
+            </Button>
+            <Button
+              v-if="bayRangeListValue"
+              type="link"
+              danger
+              @click="
+                bayRangeListValue = '';
+                mainGridApi.formApi.setValues({
+                  bayRangeList: '',
+                });
+              "
+            />
+          </div>
         </template>
         <template #bayRanges="{ row }">
           <a-popover

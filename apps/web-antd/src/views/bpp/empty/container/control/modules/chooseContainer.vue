@@ -17,6 +17,7 @@ const currentSearchParams = ref<any>(null);
 const debugInfo = ref<any>(null);
 
 const [Modal, modalApi] = useVbenModal({
+  draggable: true,
   showConfirmButton: false,
   onConfirm() {
     modalApi.close();

@@ -93,8 +93,8 @@ const isSeparator = computed(() => {
 });
 const separatorBg = computed(() => {
   return !separator.value ||
-    isBoolean(separator.value) ||
-    !separator.value.backgroundColor
+  isBoolean(separator.value) ||
+  !separator.value.backgroundColor
     ? undefined
     : separator.value.backgroundColor;
 });

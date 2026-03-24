@@ -16,13 +16,17 @@ export const useGlobalTaskStore = defineStore('globalTask', () => {
   };
   // 刷新任务数量
   const refreshTaskTodoTotal = async () => {
-    // 获取待办任务
-    const taskTodo = await getTaskTodoPage({
-      pageNo: 1,
-      pageSize: 100,
-    });
-    if (taskTodo) {
-      taskTodoTotal.value = taskTodo.total;
+    try{
+      // 获取待办任务
+      const taskTodo = await getTaskTodoPage({
+        pageNo: 1,
+        pageSize: 100,
+      });
+      if (taskTodo) {
+        taskTodoTotal.value = taskTodo.total;
+      }
+    } catch (error) {
+      console.log('待办任务统计失败。')
     }
   };
   // 暴露变量和方法（组件中可访问/调用）

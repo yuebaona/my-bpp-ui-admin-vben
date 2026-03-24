@@ -18,49 +18,49 @@ export namespace FieldEditRuleDetailApi {
 /** 查询业务字段规则校验明细分页 */
 export function getEditRuleDetailPage(params: PageParam) {
   return requestClient.get<PageResult<FieldEditRuleDetailApi.EditRuleDetail>>(
-    '/bpp/flow/field/edit-rule-detail/page',
+    '/bpp/common/field-edit-rule-detail/page',
     { params },
   );
 }
 /** 查询行数据 */
 export function getEditRuleDetailByRuleTableId(ruleTableId: number) {
   return requestClient.get<PageResult<FieldEditRuleDetailApi.EditRuleDetail>>(
-    '/bpp/flow/field/edit-rule-detail/getEditRuleDetailByRuleTableId?ruleTableId=' + ruleTableId,
+    '/bpp/common/field-edit-rule-detail/getEditRuleDetailByRuleTableId?ruleTableId=' + ruleTableId,
   );
 }
 
 /** 查询业务字段规则校验明细详情 */
 export function getEditRuleDetail(id: number) {
   return requestClient.get<FieldEditRuleDetailApi.EditRuleDetail>(
-    `/bpp/flow/field/edit-rule-detail/get?id=${id}`,
+    `/bpp/common/field-edit-rule-detail/get?id=${id}`,
   );
 }
 
 /** 新增业务字段规则校验明细 */
 export function createEditRuleDetail(data: FieldEditRuleDetailApi.EditRuleDetail) {
-  return requestClient.post('/bpp/flow/field/edit-rule-detail/create', data);
+  return requestClient.post('/bpp/common/field-edit-rule-detail/create', data);
 }
 
 /** 修改业务字段规则校验明细 */
 export function updateEditRuleDetail(data: FieldEditRuleDetailApi.EditRuleDetail) {
-  return requestClient.put('/bpp/flow/field/edit-rule-detail/update', data);
+  return requestClient.put('/bpp/common/field-edit-rule-detail/update', data);
 }
 
 /** 删除业务字段规则校验明细 */
 export function deleteEditRuleDetail(id: number) {
-  return requestClient.delete(`/bpp/flow/field/edit-rule-detail/delete?id=${id}`);
+  return requestClient.delete(`/bpp/common/field-edit-rule-detail/delete?id=${id}`);
 }
 
 /** 批量删除业务字段规则校验明细 */
 export function deleteEditRuleDetailList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/flow/field/edit-rule-detail/delete-list?ids=${ids.join(',')}`,
+    `/bpp/common/field-edit-rule-detail/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出业务字段规则校验明细 */
 export function exportEditRuleDetail(params: any) {
-  return requestClient.download('/bpp/flow/field/edit-rule-detail/export-excel', { params });
+  return requestClient.download('/bpp/common/field-edit-rule-detail/export-excel', { params });
 }
 
 

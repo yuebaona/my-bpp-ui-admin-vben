@@ -3,22 +3,38 @@
 // import type { ChangeOrderCurrentHistoryApi } from '#/api/bpp/changeorder/current/history/container/index.ts';
 
 import { reactive, ref } from 'vue';
-
 import { useVbenModal } from '@vben/common-ui';
-
-import { message } from 'ant-design-vue';
-
+import { message, Select } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { $t } from '#/locales';
-
 import { batchEditFormSchema } from '../data';
-
+import LadingBill from './ladingBill.vue';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
+import { getVesselAndVoyage} from '#/api/bpp/common';
 const emit = defineEmits(['success']);
 
 const selectedIds = ref<number[] | string[]>([]);
 const formData = reactive<any>({
   vesselName: '',
 });
+
+const showLadingBillModal = ref(false);
+
+// 打开提单号选择弹窗
+const openLadingBillModal = () => {
+  showLadingBillModal.value = true;
+};
+
+// 提单号选择成功回调
+const handleLadingBillSuccess = (data: any) => {
+  showLadingBillModal.value = false;
+  formApi.setFieldValue('pickupNo', data.pickupNo || 'BL001');
+};
+
+const schema = batchEditFormSchema();
+schema.find(
+  (item: any) => item.fieldName === 'pickupNo',
+).componentProps.onClick = openLadingBillModal;
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -29,7 +45,7 @@ const [Form, formApi] = useVbenForm({
   },
   scrollToFirstError: true,
   layout: 'horizontal',
-  schema: batchEditFormSchema(),
+  schema: schema,
   showDefaultActions: false,
   wrapperClass: 'grid-cols-1 md:grid-cols-3',
   handleValuesChange: async (values) => {
@@ -38,6 +54,7 @@ const [Form, formApi] = useVbenForm({
 });
 
 const [Modal, modalApi] = useVbenModal({
+  closeOnClickModal: false,
   async onConfirm() {
     const formValues = await formApi.getValues();
     // Object.assign(formData, formValues);
@@ -86,10 +103,117 @@ const [Modal, modalApi] = useVbenModal({
     }
   },
 });
+
+// 进口船名航次搜索选择器
+const {
+  state: importVesselAndVoyage,
+  search: importVVDSearch,
+  handleInput: handleImportVVDInput,
+  handleCompositionStart: handleImportVVDCompositionStart,
+  handleCompositionEnd: handleImportVVDCompositionEnd,
+  handleChange: handleImportVesselChange,
+} = useSearchSelect({
+  searchApi: async (searchText: string) => {
+    try {
+      const data = await getVesselAndVoyage({ condition: searchText });
+      if (Array.isArray(data)) {
+        return data.map(item => ({
+          importVesselName: item
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error('船名航次搜索失败:', error);
+      return [];
+    }
+  },
+  labelField: 'importVesselName',
+  valueField: 'importVesselName',
+  errorMessage: '获取船名航次数据失败',
+  toUpperCase: true,
+  searchMode: 'input',
+  minSearchLength: 2,
+  onChange: (value) => {
+    formApi.setFieldValue('importVesselName', value);
+  },
+});
+
+// 出口船名航次搜索选择器
+const {
+  state: exportVesselAndVoyage,
+  search: exportVVDSearch,
+  handleInput: handleExportVVDInput,
+  handleCompositionStart: handleExportVVDCompositionStart,
+  handleCompositionEnd: handleExportVVDCompositionEnd,
+  handleChange: handleExportVesselChange,
+} = useSearchSelect({
+  searchApi: async (searchText: string) => {
+    try {
+      const data = await getVesselAndVoyage({ condition: searchText });
+      if (Array.isArray(data)) {
+        return data.map(item => ({
+          exportVesselName: item
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error('船名航次搜索失败:', error);
+      return [];
+    }
+  },
+  labelField: 'exportVesselName',
+  valueField: 'exportVesselName',
+  errorMessage: '获取船名航次数据失败',
+  toUpperCase: true,
+  searchMode: 'input',
+  minSearchLength: 2,
+  onChange: (value) => {
+    formApi.setFieldValue('exportVesselName', value);
+  },
+});
 </script>
 
 <template>
   <Modal title="批量修改">
-    <Form />
+    <Form>
+      <template #importVesselName>
+        <Select
+          v-model:value="importVesselAndVoyage.value"
+          placeholder="请输入船名或航次"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="importVesselAndVoyage.fetching ? undefined : null"
+          :options="importVesselAndVoyage.data"
+          @search="importVVDSearch"
+          allow-clear
+          show-search
+          @input="handleImportVVDInput"
+          @compositionstart="handleImportVVDCompositionStart"
+          @compositionend="handleImportVVDCompositionEnd"
+          @change="handleImportVesselChange"
+        />
+      </template>
+      <template #exportVesselName>
+        <Select
+          v-model:value="exportVesselAndVoyage.value"
+          placeholder="请输入船名或航次"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="exportVesselAndVoyage.fetching ? undefined : null"
+          :options="exportVesselAndVoyage.data"
+          @search="exportVVDSearch"
+          allow-clear
+          show-search
+          @input="handleExportVVDInput"
+          @compositionstart="handleExportVVDCompositionStart"
+          @compositionend="handleExportVVDCompositionEnd"
+          @change="handleExportVesselChange"
+        />
+      </template>
+    </Form>
+    <LadingBill
+      v-model:visible="showLadingBillModal"
+      @success="handleLadingBillSuccess"
+    />
   </Modal>
 </template>

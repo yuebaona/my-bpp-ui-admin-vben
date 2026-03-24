@@ -158,7 +158,7 @@ export const businessProgressAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/business-process',
+    '/bpp/sea/acceptance-plan-over-operation/business-process',
     data,
   );
 };
@@ -170,7 +170,7 @@ export const startProgressAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.AcceptancePlanOverOperationVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/other-process',
+    '/bpp/sea/acceptance-plan-over-operation/other-process',
     data,
   );
 };
@@ -180,7 +180,7 @@ export const startProgressAcceptancePlanOverOperation = (
  */
 export const acceptancePlanOverRejectProgress = (data: { id: any }) => {
   return requestClient.post(
-    `/bpp/flow/acceptance-plan-over-operation/reject-progress?id=${data.id}`,
+    `/bpp/sea/acceptance-plan-over-operation/reject-progress?id=${data.id}`,
   );
 };
 // 创建超限受理计划信息
@@ -188,7 +188,7 @@ export const createAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation/create',
+    '/bpp/sea/acceptance-plan-over-operation/create',
     data,
   );
 };
@@ -197,21 +197,21 @@ export const updateAcceptancePlanOverOperation = (
   data: FlowOverLimitWorkApi.OverLimitWorkSaveReqVO,
 ) => {
   return requestClient.put(
-    '/bpp/flow/acceptance-plan-over-operation/update',
+    '/bpp/sea/acceptance-plan-over-operation/update',
     data,
   );
 };
 // 查询超限受理计划信息详情
 export const getAcceptancePlanOverOperation = (id: number | string) => {
   return requestClient.get(
-    `/bpp/flow/acceptance-plan-over-operation/get?id=${id}`,
+    `/bpp/sea/acceptance-plan-over-operation/get?id=${id}`,
   );
 };
 // 超限受理计划信息分页查询
 export const getAcceptancePlanOverOperationPage = (params: PageParam) => {
   return requestClient.get<
     PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationVO>
-  >('/bpp/flow/acceptance-plan-over-operation/page', { params });
+  >('/bpp/sea/acceptance-plan-over-operation/page', { params });
 };
 // 超限受理计划信息箱分页查询
 export const getAcceptancePlanOverOperationContainerPage = (
@@ -219,18 +219,18 @@ export const getAcceptancePlanOverOperationContainerPage = (
 ) => {
   return requestClient.get<
     PageResult<FlowOverLimitWorkApi.AcceptancePlanOverOperationContainerVO>
-  >('/bpp/flow/acceptance-plan-over-operation-container/page', { params });
+  >('/bpp/sea/acceptance-plan-over-operation-container/page', { params });
 };
 // 获得机械吊具变更操作记录分页
 export const getMachineSpreaderChangeRecordPage = (data: any) => {
-  return requestClient.post('/bpp/flow/machine-spreader-record/page', data);
+  return requestClient.post('/bpp/sea/machine-spreader-record/page', data);
 };
 // 现场操作确认
 export const confirmMachineSpreaderChangeRecord = (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
   return requestClient.post(
-    '/bpp/flow/acceptance-plan-over-operation-container/confirm',
+    '/bpp/sea/acceptance-plan-over-operation-container/confirm',
     data,
   );
 };
@@ -238,36 +238,36 @@ export const confirmMachineSpreaderChangeRecord = (
 export const updateMachineSpreaderRecord = (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
-  return requestClient.put('/bpp/flow/machine-spreader-record/update', data);
+  return requestClient.put('/bpp/sea/machine-spreader-record/update', data);
 };
 // 删除机械吊具变更操作记录
 export const deleteMachineSpreaderRecord = (id: number | string) => {
   return requestClient.delete(
-    `/bpp/flow/machine-spreader-record/delete?id=${id}`,
+    `/bpp/sea/machine-spreader-record/delete?id=${id}`,
   );
 };
 // 现场无此操作（实际无作业）
 export const acceptancePlanOverOperationContainerNoOperation = (ids: any) => {
   return requestClient.post(
-    `/bpp/flow/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
+    `/bpp/sea/acceptance-plan-over-operation-container/no-operation?ids=${ids}`,
   );
 };
 // 无需变更吊具（停止后续作业）
 export const acceptancePlanOverOperationContainerComplete = (ids: any) => {
   return requestClient.post(
-    `/bpp/flow/acceptance-plan-over-operation-container/complete?ids=${ids}`,
+    `/bpp/sea/acceptance-plan-over-operation-container/complete?ids=${ids}`,
   );
 };
 // 批量删除机械吊具变更操作记录(无变更作业)
 export const machineSpreaderRecordDeleteList = (ids: any) => {
   return requestClient.delete(
-    `/bpp/flow/machine-spreader-record/delete-list?ids=${ids}`,
+    `/bpp/sea/machine-spreader-record/delete-list?ids=${ids}`,
   );
 };
 // 获得机械吊具变更操作记录
 export const getMachineSpreaderRecord = async (id: any) => {
   return await requestClient.get(
-    `/bpp/flow/machine-spreader-record/get?id=${id}`,
+    `/bpp/sea/machine-spreader-record/get?id=${id}`,
   );
 };
 // 修改机械吊具变更操作记录
@@ -275,13 +275,13 @@ export const machineSpreaderRecordUpdateProcess = async (
   data: FlowOverLimitWorkApi.MachineSpreaderChangeRecordVO,
 ) => {
   return await requestClient.put(
-    `/bpp/flow/machine-spreader-record/update-process`,
+    `/bpp/sea/machine-spreader-record/update-process`,
     data,
   );
 };
 // 撤销超限受理计划信息
 export const cancelAcceptancePlanOverOperation = (ids: number[] | string[]) => {
   return requestClient.post(
-    `/bpp/flow/acceptance-plan-over-operation/cancel?ids=${ids}`,
+    `/bpp/sea/acceptance-plan-over-operation/cancel?ids=${ids}`,
   );
 }

@@ -16,7 +16,7 @@ import {
 
 import { IconifyIcon } from '@vben/icons';
 
-import { Button, message, Select } from 'ant-design-vue';
+import { Button, Input, message, Select } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -249,31 +249,76 @@ const [Form, formApi] = useVbenForm({
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: contInfoColumns(),
-    height: 'auto',
+    height: '400px',
     keepSource: true,
     border: true,
-    showOverflow: false,
     autoWidth: true,
     rowConfig: {
       keyField: 'id',
       isHover: true,
     },
+    cellConfig: {
+      height: '180px',
+    },
     editConfig: {
       mode: 'row',
       showIcon: false,
       trigger: 'click',
+      autoClear: false,
     },
     editRules: {
       contNo: [
-        { required: true, content: '必须填写' },
         {
-          validator({ cellValue }) {
-            const error = validateContainerNo(cellValue);
-            if (error) {
-              return new Error(error);
-            }
-          },
+          required: true,
+          message: '必须填写'
         },
+        {
+          validator({ cellValue, rowIndex }) {
+            return new Promise((resolve, reject) => {
+              if (!cellValue) {
+                resolve(true);
+                return;
+              }
+              const currentContNo = cellValue.trim().toUpperCase();
+
+              try {
+                validateContainerNo(currentContNo);
+              } catch (error) {
+                reject(new Error('箱号格式不正确'));
+                return;
+              }
+              let insertRecords = gridApi.grid.getInsertRecords();
+
+              const contNoCountMap = new Map();
+
+              insertRecords.forEach((record, index) => {
+                if (record.contNo) {
+                  const contNo = record.contNo.trim().toUpperCase();
+                  contNoCountMap.set(contNo, (contNoCountMap.get(contNo) || 0) + 1);
+                }
+              });
+              const count = contNoCountMap.get(currentContNo) || 0;
+
+              if (count > 1) {
+                // 找到重复的所有行号
+                let duplicateRowIndices = [];
+                insertRecords = gridApi.grid.getInsertRecords();
+                // 将顺序反转
+                insertRecords = insertRecords.reverse();
+                insertRecords.forEach((record, index) => {
+                  if (record.contNo && record.contNo.trim().toUpperCase() == currentContNo && index != rowIndex) {
+                    duplicateRowIndices.push(index+1); // 转换为用户看到的行号
+                  }
+                });
+
+                const currentRowNum = rowIndex + 1;
+                reject(new Error(`箱号重复，当前是第${currentRowNum}行，与第${duplicateRowIndices.join('、')}行箱号相同`));
+              } else {
+                resolve(true);
+              }
+            });
+          }
+        }
       ],
       contSize: [{ required: true, message: '必须填写' }],
       contType: [{ required: true, message: '必须填写' }],
@@ -323,7 +368,21 @@ const [Grid, gridApi] = useVbenVxeGrid({
 const addNewRow = async () => {
   const $grid = gridApi.grid;
   if ($grid) {
-    const record = { contNo: '' };
+    const record = {
+      contNo: '',
+      contCargoSize: {
+        contCargoLength: 0,
+        contCargoWidth: 0,
+        contCargoHeight: 0,
+      },
+      contOogDetails: {
+        oogFront: 0,
+        oogBack: 0,
+        oogLeft: 0,
+        oogRight: 0,
+        oogHeight: 0,
+      },
+    };
     const { row: newRow } = await $grid.insertAt(record, null);
     await nextTick();
     await $grid.setEditRow(newRow, true);
@@ -610,7 +669,7 @@ const handleVesselSearch = async (value: string) => {
   };
   if (!value) return;
   vslNameState.fetching = true;
-  const res = await getVVd({ condition: value });
+  const res = await getVVd({ condition: vslNameState.value.value});
   if (res) {
     vslNameState.data = res.map((item: any) => ({
       label: item.vieVslName,
@@ -783,6 +842,13 @@ const handleVoyageSearch = async (value: string) => {
     value: value.toUpperCase(),
   };
 };
+// 新增：刷新指定行数据，触发formatter重新执行
+const refreshRow = async (row: any) => {
+  const $grid = gridApi.grid;
+  if ($grid) {
+    await $grid.setRow(row, { ...row });
+  }
+};
 // 暴露方法给父组件（如果需要）
 defineExpose({
   validate,
@@ -852,7 +918,7 @@ watch(
     <template #contInfo>
       <div class="mt-4 w-full">
         <div class="table-cont">
-          <Grid :resizeable="true">
+          <Grid>
             <template #actions="{ row }">
               <TableAction
                 :actions="[
@@ -889,8 +955,9 @@ watch(
                 :options="isoLengthState.data"
                 v-model:value="row.contSize"
                 style="width: 100%"
-                :get-popup-container="getPopupContainer"
                 :list-height="100"
+                @mouseup.native.stop
+                @click.native.stop
               />
             </template>
             <template #contTypeEdit="{ row }">
@@ -899,13 +966,113 @@ watch(
                 mode="SECRET_COMBOBOX_MODE_DO_NOT_USE"
                 v-model:value="tempInputMap[row.id]"
                 style="width: 100%"
-                :get-popup-container="getPopupContainer"
                 :show-search="true"
                 :filter-option="true"
                 :list-height="100"
                 @search="(val) => handleContTypeInput(val, row)"
                 @select="(val) => contTypeSelect(val, row)"
               />
+            </template>
+            <template #contCargoSize="{ row }">
+              <div class="flex items-center">
+                <label>长：</label>
+                <Input
+                  suffix="CM"
+                  v-model:value="row.contCargoSize.contCargoLength"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+              <div class="flex items-center">
+                <label>宽：</label>
+                <Input
+                  suffix="CM"
+                  v-model:value="row.contCargoSize.contCargoWidth"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+              <div class="flex items-center">
+                <label>高：</label>
+                <Input
+                  suffix="CM"
+                  v-model:value="row.contCargoSize.contCargoHeight"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+            </template>
+            <template #contCargoSizeDefault="{ row }">
+              <div class="flex items-center justify-center">
+                <label>长：{{ row.contCargoSize.contCargoLength || 0 }}</label>
+              </div>
+              <div class="flex items-center justify-center">
+                <label>宽：{{ row.contCargoSize.contCargoWidth || 0 }}</label>
+              </div>
+              <div class="flex items-center justify-center">
+                <label>高：{{ row.contCargoSize.contCargoHeight || 0 }}</label>
+              </div>
+            </template>
+            <template #contOogDetails="{ row }">
+              <div class="flex items-center">
+                <label>前超：</label>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogFront"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+              <div class="flex items-center">
+                <label>后超：</label>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogBack"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+              <div class="flex items-center">
+                <label>左超：</label>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogLeft"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+              <div class="flex items-center">
+                <label>右超：</label>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogRight"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+              <div class="flex items-center">
+                <label>超高：</label>
+                <Input
+                  class="flex-1"
+                  suffix="CM"
+                  v-model:value="row.contOogDetails.oogHeight"
+                  @change="() => refreshRow(row)"
+                />
+              </div>
+            </template>
+            <template #contOogDetailsDefault="{ row }">
+              <div class="flex items-center justify-center">
+                <label>前超：{{ row.contOogDetails.oogFront || 0 }}</label>
+              </div>
+              <div class="flex items-center justify-center">
+                <label>后超：{{ row.contOogDetails.oogBack || 0 }}</label>
+              </div>
+              <div class="flex items-center justify-center">
+                <label>左超：{{ row.contOogDetails.oogLeft || 0 }}</label>
+              </div>
+              <div class="flex items-center justify-center">
+                <label>右超：{{ row.contOogDetails.oogRight || 0 }}</label>
+              </div>
+              <div class="flex items-center justify-center">
+                <label>超高：{{ row.contOogDetails.oogHeight || 0 }}</label>
+              </div>
             </template>
           </Grid>
         </div>

@@ -4,7 +4,7 @@ import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/o
 
 import { onActivated, reactive, ref, watch } from 'vue';
 
-import { confirm, Page, useVbenModal } from '@vben/common-ui';
+import { alert, confirm, Page, useVbenModal } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 import { $t } from '@vben/locales';
 
@@ -12,6 +12,12 @@ import { useDebounceFn } from '@vueuse/core';
 import { Input, message, Select } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  getByCondition,
+  searchConditionCreate,
+  searchConditionUpdate,
+  searchGenerated,
+} from '#/api/bpp/advanced/query';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { getCustomerList, getVVd } from '#/api/bpp/common';
 import {
@@ -27,6 +33,8 @@ import {
 } from '#/api/bpp/flow/acceptance/plan/over/operation';
 import { advancedButton } from '#/components/advanced-button';
 import { AdvancedQuery } from '#/components/advanced-query';
+import { getFields } from '#/components/advanced-query/advancedQueryHelper.ts';
+import { operatorsMap } from '#/components/advanced-query/types.ts';
 import { router } from '#/router';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/flow/acceptance/plan/over/operation/modules/detail.vue';
@@ -139,7 +147,8 @@ function handleCreate() {
 /** 撤销  */
 function handleRevoke() {
   if (acptPlnNo.value.length === 0) {
-    message.error($t('cxmo.message.revokeMessage'));
+    message.warning($t('cxmo.message.revokeMessage'));
+    showIconAlert($t('cxmo.message.revokeMessage'), 'warning');
     return;
   }
   const invalidNodes = new Set([
@@ -152,7 +161,8 @@ function handleRevoke() {
     invalidNodes.has(node),
   );
   if (!hasInvalidNode) {
-    message.error($t('cxmo.message.revokeVerifyMessage'));
+    message.warning($t('cxmo.message.revokeVerifyMessage'));
+    showIconAlert($t('cxmo.message.revokeVerifyMessage'), 'warning');
     return;
   }
   confirm({
@@ -195,7 +205,8 @@ function handleAudit(row: any) {
 /** 流程审核 */
 function handleViewDetail(row: any) {
   if (!row.processInstanceId) {
-    message.error($t('ui.actionMessage.noProcessInstance'));
+    message.warning($t('ui.actionMessage.noProcessInstance'));
+    showIconAlert($t('ui.actionMessage.noProcessInstance'), 'warning');
     return;
   }
   handleAudit({
@@ -254,7 +265,8 @@ const handleOnSiteOperation = async () => {
   });
 
   if (!initiationTypeValue.value) {
-    message.error('请选择发起类型');
+    message.warning('请选择发起类型');
+    showIconAlert($t('请选择发起类型'), 'warning');
     return;
   }
 
@@ -264,7 +276,8 @@ const handleOnSiteOperation = async () => {
   ) {
     case '客户发起': {
       if (currentSelected.length === 0) {
-        message.error($t('cxmo.message.boxMessage'));
+        message.warning($t('cxmo.message.boxMessage'));
+        showIconAlert($t('cxmo.message.boxMessage'), 'warning');
         return;
       }
 
@@ -276,7 +289,8 @@ const handleOnSiteOperation = async () => {
         invalidNodes.has(node),
       );
       if (hasInvalidNode) {
-        message.error($t('cxmo.message.iniOrComMessage'));
+        message.warning($t('cxmo.message.iniOrComMessage'));
+        showIconAlert($t('cxmo.message.iniOrComMessage'), 'warning');
         return;
       }
 
@@ -286,7 +300,8 @@ const handleOnSiteOperation = async () => {
         if (boxAcptPlnNos.length > 1) {
           const uniqueNos = new Set(boxAcptPlnNos);
           if (uniqueNos.size > 1) {
-            message.error('存在不同的受理编号，请检查');
+            message.warning('存在不同的受理编号，请检查');
+            showIconAlert($t('存在不同的受理编号，请检查'), 'warning');
             return;
           }
         }
@@ -295,7 +310,8 @@ const handleOnSiteOperation = async () => {
         if (vslCodes.length > 1) {
           const uniqueCodes = new Set(vslCodes);
           if (uniqueCodes.size > 1) {
-            message.error('存在不同的船代码，请检查');
+            message.warning('存在不同的船代码，请检查');
+            showIconAlert($t('存在不同的船代码，请检查'), 'warning');
             return;
           }
         }
@@ -304,7 +320,8 @@ const handleOnSiteOperation = async () => {
         if (vslVoys.length > 1) {
           const uniqueVoyages = new Set(vslVoys);
           if (uniqueVoyages.size > 1) {
-            message.error('存在不同的航次，请检查');
+            message.warning('存在不同的航次，请检查');
+            showIconAlert($t('存在不同的航次，请检查'), 'warning');
             return;
           }
         }
@@ -315,7 +332,8 @@ const handleOnSiteOperation = async () => {
         if (cheWorkChangeTypes.length > 1) {
           const uniqueTypes = new Set(cheWorkChangeTypes);
           if (uniqueTypes.size > 1) {
-            message.error('存在不同的吊具类型，请检查');
+            message.warning('存在不同的吊具类型，请检查');
+            showIconAlert($t('存在不同的吊具类型，请检查'), 'warning');
             return;
           }
         }
@@ -326,7 +344,8 @@ const handleOnSiteOperation = async () => {
         if (contOperationNodes.length > 1) {
           const uniqueNodes = new Set(contOperationNodes);
           if (uniqueNodes.size > 1) {
-            message.error('存在不同的现场作业节点，请检查');
+            message.warning('存在不同的现场作业节点，请检查');
+            showIconAlert($t('存在不同的现场作业节点，请检查'), 'warning');
             return;
           }
         }
@@ -337,7 +356,8 @@ const handleOnSiteOperation = async () => {
         if (plannedCheTypes.length > 1) {
           const uniqueTypes = new Set(plannedCheTypes);
           if (uniqueTypes.size > 1) {
-            message.error('存在不同的现场作业吊具，请检查');
+            message.warning('存在不同的现场作业吊具，请检查');
+            showIconAlert($t('存在不同的现场作业吊具，请检查'), 'warning');
             return;
           }
         }
@@ -381,7 +401,8 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   const currentSelected = boxGridApi?.grid?.getCheckboxRecords() || [];
 
   if (currentSelected.length === 0) {
-    message.error($t('cxmo.message.boxMessage'));
+    message.warning($t('cxmo.message.boxMessage'));
+    showIconAlert($t('cxmo.message.boxMessage'), 'warning');
     return;
   }
 
@@ -395,7 +416,8 @@ const handleAcceptancePlanOverOperationContainerNoOperation = async () => {
   );
 
   if (hasInvalidNode) {
-    message.error($t('cxmo.message.iniOrComMessage'));
+    message.warning($t('cxmo.message.currentOperationNode'));
+    showIconAlert($t('cxmo.message.currentOperationNode'), 'warning');
     return;
   }
 
@@ -428,7 +450,8 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 
   // 判断是否选中箱
   if (currentSelected.length === 0) {
-    message.error($t('cxmo.message.boxMessage'));
+    message.warning($t('cxmo.message.boxMessage'));
+    showIconAlert($t('cxmo.message.boxMessage'), 'warning');
     return;
   }
 
@@ -441,7 +464,8 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
     invalidNodes.has(node),
   );
   if (hasInvalidNode) {
-    message.error($t('cxmo.message.iniOrComMessage'));
+    message.warning($t('cxmo.message.currentOperationNode'));
+    showIconAlert($t('cxmo.message.currentOperationNode'), 'warning');
     return;
   }
   const contNos = currentSelected.map((item) => item.contNo);
@@ -469,7 +493,8 @@ const handleAcceptancePlanOverOperationContainerComplete = async () => {
 const handleMachineSpreaderRecordDeleteList = async () => {
   // 判断是否选中变更记录
   if (machineSpreaderChangeRecordCheckedIds.value.length === 0) {
-    message.error($t('cxmo.message.spreaderChangeMessage'));
+    message.warning($t('cxmo.message.spreaderChangeMessage'));
+    showIconAlert($t('cxmo.message.spreaderChangeMessage'), 'warning');
     return;
   }
   confirm({
@@ -579,6 +604,8 @@ const getDictDataList = async () => {
     'spreader_type',
     'actual_operation',
     'initiation_type',
+    'mechanical_type',
+    'is_allowed_stacking',
   ]);
 };
 // 高级查询处理函数
@@ -613,8 +640,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitOnEnter: true,
   },
   gridOptions: {
+    border: true,
     resizableConfig: {
       isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isAllColumnDrag: true,
     },
     checkboxConfig: {
       highlight: true,
@@ -634,8 +663,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
       keyField: 'id',
       isHover: true,
     },
+    printConfig: {
+      enabled: true,
+    },
     toolbarConfig: {
       search: true,
+      print: true,
       custom: true,
       // import: true,
       refresh: true,
@@ -679,10 +712,24 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           await getDictDataList();
+          const result = { ...formValues };
+
+          // 检查 sql 是否不为空
+          if (result.sql && result.sql.trim() !== '') {
+            // 获取所有键
+            const keys = Object.keys(result);
+
+            // 保留 sql 和 params，其他置为 undefined
+            keys.forEach((key) => {
+              if (key !== 'sql' && key !== 'params') {
+                result[key] = undefined;
+              }
+            });
+          }
           return await getAcceptancePlanOverOperationPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
-            ...formValues,
+            ...result,
           });
         },
       },
@@ -710,8 +757,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 // 箱列表表格配置
 const [BoxGrid, boxGridApi] = useVbenVxeGrid({
   gridOptions: {
+    cellConfig: {
+      height: '120px',
+    },
+    border: true,
     resizableConfig: {
       isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isAllColumnDrag: true,
     },
     checkboxConfig: {
       highlight: true,
@@ -802,8 +854,10 @@ const [BoxGrid, boxGridApi] = useVbenVxeGrid({
 const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   useVbenVxeGrid({
     gridOptions: {
+      border: true,
       resizableConfig: {
         isDblclickAutoWidth: true, // 启用双击自适应列宽
+        isAllColumnDrag: true,
       },
       checkboxConfig: {
         highlight: true,
@@ -901,8 +955,14 @@ const [MachineSpreaderChangeRecordGrid, machineSpreaderChangeRecordGridApi] =
   });
 
 const initiationTypeValue = ref<null | string>(null);
-
-const adcancedQueryModalOpen = () => {
+const conditionList = ref<any>([]);
+const advancedQueryModalOpen = async (tableNameList: string[]) => {
+  // 获取历史数据
+  conditionList.value = await getByCondition({});
+  if (conditionList.value?.condition) {
+    defaultLevels.value = [JSON.parse(conditionList.value.condition)];
+  }
+  fields.value = await getFields(tableNameList);
   AdvancedQueryModalApi.open();
 };
 watch(
@@ -920,83 +980,7 @@ watch(
   { immediate: true },
 );
 // 字段配置
-const fields = ref([
-  {
-    fldName: 'name',
-    fldLabel: '姓名',
-    fldType: 'string',
-    options: [],
-  },
-  {
-    fldName: 'age',
-    fldLabel: '年龄',
-    fldType: 'number',
-    options: [],
-  },
-  {
-    fldName: 'gender',
-    fldLabel: '性别',
-    fldType: 'select',
-    options: [
-      { label: '男', value: 'male' },
-      { label: '女', value: 'female' },
-    ],
-  },
-  {
-    fldName: 'birthday',
-    fldLabel: '生日',
-    fldType: 'date',
-    options: [],
-  },
-  {
-    fldName: 'department',
-    fldLabel: '部门',
-    fldType: 'select',
-    options: [
-      { label: '技术部', value: 'tech' },
-      { label: '市场部', value: 'market' },
-      { label: '人事部', value: 'hr' },
-    ],
-  },
-  {
-    fldName: 'salary',
-    fldLabel: '薪资',
-    fldType: 'number',
-    options: [],
-  },
-]);
-
-// 运算符映射
-const operatorsMap = reactive({
-  default: [
-    {
-      refCode: 'eq',
-      refName: '等于',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: 'ne',
-      refName: '不等于',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    { refCode: 'gt', refName: '大于', supportedTypes: ['number', 'date'] },
-    { refCode: 'ge', refName: '大于等于', supportedTypes: ['number', 'date'] },
-    { refCode: 'lt', refName: '小于', supportedTypes: ['number', 'date'] },
-    { refCode: 'le', refName: '小于等于', supportedTypes: ['number', 'date'] },
-    { refCode: 'like', refName: '包含', supportedTypes: ['string'] },
-    { refCode: 'notlike', refName: '不包含', supportedTypes: ['string'] },
-    {
-      refCode: 'null',
-      refName: '为空',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-    {
-      refCode: 'notnull',
-      refName: '不为空',
-      supportedTypes: ['string', 'number', 'date', 'select'],
-    },
-  ],
-});
+const fields = ref();
 
 // 默认层级数据 - 空查询条件
 const defaultLevels = ref([
@@ -1025,9 +1009,21 @@ const defaultLevels = ref([
 const queryResult = ref<any>(null);
 
 // 处理查询事件
-const handleQuery = (params: any) => {
+const handleQuery = useDebounceFn(async (params: any) => {
+  AdvancedQueryModalApi.lock();
   queryResult.value = params;
-};
+  try {
+    const res = await searchGenerated(params);
+    const searchRespVO = {
+      sql: res.sql,
+      params: res.params,
+    };
+    await gridApi.query(searchRespVO);
+    await handleSaveTemplate(params);
+    AdvancedQueryModalApi.unlock();
+    await AdvancedQueryModalApi.close();
+  } catch {}
+}, 300);
 
 // 处理重置事件
 const handleReset = () => {
@@ -1035,7 +1031,23 @@ const handleReset = () => {
 };
 
 // 处理保存模板事件
-const handleSaveTemplate = (templateName: string) => {};
+const handleSaveTemplate = useDebounceFn(async (templateName: string) => {
+  AdvancedQueryModalApi.lock();
+  try {
+    await (conditionList?.value?.id
+      ? searchConditionUpdate({
+          id: conditionList.value.id,
+          condition: JSON.stringify(templateName),
+          formSource: conditionList.value.formSource,
+        })
+      : searchConditionCreate({
+          condition: JSON.stringify(templateName),
+          formSource: 'oog',
+        }));
+    message.success($t('cxmo.action.success'));
+    AdvancedQueryModalApi.unlock();
+  } catch {}
+}, 300);
 // 监听超限作业申请选中的受理编号变化
 watch(
   () => acptPlnNo.value,
@@ -1178,8 +1190,12 @@ const boxFloatingFilterColumns = ref<string[]>([
   'contType',
   'contCargoWeight',
   'contTotalWeight',
-  'contCargoSize',
-  'contOogDetails',
+  // 'contCargoSize',
+  // 'contOogDetails',
+  'isSystemRateGate',
+  'priceGate',
+  'isSystemRateSea',
+  'priceSea',
 ]);
 const oogFloatingFilterColumns = ref<string[]>([
   'cheWorkChangeType',
@@ -1217,14 +1233,31 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
   'payerNameGate',
   'paymentTypeGate',
   'isSystemRate',
+  'plannedMachryType',
+  'createTime',
+  'priceGate',
+  'priceSea',
+  'isAllowedStacking',
   'conclusionTime',
+  'createTime',
 ]);
+function showIconAlert(content: string, icon: string) {
+  alert({
+    content,
+    icon,
+  });
+}
+const advancedChange = (index: any) => {
+  if (index === 0) {
+    advancedQueryModalOpen(['acpt_pln', 'acpt_pln_oog_cont', 'che_chg_rec']);
+  }
+};
 </script>
 
 <template>
   <Page auto-content-height>
     <FormModal class="w-1/2" @success="handleRefresh" />
-    <AdvancedQueryModal class="w-2/5">
+    <AdvancedQueryModal class="w-1/2" title="高级查询">
       <AdvancedQuery
         :fields="fields"
         :operators-map="operatorsMap"
@@ -1290,7 +1323,16 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
           />
         </template>
         <template #form-expand-before>
-          <advancedButton @click="adcancedQueryModalOpen" />
+          <advancedButton
+            @click="
+              advancedQueryModalOpen([
+                'acpt_pln',
+                'acpt_pln_oog_cont',
+                'che_chg_rec',
+              ])
+            "
+            @change="advancedChange"
+          />
         </template>
         <template #toolbar-tools>
           <TableAction
@@ -1434,6 +1476,35 @@ const acceptanceFloatingFilterColumns = ref<string[]>([
               clearable
               @change="changeNameFilter(option, column, 2)"
             />
+          </template>
+
+          <template #contCargoSize="{ row }">
+            <div class="flex items-center justify-center">
+              <label>长：{{ row.contCargoSize.contCargoLength || 0 }}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>宽：{{ row.contCargoSize.contCargoWidth || 0 }}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>高：{{ row.contCargoSize.contCargoHeight || 0 }}</label>
+            </div>
+          </template>
+          <template #contOogDetails="{ row }">
+            <div class="flex items-center justify-center">
+              <label>前超：{{ row.contOogDetails.oogFront || 0 }}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>后超：{{ row.contOogDetails.oogBack || 0 }}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>左超：{{ row.contOogDetails.oogLeft || 0 }}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>右超：{{ row.contOogDetails.oogRight || 0 }}</label>
+            </div>
+            <div class="flex items-center justify-center">
+              <label>超高：{{ row.contOogDetails.oogHeight || 0 }}</label>
+            </div>
           </template>
         </BoxGrid>
       </div>
