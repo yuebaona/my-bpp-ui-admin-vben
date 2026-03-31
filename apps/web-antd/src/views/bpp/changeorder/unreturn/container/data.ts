@@ -1,14 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-// import type { DescriptionItemSchema } from '#/components/description';
-// import { h } from 'vue';
-//
-// import { Tag } from 'ant-design-vue';
-// import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-// import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
 // 预加载需要的字典数据
@@ -27,70 +21,18 @@ const loadDictData = async (dictTypes: string[]) => {
   }
 };
 loadDictData([
-  'system_rate',
-  'acceptance_plan_status',
-  'payment_method',
-  'import_export_type',
-  'on_site_operation_node',
-  'on_site_operation_category',
-  'driving_source',
-  'change_reason',
-  'spreader_type',
-  'actual_operation',
-]).then();
-// 定义受理状态选项配置
-// function getPlanStatusOptions(type: string) {
-//   const dictOptions = bppBaseDict.getBppBaseDictOptions(type) || [];
-//
-//   // 将字典数据转换为 CellTag 需要的格式
-//   return dictOptions.map((option) => ({
-//     value: option.value,
-//     label: option.label,
-//     color: option.colorType,
-//   }));
-// }
-// function createDictFilter(dictType: string) {
-//   return ({ option, row, column }: { column: any; option: any; row: any }) => {
-//     if (option.data) {
-//       const searchText = option.data.toLowerCase();
-//       const dictOptions = bppBaseDict.getBppBaseDictOptions(dictType) || [];
-//       const cellValue = `${row[column.field]}`.toLowerCase();
-//
-//       // 查找标签或值包含搜索文本的字典项
-//       const dictItem = dictOptions.find(
-//         (item) =>
-//           item.label.toLowerCase().includes(searchText) ||
-//           item.value.toLowerCase().includes(searchText),
-//       );
-//
-//       // 如果找到字典项，使用字典值匹配；否则使用原始搜索文本匹配
-//       const matchValue = dictItem ? dictItem.value.toLowerCase() : searchText;
-//       return cellValue.includes(matchValue);
-//     }
-//     return true;
-//   };
-// }
-
-// function renderTagDict(dictType: string, cellValue: string) {
-//   const options = getPlanStatusOptions(dictType);
-//   let color = '';
-//   let label = '';
-//   // eslint-disable-next-line array-callback-return
-//   options.find((item) => {
-//     if (item.value === cellValue) {
-//       color = item.color;
-//       label = item.label;
-//     }
-//   });
-//   return h(Tag, { color }, () => label);
-// }
+  'empty_container_control_main_status',
+  'empty_container_control_sub_status',
+  'trade_type',
+  'empty_container_control_main_operation_type',
+]);
 
 export function planInfoFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'person',
       label: '申请人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入申请人',
@@ -110,7 +52,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'company',
       label: '货主单位',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入货主单位',
@@ -120,7 +62,7 @@ export function planInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'agentCompany',
       label: '货代单位',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入货代单位',
@@ -144,7 +86,7 @@ export function payInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'payer',
       label: '付费人',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
         placeholder: '请输入付费人',
@@ -164,11 +106,10 @@ export function payInfoFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'title',
       label: '发票抬头',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         allowClear: true,
-        disabled: true,
-        placeholder: '请输入发票抬头',
+        placeholder: '自动同步付费人信息',
       },
       rules: 'required',
     },
@@ -181,14 +122,14 @@ export function acceptancePlanSearchSchema(): VbenFormSchema[] {
     {
       fieldName: 'vesselName',
       label: '船名航次',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
         placeholder: '请输入船名航次',
         allowClear: true,
       },
     },
     {
-      fieldName: 'acceptancePlanNo',
+      fieldName: 'acptPlnNo',
       label: '受理计划号',
       component: 'Input',
       componentProps: {
@@ -231,51 +172,49 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
     { type: 'checkbox', width: 40, fixed: 'left' },
     {
-      field: 'acceptancePlanNo',
+      field: 'acptPlnNo',
       title: '受理计划号',
       minWidth: 120,
-      sortable: true,
       fixed: 'left',
     },
     {
       field: 'transportOrdNo',
       title: '运输指令号',
       minWidth: 120,
-      sortable: true,
     },
     {
       field: 'businessType',
       title: '业务类型',
       minWidth: 120,
-      sortable: true,
     },
     {
-      field: 'containerNo',
+      field: 'contNo',
       title: '集装箱号',
       minWidth: 120,
-      sortable: true,
     },
     {
-      field: 'instructionStatus',
+      field: 'loadOrPick',
+      title: '进/提',
+      minWidth: 120,
+    },
+    {
+      field: 'orderStatus',
       title: '指令状态',
       minWidth: 120,
-      sortable: true,
     },
     {
       field: 'pickupNo',
       title: '提单号',
       minWidth: 120,
-      sortable: true,
       slots: { default: 'pickupNoAction' },
     },
     {
       field: 'isLCL',
       title: '是否拼箱',
       minWidth: 120,
-      sortable: true,
     },
     {
-      field: 'cargo',
+      field: 'cargoName',
       title: '货名',
       minWidth: 120,
       editRender: { name: 'input' },
@@ -290,264 +229,257 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
       field: 'dischargePort',
       title: '卸货港',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'destinationPort',
       title: '目的港',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'tradeType',
       title: '内外贸',
       minWidth: 120,
-      sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'tradeType_edit' },
+      editRender: { name: '$input' },
+      formatter: ({ cellValue }) => {
+        const map = { DOMESTIC: '内贸', FOREIGN: '外贸' };
+        return map[cellValue as keyof typeof map] || cellValue;
+      },
     },
     {
       field: 'owner',
       title: '持箱人',
       minWidth: 120,
-      sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'owner_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'size',
       title: '尺寸',
       minWidth: 120,
-      sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'size_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'containerType',
       title: '箱型',
       minWidth: 120,
-      sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'containerType_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'containerHeight',
       title: '箱高',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'iso',
       title: 'ISO',
       minWidth: 120,
-      sortable: true,
-      editRender: { name: 'input' },
+      slots: { edit: 'iso_edit' },
+      editRender: { name: '$input' },
     },
     {
       field: 'empty',
       title: '空重',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'imdg',
+      field: 'flowCategory',
+      title: '流向类别',
+      minWidth: 120,
+      editRender: { name: 'input' },
+    },
+    {
+      field: 'imdgCode',
       title: 'IMDG',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'unno',
+      field: 'unNo',
       title: 'UNNO',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'isReefer',
+      field: 'isRefrigerated',
       title: '是否打冷',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'temperature',
+      field: 'refrigerationTemp',
       title: '打冷温度',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'vent',
+      field: 'ventilationPort',
       title: '通风口',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'sealNo',
       title: '铅封号',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'weight',
+      field: 'contWeightKg',
       title: '箱重',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'containerLevel',
+      field: 'contGrade',
       title: '箱等级',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'damage',
+      field: 'isDamaged',
       title: '是否残存',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'damageLevel',
+      field: 'damageGrade',
       title: '残损等级',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'overLimit',
+      field: 'isOog',
       title: '是否超限',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'front',
+      field: 'oogFront',
       title: '前超',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'rear',
+      field: 'oogBack',
       title: '后超',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'left',
+      field: 'oogLeft',
       title: '左超',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'right',
+      field: 'oogRight',
       title: '右超',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'pickup',
+      field: 'isDirectLoadPick',
       title: '直装直提',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'PTI',
+      field: 'isPtiValid',
       title: '是否PTI有效',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'PTITime',
+      field: 'ptiExpiryDate',
       title: 'PTI有效期',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'relatePickupNo',
+      field: 'relatedBillNo',
       title: '关联提单号',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'relateTO',
+      field: 'relatedToNo',
       title: '关联TO号',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'returnPort',
-      title: '返厂码头',
+      field: 'returnTerminal',
+      title: '返场码头',
       minWidth: 120,
-      sortable: true,
     },
     {
-      field: 'payer',
+      field: 'payerCode',
       title: '付费人',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'payment',
+      field: 'paymentType',
       title: '付费方式',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
-      field: 'title',
+      field: 'invoiceTitle',
       title: '发票抬头',
       minWidth: 120,
-      sortable: true,
     },
     {
-      field: 'oldContainerNo',
+      field: 'oldContNo',
       title: '旧箱号',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'newContainerNo',
       title: '新箱号',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'isBand',
       title: '是否捆绑',
       minWidth: 120,
-      sortable: true,
       editRender: { name: 'input' },
     },
     {
       field: 'subContainer',
       title: '子箱号',
       minWidth: 120,
-      sortable: true,
       slots: { default: 'boxAction' },
+    },
+    {
+      field: 'appointmentVehicle',
+      title: '预约车辆',
+      minWidth: 120,
+    },
+    {
+      field: 'appointmentStartTime',
+      title: '预约开始时间',
+      minWidth: 120,
+    },
+    {
+      field: 'appointmentEndTime',
+      title: '预约结束时间',
+      minWidth: 120,
     },
     {
       field: 'remark',
       title: '备注',
       minWidth: 120,
-      sortable: true,
+      editRender: { name: 'input' },
     },
     {
       title: '操作',
@@ -561,8 +493,20 @@ export function acceptancePlanColumns(): VxeTableGridOptions['columns'] {
 /** 提单信息管理表格列配置 */
 export function ladingBillColumns(): VxeTableGridOptions['columns'] {
   return [
-    { title: '序号',type: 'seq',field: 'serialNumber', width: 50, align: 'center' },
-    { type: 'checkbox',field:'checkbox', width: 40, fixed: 'left' ,slots: { footer: 'checkbox' },},
+    {
+      title: '序号',
+      type: 'seq',
+      field: 'serialNumber',
+      width: 50,
+      align: 'center',
+    },
+    {
+      type: 'checkbox',
+      field: 'checkbox',
+      width: 40,
+      fixed: 'left',
+      slots: { footer: 'checkbox' },
+    },
     {
       field: 'pickupNo',
       title: '提单号',
@@ -721,9 +665,13 @@ export function returnManageFormSchema(): VbenFormSchema[] {
 export function editFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'vesselName',
+      fieldName: 'vslName',
       label: '船名航次',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入船名航次',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'dischargePort',
@@ -757,34 +705,55 @@ export function editFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'owner',
+      fieldName: 'holderCode',
       label: '持箱人',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入持箱人',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'tradeType',
       label: '内外贸',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择内外贸',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'empty',
       label: '空重',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+        disabled: true,
+        placeholder: '请输入空重',
+      },
     },
     {
-      fieldName: 'size',
+      fieldName: 'contSize',
       label: '尺寸',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入尺寸',
+        allowClear: true,
+      },
     },
     {
-      fieldName: 'containerType',
+      fieldName: 'contType',
       label: '箱型',
       component: 'Input',
     },
     {
-      fieldName: 'containerHeight',
+      fieldName: 'contHeight',
       label: '箱高',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入箱高',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'imdg',
@@ -797,9 +766,13 @@ export function editFormSchema(): VbenFormSchema[] {
       component: 'Input',
     },
     {
-      fieldName: 'iso',
+      fieldName: 'contIso',
       label: '箱ISO',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请输入ISO',
+        allowClear: true,
+      },
     },
     {
       fieldName: 'isReefer',
@@ -941,11 +914,19 @@ export function editFormSchema(): VbenFormSchema[] {
       fieldName: 'returnPort',
       label: '返场码头',
       component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '请输入返场码头',
+      },
     },
     {
       fieldName: 'payer',
       label: '付费人',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入付费人',
+      },
     },
     {
       fieldName: 'payment',
@@ -955,7 +936,11 @@ export function editFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'title',
       label: '发票抬头',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        allowClear: true,
+        placeholder: '自动同步付费人信息',
+      },
     },
     {
       fieldName: 'remark',

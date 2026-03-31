@@ -16,12 +16,6 @@ import { Button, Popover } from 'ant-design-vue';
 const props = withDefaults(defineProps<AdvancedButtonProps>(), {
   buttonType: () => [
     {
-      text: '重置',
-    },
-    {
-      text: '普通查询',
-    },
-    {
       text: '高级查询',
     },
   ],
@@ -44,7 +38,7 @@ const change = (index: number) => {
   <div>
     <Button type="default" :size="size" @click="click">
       <template #icon>
-        <IconifyIcon icon="majesticons:filter-line" style="font-size: 28px" />
+        <IconifyIcon icon="majesticons:filter-line" style="font-size: 25px" />
       </template>
     </Button>
     <Popover placement="bottomRight" trigger="click">
@@ -54,12 +48,12 @@ const change = (index: number) => {
           v-for="(item, index) in buttonType"
           :key="index"
         >
-          <span class="text-lg" @change="change(index)">{{ item.text }}</span>
+          <span  @click="change(index)">{{ item.text }}</span>
         </p>
       </template>
       <Button type="default" :size="size">
         <template #icon>
-          <IconifyIcon icon="mdi-light:chevron-down" style="font-size: 30px" />
+          <IconifyIcon icon="mdi-light:chevron-down" style="font-size: 25px" />
         </template>
       </Button>
     </Popover>

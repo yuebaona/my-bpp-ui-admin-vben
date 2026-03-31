@@ -234,7 +234,7 @@ const isoSearch = async (value: string) => {
     const upperCaseValue = value.toUpperCase();
     const res = await getContainerIsoListPage({
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 100,
       contIso: upperCaseValue,
       queryType: 'ISO',
     });
@@ -265,7 +265,7 @@ const ownerSearch = async (value: string) => {
     const upperCaseValue = value.toUpperCase();
     const res = await getContainerOwnerListPage({
       pageNo: 1,
-      pageSize: 10,
+      pageSize: 100,
       ownerCode: upperCaseValue,
     });
 
@@ -326,7 +326,10 @@ const [Form, formApi] = useVbenForm({
       }
     }
 
-    if (isChangeContIso || isChangeOwner || isChangeTradeType) {
+    if (
+      (isChangeContIso || isChangeOwner || isChangeTradeType) &&
+      !formData.id
+    ) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       const $grid = gridApi.grid;
@@ -442,6 +445,7 @@ const debouncedConfirm = debounce(async () => {
 }, 300);
 
 const [Modal, modalApi] = useVbenModal({
+  draggable: true,
   onConfirm: debouncedConfirm,
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {

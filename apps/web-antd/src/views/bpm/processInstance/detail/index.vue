@@ -9,7 +9,7 @@ import {
   BpmFieldPermissionType,
   BpmModelFormType,
   BpmModelType,
-  BpmTaskStatusEnum,
+  BpmProcessInstanceStatus,
   DICT_TYPE,
 } from '@vben/constants';
 import {
@@ -40,15 +40,13 @@ import BpmProcessInstanceTaskList from './modules/task-list.vue';
 import ProcessInstanceTimeline from './modules/time-line.vue';
 
 defineOptions({ name: 'BpmProcessInstanceDetail' });
-// 流程状态
+
 const props = defineProps<{
   activityId?: string; // 流程活动编号，用于抄送查看
   id: string; // 流程实例的编号
   taskId?: string; // 任务编号
-  formPagePath?: string; // 来自哪个页面的路地址
 }>();
-const flowStatus = ref(null); // 流程状态
-const todoTask = ref(null);
+
 const processInstanceLoading = ref(false); // 流程实例的加载中
 const processInstance = ref<BpmProcessInstanceApi.ProcessInstance>(); // 流程实例
 const processDefinition = ref<any>({}); // 流程定义
@@ -63,13 +61,10 @@ const auditIconsMap: {
     | typeof SvgBpmRejectIcon
     | typeof SvgBpmRunningIcon;
 } = {
-  [BpmTaskStatusEnum.RUNNING]: SvgBpmRunningIcon,
-  [BpmTaskStatusEnum.APPROVE]: SvgBpmApproveIcon,
-  [BpmTaskStatusEnum.REJECT]: SvgBpmRejectIcon,
-  [BpmTaskStatusEnum.CANCEL]: SvgBpmCancelIcon,
-  [BpmTaskStatusEnum.APPROVING]: SvgBpmApproveIcon,
-  [BpmTaskStatusEnum.RETURN]: SvgBpmRejectIcon,
-  [BpmTaskStatusEnum.WAIT]: SvgBpmRunningIcon,
+  [BpmProcessInstanceStatus.RUNNING]: SvgBpmRunningIcon,
+  [BpmProcessInstanceStatus.APPROVE]: SvgBpmApproveIcon,
+  [BpmProcessInstanceStatus.REJECT]: SvgBpmRejectIcon,
+  [BpmProcessInstanceStatus.CANCEL]: SvgBpmCancelIcon,
 };
 const activityNodes = ref<BpmProcessInstanceApi.ApprovalNodeInfo[]>([]); // 审批节点信息
 const userOptions = ref<SystemUserApi.User[]>([]); // 用户列表
@@ -111,8 +106,7 @@ async function getApprovalDetail() {
 
     processInstance.value = data.processInstance;
     processDefinition.value = data.processDefinition;
-    flowStatus.value = data.status;
-    todoTask.value = data.todoTask;
+
     // 设置表单信息
     if (processDefinition.value.formType === BpmModelFormType.NORMAL) {
       // 获取表单字段权限
@@ -215,20 +209,27 @@ watch(
     }
   },
 );
-
+const loading = ref(false);
 /** 初始化 */
 onMounted(async () => {
-  await getDetail();
-  // 获得用户列表
-  userOptions.value = await getSimpleUserList();
+  try {
+    loading.value = true;
+    await getDetail();
+    // 获得用户列表
+    userOptions.value = await getSimpleUserList();
+  } finally {
+    loading.value = false;
+  }
 });
 </script>
 
 <template>
-  <Page auto-content-height>
+  <Page auto-content-height v-loading="loading">
     <Card
+      class="flex h-full flex-col"
       :body-style="{
-        overflowY: 'auto',
+        flex: 1,
+        overflowY: 'hidden',
         paddingTop: '12px',
       }"
     >
@@ -289,24 +290,16 @@ onMounted(async () => {
         </div>
 
         <!-- 流程操作 -->
-        <div class="process-tabs-container flex flex-1 flex-col">
-          <Tabs v-model:active-key="activeTab" class="mt-0 h-full">
-            <TabPane tab="审批详情" key="form" class="tab-pane-content">
-              <Row :gutter="[48, 24]" class="h-full">
-                <Col
-                  :xs="24"
-                  :sm="24"
-                  :md="18"
-                  :lg="18"
-                  :xl="16"
-                  class="h-full"
-                >
-                  <!-- 流程表单,动态表单 -->
+        <div class="flex h-full flex-1 flex-col">
+          <Tabs v-model:active-key="activeTab">
+            <TabPane tab="审批详情" key="form" class="pb-20 pr-3">
+              <Row :gutter="[48, 24]">
+                <Col :xs="24" :sm="24" :md="18" :lg="18" :xl="16">
+                  <!-- 流程表单 -->
                   <div
                     v-if="
                       processDefinition?.formType === BpmModelFormType.NORMAL
                     "
-                    class="h-full"
                   >
                     <form-create
                       v-model="detailForm.value"
@@ -315,26 +308,16 @@ onMounted(async () => {
                       :rule="detailForm.rule"
                     />
                   </div>
-                  <!-- 流程表单,自定义表单 -->
                   <div
                     v-else-if="
                       processDefinition?.formType === BpmModelFormType.CUSTOM
                     "
-                    class="h-full"
                   >
-                    <BusinessFormComponent
-                      :id="processInstance?.businessKey"
-                      :business-key="processInstance?.businessKey"
-                      :todo-task="todoTask"
-                      :status="flowStatus"
-                      :form-page-path="formPagePath"
-                      :activity-nodes="activityNodes"
-                      :process-instance="processInstance"
-                    />
+                    <BusinessFormComponent :id="processInstance?.businessKey" />
                   </div>
                 </Col>
-                <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="8" class="h-full">
-                  <div class="mt-4 h-full">
+                <Col :xs="24" :sm="24" :md="6" :lg="6" :xl="8">
+                  <div class="mt-4">
                     <ProcessInstanceTimeline :activity-nodes="activityNodes" />
                   </div>
                 </Col>
@@ -343,44 +326,35 @@ onMounted(async () => {
             <TabPane
               tab="流程图"
               key="diagram"
-              class="tab-pane-content"
+              class="pb-20 pr-3"
               :force-render="true"
             >
-              <div class="h-full">
-                <ProcessInstanceSimpleViewer
-                  v-show="
-                    processDefinition.modelType &&
-                    processDefinition.modelType === BpmModelType.SIMPLE
-                  "
-                  :loading="processInstanceLoading"
-                  :model-view="processModelView"
-                />
-                <ProcessInstanceBpmnViewer
-                  v-show="
-                    processDefinition.modelType &&
-                    processDefinition.modelType === BpmModelType.BPMN
-                  "
-                  :loading="processInstanceLoading"
-                  :model-view="processModelView"
-                />
-              </div>
+              <ProcessInstanceSimpleViewer
+                v-show="
+                  processDefinition.modelType &&
+                  processDefinition.modelType === BpmModelType.SIMPLE
+                "
+                :loading="processInstanceLoading"
+                :model-view="processModelView"
+              />
+              <ProcessInstanceBpmnViewer
+                v-show="
+                  processDefinition.modelType &&
+                  processDefinition.modelType === BpmModelType.BPMN
+                "
+                :loading="processInstanceLoading"
+                :model-view="processModelView"
+              />
             </TabPane>
-            <TabPane tab="流转记录" key="record" class="tab-pane-content">
-              <div class="h-full">
-                <BpmProcessInstanceTaskList
-                  ref="taskListRef"
-                  :loading="processInstanceLoading"
-                  :id="id"
-                />
-              </div>
+            <TabPane tab="流转记录" key="record" class="pb-20 pr-3">
+              <BpmProcessInstanceTaskList
+                ref="taskListRef"
+                :loading="processInstanceLoading"
+                :id="id"
+              />
             </TabPane>
             <!-- TODO 待开发 -->
-            <TabPane
-              tab="流转评论"
-              key="comment"
-              v-if="false"
-              class="tab-pane-content"
-            >
+            <TabPane tab="流转评论" key="comment" v-if="false" class="pr-3">
               <div class="h-full">待开发</div>
             </TabPane>
           </Tabs>
@@ -388,8 +362,7 @@ onMounted(async () => {
       </div>
 
       <template #actions>
-        <!--动态表单显示流程操作按钮-->
-        <div class="px-4" v-if="processDefinition?.formType === BpmModelFormType.NORMAL">
+        <div class="px-4">
           <ProcessInstanceOperationButton
             ref="operationButtonRef"
             :process-instance="processInstance"
@@ -409,35 +382,18 @@ onMounted(async () => {
 </template>
 
 <style lang="scss" scoped>
-// @jason：看看能不能通过 tailwindcss 简化下
-.ant-tabs-content {
-  height: 100%;
-}
-
-.process-tabs-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
 :deep(.ant-tabs) {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
 
-:deep(.ant-tabs-content) {
-  flex: 1;
-  overflow-y: auto;
+  .ant-tabs-content {
+    height: 100%;
+  }
 }
 
 :deep(.ant-tabs-tabpane) {
   height: 100%;
-}
-
-.tab-pane-content {
-  height: calc(100vh - 420px);
-  padding-right: 12px;
-  overflow: hidden auto;
+  overflow-y: auto;
 }
 </style>

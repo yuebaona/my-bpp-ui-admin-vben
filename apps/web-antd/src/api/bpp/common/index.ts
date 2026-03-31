@@ -24,7 +24,6 @@ export namespace CommonApi {
     noticeEmail: string;
     noticePhone: string;
   }
-
   export interface ContainerOwnerVO {
     id?: number;
     ownerCode?: string;
@@ -44,11 +43,22 @@ export namespace CommonApi {
     containerHeight?: string;
     isoCode?: string;
   }
+
+  export interface ContainerVO {
+    id?: number;
+    vvd?: string;
+    isSpecial?: string;
+    containerType?: string;
+    containerTypeName?: string;
+    containerLength?: string;
+    containerHeight?: string;
+    isoCode?: string;
+  }
 }
 // 获取客户基础信息
 export const getCustomerList = (params: PageParam) => {
   return requestClient.get<PageResult<CommonApi.CustomerVO>>(
-    '/bpp/flow/common/get-customer-list',
+    '/bpp/base/customer/get-customer-list',
     { params },
   );
 };
@@ -63,24 +73,38 @@ export const getVVd = ({
   inOutFlag?: string;
 }) => {
   return requestClient.get(
-    `/bpp/flow/common/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
+    `/bpp/comb/vessel-voyage/get-vvd-split-list?queryType=${queryType}&condition=${condition}&inOutFlag=${inOutFlag}`,
   );
 };
+
+// 获取船名航次（联合查询）
+export const getVesselAndVoyage = (params: { condition: string }) => {
+  return requestClient.get<EmptyContainerControlApi.ContainerVO>(
+    '/bpp/comb/vessel-voyage/get-vvd-union',
+    {
+      params,
+    },
+  );
+};
+
 // 获取集装箱ISO信息
 export const getContainerIsoList = (queryType: string) => {
   return requestClient.get(
-    `/bpp/flow/common/get-container-iso-list?queryType=${queryType}`,
+    `/bpp/base/container-iso-info/get-container-iso-list?queryType=${queryType}`,
   );
 };
 // 分页获取集装箱ISO信息
 export const getContainerIsoListPage = (params: {
-  contIso: string;
+  contHeight?: string;
+  contIso?: string;
+  contLength?: string;
+  contType?: string;
   pageNo: number;
   pageSize: number;
   queryType: string;
 }) => {
   return requestClient.get<PageResult<CommonApi.isoVO>>(
-    `/bpp/flow/common/get-container-iso-list`,
+    `/bpp/base/container-iso-info/get-container-iso-list`,
     { params },
   );
 };
@@ -91,7 +115,7 @@ export const getContainerOwnerListPage = (params: {
   pageSize: number;
 }) => {
   return requestClient.get<PageResult<CommonApi.ContainerOwnerVO>>(
-    '/bpp/flow/common/get-container-owner-list',
+    '/bpp/base/container-owner/get-container-owner-list',
     { params },
   );
 };

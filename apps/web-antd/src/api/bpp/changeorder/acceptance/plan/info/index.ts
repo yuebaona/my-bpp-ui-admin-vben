@@ -72,31 +72,31 @@ export namespace AcceptancePlanApi {
 /** 查询受理计划信息分页 */
 export function getPlanPage(params: PageParam) {
   return requestClient.get<PageResult<AcceptancePlanApi.Plan>>(
-    '/bpp/flow/acceptance-plan/page',
+    '/bpp/common/acceptance-plan/page',
     { params },
   );
 }
 
 /** 查询受理计划信息详情 */
 export function getPlan(id: number) {
-  return requestClient.get<AcceptancePlanApi.RecordBase>(
-    `/bpp/flow/acceptance-plan/get?id=${id}`,
+  return requestClient.get<AcceptancePlanApi.Plan>(
+    `/bpp/common/acceptance-plan/get?id=${id}`,
   );
 }
 
 /** 新增受理计划信息 */
 export function createPlan(data: AcceptancePlanApi.Plan) {
-  return requestClient.post('/bpp/flow/acceptance-plan/create', data);
+  return requestClient.post('/bpp/common/acceptance-plan/create', data);
 }
 
 /** 修改受理计划信息 */
 export function updatePlan(data: AcceptancePlanApi.Plan) {
-  return requestClient.put('/bpp/flow/acceptance-plan/update', data);
+  return requestClient.put('/bpp/common/acceptance-plan/update', data);
 }
 
 /** 删除受理计划信息 */
 export function deletePlan(id: number) {
-  return requestClient.delete(`/bpp/flow/acceptance-plan/delete?id=${id}`);
+  return requestClient.delete(`/bpp/common/acceptance-plan/delete?id=${id}`);
 }
 
 /** 批量删除受理计划信息 */
@@ -108,7 +108,7 @@ export function deletePlanList(ids: number[]) {
 
 /** 导出受理计划信息 */
 export function exportPlan(params: any) {
-  return requestClient.download('/bpp/flow/acceptance-plan/export-excel', {
+  return requestClient.download('/bpp/common/acceptance-plan/export-excel', {
     params,
   });
 }

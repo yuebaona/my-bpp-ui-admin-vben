@@ -32,6 +32,7 @@
     "revokeMessage": "请勾选需要撤销的数据。",
     "boxMessage": "请选择需要操作的箱。",
     "iniOrComMessage": "请选择现场作业节点不是初始化或完成的状态",
+    "currentOperationNode": "当前现场作业节点不支持此操作",
     "spreaderChangeMessage": "请选择要变更的吊具。",
     "revokeVerifyMessage": "受理状态必须是INITIALIZATION、REVIEWING、CONFIRMED、REJECTED。",
     "searchMessage": "请输入箱号/船名航次"
