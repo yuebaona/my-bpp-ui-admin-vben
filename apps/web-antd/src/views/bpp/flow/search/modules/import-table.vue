@@ -9,7 +9,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getTableByTableName } from '#/api/bpp/common/search/table/index';
+import { getTableByTableName } from '#/api/bpp/flow/search/table/index';
 import { createCodegenList, getSchemaTableList } from '#/api/infra/codegen';
 import { $t } from '#/locales';
 import {
