@@ -15,12 +15,16 @@ import { onActivated, onMounted, ref, watch } from "vue";
 const props = withDefaults(defineProps<Props>(), {
   planType: () => [],
 });
+const emit = defineEmits<{
+  (e: 'visible-change', visible: boolean): void;
+}>();
 const customFormInfo = ref({
   formKey: 'change_order_paymentInfo',
   formName: '改单付费信息',
   formType: 'changeOrderPaymentInfo',
   formSchema: [],
   id: '',
+  formVisible: true,
 });
 /** 表格展示用的行数据原始数据*/
 const localOriginalRows = ref<any[]>([]);
@@ -47,8 +51,10 @@ const loadFormConfig = async ()=>{
   localOriginalRows.value = FormApi.getState()?.schema;
 
   const res = await selectByFormKeyNameType(customFormInfo.value);
+  console.log('res', res);
   if (res?.id) {
     customFormInfo.value.id = res.id;
+    customFormInfo.value.formVisible = res.formVisible;
   }
   if (res?.formSchema) {
     const schema = JSON.parse(res.formSchema);
@@ -77,6 +83,7 @@ const initialData = (newVal)=>{
     formType: 'changeOrderPaymentInfo',
     formSchema: [],
     id: '',
+    formVisible: true,
   }
   customFormInfo.value.formType = newVal;
   formKey.value++;
@@ -92,10 +99,16 @@ watch(() => props.planType, (newVal) => {
   }
 }, { deep: true });
 const formKey = ref(0)
+watch(
+  () => customFormInfo.value.formVisible,
+  (newVal) => {
+    emit('visible-change', newVal);
+  },
+);
 </script>
 
 <template>
-  <Card title="改单付费信息">
+  <Card title="改单付费信息" v-if="customFormInfo.formVisible">
     <Form />
   </Card>
 </template>
