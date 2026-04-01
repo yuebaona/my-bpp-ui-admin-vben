@@ -288,7 +288,7 @@ export const forceComplete = (data: {
 // 获取箱区范围
 export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
   return requestClient.post(
-    '/bpp/flow/common/get-yard-bay-list',
+    '/bpp/comb/yard-blockbay/get-yard-bay-list',
     data,
   );
 };
