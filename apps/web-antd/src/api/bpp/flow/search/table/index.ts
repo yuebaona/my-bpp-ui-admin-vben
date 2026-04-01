@@ -27,7 +27,7 @@ export namespace SearchTableColumnApi {
 /** 根据表名获取数据库表信息 */
 export function getTableByTableName(tableName: string) {
   return requestClient.get<SearchTableColumnApi.TableColumn>(
-    `/bpp/flow/search/getTableByTableName?tableName=${tableName}`,
+    `/bpp/common/search/getTableByTableName?tableName=${tableName}`,
   );
 }
 
@@ -36,7 +36,7 @@ export function getTableFieldInfoByTableName(
   data: SearchTableColumnApi.TableColumn,
 ) {
   return requestClient.post<SearchTableColumnApi.TableColumn>(
-    `/bpp/flow/search/getTableFieldInfoByTableName`,
+    `/bpp/common/search/getTableFieldInfoByTableName`,
     data,
   );
 }
@@ -44,7 +44,7 @@ export function getTableFieldInfoByTableName(
 /** 查询高级查询字段定义分页 */
 export function getTableColumnPage(params: PageParam) {
   return requestClient.get<PageResult<SearchTableColumnApi.TableColumn>>(
-    '/bpp/flow/search/table-column/page',
+    '/bpp/common/search/table-column/page',
     { params },
   );
 }
@@ -52,7 +52,7 @@ export function getTableColumnPage(params: PageParam) {
 /** 查询高级查询字段定义列表 */
 export function getTableColumnList(params: PageParam) {
   return requestClient.get<PageResult<SearchTableColumnApi.TableColumn>>(
-    '/bpp/flow/search/table-column/list',
+    '/bpp/common/search/table-column/list',
     { params },
   );
 }
@@ -60,40 +60,40 @@ export function getTableColumnList(params: PageParam) {
 /** 查询高级查询字段定义详情 */
 export function getTableColumn(id: number) {
   return requestClient.get<SearchTableColumnApi.TableColumn>(
-    `/bpp/flow/search/table-column/get?id=${id}`,
+    `/bpp/common/search/table-column/get?id=${id}`,
   );
 }
 
 /** 新增高级查询字段定义 */
 export function createTableColumn(data: SearchTableColumnApi.TableColumn) {
-  return requestClient.post('/bpp/flow/search/table-column/create', data);
+  return requestClient.post('/bpp/common/search/table-column/create', data);
 }
 
 /** 修改高级查询字段定义 */
 export function updateTableColumn(data: SearchTableColumnApi.TableColumn) {
-  return requestClient.put('/bpp/flow/search/table-column/update', data);
+  return requestClient.put('/bpp/common/search/table-column/update', data);
 }
 
 /** 批量修改高级查询字段定义 */
 export function updateBatch(data: any[]) {
-  return requestClient.post('/bpp/flow/search/table-column/updateBatch', data);
+  return requestClient.post('/bpp/common/search/table-column/updateBatch', data);
 }
 
 /** 删除高级查询字段定义 */
 export function deleteTableColumn(id: number) {
-  return requestClient.delete(`/bpp/flow/search/table-column/delete?id=${id}`);
+  return requestClient.delete(`/bpp/common/search/table-column/delete?id=${id}`);
 }
 
 /** 批量删除高级查询字段定义 */
 export function deleteTableColumnList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/flow/search/table-column/delete-list?ids=${ids.join(',')}`,
+    `/bpp/common/search/table-column/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出高级查询字段定义 */
 export function exportTableColumn(params: any) {
-  return requestClient.download('/bpp/flow/search/table-column/export-excel', {
+  return requestClient.download('/bpp/common/search/table-column/export-excel', {
     params,
   });
 }
