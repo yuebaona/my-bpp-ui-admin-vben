@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import { computed, reactive } from 'vue';
+import { computed, reactive, withDefaults } from 'vue';
 import { Button, message, Modal } from 'ant-design-vue';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { ladingBillColumns } from '../data';
 
 interface Props {
   visible: boolean;
+  currentRow?: any;
 }
 
 interface Emits {
@@ -14,7 +15,9 @@ interface Emits {
   (e: 'success', data: any): void;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  currentRow: null,
+});
 const emit = defineEmits<Emits>();
 
 const modalVisible = computed({

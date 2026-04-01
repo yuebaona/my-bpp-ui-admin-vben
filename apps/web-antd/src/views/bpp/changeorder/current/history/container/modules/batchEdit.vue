@@ -4,7 +4,7 @@
 
 import { reactive, ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
-import {message, Select} from 'ant-design-vue';
+import { message, Select } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { $t } from '#/locales';
 import { batchEditFormSchema } from '../data';
@@ -54,6 +54,7 @@ const [Form, formApi] = useVbenForm({
 });
 
 const [Modal, modalApi] = useVbenModal({
+  closeOnClickModal: false,
   async onConfirm() {
     const formValues = await formApi.getValues();
     // Object.assign(formData, formValues);
@@ -110,6 +111,7 @@ const {
   handleInput: handleImportVVDInput,
   handleCompositionStart: handleImportVVDCompositionStart,
   handleCompositionEnd: handleImportVVDCompositionEnd,
+  handleChange: handleImportVesselChange,
 } = useSearchSelect({
   searchApi: async (searchText: string) => {
     try {
@@ -131,6 +133,9 @@ const {
   toUpperCase: true,
   searchMode: 'input',
   minSearchLength: 2,
+  onChange: (value) => {
+    formApi.setFieldValue('importVesselName', value);
+  },
 });
 
 // 出口船名航次搜索选择器
@@ -140,6 +145,7 @@ const {
   handleInput: handleExportVVDInput,
   handleCompositionStart: handleExportVVDCompositionStart,
   handleCompositionEnd: handleExportVVDCompositionEnd,
+  handleChange: handleExportVesselChange,
 } = useSearchSelect({
   searchApi: async (searchText: string) => {
     try {
@@ -161,6 +167,9 @@ const {
   toUpperCase: true,
   searchMode: 'input',
   minSearchLength: 2,
+  onChange: (value) => {
+    formApi.setFieldValue('exportVesselName', value);
+  },
 });
 </script>
 
@@ -181,6 +190,7 @@ const {
           @input="handleImportVVDInput"
           @compositionstart="handleImportVVDCompositionStart"
           @compositionend="handleImportVVDCompositionEnd"
+          @change="handleImportVesselChange"
         />
       </template>
       <template #exportVesselName>
@@ -197,6 +207,7 @@ const {
           @input="handleExportVVDInput"
           @compositionstart="handleExportVVDCompositionStart"
           @compositionend="handleExportVVDCompositionEnd"
+          @change="handleExportVesselChange"
         />
       </template>
     </Form>
