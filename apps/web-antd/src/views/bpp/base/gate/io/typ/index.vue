@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getGateInOutTypePage } from '#/api/bpp/base/gate/io/typ';
+import { getGateInOutTypePage, updateGateInOutType } from '#/api/bpp/base/gate/io/typ';
 
 import {
   gateIOColumns,
@@ -12,7 +12,6 @@ import {
   transportInstructionColumns,
 } from './data';
 
-const editingRow = ref<null | string>(null);
 
 const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   formOptions: {
@@ -106,9 +105,15 @@ function handleEdit(row: any) {
 }
 
 async function handleSave(row: any) {
-  await gateIOTypeGridApi.grid?.clearEdit();
-  // TODO: 调用保存API
-  console.log('保存数据:', row);
+  try {
+    await gateIOTypeGridApi.grid?.clearEdit();
+    await updateGateInOutType(row);
+    // 刷新表格
+    await gateIOTypeGridApi.query();
+    console.log('保存成功:', row);
+  } catch (error) {
+    console.error('保存失败:', error);
+  }
 }
 
 function handleCancel(row: any) {
