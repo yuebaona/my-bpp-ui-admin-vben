@@ -177,27 +177,27 @@ interface pageVO {
 // 创建主计划信息
 export const createMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/create',
+    '/bpp/gate/empty/container-control-main/create',
     data,
   );
 };
 // 修改主计划信息
 export const updateMainPlan = (data: EmptyContainerControlApi.mainPlanVO) => {
   return requestClient.put(
-    '/bpp/flow/empty/container-control-main/update',
+    '/bpp/gate/empty/container-control-main/update',
     data,
   );
 };
 // 查询主计划信息详情
 export const getMainPlan = (id: number) => {
   return requestClient.get(
-    `/bpp/flow/empty/container-control-main/get?id=${id}`,
+    `/bpp/gate/empty/container-control-main/get?id=${id}`,
   );
 };
 
 // 主计划分页查询
 export const getMainPlanPage = (data: pageVO) => {
-  return requestClient.post('/bpp/flow/empty/container-control-main/page', {
+  return requestClient.post('/bpp/gate/empty/container-control-main/page', {
     ...data,
     planType: 'MAIN',
   });
@@ -206,14 +206,14 @@ export const getMainPlanPage = (data: pageVO) => {
 // 删除主计划
 export const deleteMainPlan = (id: number) => {
   return requestClient.delete(
-    `/bpp/flow/empty/container-control-main/main/delete?id=${id}`,
+    `/bpp/gate/empty/container-control-main/main/delete?id=${id}`,
   );
 };
 
 // 创建子计划信息
 export const createSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/create',
+    '/bpp/gate/empty/container-control-main/create',
     data,
   );
 };
@@ -221,7 +221,7 @@ export const createSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
 // 修改子计划信息
 export const updateSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
   return requestClient.put(
-    '/bpp/flow/empty/container-control-main/update',
+    '/bpp/gate/empty/container-control-main/update',
     data,
   );
 };
@@ -229,12 +229,12 @@ export const updateSubPlan = (data: EmptyContainerControlApi.subPlanVO) => {
 // 查询子计划信息详情
 export const getSubPlan = (id: number) => {
   return requestClient.get(
-    `/bpp/flow/empty/container-control-main/get?id=${id}`,
+    `/bpp/gate/empty/container-control-main/get?id=${id}`,
   );
 };
 // 子计划分页查询
 export const getSubPlanPage = (data: pageVO) => {
-  return requestClient.post('/bpp/flow/empty/container-control-main/page', {
+  return requestClient.post('/bpp/gate/empty/container-control-main/page', {
     ...data,
     planType: 'SUB',
   });
@@ -242,14 +242,14 @@ export const getSubPlanPage = (data: pageVO) => {
 
 export const deleteSubPlan = (id: number) => {
   return requestClient.delete(
-    `/bpp/flow/empty/container-control-main/sub/delete?id=${id}`,
+    `/bpp/gate/empty/container-control-main/sub/delete?id=${id}`,
   );
 };
 
 // 日志分页查询
 export const getLogQueryPage = (data: LogQueryParams) => {
   return requestClient.post<PageResult<EmptyContainerControlApi.mainLogVO>>(
-    '/bpp/flow/empty/container-control-main-log/page',
+    '/bpp/gate/empty/container-control-main-log/page',
     data,
   );
 };
@@ -257,7 +257,7 @@ export const getLogQueryPage = (data: LogQueryParams) => {
 // 查询卸船船期
 export const getVesselAndVoyage = (params: { condition: string }) => {
   return requestClient.get<EmptyContainerControlApi.VesselAndVoyageResponse>(
-    '/bpp/flow/common/get-vvd-union',
+    '/bpp/comb/vessel-voyage/get-vvd-union',
     {
       params,
     },
@@ -267,7 +267,7 @@ export const getVesselAndVoyage = (params: { condition: string }) => {
 // 查询堆存情况
 export const getStorageQuantity = (data: any) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/bay/statistics',
+    '/bpp/gate/empty/container-control-main/bay/statistics',
     data,
   );
 };
@@ -280,7 +280,7 @@ export const forceComplete = (data: {
   }>;
 }) => {
   return requestClient.put(
-    '/bpp/flow/empty/container-control-main/force/complete',
+    '/bpp/gate/empty/container-control-main/force/complete',
     data,
   );
 };
@@ -288,7 +288,7 @@ export const forceComplete = (data: {
 // 获取箱区范围
 export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
   return requestClient.post(
-    '/bpp/flow/common/get-yard-bay-list',
+    '/bpp/comb/yard-blockbay/get-yard-bay-list',
     data,
   );
 };
@@ -296,21 +296,21 @@ export const getYardRange = (data: EmptyContainerControlApi.yardRangeVO) => {
 // 新建子计划获取持箱人信息
 export const getSubPlanOwnerList = (mainId: string) => {
   return requestClient.get<Array<EmptyContainerControlApi.ContainerOwnerVO>>(
-    `/bpp/flow/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
+    `/bpp/gate/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
   );
 };
 
 // 新建子计划获取ISO信息
 export const getSubPlanIsoList = (mainId: string) => {
   return requestClient.get<Array<EmptyContainerControlApi.isoVO>>(
-    `/bpp/flow/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
+    `/bpp/gate/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
   );
 };
 
 // 获取模拟选箱数据
 export const getSimulationSelectContainer = (data: any) => {
   return requestClient.post(
-    '/bpp/flow/empty/container-control-main/simulate/container',
+    '/bpp/gate/empty/container-control-main/simulate/container',
     data,
   );
 };
@@ -318,6 +318,6 @@ export const getSimulationSelectContainer = (data: any) => {
 // 获取子计划箱区范围
 export const getSubPlanYardRange = (mainId: string) => {
   return requestClient.get(
-    `/bpp/flow/empty/container-control-main/sub/bay/list?mainId=${mainId}`,
+    `/bpp/gate/empty/container-control-main/sub/bay/list?mainId=${mainId}`,
   );
 };

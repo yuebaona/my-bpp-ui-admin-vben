@@ -16,7 +16,7 @@ export namespace SearchConditionApi {
 /** 查询高级查询条件分页 */
 export function getConditionPage(params: PageParam) {
   return requestClient.get<PageResult<SearchConditionApi.Condition>>(
-    '/bpp/flow/search/condition/page',
+    '/bpp/common/search/condition/page',
     { params },
   );
 }
@@ -24,43 +24,43 @@ export function getConditionPage(params: PageParam) {
 /** 查询高级查询条件详情 */
 export function getCondition(id: number) {
   return requestClient.get<SearchConditionApi.Condition>(
-    `/bpp/flow/search/condition/get?id=${id}`,
+    `/bpp/common/search/condition/get?id=${id}`,
   );
 }
 
 /** 查询高级查询条件详情 */
 export function getByCondition(params: any) {
   return requestClient.get<SearchConditionApi.Condition>(
-    `/bpp/flow/search/condition/getByCondition`,
+    `/bpp/common/search/condition/getByCondition`,
     params,
   );
 }
 
 /** 新增高级查询条件 */
 export function createCondition(data: SearchConditionApi.Condition) {
-  return requestClient.post('/bpp/flow/search/condition/create', data);
+  return requestClient.post('/bpp/common/search/condition/create', data);
 }
 
 /** 修改高级查询条件 */
 export function updateCondition(data: SearchConditionApi.Condition) {
-  return requestClient.put('/bpp/flow/search/condition/update', data);
+  return requestClient.put('/bpp/common/search/condition/update', data);
 }
 
 /** 删除高级查询条件 */
 export function deleteCondition(id: number) {
-  return requestClient.delete(`/bpp/flow/search/condition/delete?id=${id}`);
+  return requestClient.delete(`/bpp/common/search/condition/delete?id=${id}`);
 }
 
 /** 批量删除高级查询条件 */
 export function deleteConditionList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/flow/search/condition/delete-list?ids=${ids.join(',')}`,
+    `/bpp/common/search/condition/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出高级查询条件 */
 export function exportCondition(params: any) {
-  return requestClient.download('/bpp/flow/search/condition/export-excel', {
+  return requestClient.download('/bpp/common/search/condition/export-excel', {
     params,
   });
 }
