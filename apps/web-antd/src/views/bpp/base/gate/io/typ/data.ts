@@ -48,43 +48,43 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       title: '业务代码',
       minWidth: 100,
       fixed: 'left',
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'businessName',
       title: '业务类型名称',
       minWidth: 100,
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'pickupLocation',
       title: '提箱地',
       minWidth: 100,
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'deliveryLocation',
       title: '送箱地',
       minWidth: 100,
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'plnValidDays',
       title: '业务计划有效天数',
       minWidth: 100,
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'isValid',
       title: '是否有效',
       minWidth: 100,
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'mappingCode',
       title: '接口转换代码',
       minWidth: 100,
-      editRender: { name: 'Input' },
+      editRender: { name: 'input' },
     },
     {
       field: 'creatorName',
@@ -95,6 +95,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 100,
+      formatter: 'formatDateTime',
     },
     {
       field: 'updaterName',
@@ -105,6 +106,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'updateTime',
       title: '更新时间',
       minWidth: 100,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',
@@ -189,6 +191,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 100,
+      formatter: 'formatDateTime',
     },
     {
       field: 'updaterName',
@@ -199,6 +202,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'updateTime',
       title: '更新时间',
       minWidth: 100,
+      formatter: 'formatDateTime',
     },
     {
       title: '操作',

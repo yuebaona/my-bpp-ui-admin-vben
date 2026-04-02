@@ -31,6 +31,11 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       keyField: 'id',
       isHover: true,
     },
+    editConfig: {
+      mode: 'row',
+      showIcon: false,
+      trigger: 'manual',
+    },
     toolbarConfig: {
       search: true,
       custom: true,
@@ -92,6 +97,30 @@ function handleRefresh() {
   transportInstructionGridApi.query();
 }
 
+function isEditing(row: any) {
+  return gateIOTypeGridApi.grid?.isEditByRow(row);
+}
+
+function handleEdit(row: any) {
+  gateIOTypeGridApi.grid?.setEditRow(row);
+}
+
+async function handleSave(row: any) {
+  await gateIOTypeGridApi.grid?.clearEdit();
+  // TODO: 调用保存API
+  console.log('保存数据:', row);
+}
+
+function handleCancel(row: any) {
+  gateIOTypeGridApi.grid?.clearEdit();
+  // 恢复原始数据
+  gateIOTypeGridApi.grid?.revertData(row);
+}
+
+function handleDelete(row: any) {
+  // TODO: 调用删除API
+  console.log('删除数据:', row);
+}
 </script>
 
 <template>
@@ -115,6 +144,41 @@ function handleRefresh() {
                 label: '日志查询',
                 type: 'primary',
                 icon: ACTION_ICON.FILE,
+              },
+            ]"
+          />
+        </template>
+        <template #actions="{ row }">
+          <TableAction
+            v-if="!isEditing(row)"
+            :actions="[
+              {
+                label: '编辑',
+                type: 'link',
+                icon: ACTION_ICON.EDIT,
+                onClick: () => handleEdit(row),
+              },
+              {
+                label: '删除',
+                type: 'link',
+                danger: true,
+                icon: ACTION_ICON.DELETE,
+                onClick: () => handleDelete(row),
+              },
+            ]"
+          />
+          <TableAction
+            v-else
+            :actions="[
+              {
+                label: '保存',
+                type: 'link',
+                onClick: () => handleSave(row),
+              },
+              {
+                label: '取消',
+                type: 'link',
+                onClick: () => handleCancel(row),
               },
             ]"
           />
