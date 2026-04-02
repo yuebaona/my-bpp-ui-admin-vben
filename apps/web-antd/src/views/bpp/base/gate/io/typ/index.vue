@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getGateInOutTypePage, updateGateInOutType } from '#/api/bpp/base/gate/io/typ';
+import { getGateInOutTypePage, updateGateInOutType, deleteGateInOutType } from '#/api/bpp/base/gate/io/typ';
 
 import {
   gateIOColumns,
@@ -122,9 +122,15 @@ function handleCancel(row: any) {
   gateIOTypeGridApi.grid?.revertData(row);
 }
 
-function handleDelete(row: any) {
-  // TODO: 调用删除API
-  console.log('删除数据:', row);
+async function handleDelete(row: any) {
+  try {
+    await deleteGateInOutType(row.id);
+    // 刷新表格
+    await gateIOTypeGridApi.query();
+    console.log('删除成功:', row);
+  } catch (error) {
+    console.error('删除失败:', error);
+  }
 }
 </script>
 
@@ -168,7 +174,11 @@ function handleDelete(row: any) {
                 type: 'link',
                 danger: true,
                 icon: ACTION_ICON.DELETE,
-                onClick: () => handleDelete(row),
+                popConfirm: {
+                  title: '确定要删除该定义吗？',
+                  onConfirm: () => handleDelete(row),
+                  placement: 'top',
+                },
               },
             ]"
           />
