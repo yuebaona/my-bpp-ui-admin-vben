@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getGateInOutTypePage, updateGateInOutType, deleteGateInOutType } from '#/api/bpp/base/gate/io/typ';
+import { getGateInOutTypePage, updateGateInOutType, deleteGateInOutType, createGateInOutType } from '#/api/bpp/base/gate/io/typ';
 
 import {
   gateIOColumns,
@@ -107,7 +107,15 @@ function handleEdit(row: any) {
 async function handleSave(row: any) {
   try {
     await gateIOTypeGridApi.grid?.clearEdit();
-    await updateGateInOutType(row);
+
+    // 判断是新增还是更新
+    if (row.__isNew__ === true){
+      await createGateInOutType(row);
+      console.log('新增成功:', row);
+    } else {
+      await updateGateInOutType(row);
+      console.log('更新成功:', row);
+    }
     // 刷新表格
     await gateIOTypeGridApi.query();
     console.log('保存成功:', row);
@@ -118,8 +126,12 @@ async function handleSave(row: any) {
 
 function handleCancel(row: any) {
   gateIOTypeGridApi.grid?.clearEdit();
-  // 恢复原始数据
-  gateIOTypeGridApi.grid?.revertData(row);
+  // 如果是新增的行，删除该行；否则恢复原始数据
+  if (row.__isNew__ === true){
+    gateIOTypeGridApi.grid?.remove(row);
+  } else {
+    gateIOTypeGridApi.grid?.revertData(row);
+  }
 }
 
 async function handleDelete(row: any) {
@@ -131,6 +143,15 @@ async function handleDelete(row: any) {
   } catch (error) {
     console.error('删除失败:', error);
   }
+}
+
+async function handleAdd() {
+  const $grid = gateIOTypeGridApi.grid;
+  if (!$grid) return;
+
+  const { row: newRow } = await $grid.insertAt({ id: null }, -1);
+  newRow.__isNew__ = true;
+  await $grid.setEditRow(newRow);
 }
 </script>
 
@@ -145,6 +166,7 @@ async function handleDelete(row: any) {
                 label: '新增受理计划类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
+                onClick: () => handleAdd(),
               },
               {
                 label: '批量删除',
