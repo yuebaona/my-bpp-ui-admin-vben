@@ -4,7 +4,13 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getGateInOutTypePage, updateGateInOutType, deleteGateInOutType, createGateInOutType } from '#/api/bpp/base/gate/io/typ';
+import {
+  getGateInOutTypePage,
+  updateGateInOutType,
+  deleteGateInOutType,
+  createGateInOutType,
+  batchDeleteGateInOutType
+} from '#/api/bpp/base/gate/io/typ';
 
 import {
   gateIOColumns,
@@ -91,6 +97,30 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
   },
 });
 
+async function handleBatchDelete() {
+  const $grid = gateIOTypeGridApi.grid;
+  if (!$grid) return;
+
+  // 获取选中的行
+  const selectedRecords = $grid.getCheckboxRecords();
+  if (selectedRecords.length === 0) {
+    console.warn('请选择要删除的记录');
+    return;
+  }
+
+  // 提取 id
+  const ids = selectedRecords.map(record => record.id);
+
+  try {
+    await batchDeleteGateInOutType(ids);
+    // 刷新表格
+    await gateIOTypeGridApi.query();
+    console.log('批量删除成功:', ids);
+  } catch (error) {
+    console.error('批量删除失败:', error);
+  }
+}
+
 function handleRefresh() {
   gateIOTypeGridApi.query();
   transportInstructionGridApi.query();
@@ -172,6 +202,7 @@ async function handleAdd() {
                 label: '批量删除',
                 type: 'info',
                 icon: ACTION_ICON.DELETE,
+                onClick: handleBatchDelete,
               },
               {
                 label: '日志查询',
