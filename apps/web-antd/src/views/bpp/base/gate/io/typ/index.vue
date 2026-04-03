@@ -9,7 +9,8 @@ import {
   updateGateInOutType,
   deleteGateInOutType,
   createGateInOutType,
-  batchDeleteGateInOutType
+  batchDeleteGateInOutType,
+  getTransportInstructionPage
 } from '#/api/bpp/base/gate/io/typ';
 
 import {
@@ -17,6 +18,15 @@ import {
   gateIOSearchSchema,
   transportInstructionColumns,
 } from './data';
+
+// 当前选中的送提箱类型ID
+const selectedGateIoTypeId = ref<number | null>(null);
+
+// 行点击事件处理函数
+function handleRowClick({ row }: { row: any }) {
+  selectedGateIoTypeId.value = row.id;
+  transportInstructionGridApi.query();
+}
 
 
 const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
@@ -70,6 +80,9 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       },
     },
   },
+  gridEvents: {
+    cellClick: handleRowClick,
+  },
 });
 
 const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
@@ -93,6 +106,21 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       pageSize: 10,
       enabled: true,
       pageSizes: [10, 20, 50, 100],
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }) => {
+          const res = await getTransportInstructionPage({
+            gateIoTypIds: selectedGateIoTypeId.value || 0,
+            pageNo: page.currentPage,
+            pageSize: page.pageSize,
+          });
+          return {
+            list: res.list,
+            total: res.total,
+          };
+        },
+      },
     },
   },
 });

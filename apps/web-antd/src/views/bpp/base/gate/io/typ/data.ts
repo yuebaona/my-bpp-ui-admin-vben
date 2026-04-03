@@ -17,7 +17,7 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'businessName',
-      label: '业务类型代码',
+      label: '业务类型名称',
       component: 'Input',
     },
     {
