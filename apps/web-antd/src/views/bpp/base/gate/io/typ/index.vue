@@ -3,6 +3,9 @@ import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
+import { useDebounceFn } from '@vueuse/core';
+import { message } from 'ant-design-vue';
+
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   batchDeleteGateInOutType,
@@ -14,7 +17,7 @@ import {
   getGateInOutTypePage,
   getTransportInstructionPage,
   updateGateInOutType,
-  updateTransportInstruction
+  updateTransportInstruction,
 } from '#/api/bpp/base/gate/io/typ';
 
 import {
@@ -22,10 +25,9 @@ import {
   gateIOSearchSchema,
   transportInstructionColumns,
 } from './data';
-import { message } from "ant-design-vue";
 
 // 当前选中的送提箱类型ID
-const selectedGateIoTypeId = ref<number | null>(null);
+const selectedGateIoTypeId = ref<null | number>(null);
 
 const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   formOptions: {
@@ -141,13 +143,12 @@ async function handleBatchDelete() {
   }
 
   // 提取 id
-  const ids = selectedRecords.map(record => record.id);
+  const ids = selectedRecords.map((record) => record.id);
 
   try {
     await batchDeleteGateInOutType(ids);
     // 刷新表格
     await gateIOTypeGridApi.query();
-    console.log('批量删除成功:', ids);
   } catch (error) {
     console.error('批量删除失败:', error);
   }
@@ -165,20 +166,19 @@ async function handleBatchTransportDelete() {
   }
 
   // 提取 id
-  const ids = selectedRecords.map(record => record.id);
+  const ids = selectedRecords.map((record) => record.id);
 
   try {
     await batchDeleteTransportType(ids);
     // 刷新表格
     await transportInstructionGridApi.query();
-    console.log('批量删除运输指令类型成功:', ids);
   } catch (error) {
     console.error('批量删除运输指令类型失败:', error);
   }
 }
 
 // 行点击事件处理函数
-function handleRowClick({ row, column }: { row: any, column: any }) {
+function handleRowClick({ row, column }: { column: any; row: any; }) {
   // 检查是否处于编辑状态，或点击的是操作栏，如果是则不触发行点击逻辑
   if (!isEditing(row) && column.title !== '操作') {
     selectedGateIoTypeId.value = row.id;
@@ -201,7 +201,7 @@ function handleCheckboxChange({ records }: { records: any[] }) {
 }
 
 function isEditing(row: any) {
-  if (!row.gateIoTypId){
+  if (!row.gateIoTypId) {
     return gateIOTypeGridApi.grid?.isEditByRow(row);
   } else {
     return transportInstructionGridApi.grid?.isEditByRow(row);
@@ -222,29 +222,24 @@ async function handleSave(row: any) {
       await gateIOTypeGridApi.grid?.clearEdit();
 
       // 判断是新增还是更新
-      if (row.__isNew__ === true){
+      if (row.__isNew__ === true) {
         await createGateInOutType(row);
-        console.log('新增成功:', row);
       } else {
         await updateGateInOutType(row);
-        console.log('更新成功:', row);
       }
       // 刷新表格
       await gateIOTypeGridApi.query();
     } else {
       await transportInstructionGridApi.grid?.clearEdit();
 
-      if (row.__isNew__ === true){
+      if (row.__isNew__ === true) {
         await createTransportInstruction(row);
-        console.log('新增成功:', row);
       } else {
         await updateTransportInstruction(row);
-        console.log('更新成功:', row);
       }
       // 刷新表格
       await transportInstructionGridApi.query();
     }
-    console.log('保存成功:', row);
   } catch (error) {
     console.error('保存失败:', error);
   }
@@ -254,7 +249,7 @@ function handleCancel(row: any) {
   if (!row.gateIoTypId) {
     gateIOTypeGridApi.grid?.clearEdit();
     // 如果是新增的行，删除该行；否则恢复原始数据
-    if (row.__isNew__ === true){
+    if (row.__isNew__ === true) {
       gateIOTypeGridApi.grid?.remove(row);
     } else {
       gateIOTypeGridApi.grid?.revertData(row);
@@ -262,13 +257,12 @@ function handleCancel(row: any) {
   } else {
     transportInstructionGridApi.grid?.clearEdit();
     // 如果是新增的行，删除该行；否则恢复原始数据
-    if (row.__isNew__ === true){
+    if (row.__isNew__ === true) {
       transportInstructionGridApi.grid?.remove(row);
     } else {
       transportInstructionGridApi.grid?.revertData(row);
     }
   }
-
 }
 
 async function handleDelete(row: any) {
@@ -282,11 +276,13 @@ async function handleDelete(row: any) {
       // 刷新表格
       await transportInstructionGridApi.query();
     }
-    console.log('删除成功:', row);
   } catch (error) {
     console.error('删除失败:', error);
   }
 }
+
+const debouncedHandleGateIOAdd = useDebounceFn(handleGateIOAdd, 300);
+const debouncedHandleTransportAdd = useDebounceFn(handleTransportAdd, 300);
 
 async function handleGateIOAdd() {
   const $grid = gateIOTypeGridApi.grid;
@@ -345,7 +341,7 @@ async function handleTransportAdd() {
                 label: '新增受理计划类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                onClick: () => handleGateIOAdd(),
+                onClick: debouncedHandleGateIOAdd,
               },
               {
                 label: '批量删除',
@@ -411,7 +407,7 @@ async function handleTransportAdd() {
                 label: '新增运输指令类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                onClick: handleTransportAdd,
+                onClick: debouncedHandleTransportAdd,
               },
               {
                 label: '批量删除',

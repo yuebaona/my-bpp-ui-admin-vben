@@ -1,10 +1,9 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import { getDictDataPage } from "#/api/bpp/base/dict/data";
-import { bppBaseDictStore } from "#/store/bpp/base/dict";
+import { getDictDataPage } from '#/api/bpp/base/dict/data';
+import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
-
 
 const bppBaseDict = bppBaseDictStore();
 
@@ -24,22 +23,23 @@ const loadDictData = async (dictTypes: string[]) => {
   }
 };
 
-loadDictData([
-  'is_valid',
-]);
+loadDictData(['is_valid']);
 
 // 获取字典值对应的文本
-export const getDictText = (dictType: string, value: number | string | undefined): string => {
+export const getDictText = (
+  dictType: string,
+  value: number | string | undefined,
+): string => {
   if (value === undefined || value === null) return '';
   const dictData = bppBaseDict.getBppBaseDictOptions(dictType);
-  const item = dictData?.find(item => String(item.value) === String(value));
+  const item = dictData?.find((item) => String(item.value) === String(value));
   return item?.label || String(value);
 };
 
 // 获取字典选项列表
 export const getDictOptions = (dictType: string) => {
   const options = bppBaseDict.getBppBaseDictOptions(dictType);
-  return options.map(item => ({
+  return options.map((item) => ({
     label: item.label,
     value: item.value,
   }));
