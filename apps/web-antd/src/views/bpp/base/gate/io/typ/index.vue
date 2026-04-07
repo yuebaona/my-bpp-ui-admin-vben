@@ -21,6 +21,7 @@ import {
   gateIOSearchSchema,
   transportInstructionColumns,
 } from './data';
+import { message } from "ant-design-vue";
 
 // 当前选中的送提箱类型ID
 const selectedGateIoTypeId = ref<number | null>(null);
@@ -78,6 +79,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   },
   gridEvents: {
     cellClick: handleRowClick,
+    checkboxChange: handleCheckboxChange,
   },
 });
 
@@ -151,14 +153,26 @@ async function handleBatchDelete() {
 }
 
 // 行点击事件处理函数
-function handleRowClick({ row }: { row: any }) {
-  selectedGateIoTypeId.value = row.id;
-  transportInstructionGridApi.query();
+function handleRowClick({ row, column }: { row: any, column: any }) {
+  // 检查是否处于编辑状态，或点击的是操作栏，如果是则不触发行点击逻辑
+  if (!isEditing(row) && column.title !== '操作') {
+    selectedGateIoTypeId.value = row.id;
+    transportInstructionGridApi.query();
+  }
 }
 
-function handleRefresh() {
-  gateIOTypeGridApi.query();
-  transportInstructionGridApi.query();
+// 勾选事件处理函数
+function handleCheckboxChange({ records }: { records: any[] }) {
+  if (records.length > 0) {
+    // 总是使用最后勾选的记录（最新勾选的）
+    const latestSelectedRecord = records[records.length - 1];
+    selectedGateIoTypeId.value = latestSelectedRecord.id;
+    transportInstructionGridApi.query();
+  } else {
+    // 未选择时清空选中状态
+    selectedGateIoTypeId.value = null;
+    transportInstructionGridApi.query();
+  }
 }
 
 function isEditing(row: any) {
@@ -249,11 +263,39 @@ async function handleDelete(row: any) {
   }
 }
 
-async function handleAdd() {
+async function handleGateIOAdd() {
   const $grid = gateIOTypeGridApi.grid;
   if (!$grid) return;
 
   const { row: newRow } = await $grid.insertAt({ id: null }, -1);
+  newRow.__isNew__ = true;
+  await $grid.setEditRow(newRow);
+}
+
+async function handleTransportAdd() {
+  const $grid = transportInstructionGridApi.grid;
+  if (!$grid) return;
+
+  // 检查是否已选择且仅选择了一个送提箱类型
+  const $gateGrid = gateIOTypeGridApi.grid;
+  if (!$gateGrid) return;
+
+  const selectedRecords = $gateGrid.getCheckboxRecords();
+  if (selectedRecords.length === 0) {
+    message.warning('请先选择一个送提箱受理计划类型定义');
+    return;
+  }
+  if (selectedRecords.length > 1) {
+    message.warning('只能选择一个送提箱受理计划类型定义');
+    return;
+  }
+
+  // 获取选中的送提箱类型ID
+  const selectedGateId = selectedRecords[0].id;
+  selectedGateIoTypeId.value = selectedGateId;
+
+  // 在运输指令列表中添加可编辑的空白行
+  const { row: newRow } = await $grid.insertAt({ id: null, gateIoTypId: selectedGateId }, -1);
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
 }
@@ -270,7 +312,7 @@ async function handleAdd() {
                 label: '新增受理计划类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                onClick: () => handleAdd(),
+                onClick: () => handleGateIOAdd(),
               },
               {
                 label: '批量删除',
@@ -336,6 +378,7 @@ async function handleAdd() {
                 label: '新增运输指令类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
+                onClick: handleTransportAdd,
               },
             ]"
           />
