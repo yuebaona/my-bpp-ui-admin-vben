@@ -1,7 +1,49 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { getDictDataPage } from "#/api/bpp/base/dict/data";
+import { bppBaseDictStore } from "#/store/bpp/base/dict";
 import { getRangePickerDefaultProps } from '#/utils';
+
+
+const bppBaseDict = bppBaseDictStore();
+
+// 预加载需要的字典数据
+const loadDictData = async (dictTypes: string[]) => {
+  for (const dictType of dictTypes) {
+    bppBaseDict.setBppBaseDictCacheByData(
+      (
+        await getDictDataPage({
+          dictType,
+          pageNo: 1,
+          pageSize: 100,
+        })
+      ).list,
+      dictType,
+    );
+  }
+};
+
+loadDictData([
+  'is_valid',
+]);
+
+// 获取字典值对应的文本
+export const getDictText = (dictType: string, value: number | string | undefined): string => {
+  if (value === undefined || value === null) return '';
+  const dictData = bppBaseDict.getBppBaseDictOptions(dictType);
+  const item = dictData?.find(item => String(item.value) === String(value));
+  return item?.label || String(value);
+};
+
+// 获取字典选项列表
+export const getDictOptions = (dictType: string) => {
+  const options = bppBaseDict.getBppBaseDictOptions(dictType);
+  return options.map(item => ({
+    label: item.label,
+    value: item.value,
+  }));
+};
 
 export function gateIOSearchSchema(): VbenFormSchema[] {
   return [
@@ -12,7 +54,7 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'mappingCode',
-      label: 'TOS代码',
+      label: '接口转换代码',
       component: 'Input',
     },
     {
@@ -23,7 +65,12 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
     {
       fieldName: 'isValid',
       label: '是否有效',
-      component: 'Input',
+      component: 'Select',
+      componentProps: {
+        options: getDictOptions('is_valid'),
+        allowClear: true,
+        placeholder: '请选择是否有效',
+      },
     },
     {
       fieldName: 'createTime',
@@ -78,7 +125,11 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'isValid',
       title: '是否有效',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: {
+        name: 'select',
+        options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+      },
+      formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
     },
     {
       field: 'mappingCode',
@@ -168,13 +219,21 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'isValid',
       title: '是否有效',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: {
+        name: 'select',
+        options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+      },
+      formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
     },
     {
       field: 'isUsedForPln',
       title: '是否用于受理计划天数',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: {
+        name: 'select',
+        options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+      },
+      formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
     },
     {
       field: 'creatorName',
