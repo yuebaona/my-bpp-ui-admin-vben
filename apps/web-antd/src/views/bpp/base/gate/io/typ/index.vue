@@ -6,6 +6,7 @@ import { Page } from '@vben/common-ui';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   batchDeleteGateInOutType,
+  batchDeleteTransportType,
   createGateInOutType,
   createTransportInstruction,
   deleteGateInOutType,
@@ -152,6 +153,30 @@ async function handleBatchDelete() {
   }
 }
 
+async function handleBatchTransportDelete() {
+  const $grid = transportInstructionGridApi.grid;
+  if (!$grid) return;
+
+  // 获取选中的行
+  const selectedRecords = $grid.getCheckboxRecords();
+  if (selectedRecords.length === 0) {
+    console.warn('请选择要删除的运输指令类型记录');
+    return;
+  }
+
+  // 提取 id
+  const ids = selectedRecords.map(record => record.id);
+
+  try {
+    await batchDeleteTransportType(ids);
+    // 刷新表格
+    await transportInstructionGridApi.query();
+    console.log('批量删除运输指令类型成功:', ids);
+  } catch (error) {
+    console.error('批量删除运输指令类型失败:', error);
+  }
+}
+
 // 行点击事件处理函数
 function handleRowClick({ row, column }: { row: any, column: any }) {
   // 检查是否处于编辑状态，或点击的是操作栏，如果是则不触发行点击逻辑
@@ -295,7 +320,15 @@ async function handleTransportAdd() {
   selectedGateIoTypeId.value = selectedGateId;
 
   // 在运输指令列表中添加可编辑的空白行
-  const { row: newRow } = await $grid.insertAt({ id: null, gateIoTypId: selectedGateId, isValid: true, isUsedForPln: true }, -1);
+  const { row: newRow } = await $grid.insertAt(
+    {
+      id: null,
+      gateIoTypId: selectedGateId,
+      isValid: true,
+      isUsedForPln: true,
+    },
+    -1,
+  );
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
 }
@@ -379,6 +412,12 @@ async function handleTransportAdd() {
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
                 onClick: handleTransportAdd,
+              },
+              {
+                label: '批量删除',
+                type: 'info',
+                icon: ACTION_ICON.DELETE,
+                onClick: handleBatchTransportDelete,
               },
             ]"
           />
