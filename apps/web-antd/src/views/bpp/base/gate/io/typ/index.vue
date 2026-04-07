@@ -5,15 +5,15 @@ import { Page } from '@vben/common-ui';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getGateInOutTypePage,
-  updateGateInOutType,
-  deleteGateInOutType,
-  createGateInOutType,
   batchDeleteGateInOutType,
-  getTransportInstructionPage,
+  createGateInOutType,
   createTransportInstruction,
-  updateTransportInstruction,
-  deleteTransportInstruction
+  deleteGateInOutType,
+  deleteTransportInstruction,
+  getGateInOutTypePage,
+  getTransportInstructionPage,
+  updateGateInOutType,
+  updateTransportInstruction
 } from '#/api/bpp/base/gate/io/typ';
 
 import {
@@ -267,7 +267,7 @@ async function handleGateIOAdd() {
   const $grid = gateIOTypeGridApi.grid;
   if (!$grid) return;
 
-  const { row: newRow } = await $grid.insertAt({ id: null }, -1);
+  const { row: newRow } = await $grid.insertAt({ id: null, isValid: true }, -1);
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
 }
@@ -295,7 +295,7 @@ async function handleTransportAdd() {
   selectedGateIoTypeId.value = selectedGateId;
 
   // 在运输指令列表中添加可编辑的空白行
-  const { row: newRow } = await $grid.insertAt({ id: null, gateIoTypId: selectedGateId }, -1);
+  const { row: newRow } = await $grid.insertAt({ id: null, gateIoTypId: selectedGateId, isValid: true, isUsedForPln: true }, -1);
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
 }
