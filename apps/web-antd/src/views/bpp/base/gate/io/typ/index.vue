@@ -51,7 +51,18 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     editConfig: {
       mode: 'row',
       showIcon: false,
-      trigger: 'manual',
+      showStatus: true,
+      trigger: 'dblclick',
+      // autoClear: false,
+    },
+    mouseConfig: {
+      selected: true,  // 启用单元格选中功能，Tab切换需要此配置
+    },
+    keyboardConfig: {
+      isArrow: true,      // 支持上下左右键移动单元格
+      // isEnter: true,      // 支持回车键保存或移动
+      isTab: true,        // 支持Tab键切换单元格
+      isEsc: true,        // 支持Esc键退出编辑
     },
     toolbarConfig: {
       search: true,
@@ -100,7 +111,18 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     editConfig: {
       mode: 'row',
       showIcon: false,
-      trigger: 'manual',
+      showStatus: true,
+      trigger: 'dblclick',
+      // autoClear: false,
+    },
+    mouseConfig: {
+      selected: true,  // 启用单元格选中功能，Tab切换需要此配置
+    },
+    keyboardConfig: {
+      isArrow: true,      // 支持上下左右键移动单元格
+      // isEnter: true,      // 支持回车键保存或移动
+      isTab: true,        // 支持Tab键切换单元格
+      isEsc: true,        // 支持Esc键退出编辑
     },
     toolbarConfig: {
       search: false,
