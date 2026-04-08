@@ -51,16 +51,28 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
       fieldName: 'businessCode',
       label: '业务代码',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入业务代码',
+      }
     },
     {
       fieldName: 'mappingCode',
       label: '接口转换代码',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入接口转换代码',
+      }
     },
     {
       fieldName: 'businessName',
       label: '业务类型名称',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+        placeholder: '请输入业务类型名称',
+      }
     },
     {
       fieldName: 'isValid',
@@ -145,7 +157,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 100,
+      minWidth: 150,
       formatter: 'formatDateTime',
     },
     {
@@ -156,7 +168,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'updateTime',
       title: '更新时间',
-      minWidth: 100,
+      minWidth: 150,
       formatter: 'formatDateTime',
     },
     {
@@ -243,7 +255,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 100,
+      minWidth: 150,
       formatter: 'formatDateTime',
     },
     {
@@ -254,7 +266,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'updateTime',
       title: '更新时间',
-      minWidth: 100,
+      minWidth: 150,
       formatter: 'formatDateTime',
     },
     {
