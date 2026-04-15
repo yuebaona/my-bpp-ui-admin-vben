@@ -1,6 +1,8 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { useAccess } from '@vben/access';
+
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -54,7 +56,7 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         placeholder: '请输入业务代码',
-      }
+      },
     },
     {
       fieldName: 'mappingCode',
@@ -63,7 +65,7 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         placeholder: '请输入接口转换代码',
-      }
+      },
     },
     {
       fieldName: 'businessName',
@@ -72,7 +74,7 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         placeholder: '请输入业务类型名称',
-      }
+      },
     },
     {
       fieldName: 'isValid',
@@ -99,6 +101,11 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
 }
 
 export function gateIOColumns(): VxeTableGridOptions['columns'] {
+  const access = useAccess();
+  const hasEditPermission = access.hasAccessByCodes([
+    'bpp:flow-acceptance-plan:edit',
+  ]);
+
   return [
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
     { type: 'checkbox', width: 50, fixed: 'left' },
@@ -107,31 +114,42 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       title: '业务代码',
       minWidth: 100,
       fixed: 'left',
-      editRender: { name: 'input' },
+      editRender: hasEditPermission
+        ? {
+            name: 'input',
+            attrs: {
+              oninput: (e: any) => {
+                e.target.value = e.target.value
+                  .replaceAll(/[^a-z]/gi, '')
+                  .toUpperCase();
+              },
+            },
+          }
+        : undefined,
     },
     {
       field: 'businessName',
       title: '业务类型名称',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'pickupLocation',
       title: '提箱地',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'deliveryLocation',
       title: '送箱地',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'plnValidDays',
       title: '业务计划有效天数',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'isValid',
@@ -147,7 +165,18 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'mappingCode',
       title: '接口转换代码',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission
+        ? {
+            name: 'input',
+            attrs: {
+              oninput: (e: any) => {
+                e.target.value = e.target.value
+                  .replaceAll(/[^a-z]/gi, '')
+                  .toUpperCase();
+              },
+            },
+          }
+        : undefined,
     },
     {
       field: 'creatorName',
@@ -171,16 +200,15 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       minWidth: 150,
       formatter: 'formatDateTime',
     },
-    {
-      title: '操作',
-      minWidth: 150,
-      fixed: 'right',
-      slots: { default: 'actions' },
-    },
   ];
 }
 
 export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
+  const access = useAccess();
+  const hasEditPermission = access.hasAccessByCodes([
+    'bpp:flow-acceptance-plan:edit',
+  ]);
+
   return [
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
     { type: 'checkbox', width: 50, fixed: 'left' },
@@ -189,31 +217,42 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       title: '运输指令代码',
       minWidth: 100,
       fixed: 'left',
-      editRender: { name: 'input' },
+      editRender: hasEditPermission
+        ? {
+            name: 'input',
+            attrs: {
+              oninput: (e: any) => {
+                e.target.value = e.target.value
+                  .replaceAll(/[^a-z_]/gi, '')
+                  .toUpperCase();
+              },
+            },
+          }
+        : undefined,
     },
     {
       field: 'transportOrderName',
       title: '运输指令名称',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'gateInOutType',
       title: '送提类型',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'contDirection',
       title: '指令箱流向',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'emptyFull',
       title: '箱空重',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission ? { name: 'input' } : undefined,
     },
     {
       field: 'transportOrderValidDays',
@@ -225,7 +264,18 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'mappingCode',
       title: '接口转换代码',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission
+        ? {
+            name: 'input',
+            attrs: {
+              oninput: (e: any) => {
+                e.target.value = e.target.value
+                  .replaceAll(/[^a-z_]/gi, '')
+                  .toUpperCase();
+              },
+            },
+          }
+        : undefined,
     },
     {
       field: 'isValid',
@@ -241,10 +291,12 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'isUsedForPln',
       title: '是否用于受理计划天数',
       minWidth: 100,
-      editRender: {
-        name: 'select',
-        options: bppBaseDict.getBppBaseDictOptions('is_valid'),
-      },
+      editRender: hasEditPermission
+        ? {
+            name: 'select',
+            options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+          }
+        : undefined,
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
     },
     {
@@ -268,12 +320,6 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       title: '更新时间',
       minWidth: 150,
       formatter: 'formatDateTime',
-    },
-    {
-      title: '操作',
-      minWidth: 150,
-      fixed: 'right',
-      slots: { default: 'actions' },
     },
   ];
 }
