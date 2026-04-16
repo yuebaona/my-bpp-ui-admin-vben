@@ -9,15 +9,9 @@ import { message } from 'ant-design-vue';
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   batchDeleteGateInOutType,
-  batchDeleteTransportType,
-  createGateInOutType,
-  createTransportInstruction,
-  deleteGateInOutType,
-  deleteTransportInstruction,
+  batchSaveGateInOutTypeAndTransport,
   getGateInOutTypePage,
   getTransportInstructionPage,
-  updateGateInOutType,
-  updateTransportInstruction,
 } from '#/api/bpp/base/gate/io/typ';
 
 import {
@@ -29,7 +23,6 @@ import {
 // 当前选中的送提箱类型ID
 const selectedGateIoTypeId = ref<null | number>(null);
 const debouncedHandleGateIOAdd = useDebounceFn(handleGateIOAdd, 300);
-const debouncedHandleTransportAdd = useDebounceFn(handleTransportAdd, 300);
 
 const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   formOptions: {
@@ -41,11 +34,12 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     submitOnEnter: true,
   },
   gridOptions: {
+    border: true,
     columns: gateIOColumns(),
     height: 'auto',
     keepSource: true,
     rowConfig: {
-      keyField: 'id',
+      // keyField: 'id',
       isHover: true,
     },
     editConfig: {
@@ -56,13 +50,13 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       // autoClear: false,
     },
     mouseConfig: {
-      selected: true,  // 启用单元格选中功能，Tab切换需要此配置
+      selected: true, // 启用单元格选中功能，Tab切换需要此配置
     },
     keyboardConfig: {
-      isArrow: true,      // 支持上下左右键移动单元格
-      // isEnter: true,      // 支持回车键保存或移动
-      isTab: true,        // 支持Tab键切换单元格
-      isEsc: true,        // 支持Esc键退出编辑
+      isArrow: true, // 支持上下左右键移动单元格
+      isEnter: true, // 支持回车键保存或移动
+      isTab: true, // 支持Tab键切换单元格
+      isEsc: true, // 支持Esc键退出编辑
     },
     toolbarConfig: {
       search: true,
@@ -96,6 +90,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   gridEvents: {
     cellClick: handleRowClick,
     checkboxChange: handleCheckboxChange,
+    // editClosed: handleGateIOEditClosed,
   },
 });
 
@@ -105,7 +100,7 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     height: 'auto',
     keepSource: true,
     rowConfig: {
-      keyField: 'id',
+      // keyField: 'id',
       isHover: true,
     },
     editConfig: {
@@ -116,13 +111,13 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       // autoClear: false,
     },
     mouseConfig: {
-      selected: true,  // 启用单元格选中功能，Tab切换需要此配置
+      selected: true, // 启用单元格选中功能，Tab切换需要此配置
     },
     keyboardConfig: {
-      isArrow: true,      // 支持上下左右键移动单元格
-      // isEnter: true,      // 支持回车键保存或移动
-      isTab: true,        // 支持Tab键切换单元格
-      isEsc: true,        // 支持Esc键退出编辑
+      isArrow: true, // 支持上下左右键移动单元格
+      isEnter: true, // 支持回车键保存或移动
+      isTab: true, // 支持Tab键切换单元格
+      isEsc: true, // 支持Esc键退出编辑
     },
     toolbarConfig: {
       search: false,
@@ -153,15 +148,15 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       },
     },
   },
+  gridEvents: {
+    // editClosed: handleTransportEditClosed,
+  },
 });
 
 // 行点击事件处理函数
-function handleRowClick({ row, column }: { column: any; row: any; }) {
-  // 检查是否处于编辑状态，或点击的是操作栏，如果是则不触发行点击逻辑
-  if (!isEditing(row) && column.title !== '操作') {
-    selectedGateIoTypeId.value = row.id;
-    transportInstructionGridApi.query();
-  }
+function handleRowClick({ row }: { row: any }) {
+  selectedGateIoTypeId.value = row.id;
+  transportInstructionGridApi.query();
 }
 
 // 勾选事件处理函数
@@ -202,123 +197,157 @@ async function handleBatchDelete() {
   }
 }
 
-// 运输指令批量删除
-async function handleBatchTransportDelete() {
-  const $grid = transportInstructionGridApi.grid;
-  if (!$grid) return;
+async function handleSave() {
+  const $gateGrid = gateIOTypeGridApi.grid;
+  const $transportGrid = transportInstructionGridApi.grid;
 
-  // 获取选中的行
-  const selectedRecords = $grid.getCheckboxRecords();
-  if (selectedRecords.length === 0) {
-    message.warning('请选择要删除的运输指令类型记录');
+  if (!$gateGrid || !$transportGrid) return;
+
+  // 获取进提箱类型的新增和修改记录
+  const gateRecordset = $gateGrid.getRecordset();
+  const gateModifiedRecords = [
+    ...gateRecordset.insertRecords,
+    ...gateRecordset.updateRecords,
+  ];
+
+  // 获取运输指令类型的新增和修改记录
+  const transportRecordset = $transportGrid.getRecordset();
+  const transportModifiedRecords = [
+    ...transportRecordset.insertRecords,
+    ...transportRecordset.updateRecords,
+  ];
+
+  if (
+    gateModifiedRecords.length === 0 &&
+    transportModifiedRecords.length === 0
+  ) {
+    message.info('没有需要保存的记录');
     return;
   }
 
-  // 提取 id
-  const ids = selectedRecords.map((record) => record.id);
-
   try {
-    await batchDeleteTransportType(ids);
-    // 刷新表格
-    await transportInstructionGridApi.query();
-  } catch (error) {
-    console.error('批量删除运输指令类型失败:', error);
-  }
-}
+    // 构建保存数据结构
+    const saveData = [];
 
-// 编辑状态
-function isEditing(row: any) {
-  if (row.gateIoTypId) {
-    return transportInstructionGridApi.grid?.isEditByRow(row);
-  } else {
-    return gateIOTypeGridApi.grid?.isEditByRow(row);
-  }
-}
+    // 处理进提箱类型记录
+    for (const gateRecord of gateModifiedRecords) {
+      // 查找与当前进提箱类型相关的运输指令记录
+      const relatedTransportRecords = transportModifiedRecords.filter(
+        (transportRecord) => transportRecord.gateIoTypId === gateRecord.id,
+      );
 
-// 编辑
-function handleEdit(row: any) {
-  if (row.gateIoTypId) {
-    transportInstructionGridApi.grid?.setEditRow(row);
-  } else {
-    gateIOTypeGridApi.grid?.setEditRow(row);
-  }
-}
+      // 构建运输指令列表
+      const gateIoTypDtlSaveReqVOList = relatedTransportRecords.map(
+        (transportRecord) => ({
+          id: transportRecord.id,
+          gateIoTypId: transportRecord.gateIoTypId,
+          transportOrderCode: transportRecord.transportOrderCode || '',
+          transportOrderName: transportRecord.transportOrderName || '',
+          gateInOutType: transportRecord.gateInOutType || '',
+          contDirection: transportRecord.contDirection || '',
+          emptyFull: transportRecord.emptyFull || '',
+          transportOrderValidDays:
+            transportRecord.transportOrderValidDays || null,
+          mappingCode: transportRecord.mappingCode || '',
+          isValid: transportRecord.isValid || null,
+          isUsedForPln: transportRecord.isUsedForPln || null,
+        }),
+      );
 
-// 保存操作
-async function handleSave(row: any) {
-  try {
-    if (row.gateIoTypId) {
-      await transportInstructionGridApi.grid?.clearEdit();
+      // 构建进提箱类型数据
+      const gateData = {
+        id: gateRecord.id,
+        businessCode: gateRecord.businessCode || '',
+        businessName: gateRecord.businessName || '',
+        pickupLocation: gateRecord.pickupLocation || '',
+        deliveryLocation: gateRecord.deliveryLocation || '',
+        plnValidDays: gateRecord.plnValidDays || 0,
+        isValid: gateRecord.isValid || false,
+        mappingCode: gateRecord.mappingCode || '',
+        deleteTime: '',
+        gateIoTypDtlSaveReqVOList,
+      };
 
-      if (row.__isNew__ === true) {
-        await createTransportInstruction(row);
-      } else {
-        await updateTransportInstruction(row);
-      }
-      // 刷新表格
-      await transportInstructionGridApi.query();
-
-    } else {
-      await gateIOTypeGridApi.grid?.clearEdit();
-
-      // 判断是新增还是更新
-      if (row.__isNew__ === true) {
-        await createGateInOutType(row);
-      } else {
-        await updateGateInOutType(row);
-      }
-      // 刷新表格
-      await gateIOTypeGridApi.query();
+      saveData.push(gateData);
     }
+
+    // 处理没有关联进提箱类型的运输指令记录
+    const transportRecordsWithoutGate = transportModifiedRecords.filter(
+      (transportRecord) =>
+        !gateModifiedRecords.some(
+          (gateRecord) => gateRecord.id === transportRecord.gateIoTypId,
+        ),
+    );
+
+    if (transportRecordsWithoutGate.length > 0) {
+      // 为这些运输指令创建一个新的进提箱类型记录
+      const gateData = {
+        id: null,
+        businessCode: '',
+        businessName: '',
+        pickupLocation: '',
+        deliveryLocation: '',
+        plnValidDays: 0,
+        isValid: false,
+        mappingCode: '',
+        deleteTime: '',
+        gateIoTypDtlSaveReqVOList: transportRecordsWithoutGate.map(
+          (transportRecord) => ({
+            id: transportRecord.id,
+            gateIoTypId: transportRecord.gateIoTypId,
+            transportOrderCode: transportRecord.transportOrderCode || '',
+            transportOrderName: transportRecord.transportOrderName || '',
+            gateInOutType: transportRecord.gateInOutType || '',
+            contDirection: transportRecord.contDirection || '',
+            emptyFull: transportRecord.emptyFull || '',
+            transportOrderValidDays:
+              transportRecord.transportOrderValidDays || null,
+            mappingCode: transportRecord.mappingCode || '',
+            isValid: transportRecord.isValid || null,
+            isUsedForPln: transportRecord.isUsedForPln || null,
+          }),
+        ),
+      };
+      saveData.push(gateData);
+    }
+
+    // 调用批量保存接口
+    await batchSaveGateInOutTypeAndTransport(saveData);
+
+    // 刷新表格
+    await gateIOTypeGridApi.query();
+    await transportInstructionGridApi.query();
+    message.success('保存成功');
   } catch (error) {
     console.error('保存失败:', error);
+    message.error('保存失败');
   }
 }
 
-// 取消操作
-function handleCancel(row: any) {
-  if (row.gateIoTypId) {
-    transportInstructionGridApi.grid?.clearEdit();
-    // 如果是新增的行，删除该行；否则恢复原始数据
-    if (row.__isNew__ === true) {
-      transportInstructionGridApi.grid?.remove(row);
-    } else {
-      transportInstructionGridApi.grid?.revertData(row);
-    }
-  } else {
-    gateIOTypeGridApi.grid?.clearEdit();
-    // 如果是新增的行，删除该行；否则恢复原始数据
-    if (row.__isNew__ === true) {
-      gateIOTypeGridApi.grid?.remove(row);
-    } else {
-      gateIOTypeGridApi.grid?.revertData(row);
-    }
-  }
-}
+// 送提箱类型表格：编辑关闭时，若为新增行则移除
+// async function handleGateIOEditClosed({ row }: { row: any }) {
+//   const $grid = gateIOTypeGridApi.grid;
+//   if (!$grid) return;
+//   if (row.__isNew__) {
+//     await $grid.remove(row);
+//   }
+// }
 
-// 删除定义
-async function handleDelete(row: any) {
-  try {
-    if (row.gateIoTypId) {
-      await deleteTransportInstruction(row.id);
-      // 刷新表格
-      await transportInstructionGridApi.query();
-    } else {
-      await deleteGateInOutType(row.id);
-      // 刷新表格
-      await gateIOTypeGridApi.query();
-    }
-  } catch (error) {
-    console.error('删除失败:', error);
-  }
-}
+// 运输指令表格：编辑关闭时，若为新增行则移除
+// async function handleTransportEditClosed({ row }: { row: any }) {
+//   const $grid = transportInstructionGridApi.grid;
+//   if (!$grid) return;
+//   if (row.__isNew__) {
+//     await $grid.remove(row);
+//   }
+// }
 
 // 新增送提箱定义
 async function handleGateIOAdd() {
   const $grid = gateIOTypeGridApi.grid;
   if (!$grid) return;
 
-  const { row: newRow } = await $grid.insertAt({ id: null, isValid: true }, -1);
+  const { row: newRow } = await $grid.insertAt({ isValid: true }, -1);
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
 }
@@ -369,13 +398,24 @@ async function handleTransportAdd() {
           <TableAction
             :actions="[
               {
-                label: '新增受理计划类型',
+                label: '保存',
+                type: 'primary',
+                onClick: handleSave,
+              },
+              {
+                label: '受理计划类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
                 onClick: debouncedHandleGateIOAdd,
               },
               {
-                label: '批量删除',
+                label: '运输指令类型',
+                type: 'primary',
+                icon: ACTION_ICON.ADD,
+                onClick: handleTransportAdd,
+              },
+              {
+                label: '删除',
                 type: 'default',
                 icon: ACTION_ICON.DELETE,
                 onClick: handleBatchDelete,
@@ -383,107 +423,10 @@ async function handleTransportAdd() {
             ]"
           />
         </template>
-        <template #actions="{ row }">
-          <TableAction
-            v-if="!isEditing(row)"
-            :actions="[
-              {
-                label: '编辑',
-                type: 'link',
-                icon: ACTION_ICON.EDIT,
-                onClick: () => handleEdit(row),
-              },
-              {
-                label: '删除',
-                type: 'link',
-                danger: true,
-                icon: ACTION_ICON.DELETE,
-                popConfirm: {
-                  title: '确定要删除该定义吗？',
-                  onConfirm: () => handleDelete(row),
-                  placement: 'top',
-                },
-              },
-            ]"
-          />
-          <TableAction
-            v-else
-            :actions="[
-              {
-                label: '保存',
-                type: 'link',
-                onClick: () => handleSave(row),
-              },
-              {
-                label: '取消',
-                type: 'link',
-                onClick: () => handleCancel(row),
-              },
-            ]"
-          />
-        </template>
       </GateIOTypeGrid>
     </div>
     <div class="h-2/5 w-full">
-      <TransportInstructionGrid table-title="运输指令类型定义">
-        <template #toolbar-tools>
-          <TableAction
-            :actions="[
-              {
-                label: '新增运输指令类型',
-                type: 'primary',
-                icon: ACTION_ICON.ADD,
-                onClick: debouncedHandleTransportAdd,
-              },
-              {
-                label: '批量删除',
-                type: 'default',
-                icon: ACTION_ICON.DELETE,
-                onClick: handleBatchTransportDelete,
-              },
-            ]"
-          />
-        </template>
-        <template #actions="{ row }">
-          <TableAction
-            v-if="!isEditing(row)"
-            :actions="[
-              {
-                label: '编辑',
-                type: 'link',
-                icon: ACTION_ICON.EDIT,
-                onClick: () => handleEdit(row),
-              },
-              {
-                label: '删除',
-                type: 'link',
-                danger: true,
-                icon: ACTION_ICON.DELETE,
-                popConfirm: {
-                  title: '确定要删除该定义吗？',
-                  onConfirm: () => handleDelete(row),
-                  placement: 'top',
-                },
-              },
-            ]"
-          />
-          <TableAction
-            v-else
-            :actions="[
-              {
-                label: '保存',
-                type: 'link',
-                onClick: () => handleSave(row),
-              },
-              {
-                label: '取消',
-                type: 'link',
-                onClick: () => handleCancel(row),
-              },
-            ]"
-          />
-        </template>
-      </TransportInstructionGrid>
+      <TransportInstructionGrid table-title="运输指令类型定义" />
     </div>
   </Page>
 </template>
