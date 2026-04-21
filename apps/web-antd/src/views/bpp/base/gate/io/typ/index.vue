@@ -58,7 +58,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       isEnter: true, // 支持回车键保存或移动
       isTab: true, // 支持Tab键切换单元格
       isEsc: true, // 支持Esc键退出编辑
-      isEdit: true, //开启单元格选中编辑功能
+      isEdit: true, // 开启单元格选中编辑功能
     },
     toolbarConfig: {
       search: true,
@@ -187,7 +187,9 @@ async function handleBatchDelete() {
 
   // 检查是否同时有勾选记录
   if (gateSelectedRecords.length > 0 && transportSelectedRecords.length > 0) {
-    message.warning('送提箱受理计划列表和运输指令类型定义列表不能同时有勾选记录');
+    message.warning(
+      '送提箱受理计划列表和运输指令类型定义列表不能同时有勾选记录',
+    );
     return;
   }
 
@@ -243,6 +245,15 @@ async function handleSave() {
     ...transportRecordset.updateRecords,
   ];
 
+  // 获取所有进提箱类型的原始数据（用于获取完整信息）
+  const allGateRecords = $gateGrid.getTableData().tableData;
+
+  // 构建一个 Map 存储每个进提箱类型的完整信息
+  const gateInfoMap = new Map();
+  allGateRecords.forEach((record: any) => {
+    gateInfoMap.set(record.id, record);
+  });
+
   if (
     gateModifiedRecords.length === 0 &&
     transportModifiedRecords.length === 0
@@ -253,88 +264,106 @@ async function handleSave() {
 
   try {
     // 构建保存数据结构
-    const saveData = [];
+    const saveDataMap = new Map(); // 使用 Map 来避免重复
 
-    // 处理进提箱类型记录
+    // 1. 处理送提箱类型的新增和修改记录
     for (const gateRecord of gateModifiedRecords) {
-      // 查找与当前进提箱类型相关的运输指令记录
-      const relatedTransportRecords = transportModifiedRecords.filter(
-        (transportRecord) => transportRecord.gateIoTypId === gateRecord.id,
-      );
-
-      // 构建运输指令列表
-      const gateIoTypDtlSaveReqVOList = relatedTransportRecords.map(
-        (transportRecord) => ({
-          id: transportRecord.id,
-          gateIoTypId: transportRecord.gateIoTypId,
-          transportOrderCode: transportRecord.transportOrderCode || '',
-          transportOrderName: transportRecord.transportOrderName || '',
-          gateInOutType: transportRecord.gateInOutType || '',
-          contDirection: transportRecord.contDirection || '',
-          emptyFull: transportRecord.emptyFull || '',
-          transportOrderValidDays:
-            transportRecord.transportOrderValidDays || null,
-          mappingCode: transportRecord.mappingCode || '',
-          isValid: transportRecord.isValid || true,
-          isUsedForPln: transportRecord.isUsedForPln || null,
-        }),
-      );
-
-      // 构建进提箱类型数据
-      const gateData = {
+      // 获取完整的进提箱类型信息（如果是修改，使用修改后的值；如果是新增，使用新增的值）
+      const fullGateInfo = {
         id: gateRecord.id,
         businessCode: gateRecord.businessCode || '',
         businessName: gateRecord.businessName || '',
         pickupLocation: gateRecord.pickupLocation || '',
         deliveryLocation: gateRecord.deliveryLocation || '',
         plnValidDays: gateRecord.plnValidDays || 0,
-        isValid: gateRecord.isValid || null,
+        isValid: gateRecord.isValid ?? true,
         mappingCode: gateRecord.mappingCode || '',
-        deleteTime: '',
-        gateIoTypDtlSaveReqVOList,
+        deleteTime: gateRecord.deleteTime || '',
+        gateIoTypDtlSaveReqVOList: [],
       };
-
-      saveData.push(gateData);
+      saveDataMap.set(gateRecord.id, fullGateInfo);
     }
 
-    // 处理没有关联进提箱类型的运输指令记录
-    const transportRecordsWithoutGate = transportModifiedRecords.filter(
-      (transportRecord) =>
-        !gateModifiedRecords.some(
-          (gateRecord) => gateRecord.id === transportRecord.gateIoTypId,
-        ),
-    );
+    // 2. 处理运输指令的新增和修改记录
+    for (const transportRecord of transportModifiedRecords) {
+      const gateId = transportRecord.gateIoTypId;
 
-    if (transportRecordsWithoutGate.length > 0) {
-      // 为这些运输指令创建一个新的进提箱类型记录
-      const gateData = {
-        id: null,
-        businessCode: '',
-        businessName: '',
-        pickupLocation: '',
-        deliveryLocation: '',
-        plnValidDays: 0,
-        isValid: null,
-        mappingCode: '',
-        deleteTime: '',
-        gateIoTypDtlSaveReqVOList: transportRecordsWithoutGate.map(
-          (transportRecord) => ({
-            id: transportRecord.id,
-            gateIoTypId: transportRecord.gateIoTypId,
-            transportOrderCode: transportRecord.transportOrderCode || '',
-            transportOrderName: transportRecord.transportOrderName || '',
-            gateInOutType: transportRecord.gateInOutType || '',
-            contDirection: transportRecord.contDirection || '',
-            emptyFull: transportRecord.emptyFull || '',
-            transportOrderValidDays:
-              transportRecord.transportOrderValidDays || null,
-            mappingCode: transportRecord.mappingCode || '',
-            isValid: transportRecord.isValid || null,
-            isUsedForPln: transportRecord.isUsedForPln || null,
-          }),
-        ),
+      // 构建运输指令数据
+      const transportData = {
+        id: transportRecord.id,
+        gateIoTypId: transportRecord.gateIoTypId,
+        transportOrderCode: transportRecord.transportOrderCode || '',
+        transportOrderName: transportRecord.transportOrderName || '',
+        gateInOutType: transportRecord.gateInOutType || '',
+        contDirection: transportRecord.contDirection || '',
+        emptyFull: transportRecord.emptyFull || '',
+        transportOrderValidDays: transportRecord.transportOrderValidDays || null,
+        mappingCode: transportRecord.mappingCode || '',
+        isValid: transportRecord.isValid ?? true,
+        isUsedForPln: transportRecord.isUsedForPln ?? null,
       };
-      saveData.push(gateData);
+
+      // 检查该运输指令关联的进提箱类型是否已存在于 saveDataMap 中
+      if (saveDataMap.has(gateId)) {
+        // 如果存在，直接添加到对应的 gateIoTypDtlSaveReqVOList
+        const gateInfo = saveDataMap.get(gateId);
+        gateInfo.gateIoTypDtlSaveReqVOList.push(transportData);
+      } else {
+        // 如果不存在，需要从原始数据中获取该进提箱类型的完整信息
+        const originalGateInfo = gateInfoMap.get(gateId);
+        if (originalGateInfo) {
+          // 该进提箱类型没有修改，但需要包含其关联的运输指令
+          const gateInfo = {
+            id: originalGateInfo.id,
+            businessCode: originalGateInfo.businessCode || '',
+            businessName: originalGateInfo.businessName || '',
+            pickupLocation: originalGateInfo.pickupLocation || '',
+            deliveryLocation: originalGateInfo.deliveryLocation || '',
+            plnValidDays: originalGateInfo.plnValidDays || 0,
+            isValid: originalGateInfo.isValid ?? true,
+            mappingCode: originalGateInfo.mappingCode || '',
+            deleteTime: originalGateInfo.deleteTime || '',
+            gateIoTypDtlSaveReqVOList: [transportData],
+          };
+          saveDataMap.set(gateId, gateInfo);
+        } else {
+          // 理论上不应该出现这种情况，但为了安全，创建一个基本的进提箱类型
+          const gateInfo = {
+            id: gateId,
+            businessCode: '',
+            businessName: '',
+            pickupLocation: '',
+            deliveryLocation: '',
+            plnValidDays: 0,
+            isValid: true,
+            mappingCode: '',
+            deleteTime: '',
+            gateIoTypDtlSaveReqVOList: [transportData],
+          };
+          saveDataMap.set(gateId, gateInfo);
+        }
+      }
+    }
+
+    // 3. 处理没有关联任何运输指令修改的进提箱类型（如果有修改但没有运输指令修改）
+    for (const gateRecord of gateModifiedRecords) {
+      if (saveDataMap.has(gateRecord.id)) {
+        const gateInfo = saveDataMap.get(gateRecord.id);
+        // 如果该进提箱类型还没有运输指令，确保 gateIoTypDtlSaveReqVOList 至少是空数组
+        if (!gateInfo.gateIoTypDtlSaveReqVOList) {
+          gateInfo.gateIoTypDtlSaveReqVOList = [];
+        }
+      }
+    }
+
+    // 4. 处理仅新增运输指令但没有对应进提箱类型记录的情况（已在第2步处理）
+
+    // 将 Map 转换为数组
+    const saveData = Array.from(saveDataMap.values());
+
+    if (saveData.length === 0) {
+      message.info('没有需要保存的记录');
+      return;
     }
 
     // 调用批量保存接口
@@ -373,7 +402,14 @@ async function handleGateIOAdd() {
   const $grid = gateIOTypeGridApi.grid;
   if (!$grid) return;
 
-  const { row: newRow } = await $grid.insertAt({ isValid: true }, -1);
+  const { row: newRow } = await $grid.insertAt(
+    {
+      isValid: true,
+      pickupLocation: 'ZDHMT',
+      deliveryLocation: 'ZDHMT',
+    },
+    -1,
+  );
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
 }
@@ -406,8 +442,9 @@ async function handleTransportAdd() {
     {
       id: null,
       gateIoTypId: selectedGateId,
-      // isValid: true,
-      // isUsedForPln: true,
+      gateInOutType: 'GATE_IN',
+      isValid: true,
+      isUsedForPln: true,
     },
     -1,
   );
