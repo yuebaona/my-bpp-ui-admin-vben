@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 
 import { useDebounceFn } from '@vueuse/core';
-import { message } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -194,7 +194,10 @@ async function handleBatchDelete() {
   }
 
   // 检查是否有勾选记录
-  if (gateSelectedRecords.length === 0 && transportSelectedRecords.length === 0) {
+  if (
+    gateSelectedRecords.length === 0 &&
+    transportSelectedRecords.length === 0
+  ) {
     message.warning('请选择要删除的记录');
     return;
   }
@@ -213,15 +216,72 @@ async function handleBatchDelete() {
     type = 'D';
   }
 
-  try {
-    await batchDeleteGateInOutType(ids, type);
-    // 刷新表格
-    await gateIOTypeGridApi.query();
-    await transportInstructionGridApi.query();
-    message.success('删除成功');
-  } catch (error) {
-    console.error('批量删除失败:', error);
-    message.error('删除失败');
+  // 执行删除操作的函数
+  const performDelete = async () => {
+    try {
+      await batchDeleteGateInOutType(ids, type);
+      // 刷新表格
+      await gateIOTypeGridApi.query();
+      await transportInstructionGridApi.query();
+      message.success('删除成功');
+    } catch (error) {
+      console.error('批量删除失败:', error);
+      message.error('删除失败');
+    }
+  };
+
+  // 根据删除类型显示不同的确认对话框
+  if (type === 'M') {
+    // 删除业务受理类型时，提示用户对应的运输指令类型也会被删除
+    Modal.confirm({
+      title: '确认删除',
+      content:
+        '要删除业务受理类型，则对应的运输指令类型也同步进行删除，是否确认？',
+      okText: '是',
+      cancelText: '否',
+      onOk: performDelete,
+    });
+  } else {
+    // 删除运输指令类型时，判断是否全部勾选
+    const checkAllTransport = async () => {
+      try {
+        // 获取当前选中的业务受理类型ID
+        const gateId = selectedGateIoTypeId.value;
+        if (!gateId) {
+          performDelete();
+          return;
+        }
+
+        // 获取该业务受理类型对应的所有运输指令总数
+        const res = await getTransportInstructionPage({
+          gateIoTypIds: gateId,
+          pageNo: 1,
+          pageSize: 100, // 假设一页足够容纳所有数据
+        });
+
+        const totalTransport = res.total;
+        const selectedTransportCount = transportSelectedRecords.length;
+
+        // 如果选中数量等于总数，显示确认对话框
+        if (selectedTransportCount === totalTransport && totalTransport > 0) {
+          Modal.confirm({
+            title: '确认删除',
+            content: '要删除此业务受理类型的全部运输指令类型，是否确认？',
+            okText: '是',
+            cancelText: '否',
+            onOk: performDelete,
+          });
+        } else {
+          // 否则直接删除
+          performDelete();
+        }
+      } catch (error) {
+        console.error('获取运输指令总数失败:', error);
+        // 失败时直接执行删除
+        performDelete();
+      }
+    };
+    checkAllTransport();
   }
 }
 
@@ -297,7 +357,8 @@ async function handleSave() {
         gateInOutType: transportRecord.gateInOutType || '',
         contDirection: transportRecord.contDirection || '',
         emptyFull: transportRecord.emptyFull || '',
-        transportOrderValidDays: transportRecord.transportOrderValidDays || null,
+        transportOrderValidDays:
+          transportRecord.transportOrderValidDays || null,
         mappingCode: transportRecord.mappingCode || '',
         isValid: transportRecord.isValid ?? true,
         isUsedForPln: transportRecord.isUsedForPln ?? null,
@@ -359,7 +420,7 @@ async function handleSave() {
     // 4. 处理仅新增运输指令但没有对应进提箱类型记录的情况（已在第2步处理）
 
     // 将 Map 转换为数组
-    const saveData = Array.from(saveDataMap.values());
+    const saveData = [...saveDataMap.values()];
 
     if (saveData.length === 0) {
       message.info('没有需要保存的记录');
