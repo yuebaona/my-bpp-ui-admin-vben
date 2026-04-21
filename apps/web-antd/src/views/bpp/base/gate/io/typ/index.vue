@@ -23,6 +23,7 @@ import {
 // 当前选中的送提箱类型ID
 const selectedGateIoTypeId = ref<null | number>(null);
 const debouncedHandleGateIOAdd = useDebounceFn(handleGateIOAdd, 300);
+const debouncedHandleTransportAdd = useDebounceFn(handleTransportAdd, 300);
 
 const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   formOptions: {
@@ -34,7 +35,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     submitOnEnter: true,
   },
   gridOptions: {
-    border: true,
+    // border: true,
     columns: gateIOColumns(),
     height: 'auto',
     keepSource: true,
@@ -57,6 +58,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       isEnter: true, // 支持回车键保存或移动
       isTab: true, // 支持Tab键切换单元格
       isEsc: true, // 支持Esc键退出编辑
+      isEdit: true, //开启单元格选中编辑功能
     },
     toolbarConfig: {
       search: true,
@@ -173,27 +175,51 @@ function handleCheckboxChange({ records }: { records: any[] }) {
   }
 }
 
-// 送提箱类型批量删除
+// 批量删除
 async function handleBatchDelete() {
-  const $grid = gateIOTypeGridApi.grid;
-  if (!$grid) return;
+  const $gateGrid = gateIOTypeGridApi.grid;
+  const $transportGrid = transportInstructionGridApi.grid;
+  if (!$gateGrid || !$transportGrid) return;
 
-  // 获取选中的行
-  const selectedRecords = $grid.getCheckboxRecords();
-  if (selectedRecords.length === 0) {
+  // 获取两个表格的选中记录
+  const gateSelectedRecords = $gateGrid.getCheckboxRecords();
+  const transportSelectedRecords = $transportGrid.getCheckboxRecords();
+
+  // 检查是否同时有勾选记录
+  if (gateSelectedRecords.length > 0 && transportSelectedRecords.length > 0) {
+    message.warning('送提箱受理计划列表和运输指令类型定义列表不能同时有勾选记录');
+    return;
+  }
+
+  // 检查是否有勾选记录
+  if (gateSelectedRecords.length === 0 && transportSelectedRecords.length === 0) {
     message.warning('请选择要删除的记录');
     return;
   }
 
-  // 提取 id
-  const ids = selectedRecords.map((record) => record.id);
+  let ids: number[] = [];
+  let type: string = '';
+
+  // 根据选中的记录类型设置参数
+  if (gateSelectedRecords.length > 0) {
+    // 送提箱受理类型
+    ids = gateSelectedRecords.map((record) => record.id);
+    type = 'M';
+  } else if (transportSelectedRecords.length > 0) {
+    // 运输指令类型
+    ids = transportSelectedRecords.map((record) => record.id);
+    type = 'D';
+  }
 
   try {
-    await batchDeleteGateInOutType(ids);
+    await batchDeleteGateInOutType(ids, type);
     // 刷新表格
     await gateIOTypeGridApi.query();
+    await transportInstructionGridApi.query();
+    message.success('删除成功');
   } catch (error) {
     console.error('批量删除失败:', error);
+    message.error('删除失败');
   }
 }
 
@@ -249,7 +275,7 @@ async function handleSave() {
           transportOrderValidDays:
             transportRecord.transportOrderValidDays || null,
           mappingCode: transportRecord.mappingCode || '',
-          isValid: transportRecord.isValid || null,
+          isValid: transportRecord.isValid || true,
           isUsedForPln: transportRecord.isUsedForPln || null,
         }),
       );
@@ -262,7 +288,7 @@ async function handleSave() {
         pickupLocation: gateRecord.pickupLocation || '',
         deliveryLocation: gateRecord.deliveryLocation || '',
         plnValidDays: gateRecord.plnValidDays || 0,
-        isValid: gateRecord.isValid || false,
+        isValid: gateRecord.isValid || null,
         mappingCode: gateRecord.mappingCode || '',
         deleteTime: '',
         gateIoTypDtlSaveReqVOList,
@@ -288,7 +314,7 @@ async function handleSave() {
         pickupLocation: '',
         deliveryLocation: '',
         plnValidDays: 0,
-        isValid: false,
+        isValid: null,
         mappingCode: '',
         deleteTime: '',
         gateIoTypDtlSaveReqVOList: transportRecordsWithoutGate.map(
@@ -380,8 +406,8 @@ async function handleTransportAdd() {
     {
       id: null,
       gateIoTypId: selectedGateId,
-      isValid: true,
-      isUsedForPln: true,
+      // isValid: true,
+      // isUsedForPln: true,
     },
     -1,
   );
@@ -412,7 +438,7 @@ async function handleTransportAdd() {
                 label: '运输指令类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
-                onClick: handleTransportAdd,
+                onClick: debouncedHandleTransportAdd,
               },
               {
                 label: '删除',
