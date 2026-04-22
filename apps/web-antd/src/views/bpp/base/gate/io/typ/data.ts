@@ -25,7 +25,7 @@ const loadDictData = async (dictTypes: string[]) => {
   }
 };
 
-loadDictData(['is_valid']);
+loadDictData(['is_valid', 'gate_io_type', 'gate_io_location']);
 
 // 获取字典值对应的文本
 export const getDictText = (
@@ -38,13 +38,43 @@ export const getDictText = (
   return item?.label || String(value);
 };
 
-// 获取字典选项列表
+// 获取字典选项列表（字符串值）
 export const getDictOptions = (dictType: string) => {
   const options = bppBaseDict.getBppBaseDictOptions(dictType);
   return options.map((item) => ({
     label: item.label,
     value: item.value,
   }));
+};
+
+// 获取字典选项列表（布尔值），用于 is_valid 等布尔类型字段的编辑
+const getDictBooleanOptions = (dictType: string) => {
+  const options = bppBaseDict.getBppBaseDictOptions(dictType);
+  return options.map((item) => ({
+    label: item.label,
+    value: item.value === 'true',
+  }));
+};
+
+// 在文件顶部定义辅助函数
+const createInputFormatter = (regex: RegExp) => {
+  return {
+    onCompositionstart: (e: any) => {
+      e.target.composing = true;
+    },
+    onCompositionend: (e: any) => {
+      e.target.composing = false;
+      const value = e.target.value.replaceAll(regex, '').toUpperCase();
+      e.target.value = value;
+      e.target.dispatchEvent(new Event('input', { bubbles: true }));
+    },
+    oninput: (e: any) => {
+      if (e.target.composing) return;
+      const value = e.target.value.replaceAll(regex, '').toUpperCase();
+      e.target.value = value;
+      e.target.dispatchEvent(new Event('input', { bubbles: true }));
+    },
+  };
 };
 
 export function gateIOSearchSchema(): VbenFormSchema[] {
@@ -56,6 +86,21 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         placeholder: '请输入业务代码',
+        onCompositionstart: (e: any) => {
+          e.target.composing = true;
+        },
+        onCompositionend: (e: any) => {
+          e.target.composing = false;
+          const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
+          e.target.value = value;
+          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+        oninput: (e: any) => {
+          if (e.target.composing) return;
+          const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
+          e.target.value = value;
+          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+        },
       },
     },
     {
@@ -65,6 +110,21 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
       componentProps: {
         allowClear: true,
         placeholder: '请输入接口转换代码',
+        onCompositionstart: (e: any) => {
+          e.target.composing = true;
+        },
+        onCompositionend: (e: any) => {
+          e.target.composing = false;
+          const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
+          e.target.value = value;
+          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+        oninput: (e: any) => {
+          if (e.target.composing) return;
+          const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
+          e.target.value = value;
+          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+        },
       },
     },
     {
@@ -103,7 +163,9 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
 export function gateIOColumns(): VxeTableGridOptions['columns'] {
   const access = useAccess();
   const hasEditPermission = access.hasAccessByCodes([
-    'bpp:flow-acceptance-plan:edit',
+    // 'bpp:flow-acceptance-plan:edit',
+    // 'bpp:flow-acceptance-plan:create',
+    'base:gate-io-typ:manager',
   ]);
 
   return [
@@ -117,13 +179,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       editRender: hasEditPermission
         ? {
             name: 'input',
-            attrs: {
-              oninput: (e: any) => {
-                e.target.value = e.target.value
-                  .replaceAll(/[^a-z]/gi, '')
-                  .toUpperCase();
-              },
-            },
+            attrs: createInputFormatter(/[^a-z]/gi),
           }
         : undefined,
     },
@@ -137,13 +193,23 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'pickupLocation',
       title: '提箱地',
       minWidth: 100,
-      editRender: hasEditPermission ? { name: 'input' } : undefined,
+      editRender: hasEditPermission
+        ? {
+            name: 'select',
+            options: bppBaseDict.getBppBaseDictOptions('gate_io_location'),
+          }
+        : undefined,
     },
     {
       field: 'deliveryLocation',
       title: '送箱地',
       minWidth: 100,
-      editRender: hasEditPermission ? { name: 'input' } : undefined,
+      editRender: hasEditPermission
+        ? {
+            name: 'select',
+            options: bppBaseDict.getBppBaseDictOptions('gate_io_location'),
+          }
+        : undefined,
     },
     {
       field: 'plnValidDays',
@@ -157,7 +223,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       editRender: {
         name: 'select',
-        options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+        options: getDictBooleanOptions('is_valid'),
       },
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
     },
@@ -168,13 +234,7 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       editRender: hasEditPermission
         ? {
             name: 'input',
-            attrs: {
-              oninput: (e: any) => {
-                e.target.value = e.target.value
-                  .replaceAll(/[^a-z]/gi, '')
-                  .toUpperCase();
-              },
-            },
+            attrs: createInputFormatter(/[^a-z]/gi),
           }
         : undefined,
     },
@@ -206,7 +266,9 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
 export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
   const access = useAccess();
   const hasEditPermission = access.hasAccessByCodes([
-    'bpp:flow-acceptance-plan:edit',
+    // 'bpp:flow-acceptance-plan:edit',
+    // 'bpp:flow-acceptance-plan:create',
+    'base:gate-io-typ:manager',
   ]);
 
   return [
@@ -220,13 +282,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       editRender: hasEditPermission
         ? {
             name: 'input',
-            attrs: {
-              oninput: (e: any) => {
-                e.target.value = e.target.value
-                  .replaceAll(/[^a-z_]/gi, '')
-                  .toUpperCase();
-              },
-            },
+            attrs: createInputFormatter(/[^a-z_]/gi),
           }
         : undefined,
     },
@@ -240,7 +296,12 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'gateInOutType',
       title: '送提类型',
       minWidth: 100,
-      editRender: hasEditPermission ? { name: 'input' } : undefined,
+      editRender: hasEditPermission
+        ? {
+            name: 'select',
+            options: bppBaseDict.getBppBaseDictOptions('gate_io_type'),
+          }
+        : undefined,
     },
     {
       field: 'contDirection',
@@ -267,13 +328,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       editRender: hasEditPermission
         ? {
             name: 'input',
-            attrs: {
-              oninput: (e: any) => {
-                e.target.value = e.target.value
-                  .replaceAll(/[^a-z_]/gi, '')
-                  .toUpperCase();
-              },
-            },
+            attrs: createInputFormatter(/[^a-z_]/gi),
           }
         : undefined,
     },
@@ -283,7 +338,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       minWidth: 100,
       editRender: {
         name: 'select',
-        options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+        options: getDictBooleanOptions('is_valid'),
       },
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
     },
@@ -294,7 +349,7 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       editRender: hasEditPermission
         ? {
             name: 'select',
-            options: bppBaseDict.getBppBaseDictOptions('is_valid'),
+            options: getDictBooleanOptions('is_valid'),
           }
         : undefined,
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
