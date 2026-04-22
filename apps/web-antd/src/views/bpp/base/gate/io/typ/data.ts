@@ -65,14 +65,18 @@ const createInputFormatter = (regex: RegExp) => {
     onCompositionend: (e: any) => {
       e.target.composing = false;
       const value = e.target.value.replaceAll(regex, '').toUpperCase();
-      e.target.value = value;
-      e.target.dispatchEvent(new Event('input', { bubbles: true }));
+      if (e.target.value !== value) {
+        e.target.value = value;
+        e.target.dispatchEvent(new Event('input', { bubbles: true }));
+      }
     },
     oninput: (e: any) => {
       if (e.target.composing) return;
       const value = e.target.value.replaceAll(regex, '').toUpperCase();
-      e.target.value = value;
-      e.target.dispatchEvent(new Event('input', { bubbles: true }));
+      if (e.target.value !== value) {
+        e.target.value = value;
+        e.target.dispatchEvent(new Event('input', { bubbles: true }));
+      }
     },
   };
 };
@@ -92,14 +96,18 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
         onCompositionend: (e: any) => {
           e.target.composing = false;
           const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
-          e.target.value = value;
-          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          if (e.target.value !== value) {
+            e.target.value = value;
+            e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          }
         },
         oninput: (e: any) => {
           if (e.target.composing) return;
           const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
-          e.target.value = value;
-          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          if (e.target.value !== value) {
+            e.target.value = value;
+            e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          }
         },
       },
     },
@@ -116,14 +124,18 @@ export function gateIOSearchSchema(): VbenFormSchema[] {
         onCompositionend: (e: any) => {
           e.target.composing = false;
           const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
-          e.target.value = value;
-          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          if (e.target.value !== value) {
+            e.target.value = value;
+            e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          }
         },
         oninput: (e: any) => {
           if (e.target.composing) return;
           const value = e.target.value.replaceAll(/[^a-z]/gi, '').toUpperCase();
-          e.target.value = value;
-          e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          if (e.target.value !== value) {
+            e.target.value = value;
+            e.target.dispatchEvent(new Event('input', { bubbles: true }));
+          }
         },
       },
     },
