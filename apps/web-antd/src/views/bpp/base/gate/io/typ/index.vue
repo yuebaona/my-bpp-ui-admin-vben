@@ -285,6 +285,7 @@ async function handleBatchDelete() {
   }
 }
 
+// 保存
 async function handleSave() {
   const $gateGrid = gateIOTypeGridApi.grid;
   const $transportGrid = transportInstructionGridApi.grid;
@@ -494,6 +495,14 @@ async function handleTransportAdd() {
     return;
   }
 
+  // 检查是否选择了新增的记录
+  if (selectedRecords[0].__isNew__) {
+    message.warning(
+      '不允许为新增的送提箱受理类型记录新增运输指令，请先保存送提箱受理类型',
+    );
+    return;
+  }
+
   // 获取选中的送提箱类型ID
   const selectedGateId = selectedRecords[0].id;
   selectedGateIoTypeId.value = selectedGateId;
@@ -530,18 +539,21 @@ async function handleTransportAdd() {
                 label: '受理计划类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
+                auth: ['base:gate-io-typ:manager'],
                 onClick: debouncedHandleGateIOAdd,
               },
               {
                 label: '运输指令类型',
                 type: 'primary',
                 icon: ACTION_ICON.ADD,
+                auth: ['base:gate-io-typ:manager'],
                 onClick: debouncedHandleTransportAdd,
               },
               {
                 label: '删除',
                 type: 'default',
                 icon: ACTION_ICON.DELETE,
+                auth: ['base:gate-io-typ:manager'],
                 onClick: handleBatchDelete,
               },
             ]"
