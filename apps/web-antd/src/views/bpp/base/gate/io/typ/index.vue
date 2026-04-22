@@ -324,8 +324,8 @@ async function handleSave() {
   }
 
   try {
-    // 构建保存数据结构
-    const saveDataMap = new Map(); // 使用 Map 来避免重复
+    // 构建保存数据数组
+    const saveData: any[] = [];
 
     // 1. 处理送提箱类型的新增和修改记录
     for (const gateRecord of gateModifiedRecords) {
@@ -342,7 +342,7 @@ async function handleSave() {
         deleteTime: gateRecord.deleteTime || '',
         gateIoTypDtlSaveReqVOList: [],
       };
-      saveDataMap.set(gateRecord.id, fullGateInfo);
+      saveData.push(fullGateInfo);
     }
 
     // 2. 处理运输指令的新增和修改记录
@@ -365,17 +365,17 @@ async function handleSave() {
         isUsedForPln: transportRecord.isUsedForPln ?? null,
       };
 
-      // 检查该运输指令关联的进提箱类型是否已存在于 saveDataMap 中
-      if (saveDataMap.has(gateId)) {
+      // 查找对应的进提箱类型记录
+      const gateInfo = saveData.find((item) => item.id === gateId);
+      if (gateInfo) {
         // 如果存在，直接添加到对应的 gateIoTypDtlSaveReqVOList
-        const gateInfo = saveDataMap.get(gateId);
         gateInfo.gateIoTypDtlSaveReqVOList.push(transportData);
       } else {
         // 如果不存在，需要从原始数据中获取该进提箱类型的完整信息
         const originalGateInfo = gateInfoMap.get(gateId);
         if (originalGateInfo) {
           // 该进提箱类型没有修改，但需要包含其关联的运输指令
-          const gateInfo = {
+          const newGateInfo = {
             id: originalGateInfo.id,
             businessCode: originalGateInfo.businessCode || '',
             businessName: originalGateInfo.businessName || '',
@@ -387,10 +387,10 @@ async function handleSave() {
             deleteTime: originalGateInfo.deleteTime || '',
             gateIoTypDtlSaveReqVOList: [transportData],
           };
-          saveDataMap.set(gateId, gateInfo);
+          saveData.push(newGateInfo);
         } else {
           // 理论上不应该出现这种情况，但为了安全，创建一个基本的进提箱类型
-          const gateInfo = {
+          const newGateInfo = {
             id: gateId,
             businessCode: '',
             businessName: '',
@@ -402,26 +402,18 @@ async function handleSave() {
             deleteTime: '',
             gateIoTypDtlSaveReqVOList: [transportData],
           };
-          saveDataMap.set(gateId, gateInfo);
+          saveData.push(newGateInfo);
         }
       }
     }
 
-    // 3. 处理没有关联任何运输指令修改的进提箱类型（如果有修改但没有运输指令修改）
+    // 3. 处理没有关联任何运输指令修改的进提箱类型（确保 gateIoTypDtlSaveReqVOList 是空数组）
     for (const gateRecord of gateModifiedRecords) {
-      if (saveDataMap.has(gateRecord.id)) {
-        const gateInfo = saveDataMap.get(gateRecord.id);
-        // 如果该进提箱类型还没有运输指令，确保 gateIoTypDtlSaveReqVOList 至少是空数组
-        if (!gateInfo.gateIoTypDtlSaveReqVOList) {
-          gateInfo.gateIoTypDtlSaveReqVOList = [];
-        }
+      const gateInfo = saveData.find((item) => item.id === gateRecord.id);
+      if (gateInfo && !gateInfo.gateIoTypDtlSaveReqVOList) {
+        gateInfo.gateIoTypDtlSaveReqVOList = [];
       }
     }
-
-    // 4. 处理仅新增运输指令但没有对应进提箱类型记录的情况（已在第2步处理）
-
-    // 将 Map 转换为数组
-    const saveData = [...saveDataMap.values()];
 
     if (saveData.length === 0) {
       message.info('没有需要保存的记录');
