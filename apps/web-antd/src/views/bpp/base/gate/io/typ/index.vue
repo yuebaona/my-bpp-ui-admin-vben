@@ -50,6 +50,12 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       trigger: 'dblclick',
       // autoClear: false,
     },
+    editRules: {
+      businessCode: [{ required: true, message: '必填项' }],
+      businessName: [{ required: true, message: '必填项' }],
+      plnValidDays: [{ required: true, message: '必填项' }],
+      mappingCode: [{ required: true, message: '必填项' }],
+    },
     mouseConfig: {
       selected: true, // 启用单元格选中功能，Tab切换需要此配置
     },
@@ -111,6 +117,14 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       showStatus: true,
       trigger: 'dblclick',
       // autoClear: false,
+    },
+    editRules: {
+      transportOrderCode: [{ required: true, message: '必填项' }],
+      transportOrderName: [{ required: true, message: '必填项' }],
+      contDirection: [{ required: true, message: '必填项' }],
+      emptyFull: [{ required: true, message: '必填项' }],
+      transportOrderValidDays: [{ required: true, message: '必填项' }],
+      mappingCode: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
       selected: true, // 启用单元格选中功能，Tab切换需要此配置
