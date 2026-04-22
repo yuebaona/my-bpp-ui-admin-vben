@@ -39,6 +39,16 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     columns: gateIOColumns(),
     height: 'auto',
     keepSource: true,
+    checkboxConfig: {
+      highlight: true,
+      isShiftKey: true,
+    },
+    floatingFilterConfig: {
+      enabled: true,  // 启用浮动过滤器
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     rowConfig: {
       // keyField: 'id',
       isHover: true,
@@ -77,7 +87,28 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
-      pageSizes: [10, 20, 50, 100],
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '20',
+          value: 20,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '全部',
+          value: -1,
+        }
+      ]
     },
     proxyConfig: {
       ajax: {
@@ -107,6 +138,16 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     columns: transportInstructionColumns(),
     height: 'auto',
     keepSource: true,
+    checkboxConfig: {
+      highlight: true,
+      isShiftKey: true,
+    },
+    floatingFilterConfig: {
+      enabled: true,  // 启用浮动过滤器
+    },
+    filterConfig: {
+      showIcon: false,
+    },
     rowConfig: {
       // keyField: 'id',
       isHover: true,
@@ -140,13 +181,34 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       custom: false,
       export: true,
       // import: true,
-      refresh: false,
+      refresh: true,
       zoom: false,
     },
     pagerConfig: {
       pageSize: 10,
       enabled: true,
-      pageSizes: [10, 20, 50, 100],
+      pageSizes: [
+        {
+          label: '10',
+          value: 10,
+        },
+        {
+          label: '20',
+          value: 20,
+        },
+        {
+          label: '50',
+          value: 50,
+        },
+        {
+          label: '100',
+          value: 100,
+        },
+        {
+          label: '全部',
+          value: -1,
+        }
+      ]
     },
     proxyConfig: {
       ajax: {
@@ -476,7 +538,7 @@ async function handleGateIOAdd() {
       pickupLocation: 'ZDHMT',
       deliveryLocation: 'ZDHMT',
     },
-    -1,
+    0,
   );
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
@@ -522,7 +584,7 @@ async function handleTransportAdd() {
       isValid: true,
       isUsedForPln: true,
     },
-    -1,
+    0,
   );
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);

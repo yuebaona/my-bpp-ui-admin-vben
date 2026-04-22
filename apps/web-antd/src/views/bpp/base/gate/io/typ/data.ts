@@ -194,12 +194,54 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
             attrs: createInputFormatter(/[^a-z]/gi),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'businessName',
       title: '业务类型名称',
       minWidth: 100,
       editRender: hasEditPermission ? { name: 'input' } : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'pickupLocation',
@@ -211,6 +253,27 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
             options: bppBaseDict.getBppBaseDictOptions('gate_io_location'),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: bppBaseDict.getBppBaseDictOptions('gate_io_location'),
+        },
+        events: {
+          change: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('change', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return String(row[column.field]) === String(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'deliveryLocation',
@@ -222,12 +285,54 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
             options: bppBaseDict.getBppBaseDictOptions('gate_io_location'),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: bppBaseDict.getBppBaseDictOptions('gate_io_location'),
+        },
+        events: {
+          change: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('change', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return String(row[column.field]) === String(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'plnValidDays',
       title: '业务计划有效天数',
       minWidth: 100,
       editRender: hasEditPermission ? { name: 'input' } : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'isValid',
@@ -238,6 +343,30 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
         options: getDictBooleanOptions('is_valid'),
       },
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: [
+            { label: '是', value: true },
+            { label: '否', value: false },
+          ],
+        },
+        events: {
+          change: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('change', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data !== '') {
+          return row[column.field] === option.data;
+        }
+        return true;
+      },
     },
     {
       field: 'mappingCode',
@@ -249,6 +378,27 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
             attrs: createInputFormatter(/[^a-z]/gi),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'creatorName',
@@ -297,12 +447,54 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
             attrs: createInputFormatter(/[^a-z_]/gi),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'transportOrderName',
       title: '运输指令名称',
       minWidth: 100,
       editRender: hasEditPermission ? { name: 'input' } : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'gateInOutType',
@@ -314,24 +506,107 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
             options: bppBaseDict.getBppBaseDictOptions('gate_io_type'),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          allowClear: true,
+          options: bppBaseDict.getBppBaseDictOptions('gate_io_type'),
+        },
+        events: {
+          change: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('change', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return String(row[column.field]) === String(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'contDirection',
       title: '指令箱流向',
       minWidth: 100,
       editRender: hasEditPermission ? { name: 'input' } : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'emptyFull',
       title: '箱空重',
       minWidth: 100,
       editRender: hasEditPermission ? { name: 'input' } : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'transportOrderValidDays',
       title: '指令有效期（天）',
       minWidth: 100,
       editRender: { name: 'input' },
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'mappingCode',
@@ -343,6 +618,27 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
             attrs: createInputFormatter(/[^a-z_]/gi),
           }
         : undefined,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'isValid',
@@ -353,6 +649,30 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
         options: getDictBooleanOptions('is_valid'),
       },
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: [
+            { label: '是', value: true },
+            { label: '否', value: false },
+          ],
+        },
+        events: {
+          change: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('change', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data !== '') {
+          return row[column.field] === option.data;
+        }
+        return true;
+      },
     },
     {
       field: 'isUsedForPln',
@@ -365,6 +685,30 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
           }
         : undefined,
       formatter: ({ cellValue }) => getDictText('is_valid', cellValue),
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          placeholder: '',
+          allowClear: true,
+          options: [
+            { label: '是', value: true },
+            { label: '否', value: false },
+          ],
+        },
+        events: {
+          change: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('change', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data !== '') {
+          return row[column.field] === option.data;
+        }
+        return true;
+      },
     },
     {
       field: 'creatorName',
