@@ -40,7 +40,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     height: 'auto',
     virtualYConfig: {
       enabled: true,
-      gt: 100
+      gt: 100,
     },
     keepSource: true,
     checkboxConfig: {
@@ -48,7 +48,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       isShiftKey: true,
     },
     floatingFilterConfig: {
-      enabled: true,  // 启用浮动过滤器
+      enabled: true, // 启用浮动过滤器
     },
     filterConfig: {
       showIcon: false,
@@ -76,6 +76,8 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
         { pattern: /^[A-Z]{6}$/, message: '必须是6位字母' },
       ],
       isValid: [{ required: true, message: '必填项' }],
+      pickupLocation: [{ required: true, message: '必填项' }],
+      deliveryLocation: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
       selected: true, // 启用单元格选中功能，Tab切换需要此配置
@@ -114,8 +116,8 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
         {
           label: '全部',
           value: -1,
-        }
-      ]
+        },
+      ],
     },
     proxyConfig: {
       ajax: {
@@ -146,7 +148,7 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     height: 'auto',
     virtualYConfig: {
       enabled: true,
-      gt: 100
+      gt: 100,
     },
     keepSource: true,
     checkboxConfig: {
@@ -173,17 +175,21 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     editRules: {
       transportOrderCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{7}_[OI]$/, message: '必须是7位大写字母+下划线+O/I' }
+        { pattern: /^[A-Z]{7}_[OI]$/, message: '必须是7位大写字母+下划线+O/I' },
       ],
       transportOrderName: [{ required: true, message: '必填项' }],
       contDirection: [{ required: true, message: '必填项' }],
       emptyFull: [{ required: true, message: '必填项' }],
-      transportOrderValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
+      transportOrderValidDays: [
+        { required: true, message: '请填写数字', type: 'number' },
+      ],
       mappingCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{6}_[OI]$/, message: '必须是6位大写字母+下划线+O/I' }
+        { pattern: /^[A-Z]{6}_[OI]$/, message: '必须是6位大写字母+下划线+O/I' },
       ],
       isValid: [{ required: true, message: '必填项' }],
+      gateInOutType: [{ required: true, message: '必填项' }],
+      isUsedForPln: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
       selected: true, // 启用单元格选中功能，Tab切换需要此配置
@@ -221,8 +227,8 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
         {
           label: '全部',
           value: -1,
-        }
-      ]
+        },
+      ],
     },
     proxyConfig: {
       ajax: {
@@ -295,7 +301,9 @@ async function handleBatchDelete() {
   // 处理送提箱类型表格的新增行删除
   if (gateSelectedRecords.length > 0) {
     // 检查是否全部是新增行
-    const allAreNew = gateSelectedRecords.every((record) => record.__isNew__ === true);
+    const allAreNew = gateSelectedRecords.every(
+      (record) => record.__isNew__ === true,
+    );
 
     if (allAreNew) {
       // 全部是新增行，直接从前端移除，不调用后端接口
@@ -306,7 +314,10 @@ async function handleBatchDelete() {
         message.success('删除成功');
 
         // 如果删除的记录包含当前选中的类型，清空选中状态并刷新运输指令表格
-        if (selectedGateIoTypeId.value && gateSelectedRecords.some(r => r.id === selectedGateIoTypeId.value)) {
+        if (
+          selectedGateIoTypeId.value &&
+          gateSelectedRecords.some((r) => r.id === selectedGateIoTypeId.value)
+        ) {
           selectedGateIoTypeId.value = null;
           await transportInstructionGridApi.query();
         }
@@ -318,7 +329,9 @@ async function handleBatchDelete() {
     }
 
     // 检查是否包含新增行
-    const hasNewRecord = gateSelectedRecords.some((record) => record.__isNew__ === true);
+    const hasNewRecord = gateSelectedRecords.some(
+      (record) => record.__isNew__ === true,
+    );
     if (hasNewRecord) {
       message.warning('不能同时选择新增记录和已保存的记录进行删除，请分别处理');
       return;
