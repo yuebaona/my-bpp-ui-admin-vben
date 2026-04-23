@@ -25,7 +25,7 @@ const loadDictData = async (dictTypes: string[]) => {
   }
 };
 
-loadDictData(['is_valid', 'gate_io_type', 'gate_io_location']);
+loadDictData(['is_valid', 'gate_io_type', 'gate_io_location', 'empty_full']);
 
 // 获取字典值对应的文本
 export const getDictText = (
@@ -311,7 +311,12 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'plnValidDays',
       title: '业务计划有效天数',
       minWidth: 100,
-      editRender: hasEditPermission ? { name: 'input' } : undefined,
+      editRender: hasEditPermission
+        ? {
+            name: 'input',
+            attrs: createInputFormatter(/\D/g),
+          }
+        : undefined,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
@@ -600,25 +605,29 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'emptyFull',
       title: '箱空重',
       minWidth: 100,
-      editRender: hasEditPermission ? { name: 'input' } : undefined,
+      editRender: hasEditPermission
+        ? {
+            name: 'select',
+            options: bppBaseDict.getBppBaseDictOptions('empty_full'),
+          }
+        : undefined,
       filters: [{ data: '' }],
       filterRender: {
-        name: 'VxeInput',
+        name: 'VxeSelect',
         props: {
-          placeholder: '',
           allowClear: true,
+          options: bppBaseDict.getBppBaseDictOptions('empty_full'),
         },
         events: {
-          input: (params: any) => {
+          change: (params: any) => {
             const { $grid, column } = params;
-
-            $grid.saveFilterByEvent('input', column.field);
+            $grid.saveFilterByEvent('change', column.field);
           },
         },
       },
       filterMethod: ({ option, row, column }) => {
         if (option.data) {
-          return `${row[column.field]}`.includes(option.data);
+          return String(row[column.field]) === String(option.data);
         }
         return true;
       },
@@ -627,7 +636,12 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'transportOrderValidDays',
       title: '指令有效期（天）',
       minWidth: 100,
-      editRender: { name: 'input' },
+      editRender: hasEditPermission
+        ? {
+            name: 'input',
+            attrs: createInputFormatter(/\D/g),
+          }
+        : undefined,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',

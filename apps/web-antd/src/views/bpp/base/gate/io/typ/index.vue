@@ -645,6 +645,7 @@ async function handleTransportAdd() {
       gateInOutType: 'GATE_IN',
       isValid: true,
       isUsedForPln: true,
+      emptyFull: 'E',
     },
     -1,
   );
