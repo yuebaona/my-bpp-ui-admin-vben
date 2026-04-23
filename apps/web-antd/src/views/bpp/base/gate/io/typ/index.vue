@@ -38,6 +38,10 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     // border: true,
     columns: gateIOColumns(),
     height: 'auto',
+    virtualYConfig: {
+      enabled: true,
+      gt: 100
+    },
     keepSource: true,
     checkboxConfig: {
       highlight: true,
@@ -63,8 +67,9 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     editRules: {
       businessCode: [{ required: true, message: '必填项' }],
       businessName: [{ required: true, message: '必填项' }],
-      plnValidDays: [{ required: true, message: '必填项' }],
+      plnValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
       mappingCode: [{ required: true, message: '必填项' }],
+      isValid: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
       selected: true, // 启用单元格选中功能，Tab切换需要此配置
@@ -85,13 +90,9 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       zoom: true,
     },
     pagerConfig: {
-      pageSize: 10,
+      pageSize: 20,
       enabled: true,
       pageSizes: [
-        {
-          label: '10',
-          value: 10,
-        },
         {
           label: '20',
           value: 20,
@@ -137,13 +138,17 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: transportInstructionColumns(),
     height: 'auto',
+    virtualYConfig: {
+      enabled: true,
+      gt: 100
+    },
     keepSource: true,
     checkboxConfig: {
       highlight: true,
       isShiftKey: true,
     },
     floatingFilterConfig: {
-      enabled: true,  // 启用浮动过滤器
+      enabled: true, // 启用浮动过滤器
     },
     filterConfig: {
       showIcon: false,
@@ -164,8 +169,9 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       transportOrderName: [{ required: true, message: '必填项' }],
       contDirection: [{ required: true, message: '必填项' }],
       emptyFull: [{ required: true, message: '必填项' }],
-      transportOrderValidDays: [{ required: true, message: '必填项' }],
+      transportOrderValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
       mappingCode: [{ required: true, message: '必填项' }],
+      isValid: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
       selected: true, // 启用单元格选中功能，Tab切换需要此配置
@@ -185,13 +191,9 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       zoom: false,
     },
     pagerConfig: {
-      pageSize: 10,
+      pageSize: 20,
       enabled: true,
       pageSizes: [
-        {
-          label: '10',
-          value: 10,
-        },
         {
           label: '20',
           value: 20,
@@ -276,6 +278,39 @@ async function handleBatchDelete() {
   ) {
     message.warning('请选择要删除的记录');
     return;
+  }
+
+  // 处理送提箱类型表格的新增行删除
+  if (gateSelectedRecords.length > 0) {
+    // 检查是否全部是新增行
+    const allAreNew = gateSelectedRecords.every((record) => record.__isNew__ === true);
+
+    if (allAreNew) {
+      // 全部是新增行，直接从前端移除，不调用后端接口
+      try {
+        for (const record of gateSelectedRecords) {
+          await $gateGrid.remove(record);
+        }
+        message.success('删除成功');
+
+        // 如果删除的记录包含当前选中的类型，清空选中状态并刷新运输指令表格
+        if (selectedGateIoTypeId.value && gateSelectedRecords.some(r => r.id === selectedGateIoTypeId.value)) {
+          selectedGateIoTypeId.value = null;
+          await transportInstructionGridApi.query();
+        }
+      } catch (error) {
+        console.error('删除失败:', error);
+        message.error('删除失败');
+      }
+      return;
+    }
+
+    // 检查是否包含新增行
+    const hasNewRecord = gateSelectedRecords.some((record) => record.__isNew__ === true);
+    if (hasNewRecord) {
+      message.warning('不能同时选择新增记录和已保存的记录进行删除，请分别处理');
+      return;
+    }
   }
 
   let ids: number[] = [];
@@ -538,10 +573,12 @@ async function handleGateIOAdd() {
       pickupLocation: 'ZDHMT',
       deliveryLocation: 'ZDHMT',
     },
-    0,
+    -1,
   );
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
+
+  $grid.scrollToRow(newRow);
 }
 
 // 新增运输指令定义
@@ -584,10 +621,12 @@ async function handleTransportAdd() {
       isValid: true,
       isUsedForPln: true,
     },
-    0,
+    -1,
   );
   newRow.__isNew__ = true;
   await $grid.setEditRow(newRow);
+
+  $grid.scrollToRow(newRow);
 }
 </script>
 
