@@ -404,6 +404,27 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'creatorName',
       title: '创建人',
       minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'createTime',
@@ -415,6 +436,27 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'updaterName',
       title: '更新人',
       minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'updateTime',
@@ -714,6 +756,27 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'creatorName',
       title: '创建人',
       minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'createTime',
@@ -725,6 +788,27 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'updaterName',
       title: '更新人',
       minWidth: 100,
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          placeholder: '',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          return `${row[column.field]}`.includes(option.data);
+        }
+        return true;
+      },
     },
     {
       field: 'updateTime',
