@@ -65,10 +65,16 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       // autoClear: false,
     },
     editRules: {
-      businessCode: [{ required: true, message: '必填项' }],
+      businessCode: [
+        { required: true, message: '必填项' },
+        { pattern: /^[A-Z]{7}$/, message: '必须是7位字母' },
+      ],
       businessName: [{ required: true, message: '必填项' }],
       plnValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
-      mappingCode: [{ required: true, message: '必填项' }],
+      mappingCode: [
+        { required: true, message: '必填项' },
+        { pattern: /^[A-Z]{6}$/, message: '必须是6位字母' },
+      ],
       isValid: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
@@ -165,12 +171,18 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       // autoClear: false,
     },
     editRules: {
-      transportOrderCode: [{ required: true, message: '必填项' }],
+      transportOrderCode: [
+        { required: true, message: '必填项' },
+        { pattern: /^[A-Z]{7}_[OI]$/, message: '必须是7位大写字母+下划线+O/I' }
+      ],
       transportOrderName: [{ required: true, message: '必填项' }],
       contDirection: [{ required: true, message: '必填项' }],
       emptyFull: [{ required: true, message: '必填项' }],
       transportOrderValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
-      mappingCode: [{ required: true, message: '必填项' }],
+      mappingCode: [
+        { required: true, message: '必填项' },
+        { pattern: /^[A-Z]{6}_[OI]$/, message: '必须是6位大写字母+下划线+O/I' }
+      ],
       isValid: [{ required: true, message: '必填项' }],
     },
     mouseConfig: {
