@@ -62,18 +62,18 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       showIcon: false,
       showStatus: true,
       trigger: 'dblclick',
-      // autoClear: false,
+      autoClear: false,
     },
     editRules: {
       businessCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{7}$/, message: '必须是7位字母' },
+        { pattern: /^[A-Z]{7}$/, message: '请填写7位大写字母' },
       ],
       businessName: [{ required: true, message: '必填项' }],
       plnValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
       mappingCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{6}$/, message: '必须是6位字母' },
+        { pattern: /^[A-Z]{6}$/, message: '、请填写6位大写字母' },
       ],
       isValid: [{ required: true, message: '必填项' }],
       pickupLocation: [{ required: true, message: '必填项' }],
@@ -138,7 +138,10 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
   gridEvents: {
     cellClick: handleRowClick,
     checkboxChange: handleCheckboxChange,
-    // editClosed: handleGateIOEditClosed,
+    editClosed: ({ row, $grid }) => {
+      // 重新校验当前行
+      $grid.validate(row, true);
+    },
   },
 });
 
@@ -175,7 +178,7 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     editRules: {
       transportOrderCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{7}_[OI]$/, message: '必须是7位大写字母+下划线+O/I' },
+        { pattern: /^[A-Z]{7}_[OI]$/, message: '请填写7位大写字母+下划线+O/I' },
       ],
       transportOrderName: [{ required: true, message: '必填项' }],
       contDirection: [{ required: true, message: '必填项' }],
@@ -185,7 +188,7 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
       ],
       mappingCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{6}_[OI]$/, message: '必须是6位大写字母+下划线+O/I' },
+        { pattern: /^[A-Z]{6}_[OI]$/, message: '请填写6位大写字母+下划线+O/I' },
       ],
       isValid: [{ required: true, message: '必填项' }],
       gateInOutType: [{ required: true, message: '必填项' }],
@@ -247,7 +250,10 @@ const [TransportInstructionGrid, transportInstructionGridApi] = useVbenVxeGrid({
     },
   },
   gridEvents: {
-    // editClosed: handleTransportEditClosed,
+    editClosed: ({ row, $grid }) => {
+      // 重新校验当前行
+      $grid.validate(row, true);
+    },
   },
 });
 
@@ -428,6 +434,30 @@ async function handleSave() {
 
   if (!$gateGrid || !$transportGrid) return;
 
+  // 检查是否有正在编辑的单元格
+  const gateEditRow = $gateGrid.getEditCell();
+  const transportEditRow = $transportGrid.getEditCell();
+
+  // 有正在编辑的单元格，尝试结束编辑并校验
+  if (gateEditRow) {
+    const gateValidate = await $gateGrid.validate(gateEditRow.row, true);
+    if (!gateValidate) {
+      message.warning('送提箱表格存在校验不通过的字段，请修正后再保存');
+      return;
+    }
+  }
+
+  if (transportEditRow) {
+    const transportValidate = await $transportGrid.validate(
+      transportEditRow.row,
+      true
+    );
+    if (!transportValidate) {
+      message.warning('运输指令表格存在校验不通过的字段，请修正后再保存');
+      return;
+    }
+  }
+
   // 获取进提箱类型的新增和修改记录
   const gateRecordset = $gateGrid.getRecordset();
   const gateModifiedRecords = [
@@ -568,24 +598,6 @@ async function handleSave() {
     message.error('保存失败');
   }
 }
-
-// 送提箱类型表格：编辑关闭时，若为新增行则移除
-// async function handleGateIOEditClosed({ row }: { row: any }) {
-//   const $grid = gateIOTypeGridApi.grid;
-//   if (!$grid) return;
-//   if (row.__isNew__) {
-//     await $grid.remove(row);
-//   }
-// }
-
-// 运输指令表格：编辑关闭时，若为新增行则移除
-// async function handleTransportEditClosed({ row }: { row: any }) {
-//   const $grid = transportInstructionGridApi.grid;
-//   if (!$grid) return;
-//   if (row.__isNew__) {
-//     await $grid.remove(row);
-//   }
-// }
 
 // 新增送提箱定义
 async function handleGateIOAdd() {
