@@ -73,7 +73,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
       plnValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
       mappingCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{6}$/, message: '、请填写6位大写字母' },
+        { pattern: /^[A-Z]{6}$/, message: '请填写6位大写字母' },
       ],
       isValid: [{ required: true, message: '必填项' }],
       pickupLocation: [{ required: true, message: '必填项' }],
@@ -433,30 +433,6 @@ async function handleSave() {
   const $transportGrid = transportInstructionGridApi.grid;
 
   if (!$gateGrid || !$transportGrid) return;
-
-  // 检查是否有正在编辑的单元格
-  const gateEditRow = $gateGrid.getEditCell();
-  const transportEditRow = $transportGrid.getEditCell();
-
-  // 有正在编辑的单元格，尝试结束编辑并校验
-  if (gateEditRow) {
-    const gateValidate = await $gateGrid.validate(gateEditRow.row, true);
-    if (!gateValidate) {
-      message.warning('送提箱表格存在校验不通过的字段，请修正后再保存');
-      return;
-    }
-  }
-
-  if (transportEditRow) {
-    const transportValidate = await $transportGrid.validate(
-      transportEditRow.row,
-      true
-    );
-    if (!transportValidate) {
-      message.warning('运输指令表格存在校验不通过的字段，请修正后再保存');
-      return;
-    }
-  }
 
   // 获取进提箱类型的新增和修改记录
   const gateRecordset = $gateGrid.getRecordset();
