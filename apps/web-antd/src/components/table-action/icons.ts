@@ -15,4 +15,5 @@ export const ACTION_ICON = {
   AUDIT: 'ant-design:audit-outlined',
   UNDO: 'ant-design:undo-outlined',
   LOG: 'material-symbols-light:docs-outline',
+  FILE: 'lucide:file-text',
 };
