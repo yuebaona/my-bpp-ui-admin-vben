@@ -435,7 +435,31 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 150,
+      sortable: true,
       formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          placeholder: '选择日期',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          const filterDate = new Date(option.data);
+          const rowDate = new Date(row[column.field]);
+          return filterDate.toDateString() === rowDate.toDateString();
+        }
+        return true;
+      },
     },
     {
       field: 'updaterName',
@@ -467,7 +491,31 @@ export function gateIOColumns(): VxeTableGridOptions['columns'] {
       field: 'updateTime',
       title: '更新时间',
       minWidth: 150,
+      sortable: true,
       formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          placeholder: '选择日期',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          const filterDate = new Date(option.data);
+          const rowDate = new Date(row[column.field]);
+          return filterDate.toDateString() === rowDate.toDateString();
+        }
+        return true;
+      },
     },
   ];
 }
@@ -796,7 +844,31 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 150,
+      sortable: true,
       formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          placeholder: '选择日期',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          const filterDate = new Date(option.data);
+          const rowDate = new Date(row[column.field]);
+          return filterDate.toDateString() === rowDate.toDateString();
+        }
+        return true;
+      },
     },
     {
       field: 'updaterName',
@@ -828,7 +900,31 @@ export function transportInstructionColumns(): VxeTableGridOptions['columns'] {
       field: 'updateTime',
       title: '更新时间',
       minWidth: 150,
+      sortable: true,
       formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          placeholder: '选择日期',
+          allowClear: true,
+        },
+        events: {
+          input: (params: any) => {
+            const { $grid, column } = params;
+            $grid.saveFilterByEvent('input', column.field);
+          },
+        },
+      },
+      filterMethod: ({ option, row, column }) => {
+        if (option.data) {
+          const filterDate = new Date(option.data);
+          const rowDate = new Date(row[column.field]);
+          return filterDate.toDateString() === rowDate.toDateString();
+        }
+        return true;
+      },
     },
   ];
 }
