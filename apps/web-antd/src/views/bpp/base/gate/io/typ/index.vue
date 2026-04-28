@@ -70,10 +70,13 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
         { pattern: /^[A-Z]{7}$/, message: '请填写7位大写字母' },
       ],
       businessName: [{ required: true, message: '必填项' }],
-      plnValidDays: [{ required: true, message: '请填写数字', type: 'number' }],
+      plnValidDays: [
+        { required: true, message: '必填项' },
+        { pattern: /^\d+$/, message: '请填写数字' },
+      ],
       mappingCode: [
         { required: true, message: '必填项' },
-        { pattern: /^[A-Z]{6}$/, message: '请填写6位大写字母' },
+        { pattern: /^[A-Z]{6}$/, message: '、请填写6位大写字母' },
       ],
       isValid: [{ required: true, message: '必填项' }],
       pickupLocation: [{ required: true, message: '必填项' }],
@@ -139,6 +142,7 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     cellClick: handleRowClick,
     checkboxChange: handleCheckboxChange,
     editClosed: ({ row, $grid }) => {
+      console.log('editClosed', row);
       // 重新校验当前行
       $grid.validate(row, true);
     },
@@ -433,6 +437,27 @@ async function handleSave() {
   const $transportGrid = transportInstructionGridApi.grid;
 
   if (!$gateGrid || !$transportGrid) return;
+
+  // 检查是否有正在编辑的单元格
+  const gateEditRow = $gateGrid.getEditCell()?.row;
+  const transportEditRow = $transportGrid.getEditCell()?.row;
+
+  // 有正在编辑的单元格，尝试结束编辑并校验
+  if (gateEditRow) {
+    const gateValidate = await $gateGrid.validate(gateEditRow);
+    if (gateValidate) {
+      message.warning('送提箱表格存在校验不通过的字段，请修正后再保存');
+      return;
+    }
+  }
+
+  if (transportEditRow) {
+    const transportValidate = await $transportGrid.validate(transportEditRow);
+    if (transportValidate) {
+      message.warning('运输指令表格存在校验不通过的字段，请修正后再保存');
+      return;
+    }
+  }
 
   // 获取进提箱类型的新增和修改记录
   const gateRecordset = $gateGrid.getRecordset();
