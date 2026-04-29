@@ -142,7 +142,6 @@ const [GateIOTypeGrid, gateIOTypeGridApi] = useVbenVxeGrid({
     cellClick: handleRowClick,
     checkboxChange: handleCheckboxChange,
     editClosed: ({ row, $grid }) => {
-      console.log('editClosed', row);
       // 重新校验当前行
       $grid.validate(row, true);
     },
