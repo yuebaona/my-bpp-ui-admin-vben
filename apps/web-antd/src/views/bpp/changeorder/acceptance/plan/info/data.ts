@@ -3,6 +3,10 @@ import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { AcceptancePlanApi } from '#/api/bpp/changeorder/acceptance/plan/info';
 import type { DescriptionItemSchema } from '#/components/description';
 
+import { h } from 'vue';
+
+import { Tag } from 'ant-design-vue';
+
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -29,6 +33,23 @@ function createDictFilter(dictType: string) {
     }
     return true;
   };
+}
+function renderTagDict(dictType: string, cellValue: string) {
+  const dictOptions = bppBaseDict.getBppBaseDictOptions(dictType);
+  const data = dictOptions.map((option) => ({
+    value: option.value,
+    label: option.label,
+    color: option.colorType,
+  }));
+  let color = '';
+  let label = '';
+  data.find((item) => {
+    if (item.value === cellValue) {
+      color = item.color;
+      label = item.label;
+    }
+  });
+  return h(Tag, { color }, () => label);
 }
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -66,8 +87,20 @@ export function acceptancePlanRecordSchema(): DescriptionItemSchema[] {
     // 基础信息
     { field: 'acptPlnNo', label: '受理计划号' },
     { field: 'acptPlnWebNo', label: '网上受理计划号' },
-    { field: 'applicantPlanType', label: '业务类型' },
-    { field: 'planStatus', label: '改单计划状态' },
+    {
+      field: 'applicantPlanType',
+      label: '业务类型',
+      render: (cellValue) => {
+        return renderTagDict('acceptance_plan_type', cellValue);
+      },
+    },
+    {
+      field: 'planStatus',
+      label: '改单计划状态',
+      render: (cellValue) => {
+        return renderTagDict('acceptance_plan_status', cellValue);
+      },
+    },
     { field: 'applicantCode', label: '申请人' },
     { field: 'payer', label: '付款人' },
     { field: 'createTime', label: '创建时间' },
@@ -98,8 +131,8 @@ export function acceptancePlanChangeRecordSchema(): VxeTableGridOptions<Acceptan
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'acceptancePlanNo',
-      label: 'acptPlnNo',
+      fieldName: 'acptPlnNo',
+      label: '受理计划号',
       component: 'Input',
       componentProps: {
         allowClear: true,
