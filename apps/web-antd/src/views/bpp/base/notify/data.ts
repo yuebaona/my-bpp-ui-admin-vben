@@ -20,7 +20,7 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'userId',
+      fieldName: 'usrId',
       label: '用户名',
       component: 'ApiSelect',
       componentProps: {
@@ -30,8 +30,8 @@ export function useFormSchema(): VbenFormSchema[] {
         placeholder: '请选择需要通知的人员',
       },
       dependencies: {
-        triggerFields: ['userId'],
-        show: (values) => !values.userId,
+        triggerFields: ['usrId'],
+        show: (values) => !values.id,
       },
     },
     {
@@ -41,9 +41,14 @@ export function useFormSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入账号',
       },
+      dependencies: {
+        triggerFields: ['usrId'],
+        show: (values) => values.id,
+        disabled: (values) => values.id,
+      },
     },
     {
-      fieldName: 'businessLabel',
+      fieldName: 'bizLabel',
       label: '业务标签',
       component: 'Select',
       componentProps: {
@@ -55,7 +60,7 @@ export function useFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'status',
+      fieldName: 'enableFlg',
       label: '是否启用',
       component: 'RadioGroup',
       componentProps: {
@@ -72,7 +77,7 @@ export function useFormSchema(): VbenFormSchema[] {
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'businessLabel',
+      fieldName: 'bizLabel',
       label: '业务标签',
       component: 'Select',
       componentProps: {
@@ -85,7 +90,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'status',
+      fieldName: 'enableFlg',
       label: '是否启用',
       component: 'Select',
       componentProps: {
@@ -126,24 +131,24 @@ export function useGridColumns(
       minWidth: 120,
     },
     {
-      field: 'businessLabel',
+      field: 'bizLabel',
       title: '业务标签',
       minWidth: 120,
       formatter: ({ row }) => {
         const dictOptions = getDictOptions(DICT_TYPE.BUSINESS_LABEL);
-        if (Array.isArray(row.businessLabel)) {
-          return row.businessLabel
+        if (Array.isArray(row.bizLabel)) {
+          return row.bizLabel
             .map((value) => {
               const option = dictOptions.find((item) => item.value === value);
               return option ? option.label || value : value;
             })
             .join('、');
         }
-        return row.businessLabel || '-';
+        return row.bizLabel || '-';
       },
     },
     {
-      field: 'status',
+      field: 'enableFlg',
       title: '是否启用',
       minWidth: 100,
       cellRender: {

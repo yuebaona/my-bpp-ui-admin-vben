@@ -6,10 +6,10 @@ export namespace BaseNotifyApi {
   /** 钉钉通知管理信息 */
   export interface Notify {
     id: number; // 主键ID
-    userId?: number; // 系统用户唯一标识
+    usrId?: number; // 系统用户唯一标识
     notifyName: string; // 通知人姓名
-    businessLabel: string; // 业务标签
-    status?: string; // 是否启用
+    bizLabel: string; // 业务标签
+    enableFlg?: string; // 是否启用
   }
 
   export interface AdminUser {
