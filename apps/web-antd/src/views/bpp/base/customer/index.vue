@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { BppBaseCustomerApi } from '#/api/bpp/base/customer';
 
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 
 import { confirm, Page, useVbenModal } from '@vben/common-ui';
 import { downloadFileFromBlobPart, isEmpty } from '@vben/utils';
@@ -19,7 +19,9 @@ import {
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
-import Form from './modules/customer-form.vue';
+import Form from '#/views/bpp/base/customer/modules/customer-form.vue';
+import { useDictStore } from '@vben/stores';
+const dictStore = useDictStore();
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
@@ -122,6 +124,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
     checkboxChange: handleRowCheckboxChange,
   },
 });
+onMounted(()=>{
+  const dictOptions = dictStore.getDictOptions("is_valid");
+  debugger
+})
 </script>
 
 <template>

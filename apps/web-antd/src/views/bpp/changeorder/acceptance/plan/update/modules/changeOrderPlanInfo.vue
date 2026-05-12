@@ -1,18 +1,24 @@
 <script setup lang="ts">
-import { Card } from "ant-design-vue";
+import { onActivated, onMounted, ref, watch } from 'vue';
+
+import { Card } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
+import { selectByFormKeyNameType } from '#/api/bpp/flow/custom/config/form';
 import { changeOrderPlanInfoFormSchema } from '#/views/bpp/changeorder/acceptance/plan/update/data';
-import { onActivated, onMounted, ref, watch } from "vue";
-import {
-  selectByFormKeyNameType,
-} from '#/api/bpp/flow/custom/config/form';
-const customFormInfo = ref({
+
+// 定义 emits 接口
+const emit = defineEmits<{
+  (e: 'visible-change', visible: boolean): void;
+}>();
+
+const customFormInfo = ref<any>({
   formKey: 'change_order_planInfo',
   formName: '改单计划信息',
   formType: '',
   formSchema: [],
   id: '',
+  formVisible: true,
 });
 /** 表格展示用的行数据原始数据*/
 const localOriginalRows = ref<any[]>([]);
@@ -45,8 +51,10 @@ const loadFormConfig = async ()=>{
   localOriginalRows.value = FormApi.getState()?.schema;
 
   const res = await selectByFormKeyNameType(customFormInfo.value);
+  console.log('res', res);
   if (res?.id) {
     customFormInfo.value.id = res.id;
+    customFormInfo.value.formVisible = res.formVisible;
   }
   if (res?.formSchema) {
     const schema = JSON.parse(res.formSchema);
@@ -75,25 +83,34 @@ const initialData = (newVal)=>{
     formType: '',
     formSchema: [],
     id: '',
+    formVisible: true,
   }
   customFormInfo.value.formType = newVal;
   formKey.value++;
   loadFormConfig()
 }
-onMounted(()=>{
+onMounted(() => {
   initialData(props.planType)
 })
 // 监听 planType 变化
 watch(() => props.planType, (newVal) => {
   if (newVal && newVal.length > 0) {
-    initialData(newVal)
+      initialData(newVal);
   }
 }, { deep: true });
 const formKey = ref(0)
+
+// 监听 formVisible 变化并通知父组件
+watch(
+  () => customFormInfo.value.formVisible,
+  (newVal) => {
+    emit('visible-change', newVal);
+  },
+);
 </script>
 
 <template>
-  <Card title="改单计划信息">
-    <Form :ref="formKey"/>
+  <Card title="改单计划信息"  v-if="customFormInfo.formVisible">
+    <Form :ref="formKey" />
   </Card>
 </template>

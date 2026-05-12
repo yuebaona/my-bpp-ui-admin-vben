@@ -16,6 +16,7 @@ const customFormInfo = ref({
   formType: 'billOfLadingInfo',
   formSchema: [],
   id: '',
+  formVisible: true,
 });
 /** 表格展示用的行数据原始数据*/
 const localOriginalRows = ref<any[]>([]);
@@ -48,6 +49,7 @@ const loadFormConfig = async ()=>{
   const res = await selectByFormKeyNameType(customFormInfo.value);
   if (res?.id) {
     customFormInfo.value.id = res.id;
+    customFormInfo.value.formVisible = res.formVisible;
   }
   if (res?.formSchema) {
     const schema = JSON.parse(res.formSchema);
@@ -76,6 +78,7 @@ const initialData = (newVal)=>{
     formType: 'billOfLadingInfo',
     formSchema: [],
     id: '',
+    formVisible: true,
   }
   customFormInfo.value.formType = newVal;
   formKey.value++;
@@ -94,7 +97,7 @@ const formKey = ref(0)
 </script>
 
 <template>
-  <Card title="提箱信息">
+  <Card title="提箱信息" v-if="customFormInfo.formVisible">
     <Form />
   </Card>
 </template>

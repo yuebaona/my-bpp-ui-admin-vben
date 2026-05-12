@@ -3,7 +3,7 @@ import type { TreeProps } from 'ant-design-vue';
 
 import { computed, ref, watch } from 'vue';
 
-import { Button, Input, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
+import { Button, message, Modal, Spin, Tag, Tree } from 'ant-design-vue';
 
 import { getSubPlanYardRange } from '#/api/bpp/empty/container/control';
 
@@ -12,13 +12,13 @@ interface Props {
   ownerCodeList?: [];
   contIsoList?: [];
   tradeType?: string;
-  selectedPositions?: string[];
+  selectedPositions?: Array<{ yardBay: string; yardRaw?: string }>;
   mainId?: string;
 }
 
 interface Emits {
   (e: 'update:visible', value: boolean): void;
-  (e: 'confirm', positions: string[], yardColumnsMap: Record<string, string[]>): void;
+  (e: 'confirm', positions: Array<{ yardBay: string }>): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,8 +30,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits<Emits>();
 
-const selectedYardPositions = ref<string[]>([]);
-const searchValue = ref('');
+const selectedYardPositions = ref<Array<{ yardBay: string; yardRaw?: string }>>([]);
+
 const loading = ref(false);
 
 // 存储每个堆场位置对应的列信息
@@ -52,8 +52,12 @@ watch(
 watch(
   () => props.selectedPositions,
   (newValue) => {
-    if (props.visible && newValue) {
+    if (Array.isArray(newValue)) {
       selectedYardPositions.value = [...newValue];
+    } else if (newValue) {
+      selectedYardPositions.value = [newValue];
+    } else {
+      selectedYardPositions.value = [];
     }
   },
   { immediate: true, deep: true },
@@ -175,15 +179,32 @@ const fetchYardRange = async () => {
 
 const onTreeCheck = (checkedKeys: any) => {
   const leafKeys = checkedKeys.filter((key: string) => key.includes('-'));
-  selectedYardPositions.value = leafKeys;
+  // 构建新的selectedYardPositions数组
+  const newSelectedPositions: Array<{ yardBay: string; yardRaw?: string }> = [];
+
+  leafKeys.forEach((yardBay: string) => {
+    // 查找是否已存在该yardBay的记录
+    const existingItem = selectedYardPositions.value.find(
+      (item) => item.yardBay === yardBay,
+    );
+    if (existingItem) {
+      // 保留已有的记录，包括yardRaw数据
+      newSelectedPositions.push(existingItem);
+    } else {
+      // 新建记录
+      newSelectedPositions.push({ yardBay });
+    }
+  });
+
+  selectedYardPositions.value = newSelectedPositions;
 };
 
-const removeSelectedPosition = (position: string) => {
+const removeSelectedPosition = (position: { yardBay: string }) => {
   selectedYardPositions.value = selectedYardPositions.value.filter(
-    (item) => item !== position,
+    (item) => item.yardBay !== position.yardBay,
   );
-  if (yardColumnsMap.value[position]) {
-    delete yardColumnsMap.value[position];
+  if (yardColumnsMap.value[position.yardBay]) {
+    delete yardColumnsMap.value[position.yardBay];
   }
 };
 
@@ -193,16 +214,11 @@ const clearSelectedPositions = () => {
 };
 
 const handleConfirm = () => {
-  // 只传递选中的位置的列信息
-  const selectedColumnsMap: Record<string, string[]> = {};
-  selectedYardPositions.value.forEach(position => {
-    if (yardColumnsMap.value[position]) {
-      selectedColumnsMap[position] = yardColumnsMap.value[position];
-    }
-  });
-
-  emit('confirm', selectedYardPositions.value, selectedColumnsMap);
   emit('update:visible', false);
+  // 然后再发出确认事件，执行数据处理逻辑
+  setTimeout(() => {
+    emit('confirm', selectedYardPositions.value);
+  }, 100);
 };
 
 const handleCancel = () => {
@@ -212,6 +228,11 @@ const handleCancel = () => {
 const modalVisible = computed({
   get: () => props.visible,
   set: (value) => emit('update:visible', value),
+});
+
+// 获取已选贝位的yardBay列表，用于Tree组件的checkedKeys
+const checkedKeys = computed(() => {
+  return selectedYardPositions.value.map((item) => item.yardBay);
 });
 </script>
 
@@ -227,11 +248,11 @@ const modalVisible = computed({
       <!-- 左侧：堆场贝位树 -->
       <div class="flex-1 border-r pr-4">
         <div class="mb-2 font-medium">堆场贝位</div>
-<!--        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />-->
+        <!--        <Input v-model:value="searchValue" placeholder="搜索" class="mb-2" />-->
         <div style="max-height: 350px; overflow-y: auto">
           <Spin :spinning="loading">
             <Tree
-              v-model:checked-keys="selectedYardPositions"
+              v-model:checked-keys="checkedKeys"
               checkable
               :tree-data="yardPositionTreeData"
               :default-expand-all="true"
@@ -255,12 +276,12 @@ const modalVisible = computed({
         >
           <Tag
             v-for="position in selectedYardPositions"
-            :key="position"
+            :key="position.yardBay"
             closable
             color="blue"
             @close="removeSelectedPosition(position)"
           >
-            {{ position }}
+            {{ position.yardBay }}
           </Tag>
         </div>
       </div>
