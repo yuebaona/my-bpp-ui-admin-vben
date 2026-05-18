@@ -10,10 +10,10 @@ import { Button, message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { createMainPlan } from '#/api/bpp/empty/container/control';
-import * as VehicleManagementApi from '#/api/bpp/vehicle/management';
+import * as VehicleManagementApi from '#/api/bpp/flow/gate/truck/management';
 import { $t } from '#/locales';
 import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
-import RestrictionInfo from '#/views/bpp/gate/vehicle/management/modules/restrictionInfo.vue';
+import RestrictionInfo from '#/views/bpp/gate/truck/management/modules/restrictionInfo.vue';
 
 import { editFormSchema, restrictionColumns } from '../data';
 

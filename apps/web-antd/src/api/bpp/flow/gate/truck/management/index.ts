@@ -1,53 +1,39 @@
+import type {Dayjs} from "dayjs";
+
 import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-export namespace VehicleManagementApi {
-  // 车辆信息VO
-  export interface vehicleVO {
-    vehicleCode?: string; // 车辆代码
-    licensePlate?: string; // 车牌号
-    isValid?: boolean; // 是否有效
-    rfidNo?: string; // 射频识别号
-    beidouDeviceNo?: string; // 北斗设备号
-    lastEntryTime?: string; // 最后进场时间
-    lastExitTime?: string; // 最后出场时间
-    fleetCode?: string; // 车队代码
-    fleetNameCn?: string; // 所属车队中文名
-    trailerPlate?: string; // 挂车车牌号
-    engineNo?: string; // 发动机编号
-    trailerLicenseNo?: string; // 挂车行驶证号
-    licenseExpireDate?: string; // 行驶证有效期
-    isAnnualInspected?: boolean; // 是否年审
-    annualInspectTime?: string; // 年审时间
-    inspectorName?: string; // 年审员
-    licenseFileNo?: string; // 行驶证档案编号
-    dangerPermitNo?: string; // 危险品许可证
-    etcNo?: string; // 车辆ETC号
-    vehicleWeightKg?: number; // 车辆自重(kg)
-    maxLoadWeightKg?: number; // 最大载重(kg)
-    vehicleLength?: number; // 长度
-    vehicleWidth?: number; // 宽度
-    cabColor?: string; // 车头颜色
-    ownerName?: string; // 车主姓名
-    ownerPhone?: string; // 车主电话
-    ownerIdCard?: string; // 车主身份证
-    isAutoPort?: boolean; // 是否自动化码头
-    isNewEnergy?: boolean; // 是否新能源车
-    restrictedAccount?: number; // 已限制次数
-    fleetIsRestricted?: boolean; // 所属车队是否被限制
-    restrictionReason?: boolean; // 限制原因代码及描述
-    restrictInfoSource?: boolean; // 限制信息来源
-    restrictStartTime?: boolean; // 限制开始时间
-    restrictEndTime?: boolean; // 限制结束时间
-    lastRestrictTimeTotal?: boolean; // 最近一次限制时间合计
-    remark?: string; // 备注
-    portRemark?: string; // 码头备注
-    attachStartTime?: string; // 开始挂靠时间
-    isDisabled?: boolean; // 是否停用
-    createSource?: string; // 创建源
-    createTime?: string; // 创建时间
-    updateTime?: string; // 更新时间
+export namespace TruckApi {
+  /** 车辆信息实体类信息 */
+  export interface Truck {
+    id: number; // 主键ID
+    trkGkey: string; // 车辆全局唯一业务主键
+    fltCd: string; // 关联车队代码
+    trkNo: string; // 车牌号
+    trkLicNo: string; // 车辆行驶证编号
+    engNo: string; // 发动机编号
+    licExpDt: Dayjs | string; // 行驶证有效期
+    trailerNo: string; // 挂车车牌编号
+    trailerLicNo: string; // 挂车行驶证编号
+    trkWtKg: number; // 车身重量
+    maxLoadWtKg: number; // 最大可装载重量
+    trkLenM: number; // 车辆长度
+    trkWidM: number; // 车辆宽度
+    trkColor: string; // 车辆前脸颜色
+    trkOwnrNm: string; // 车主姓名
+    trkOwnrPh: string; // 车主联系电话
+    trkOwnrId: string; // 车主身份证编号
+    hazLic: string; // 危险品运输许可证
+    attachDt: Dayjs | string; // 附件上传日期
+    autoFlg: number; // 自动化码头适配标识
+    rfidNo: string; // RFID编号
+    etcNo: string; // ETC标识号
+    inspDt: Dayjs | string; // 年检日期
+    inspBy: string; // 年检审核人
+    remark: string; // 备注
+    enableFlg: number; // 是否启用
+    dataSrc: string; // 数据来源
   }
 
   // 主计划信息VO
@@ -197,7 +183,7 @@ export const getVehicleListPage = (data: pageVO) => {
   // });
 
   // 模拟假数据
-  const mockData: VehicleManagementApi.vehicleVO[] = [
+  const mockData: TruckApi.Truck[] = [
     {
       id: 1,
       vehicleCode: 'FLT001',
@@ -323,7 +309,7 @@ export const getVehicleById = (id: number) => {
   //   `/bpp/gate/empty/container-control-main/get?id=${id}`,
   // );
 
-  const mockData: VehicleManagementApi.vehicleVO[] = [
+  const mockData: TruckApi.Truck[] = [
     {
       id: 1,
       vehicleCode: 'FLT001',
@@ -442,122 +428,41 @@ export const getVehicleById = (id: number) => {
   return Promise.resolve(result);
 };
 
-// 车队信息分页查询
-export const getVehiclePage = (params: PageParam) => {
-  return requestClient.get<PageResult<VehicleManagementApi.vehicleVO>>(
-    '/bpp/sea/acceptance-plan-over-operation/page',
-    { params },
-  );
-};
-
-// 创建车队信息
-export const createVehicle = (data: VehicleManagementApi.vehicleVO) => {
-  return requestClient.post(
-    '/bpp/gate/empty/container-control-main/create',
-    data,
-  );
-};
-
-// 修改车队信息
-export const updateVehicle = (data: VehicleManagementApi.vehicleVO) => {
-  return requestClient.put(
-    '/bpp/gate/empty/container-control-main/update',
-    data,
-  );
-};
-
-// 查询子计划信息详情
-export const getSubPlan = (id: number) => {
-  return requestClient.get(
-    `/bpp/gate/empty/container-control-main/get?id=${id}`,
-  );
-};
-// 子计划分页查询
-export const getSubPlanPage = (data: pageVO) => {
-  return requestClient.post('/bpp/gate/empty/container-control-main/page', {
-    ...data,
-    planType: 'SUB',
+/** 查询车辆信息实体类分页 */
+export function getTruckPage(params: PageParam) {
+  return requestClient.get<PageResult<TruckApi.Truck>>('/bpp/gate/truck/page', {
+    params,
   });
-};
+}
 
-export const deleteSubPlan = (id: number) => {
+/** 查询车辆信息实体类详情 */
+export function getTruck(id: number) {
+  return requestClient.get<TruckApi.Truck>(`/bpp/gate/truck/get?id=${id}`);
+}
+
+/** 新增车辆信息实体类 */
+export function createTruck(data: TruckApi.Truck) {
+  return requestClient.post('/bpp/gate/truck/create', data);
+}
+
+/** 修改车辆信息实体类 */
+export function updateTruck(data: TruckApi.Truck) {
+  return requestClient.put('/bpp/gate/truck/update', data);
+}
+
+/** 删除车辆信息实体类 */
+export function deleteTruck(id: number) {
+  return requestClient.delete(`/bpp/gate/truck/delete?id=${id}`);
+}
+
+/** 批量删除车辆信息实体类 */
+export function deleteTruckList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/empty/container-control-main/sub/delete?id=${id}`,
+    `/bpp/gate/truck/delete-list?ids=${ids.join(',')}`,
   );
-};
+}
 
-// 日志分页查询
-export const getLogQueryPage = (data: LogQueryParams) => {
-  return requestClient.post<PageResult<VehicleManagementApi.mainLogVO>>(
-    '/bpp/gate/empty/container-control-main-log/page',
-    data,
-  );
-};
-
-// 查询卸船船期
-export const getVesselAndVoyage = (params: { condition: string }) => {
-  return requestClient.get<VehicleManagementApi.VesselAndVoyageResponse>(
-    '/bpp/comb/vessel-voyage/get-vvd-union',
-    {
-      params,
-    },
-  );
-};
-
-// 查询堆存情况
-export const getStorageQuantity = (data: any) => {
-  return requestClient.post(
-    '/bpp/gate/empty/container-control-main/bay/statistics',
-    data,
-  );
-};
-
-// 强制完成
-export const forceComplete = (data: {
-  forceList: Array<{
-    mainGateReleaseQuantity: string;
-    mainId: string;
-  }>;
-}) => {
-  return requestClient.put(
-    '/bpp/gate/empty/container-control-main/force/complete',
-    data,
-  );
-};
-
-// // 获取箱区范围
-// export const getYardRange = (data: VehicleManagementApi.yardRangeVO) => {
-//   return requestClient.post(
-//     '/bpp/comb/yard-blockbay/get-yard-bay-list',
-//     data,
-//   );
-// };
-
-// 新建子计划获取持箱人信息
-export const getSubPlanOwnerList = (mainId: string) => {
-  return requestClient.get<Array<VehicleManagementApi.ContainerOwnerVO>>(
-    `/bpp/gate/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
-  );
-};
-
-// 新建子计划获取ISO信息
-export const getSubPlanIsoList = (mainId: string) => {
-  return requestClient.get<Array<VehicleManagementApi.isoVO>>(
-    `/bpp/gate/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
-  );
-};
-
-// 获取模拟选箱数据
-export const getSimulationSelectContainer = (data: any) => {
-  return requestClient.post(
-    '/bpp/gate/empty/container-control-main/simulate/container',
-    data,
-  );
-};
-
-// 获取子计划箱区范围
-export const getSubPlanYardRange = (mainId: string) => {
-  return requestClient.get(
-    `/bpp/gate/empty/container-control-main/sub/bay/list?mainId=${mainId}`,
-  );
-};
+/** 导出车辆信息实体类 */
+export function exportTruck(params: any) {
+  return requestClient.download('/bpp/gate/truck/export-excel', { params });
+}

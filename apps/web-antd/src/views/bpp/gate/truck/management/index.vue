@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
-import type { VehicleManagementApi } from '#/api/bpp/vehicle/management';
+import type { VehicleManagementApi } from '#/api/bpp/flow/gatevehicle/management';
 
 import { ref } from 'vue';
 
@@ -15,14 +15,14 @@ import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   getVehicleById,
   getVehicleListPage,
-} from '#/api/bpp/vehicle/management';
+} from '#/api/bpp/flow/gate/truck/management';
 import {
   vehicleInfoColumns,
   vehicleSearchSchema,
-} from '#/views/bpp/gate/vehicle/management/data';
-import DetailForm from '#/views/bpp/gate/vehicle/management/modules/detailForm.vue';
-import EditForm from '#/views/bpp/gate/vehicle/management/modules/editForm.vue';
-import NewForm from '#/views/bpp/gate/vehicle/management/modules/newForm.vue';
+} from '#/views/bpp/gate/truck/management/data';
+import DetailForm from '#/views/bpp/gate/truck/management/modules/detailForm.vue';
+import EditForm from '#/views/bpp/gate/truck/management/modules/editForm.vue';
+import NewForm from '#/views/bpp/gate/truck/management/modules/newForm.vue';
 
 const [NewFormModal, newFormModalApi] = useVbenModal({
   connectedComponent: NewForm,

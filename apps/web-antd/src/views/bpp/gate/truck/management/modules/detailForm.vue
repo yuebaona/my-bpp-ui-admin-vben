@@ -8,10 +8,10 @@ import { useVbenModal } from '@vben/common-ui';
 import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import * as VehicleManagementApi from '#/api/bpp/vehicle/management';
+import * as VehicleManagementApi from '#/api/bpp/flow/gate/truck/management';
 import { useDescription } from '#/components/description';
-import { detailBasicSchema } from '#/views/bpp/gate/vehicle/management/data';
-import RestrictionInfo from '#/views/bpp/gate/vehicle/management/modules/restrictionInfo.vue';
+import { detailBasicSchema } from '#/views/bpp/gate/truck/management/data';
+import RestrictionInfo from '#/views/bpp/gate/truck/management/modules/restrictionInfo.vue';
 
 import { detailRestrictionSchema, restrictionColumns } from '../data';
 const restrictionDetailData = reactive<any[]>([]);
