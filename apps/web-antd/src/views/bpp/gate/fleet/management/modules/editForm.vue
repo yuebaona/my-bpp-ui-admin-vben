@@ -10,7 +10,7 @@ import { Button, message } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { createMainPlan } from '#/api/bpp/empty/container/control';
-import * as FleetManagementApi from '#/api/bpp/base/gate/fleet/manager';
+import * as FleetManagementApi from '#/api/bpp/flow/gate/fleet/manager';
 import { $t } from '#/locales';
 import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
 import RestrictionInfo from '#/views/bpp/gate/fleet/management/modules/restrictionInfo.vue';

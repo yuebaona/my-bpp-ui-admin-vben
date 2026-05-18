@@ -6,7 +6,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { createFleet } from '#/api/bpp/base/gate/fleet/manager';
+import { createFleet } from '#/api/bpp/flow/gate/fleet/manager';
 import { $t } from '#/locales';
 import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
 

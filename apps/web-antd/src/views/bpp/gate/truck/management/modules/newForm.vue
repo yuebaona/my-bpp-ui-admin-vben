@@ -6,7 +6,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { createVehicle } from '#/api/bpp/flow/gate/truck/management/index.ts';
+import { createTruck } from '#/api/bpp/flow/gate/truck/management/index.ts';
 import { $t } from '#/locales';
 import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
 
@@ -81,7 +81,7 @@ const debouncedConfirm = debounce(async () => {
     formData.updateTime = currentTimestamp;
 
     // 提交新增
-    await createVehicle(formData);
+    await createTruck(formData);
 
     await modalApi.close();
     emit('success');
