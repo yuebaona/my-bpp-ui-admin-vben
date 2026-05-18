@@ -8,7 +8,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import * as FleetManagementApi from '#/api/bpp/base/gate/fleet';
+import * as FleetManagementApi from '#/api/bpp/base/gate/fleet/manager';
 import { useDescription } from '#/components/description';
 import { detailBasicSchema } from '#/views/bpp/gate/fleet/management/data';
 import RestrictionInfo from '#/views/bpp/gate/fleet/management/modules/restrictionInfo.vue';
