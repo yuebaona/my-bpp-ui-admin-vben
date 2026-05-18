@@ -5,171 +5,34 @@ import { requestClient } from '#/api/request';
 export namespace FleetManagementApi {
   // 车队信息VO
   export interface fleetVO {
-    id?: number;
-    fleetCode?: string;
-    fleetCnName?: string;
-    fleetPhone?: string;
-    fleetShortName?: string;
-    fleetAddress?: string;
-    restrictedCount?: number;
-    isRestricted?: boolean;
-    restrictionReason?: string;
-    restrictInfoSource?: string;
-    restrictStartTime?: string;
-    restrictEndTime?: string;
-    lastRestrictTimeTotal?: number;
-    legalPersonName?: string;
-    legalPersonPhone?: string;
-    safetyPersonName?: string;
-    safetyPerson?: string;
-    safetyPersonPhone?: string;
-    businessPersonName?: string;
-    responsiblePerson?: string;
-    outerTruckAnnualReviewNo?: string;
-    wharfRemark?: string;
-    createSource?: string;
-    createTime?: string;
-    updateTime?: string;
-    isValid?: string;
+    id?: number; // 车队信息表唯一主键
+    fltGkey?: string; // 车队全局唯一业务主键
+    fltCd?: string; // 车队代码
+    fltNm?: string; // 车队全称
+    fltPh?: string; // 车队电话
+    fltShortNm?: string; // 车队缩写
+    fltAddr?: string; // 车队详细地址
+    legalNm?: string; // 企业法人姓名
+    legalPh?: string; // 企业法人联系电话
+    safetyNm?: string; // 安全负责人姓名
+    safetyPh?: string; // 安全负责人联系电话
+    bizNm?: string; // 业务对接人姓名
+    bizPh?: string; // 业务对接人联系电话
+    bizRegNo?: string; // 营业执照注册号
+    otrAuditNo?: string; // OTR审核编号
+    rstrCnt?: number; // 已限制次数
+    lastRstrDt?: string; // 最近一次限制时间
+    portRm?: string; // 码头备注
+    enableFlg?: number; // 是否启用
+    dataSrc?: string; // 数据来源
+    createTime?: Date; // 创建时间
   }
 
-  // 主计划信息VO
-  export interface mainPlanVO {
-    id: null | number;
-    ownerCodeList: Array<string>;
-    contIsoList: Array<string>;
-    isRelease: boolean;
-    pickupPlanNo: string;
-    tradeType: string;
-    planQuantity: string;
-    completedReleaseQuantity: string;
-    bayRangeList: Array<{
-      eccId: number | string;
-      id: number | string;
-      yardBay: string;
-      yardRaw: string;
-    }>;
-    planType: string;
-    mainId: string;
-    planNo: string;
-    mainGateReleaseQuantity: string;
-    dischargeVslSchedule: string;
+  // 创建和修改操作返回消息体
+  export interface fleetSaveRespVO {
+    id?: string; // 车队信息表唯一主键
+    message?: string; // 处理结果消息
   }
-
-  export interface mainLogVO {
-    id: string;
-    operationType: string;
-    operationTimestamp: number;
-    operator: number;
-    mainId: number;
-    mainPlanNo: string;
-    mainPlanStatus: string;
-    mainIsRelease: boolean;
-    mainPickupPlanNo: string;
-    mainTradeType: string;
-    mainPlanQuantity: string;
-    createTime: string;
-    owner: string;
-    iso: string;
-    yardBay: string;
-    mainGateAvailableQuantity: string;
-  }
-
-  export interface ContainerOwnerVO {
-    id?: number;
-    ownerCode?: string;
-    ownerName?: string;
-    ownerCountry?: string;
-    ownerMaster?: string;
-    ownerLocalNm?: string;
-  }
-
-  export interface isoVO {
-    id?: number;
-    contIso?: string;
-    isSpecial?: string;
-    containerType?: string;
-    containerTypeName?: string;
-    containerLength?: string;
-    containerHeight?: string;
-    isoCode?: string;
-  }
-
-  // 箱列表列表
-  export interface contIsoList {
-    code: number;
-    msg: string;
-    data: string[];
-  }
-
-  // 持箱者列表
-  export interface ownerCodeList {
-    code: number;
-    msg: string;
-    data: string[];
-  }
-
-  // 卸船船期响应
-  export interface VesselAndVoyageResponse {
-    code: number;
-    msg: string;
-    data: string[];
-  }
-
-  // 获取模拟选箱数据
-  export interface simulateContainerVO {
-    planNo?: string;
-    bisRelease?: boolean;
-    bayRanges?: string;
-    bayRangeList: Array<{
-      createTime: string;
-      maxDays: string;
-      minDays: string;
-      totalCount: string;
-      yardBay: string;
-      yardRaw: string;
-    }>;
-    releaseQuantity?: string;
-  }
-
-  // 箱区范围展示信息
-  export interface containerAreaDisplayVO {
-    ownerCodeList: Array<string>;
-    contIsoList: Array<string>;
-    bayRangeList: Array<{
-      eccId: number | string;
-      id: number | string;
-      yardBay: string;
-      yardRaw: string;
-    }>;
-    bayRanges: string;
-  }
-}
-export interface LogQueryParams extends PageParam {
-  mainPlanNo?: string; // 主计划号
-  owner?: string; // 持箱人
-  iso?: string; // ISO
-  yardBay?: string; // 箱区
-  createTime?: [string, string]; // 创建时间范围
-}
-
-interface pageVO {
-  pageNo?: number;
-  pageSize?: number;
-  planNo?: string;
-  dischargeVslSchedule?: string;
-  bayRangeList?: Array<{
-    yardBay?: string;
-    yardRaw?: string;
-  }>;
-  tradeType?: string;
-  ownerCodeList?: Array<string>;
-  contIsoList?: Array<string>;
-  createTime?: Array<string>;
-  pickupPlanNo?: string;
-  planType?: string;
-  mainId?: string;
-  planStatus?: string;
 }
 
 // 主计划分页查询
@@ -425,121 +288,49 @@ export const getFleetById = (id: number) => {
   return Promise.resolve(result);
 };
 
-// 车队信息分页查询
-export const getFleetPage = (params: PageParam) => {
-  return requestClient.get<
-    PageResult<FleetManagementApi.fleetVO>
-  >('/bpp/sea/acceptance-plan-over-operation/page', { params });
-};
+/** 创建车队 */
+export function createFleet(data: FleetManagementApi.fleetVO) {
+  return requestClient.post('/bpp/gate/fleet/create', data);
+}
 
-// 创建车队信息
-export const createFleet = (data: FleetManagementApi.fleetVO) => {
-  return requestClient.post(
-    '/bpp/gate/empty/container-control-main/create',
-    data,
-  );
-};
+/** 更新车队信息 */
+export function updateFleet(data: FleetManagementApi.fleetVO) {
+  return requestClient.put('/bpp/gate/fleet/update', data);
+}
 
-// 修改车队信息
-export const updateFleet = (data: FleetManagementApi.fleetVO) => {
-  return requestClient.put(
-    '/bpp/gate/empty/container-control-main/update',
-    data,
-  );
-};
+/** 删除车队 */
+export function deleteFleet(id: number) {
+  return requestClient.delete(`/bpp/gate/fleet/delete?id=${id}`);
+}
 
-// 查询子计划信息详情
-export const getSubPlan = (id: number) => {
-  return requestClient.get(
-    `/bpp/gate/empty/container-control-main/get?id=${id}`,
-  );
-};
-// 子计划分页查询
-export const getSubPlanPage = (data: pageVO) => {
-  return requestClient.post('/bpp/gate/empty/container-control-main/page', {
-    ...data,
-    planType: 'SUB',
-  });
-};
-
-export const deleteSubPlan = (id: number) => {
+/** 批量删除车队信息 */
+export function deleteFleetList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/empty/container-control-main/sub/delete?id=${id}`,
+    `/bpp/gate/fleet/delete-list?ids=${ids.join(',')}`,
   );
-};
+}
 
-// 日志分页查询
-export const getLogQueryPage = (data: LogQueryParams) => {
-  return requestClient.post<PageResult<FleetManagementApi.mainLogVO>>(
-    '/bpp/gate/empty/container-control-main-log/page',
-    data,
+/** 查询车队详情 */
+export function getFleet(id: number) {
+  return requestClient.get<FleetManagementApi.fleetVO>(
+    `/bpp/gate/fleet/get?id=${id}`,
   );
-};
+}
 
-// 查询卸船船期
-export const getVesselAndVoyage = (params: { condition: string }) => {
-  return requestClient.get<FleetManagementApi.VesselAndVoyageResponse>(
-    '/bpp/comb/vessel-voyage/get-vvd-union',
-    {
-      params,
-    },
+/** 查询车队管理列表 */
+export function getFleetPage(params: PageParam) {
+  return requestClient.get<PageResult<FleetManagementApi.fleetVO>>(
+    '/bpp/gate/fleet/page',
+    { params },
   );
-};
+}
 
-// 查询堆存情况
-export const getStorageQuantity = (data: any) => {
-  return requestClient.post(
-    '/bpp/gate/empty/container-control-main/bay/statistics',
-    data,
-  );
-};
+/** 导出用户 */
+export function exportFleet(params: any) {
+  return requestClient.download('/bpp/gate/fleet/export-excel', { params });
+}
 
-// 强制完成
-export const forceComplete = (data: {
-  forceList: Array<{
-    mainId: string;
-    mainGateReleaseQuantity: string;
-  }>;
-}) => {
-  return requestClient.put(
-    '/bpp/gate/empty/container-control-main/force/complete',
-    data,
-  );
-};
-
-// // 获取箱区范围
-// export const getYardRange = (data: FleetManagementApi.yardRangeVO) => {
-//   return requestClient.post(
-//     '/bpp/comb/yard-blockbay/get-yard-bay-list',
-//     data,
-//   );
-// };
-
-// 新建子计划获取持箱人信息
-export const getSubPlanOwnerList = (mainId: string) => {
-  return requestClient.get<Array<FleetManagementApi.ContainerOwnerVO>>(
-    `/bpp/gate/empty/container-control-main/sub/owner/list?mainId=${mainId}`,
-  );
-};
-
-// 新建子计划获取ISO信息
-export const getSubPlanIsoList = (mainId: string) => {
-  return requestClient.get<Array<FleetManagementApi.isoVO>>(
-    `/bpp/gate/empty/container-control-main/sub/iso/list?mainId=${mainId}`,
-  );
-};
-
-// 获取模拟选箱数据
-export const getSimulationSelectContainer = (data: any) => {
-  return requestClient.post(
-    '/bpp/gate/empty/container-control-main/simulate/container',
-    data,
-  );
-};
-
-// 获取子计划箱区范围
-export const getSubPlanYardRange = (mainId: string) => {
-  return requestClient.get(
-    `/bpp/gate/empty/container-control-main/sub/bay/list?mainId=${mainId}`,
-  );
-};
+/** 获取可选车队列表 */
+export function getSelectableList() {
+  return requestClient.get('/bpp/gate/fleet/selectable');
+}
