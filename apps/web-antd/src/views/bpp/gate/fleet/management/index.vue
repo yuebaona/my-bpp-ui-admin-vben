@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
-import type { FleetManagementApi } from '#/api/bpp/flow/gate/fleet/manager';
+import {type FleetApi, getFleetPage} from '#/api/bpp/flow/gate/fleet/manager';
 
 import { ref } from 'vue';
 
@@ -166,7 +166,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
           //   ...queryParam,
           // });
 
-          const res = await getFleetListPage({
+          const res = await getFleetPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...queryParam,

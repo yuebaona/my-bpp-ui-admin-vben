@@ -2,16 +2,22 @@ import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
-export namespace FleetManagementApi {
+export namespace FleetApi {
   // 车队信息VO
   export interface fleetVO {
     id?: number; // 车队信息表唯一主键
     fltGkey?: string; // 车队全局唯一业务主键
     fltCd?: string; // 车队代码
     fltNm?: string; // 车队全称
-    fltPh?: string; // 车队电话
     fltShortNm?: string; // 车队缩写
     fltAddr?: string; // 车队详细地址
+    rstrCnt?: number; // 已限制次数
+    isRstr?: number; // 是否限制
+    rstrReason?: string; // 限制原因代码及描述
+    rstrDataSrc?: string; // 限制信息来源
+    rstrStartDt?: Date; // 限制开始时间
+    rstrEndDt?: Date; // 限制结束时间
+    lastRstrDt?: string; // 最近一次限制时间
     legalNm?: string; // 企业法人姓名
     legalPh?: string; // 企业法人联系电话
     safetyNm?: string; // 安全负责人姓名
@@ -20,12 +26,11 @@ export namespace FleetManagementApi {
     bizPh?: string; // 业务对接人联系电话
     bizRegNo?: string; // 营业执照注册号
     otrAuditNo?: string; // OTR审核编号
-    rstrCnt?: number; // 已限制次数
-    lastRstrDt?: string; // 最近一次限制时间
     portRm?: string; // 码头备注
-    enableFlg?: number; // 是否启用
     dataSrc?: string; // 数据来源
     createTime?: Date; // 创建时间
+    updateTime?: Date; // 更新时间
+    enableFlg?: number; // 是否有效
   }
 
   // 创建和修改操作返回消息体
@@ -43,7 +48,7 @@ export const getFleetListPage = (data: pageVO) => {
   // });
 
   // 模拟假数据
-  const mockData: FleetManagementApi.fleetVO[] = [
+  const mockData: FleetApi.fleetVO[] = [
     {
       id: 1,
       fleetCode: 'FLT001',
@@ -169,7 +174,7 @@ export const getFleetById = (id: number) => {
   //   `/bpp/gate/empty/container-control-main/get?id=${id}`,
   // );
 
-  const mockData: FleetManagementApi.fleetVO[] = [
+  const mockData: FleetApi.fleetVO[] = [
     {
       id: 1,
       fleetCode: 'FLT001',
@@ -289,48 +294,48 @@ export const getFleetById = (id: number) => {
 };
 
 /** 创建车队 */
-export function createFleet(data: FleetManagementApi.fleetVO) {
-  return requestClient.post('/bpp/gate/fleet/create', data);
+export function createFleet(data: FleetApi.fleetVO) {
+  return requestClient.post('/bpp/flow/gate/fleet/create', data);
 }
 
 /** 更新车队信息 */
-export function updateFleet(data: FleetManagementApi.fleetVO) {
-  return requestClient.put('/bpp/gate/fleet/update', data);
+export function updateFleet(data: FleetApi.fleetVO) {
+  return requestClient.put('/bpp/flow/gate/fleet/update', data);
 }
 
 /** 删除车队 */
 export function deleteFleet(id: number) {
-  return requestClient.delete(`/bpp/gate/fleet/delete?id=${id}`);
+  return requestClient.delete(`/bpp/flow/gate/fleet/delete?id=${id}`);
 }
 
 /** 批量删除车队信息 */
 export function deleteFleetList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/fleet/delete-list?ids=${ids.join(',')}`,
+    `/bpp/flow/gate/fleet/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 查询车队详情 */
 export function getFleet(id: number) {
-  return requestClient.get<FleetManagementApi.fleetVO>(
-    `/bpp/gate/fleet/get?id=${id}`,
+  return requestClient.get<FleetApi.fleetVO>(
+    `/bpp/flow/gate/fleet/get?id=${id}`,
   );
 }
 
 /** 查询车队管理列表 */
 export function getFleetPage(params: PageParam) {
-  return requestClient.get<PageResult<FleetManagementApi.fleetVO>>(
-    '/bpp/gate/fleet/page',
+  return requestClient.get<PageResult<FleetApi.fleetVO>>(
+    '/bpp/flow/gate/fleet/page',
     { params },
   );
 }
 
 /** 导出用户 */
 export function exportFleet(params: any) {
-  return requestClient.download('/bpp/gate/fleet/export-excel', { params });
+  return requestClient.download('/bpp/flow/gate/fleet/export-excel', { params });
 }
 
 /** 获取可选车队列表 */
 export function getSelectableList() {
-  return requestClient.get('/bpp/gate/fleet/selectable');
+  return requestClient.get('/bpp/flow/gate/fleet/selectable');
 }

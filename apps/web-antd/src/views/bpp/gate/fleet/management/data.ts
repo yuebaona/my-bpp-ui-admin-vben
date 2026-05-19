@@ -247,7 +247,7 @@ export function containerAreaDisplayColumns(): VxeTableGridOptions['columns'] {
 export function fleetSearchSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'fleetCode',
+      fieldName: 'fltCd',
       label: '车队代码/名称',
       component: 'Input',
       componentProps: {
@@ -264,7 +264,7 @@ export function fleetSearchSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'isRestricted',
+      fieldName: 'isRstr',
       label: '是否限制',
       component: 'Select',
       componentProps: {
@@ -277,7 +277,7 @@ export function fleetSearchSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'restrictionReason',
+      fieldName: 'rstrReason',
       label: '限制代码/描述',
       component: 'Input',
       componentProps: {
@@ -292,7 +292,7 @@ export function fleetSearchSchema(): VbenFormSchema[] {
 export function newFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'fleetCode',
+      fieldName: 'fltCd',
       label: '车队代码',
       component: 'Input',
       componentProps: {
@@ -302,7 +302,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'fleetCnName',
+      fieldName: 'fltNm',
       label: '车队名称',
       component: 'Input',
       componentProps: {
@@ -312,7 +312,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'fleetShortName',
+      fieldName: 'fltShortNm',
       label: '车队简称',
       component: 'Input',
       componentProps: {
@@ -322,17 +322,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'fleetPhone',
-      label: '车队电话',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入车队电话',
-        allowClear: true,
-      },
-      rules: 'required',
-    },
-    {
-      fieldName: 'fleetAddress',
+      fieldName: 'fltAddr',
       label: '车队地址',
       component: 'Input',
       componentProps: {
@@ -342,7 +332,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'legalPersonName',
+      fieldName: 'legalNm',
       label: '法人姓名',
       component: 'Input',
       componentProps: {
@@ -352,7 +342,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'legalPersonPhone',
+      fieldName: 'legalPh',
       label: '法人电话',
       component: 'Input',
       componentProps: {
@@ -362,7 +352,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'safetyPersonName',
+      fieldName: 'safetyNm',
       label: '安全负责人姓名',
       component: 'Input',
       componentProps: {
@@ -372,7 +362,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'safetyPersonPhone',
+      fieldName: 'safetyPh',
       label: '安全负责人电话',
       component: 'Input',
       componentProps: {
@@ -382,7 +372,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'businessPersonName',
+      fieldName: 'bizNm',
       label: '业务员姓名',
       component: 'Input',
       componentProps: {
@@ -392,7 +382,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'businessPersonPhone',
+      fieldName: 'bizPh',
       label: '业务员电话',
       component: 'Input',
       componentProps: {
@@ -402,7 +392,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'socialCreditCode',
+      fieldName: 'bizRegNo',
       label: '统一社会信用代码',
       component: 'Input',
       componentProps: {
@@ -412,7 +402,7 @@ export function newFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'outerTruckAnnualReviewNo',
+      fieldName: 'otrAuditNo',
       label: '外集卡年审编号',
       component: 'Input',
       componentProps: {
@@ -420,35 +410,7 @@ export function newFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
-    },
-    {
-      fieldName: 'createSource',
-      label: '创建源',
-      component: 'Input',
-      componentProps: {
-        disabled: true,
-      },
-      rules: 'required',
-      defaultValue: '业务处理平台',
-    },
-    {
-      fieldName: 'createTime',
-      label: '创建时间',
-      component: 'Input',
-      componentProps: {
-        disabled: true,
-      },
-      rules: 'required',
-    },
-    {
-      fieldName: 'updateTime',
-      label: '更新时间',
-      component: 'Input',
-      componentProps: {
-        disabled: true,
-      },
-      rules: 'required',
-    },
+    }
   ];
 }
 
@@ -795,209 +757,6 @@ export function restrictionFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-export function subPlanDetailSchema(): VbenFormSchema[] {
-  return [
-    {
-      fieldName: 'planNo',
-      label: '子计划号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '系统自动生成',
-        allowClear: true,
-        disabled: true,
-      },
-    },
-    {
-      fieldName: 'isRelease',
-      label: '是否放箱',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '是（Y）', value: true },
-          { label: '否（N）', value: false },
-        ],
-      },
-      rules: 'required',
-    },
-    {
-      fieldName: 'pickupPlanNo',
-      label: '提箱受理计划号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入提箱受理计划号',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'dischargeVslSchedule',
-      label: '卸船船期',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入卸船船期',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'ownerCodeList',
-      label: '持箱人',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入持箱人，可多条',
-        allowClear: true,
-      },
-      rules: 'required',
-    },
-    {
-      fieldName: 'tradeType',
-      label: '贸易类型',
-      component: 'RadioGroup',
-      componentProps: {
-        options: [
-          { label: '内贸', value: 'DOMESTIC' },
-          { label: '外贸', value: 'FOREIGN' },
-        ],
-      },
-    },
-    {
-      fieldName: 'contIsoList',
-      label: 'ISO',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入ISO，可多条',
-      },
-      rules: 'required',
-    },
-    {
-      fieldName: 'containerAreaRange',
-      label: '箱区范围',
-      component: 'Input',
-      renderComponentContent: () => {
-        return {
-          default: () => null,
-        };
-      },
-      formItemClass: 'col-span-2',
-    },
-    {
-      fieldName: 'planQuantity',
-      label: '计划箱量',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入计划箱量',
-        allowClear: true,
-      },
-    },
-  ];
-}
-
-/** 空箱空箱列表的搜索栏 */
-export function PlanSearchFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      fieldName: 'planNo',
-      label: '计划号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入计划号',
-        allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
-          }, 10);
-        },
-      },
-    },
-    {
-      fieldName: 'bayRangeList',
-      label: '箱区',
-      component: 'Input',
-      componentProps: {
-        placeholder: '选择箱区',
-        allowClear: true,
-        readonly: true,
-        showSearch: false,
-        disabled: true,
-        value: '',
-      },
-      // formItemClass: 'col-span-2',
-      slot: true,
-    },
-    {
-      fieldName: 'tradeType',
-      label: '贸易类型',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择贸易类型',
-        allowClear: true,
-        options: [
-          { label: '内贸', value: 'DOMESTIC' },
-          { label: '外贸', value: 'FOREIGN' },
-        ],
-      },
-    },
-    {
-      fieldName: 'createTime',
-      label: '创建时间',
-      component: 'RangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-        showTime: true,
-        format: 'YYYY-MM-DD HH:mm:ss',
-      },
-    },
-    {
-      fieldName: 'ownerCodeList',
-      label: '持箱人',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择持箱人',
-        allowClear: true,
-      },
-      slot: 'form-ownerCodeList',
-    },
-    {
-      fieldName: 'contIsoList',
-      label: 'ISO',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择ISO号',
-        allowClear: true,
-      },
-      slot: 'form-contIsoList',
-    },
-    {
-      fieldName: 'dischargeVslSchedule',
-      label: '卸船船期',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请输入船名或航次号',
-        allowClear: true,
-      },
-      slot: 'form-dischargeVslSchedule',
-    },
-    {
-      fieldName: 'pickupPlanNo',
-      label: '受理计划号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入受理计划号',
-        allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
-          }, 10);
-        },
-      },
-    },
-  ];
-}
 
 /** 车队信息字段 */
 export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
@@ -1005,37 +764,32 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
     { type: 'checkbox', width: 40, fixed: 'left' },
     {
-      field: 'fleetCode',
+      field: 'fltCd',
       title: '车队代码',
       minWidth: 150,
     },
     {
-      field: 'fleetCnName',
+      field: 'fltNm',
       title: '车队中文名',
       minWidth: 100,
     },
     {
-      field: 'fleetPhone',
-      title: '车队电话',
-      minWidth: 150,
-    },
-    {
-      field: 'fleetShortName',
+      field: 'fltShortNm',
       title: '车队简写',
       minWidth: 120,
     },
     {
-      field: 'fleetAddress',
+      field: 'fltAddr',
       title: '车队地址',
       minWidth: 120,
     },
     {
-      field: 'restrictedCount',
+      field: 'rstrCnt',
       title: '已限制次数',
       minWidth: 100,
     },
     {
-      field: 'isRestricted',
+      field: 'isRstr',
       title: '是否限制',
       minWidth: 120,
       // formatter: ({ cellValue }) => {
@@ -1043,77 +797,77 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
       // },
     },
     {
-      field: 'restrictionReason',
+      field: 'rstrReason',
       title: '限制原因代码及描述',
       minWidth: 200,
     },
     {
-      field: 'restrictInfoSource',
+      field: 'rstrDataSrc',
       title: '限制信息来源',
       minWidth: 120,
     },
     {
-      field: 'restrictStartTime',
+      field: 'rstrStarDt',
       title: '限制开始时间',
       minWidth: 120,
     },
     {
-      field: 'restrictEndTime',
+      field: 'rstrEndDt',
       title: '限制结束时间',
       minWidth: 120,
     },
     {
-      field: 'lastRestrictTimeTotal',
+      field: 'rstrLastDt',
       title: '最近一次限制时间合计',
       minWidth: 120,
     },
     {
-      field: 'legalPersonName',
+      field: 'legalNm',
       title: '法人姓名',
       minWidth: 120,
     },
     {
-      field: 'legalPersonPhone',
+      field: 'legalPh',
       title: '法人电话',
       minWidth: 120,
     },
     {
-      field: 'safetyPersonName',
+      field: 'safetyNm',
       title: '安全负责人',
       minWidth: 120,
     },
     {
-      field: 'safetyPerson',
+      field: 'safetyPh',
       title: '安全负责人电话',
       minWidth: 100,
     },
     {
-      field: 'safetyPersonPhone',
+      field: 'bizNm',
       title: '业务员姓名',
       minWidth: 100,
     },
     {
-      field: 'businessPersonName',
+      field: 'bizPh',
       title: '业务员电话',
       minWidth: 150,
     },
     {
-      field: 'socialCreditCode',
+      field: 'bizRegNo',
       title: '社会信用代码',
       minWidth: 100,
     },
     {
-      field: 'outerTruckAnnualReviewNo',
+      field: 'otrAuditNo',
       title: '外集卡年审编号',
       minWidth: 150,
     },
     {
-      field: 'wharfRemark',
+      field: 'portRm',
       title: '码头备注',
       width: 150,
     },
     {
-      field: 'createSource',
+      field: 'dataSrc',
       title: '创建源',
       minWidth: 100,
     },
@@ -1130,8 +884,8 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
       formatter: 'formatDateTime',
     },
     {
-      field: 'isValid',
-      title: '是否有效',
+      field: 'enableFlg',
+      title: '是否启用',
       minWidth: 100,
     },
     {
