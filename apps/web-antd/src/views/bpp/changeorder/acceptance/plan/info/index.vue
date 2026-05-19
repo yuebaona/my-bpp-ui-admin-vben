@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { AcceptancePlanApi, RecordBase } from '#/api/bpp/changeorder/acceptance/plan/info';
+import type { AcceptancePlanApi } from '#/api/bpp/changeorder/acceptance/plan/info';
 
 import { ref } from 'vue';
 
@@ -10,10 +10,7 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
-import {
-  getPlan,
-  getPlanPage,
-} from '#/api/bpp/changeorder/acceptance/plan/info';
+import { getPlanPage } from '#/api/bpp/changeorder/acceptance/plan/info';
 import { $t } from '#/locales';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import Detail from '#/views/bpp/changeorder/acceptance/plan/info/modules/acceptancePlanDetails.vue';
@@ -52,8 +49,7 @@ const loadDictData = async (dictTypes: string[]) => {
 
 /** 查看改单记录 */
 const handleDetail = async (row: AcceptancePlanApi.Plan) => {
-  const res = await getPlan(row.id);
-  detailModalApi.setData(res).open();
+  detailModalApi.setData(row.id).open();
 };
 
 const [DetailModal, detailModalApi] = useVbenModal({

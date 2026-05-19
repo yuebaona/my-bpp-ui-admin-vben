@@ -24,7 +24,7 @@ const defaultPreferences: Preferences = {
     enableRefreshToken: false,
     enableStickyPreferencesNavigationBar: true,
     isMobile: false,
-    layout: 'sidebar-nav',
+    layout: 'header-nav',
     locale: 'zh-CN',
     loginExpiredMode: 'page',
     name: 'Vben Admin',
@@ -105,7 +105,9 @@ const defaultPreferences: Preferences = {
     showIcon: true,
     showMaximize: true,
     showMore: true,
+    showRefresh: true,
     styleType: 'chrome',
+    visitHistory: true,
     wheelable: true,
   },
   theme: {

@@ -3,23 +3,30 @@ import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { AcceptancePlanApi } from '#/api/bpp/changeorder/acceptance/plan/info';
 
+import { ref } from 'vue';
+
 import { useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 import { useVbenVxeGrid } from '@vben/plugins/vxe-table';
 
 import { message } from 'ant-design-vue';
 
+import { getPlan } from '#/api/bpp/changeorder/acceptance/plan/info';
 import { useDescription } from '#/components/description';
 import {
   acceptancePlanChangeRecordSchema,
   acceptancePlanRecordSchema,
 } from '#/views/bpp/changeorder/acceptance/plan/info/data';
 
+const baseData = ref<AcceptancePlanApi.RecordBase>();
+
 const [Modal, modalApi] = useVbenModal({
   async onOpenChange(isOpen: boolean) {
     if (!isOpen) {
-      /* empty */
+      return;
     }
+    const data = await getPlan(modalApi.getData());
+    baseData.value = data;
   },
   cancelText: '关闭',
   showConfirmButton: false,
@@ -67,7 +74,7 @@ const [ModifyRecord] = useVbenVxeGrid({
 <template>
   <Modal title="查看改单详情" class="w-1/2">
     <div class="ant-descriptions-title my-5">基础信息</div>
-    <BaseDetail />
+    <BaseDetail :data="baseData" />
     <div class="ant-descriptions-title my-5">修改记录对比</div>
     <ModifyRecord />
     <template #center-footer>
