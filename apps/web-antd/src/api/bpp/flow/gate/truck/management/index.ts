@@ -496,39 +496,40 @@ export const getVehicleById = (id: number) => {
 
 /** 查询车辆信息实体类分页 */
 export function getTruckPage(params: PageParam) {
-  return requestClient.get<PageResult<TruckApi.Truck>>('/bpp/gate/truck/page', {
-    params,
-  });
+  return requestClient.get<PageResult<TruckApi.Truck>>(
+    '/bpp/flow/gate/truck/page',
+    { params },
+  );
 }
 
 /** 查询车辆信息实体类详情 */
 export function getTruck(id: number) {
-  return requestClient.get<TruckApi.Truck>(`/bpp/gate/truck/get?id=${id}`);
+  return requestClient.get<TruckApi.Truck>(`/bpp/flow/gate/truck/get?id=${id}`);
 }
 
 /** 新增车辆信息实体类 */
 export function createTruck(data: TruckApi.Truck) {
-  return requestClient.post('/bpp/gate/truck/create', data);
+  return requestClient.post('/bpp/flow/gate/truck/create', data);
 }
 
 /** 修改车辆信息实体类 */
 export function updateTruck(data: TruckApi.Truck) {
-  return requestClient.put('/bpp/gate/truck/update', data);
+  return requestClient.put('/bpp/flow/gate/truck/update', data);
 }
 
 /** 删除车辆信息实体类 */
 export function deleteTruck(id: number) {
-  return requestClient.delete(`/bpp/gate/truck/delete?id=${id}`);
+  return requestClient.delete(`/bpp/flow/gate/truck/delete?id=${id}`);
 }
 
 /** 批量删除车辆信息实体类 */
 export function deleteTruckList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/truck/delete-list?ids=${ids.join(',')}`,
+    `/bpp/flow/gate/truck/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出车辆信息实体类 */
 export function exportTruck(params: any) {
-  return requestClient.download('/bpp/gate/truck/export-excel', { params });
+  return requestClient.download('/bpp/flow/gate/truck/export-excel', { params });
 }
