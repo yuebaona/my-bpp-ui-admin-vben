@@ -6,7 +6,6 @@ export namespace ViolationCfgApi {
   /** 违规规则配置信息 */
   export interface ViolationCfgVO {
     id: number; // 主键ID
-    fltGkey: string; // 车队全局唯一业务主键
     ruleCd: string; // 规则编码
     ruleDesc: string; // 规则描述
     ruleTp: string; // 规则类型
@@ -60,4 +59,13 @@ export function exportViolationCfg(params: any) {
   return requestClient.download('/bpp/flow/gate/violation/export-excel', {
     params,
   });
+}
+
+/** 获取违规限制规则清单
+ *  const ruleList = getViolationCfgList('truck');
+ */
+export function getViolationCfgList(ruleTp: string) {
+  return requestClient.get<ViolationCfgApi.ViolationCfgVO>(
+    `/bpp/flow/gate/violation/list?ruleTp=${ruleTp}`,
+  );
 }
