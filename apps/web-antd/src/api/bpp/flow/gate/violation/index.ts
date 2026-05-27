@@ -9,10 +9,10 @@ export namespace ViolationCfgApi {
     fltGkey: string; // 车队全局唯一业务主键
     ruleCd: string; // 规则编码
     ruleDesc: string; // 规则描述
-    ruleTp: string; // 规则类型（truck-车辆/driver-司机/all-通用）
-    rstr1Days: number; // 第一次违规限制天数
-    rstr2Days: number; // 第二次违规限制天数
-    rstr3Days: number; // 第三次违规限制天数
+    ruleTp: string; // 规则类型
+    firstRstrDays: string; // 第一次违规限制天数
+    secondRstrDays: string; // 第二次违规限制天数
+    thirdRstrDays: string; // 第三次违规限制天数
     sortSeq: number; // 排序
     remark: string; // 备注
   }

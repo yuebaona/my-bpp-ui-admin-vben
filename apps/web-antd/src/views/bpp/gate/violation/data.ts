@@ -2,9 +2,8 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { ViolationCfgApi } from '#/api/bpp/flow/gate/violation';
 
+import { DICT_TYPE } from '@vben/constants';
 import { getDictOptions } from '@vben/hooks';
-
-import { getRangePickerDefaultProps } from '#/utils';
 
 /** 新增/修改的表单 */
 export function useFormSchema(): VbenFormSchema[] {
@@ -48,32 +47,45 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ruleTp',
       label: '规则类型',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
+        options: getDictOptions(DICT_TYPE.GATE_VIOLATION_TYPE),
+        labelField: 'key',
+        valueField: 'value',
+        mode: 'multiple',
         placeholder: '请输入规则类型',
       },
     },
     {
-      fieldName: 'rstr1Days',
+      fieldName: 'firstRstrDays',
       label: '第一次违规限制天数',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
+        options: getDictOptions(DICT_TYPE.GATE_VIOLATION_DAY),
+        labelField: 'key',
+        valueField: 'value',
         placeholder: '请输入第一次违规限制天数',
       },
     },
     {
-      fieldName: 'rstr2Days',
+      fieldName: 'secondRstrDays',
       label: '第二次违规限制天数',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
+        options: getDictOptions(DICT_TYPE.GATE_VIOLATION_DAY),
+        labelField: 'key',
+        valueField: 'value',
         placeholder: '请输入第二次违规限制天数',
       },
     },
     {
-      fieldName: 'rstr3Days',
+      fieldName: 'thirdRstrDays',
       label: '第三次违规限制天数',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
+        options: getDictOptions(DICT_TYPE.GATE_VIOLATION_DAY),
+        labelField: 'key',
+        valueField: 'value',
         placeholder: '请输入第三次违规限制天数',
       },
     },
@@ -120,8 +132,12 @@ export function useGridFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'ruleTp',
       label: '规则类型',
-      component: 'Input',
+      component: 'Select',
       componentProps: {
+        options: getDictOptions(DICT_TYPE.GATE_VIOLATION_TYPE),
+        labelField: 'key',
+        valueField: 'value',
+        mode: 'multiple',
         allowClear: true,
         placeholder: '请输入规则类型',
       },
@@ -159,19 +175,31 @@ export function useGridColumns(): VxeTableGridOptions<ViolationCfgApi.ViolationC
       field: 'ruleTp',
       title: '规则类型',
       minWidth: 120,
+      formatter: ({ row }) => {
+        const dictOptions = getDictOptions(DICT_TYPE.GATE_VIOLATION_TYPE);
+        if (Array.isArray(row.ruleTp)) {
+          return row.ruleTp
+            .map((value) => {
+              const option = dictOptions.find((item) => item.value === value);
+              return option ? option.label || value : value;
+            })
+            .join('、');
+        }
+        return row.ruleTp || '-';
+      },
     },
     {
-      field: 'rstr1Days',
+      field: 'firstRstrDays',
       title: '第一次违规限制天数',
       minWidth: 120,
     },
     {
-      field: 'rstr2Days',
+      field: 'secondRstrDays',
       title: '第二次违规限制天数',
       minWidth: 120,
     },
     {
-      field: 'rstr3Days',
+      field: 'thirdRstrDays',
       title: '第三次违规限制天数',
       minWidth: 120,
     },
