@@ -271,8 +271,8 @@ export function fleetSearchSchema(): VbenFormSchema[] {
         placeholder: '请选择',
         allowClear: true,
         options: [
-          { label: '是（Y）', value: true },
-          { label: '否（N）', value: false },
+          { label: '是（Y）', value: 1 },
+          { label: '否（N）', value: 0 },
         ],
       },
     },
