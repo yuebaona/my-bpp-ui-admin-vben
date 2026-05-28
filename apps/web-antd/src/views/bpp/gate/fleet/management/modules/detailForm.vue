@@ -8,12 +8,13 @@ import { useVbenModal } from '@vben/common-ui';
 import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import * as FleetManagementApi from '#/api/bpp/fleet/management';
+import * as FleetManagementApi from '#/api/bpp/flow/gate/fleet/manager';
 import { useDescription } from '#/components/description';
 import { detailBasicSchema } from '#/views/bpp/gate/fleet/management/data';
 import RestrictionInfo from '#/views/bpp/gate/fleet/management/modules/restrictionInfo.vue';
 
 import { detailRestrictionSchema, restrictionColumns } from '../data';
+
 const restrictionDetailData = reactive<any[]>([]);
 
 const formData = reactive<FleetManagementApi.fleetVO>({

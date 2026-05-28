@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { SearchTableColumnApi } from '#/api/bpp/flow/search/table/index';
+import type { SearchTableColumnApi } from '#/api/bpp/common/search/table/index';
 
 import { computed, ref } from 'vue';
 
@@ -8,7 +8,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
-import { createTableColumn, getTableColumn, updateTableColumn } from '#/api/bpp/flow/search/table/index';
+import { createTableColumn, getTableColumn, updateTableColumn } from '#/api/bpp/common/search/table/index';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';

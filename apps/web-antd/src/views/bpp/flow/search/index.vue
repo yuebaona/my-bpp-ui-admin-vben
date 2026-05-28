@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { SearchTableColumnApi } from '#/api/bpp/flow/search/table/index';
+import type { SearchTableColumnApi } from '#/api/bpp/common/search/table/index';
 import type { SystemDictTypeApi } from '#/api/system/dict/type';
 
 import { onMounted, ref } from 'vue';
@@ -20,7 +20,7 @@ import {
   getTableColumnPage,
   getTableFieldInfoByTableName,
   updateBatch,
-} from '#/api/bpp/flow/search/table/index';
+} from '#/api/bpp/common/search/table/index';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';

@@ -108,6 +108,7 @@ export function useTypeGridColumns(): VxeTableGridOptions['columns'] {
       field: 'id',
       title: '字典编号',
       minWidth: 100,
+      visible: false,
     },
     {
       field: 'name',
@@ -308,6 +309,7 @@ export function useDataGridColumns(): VxeTableGridOptions['columns'] {
       field: 'id',
       title: '字典编码',
       minWidth: 100,
+      visible: false,
     },
     {
       field: 'label',

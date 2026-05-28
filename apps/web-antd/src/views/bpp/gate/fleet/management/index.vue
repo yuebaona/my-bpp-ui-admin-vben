@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { FleetManagementApi } from '#/api/bpp/fleet/management';
 import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
+import {type FleetApi, getFleetPage} from '#/api/bpp/flow/gate/fleet/manager';
 
 import { ref } from 'vue';
 
@@ -12,7 +12,10 @@ import { $t } from '@vben/locales';
 import { useDebounceFn } from '@vueuse/core';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getFleetById, getFleetListPage } from '#/api/bpp/fleet/management';
+import {
+  getFleetById,
+  getFleetListPage,
+} from '#/api/bpp/flow/gate/fleet/manager';
 import {
   fleetInfoColumns,
   fleetSearchSchema,
@@ -163,7 +166,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
           //   ...queryParam,
           // });
 
-          const res = await getFleetListPage({
+          const res = await getFleetPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...queryParam,
