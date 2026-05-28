@@ -21,7 +21,7 @@ export namespace GateFleetRstrApi {
 /** 查询车队限制记录分页 */
 export function getFleetRstrPage(params: PageParam) {
   return requestClient.get<PageResult<GateFleetRstrApi.FleetRstr>>(
-    '/bpp/gate/fleet/rstr/page',
+    '/bpp/flow/gate/fleet/rstr/page',
     { params },
   );
 }
@@ -29,35 +29,35 @@ export function getFleetRstrPage(params: PageParam) {
 /** 查询车队限制记录详情 */
 export function getFleetRstr(id: number) {
   return requestClient.get<GateFleetRstrApi.FleetRstr>(
-    `/bpp/gate/fleet/rstr/get?id=${id}`,
+    `/bpp/flow/gate/fleet/rstr/get?id=${id}`,
   );
 }
 
 /** 新增车队限制记录 */
 export function createFleetRstr(data: GateFleetRstrApi.FleetRstr) {
-  return requestClient.post('/bpp/gate/fleet/rstr/create', data);
+  return requestClient.post('/bpp/flow/gate/fleet/rstr/create', data);
 }
 
 /** 修改车队限制记录 */
 export function updateFleetRstr(data: GateFleetRstrApi.FleetRstr) {
-  return requestClient.put('/bpp/gate/fleet/rstr/update', data);
+  return requestClient.put('/bpp/flow/gate/fleet/rstr/update', data);
 }
 
 /** 删除车队限制记录 */
 export function deleteFleetRstr(id: number) {
-  return requestClient.delete(`/bpp/gate/fleet/rstr/delete?id=${id}`);
+  return requestClient.delete(`/bpp/flow/gate/fleet/rstr/delete?id=${id}`);
 }
 
 /** 批量删除车队限制记录 */
 export function deleteFleetRstrList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/fleet/rstr/delete-list?ids=${ids.join(',')}`,
+    `/bpp/flow/gate/fleet/rstr/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出车队限制记录 */
 export function exportFleetRstr(params: any) {
-  return requestClient.download('/bpp/gate/fleet/rstr/export-excel', {
+  return requestClient.download('/bpp/flow/gate/fleet/rstr/export-excel', {
     params,
   });
 }

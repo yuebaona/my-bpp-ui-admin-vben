@@ -276,39 +276,39 @@ export const getDriverById = (id: number) => {
 /** 查询司机信息分页 */
 export function getDriverPage(params: PageParam) {
   return requestClient.get<PageResult<DriverApi.driverVO>>(
-    '/bpp/gate/driver/page',
+    '/bpp/flow/gate/driver/page',
     { params },
   );
 }
 
 /** 查询司机信息详情 */
 export function getDriver(id: number) {
-  return requestClient.get<DriverApi.driverVO>(`/bpp/gate/driver/get?id=${id}`);
+  return requestClient.get<DriverApi.driverVO>(`/bpp/flow/gate/driver/get?id=${id}`);
 }
 
 /** 新增司机信息 */
 export function createDriver(data: DriverApi.driverVO) {
-  return requestClient.post('/bpp/gate/driver/create', data);
+  return requestClient.post('/bpp/flow/gate/driver/create', data);
 }
 
 /** 修改司机信息 */
 export function updateDriver(data: DriverApi.driverVO) {
-  return requestClient.put('/bpp/gate/driver/update', data);
+  return requestClient.put('/bpp/flow/gate/driver/update', data);
 }
 
 /** 删除司机信息 */
 export function deleteDriver(id: number) {
-  return requestClient.delete(`/bpp/gate/driver/delete?id=${id}`);
+  return requestClient.delete(`/bpp/flow/gate/driver/delete?id=${id}`);
 }
 
 /** 批量删除司机信息 */
 export function deleteDriverList(ids: number[]) {
   return requestClient.delete(
-    `/bpp/gate/driver/delete-list?ids=${ids.join(',')}`,
+    `/bpp/flow/gate/driver/delete-list?ids=${ids.join(',')}`,
   );
 }
 
 /** 导出司机信息 */
 export function exportDriver(params: any) {
-  return requestClient.download('/bpp/gate/driver/export-excel', { params });
+  return requestClient.download('/bpp/flow/gate/driver/export-excel', { params });
 }

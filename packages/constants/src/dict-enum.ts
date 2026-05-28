@@ -56,6 +56,12 @@ const NOTIFY_DICT = {
   BUSINESS_LABEL: 'business_label', // 业务标签
 } as const;
 
+/** ========== GATE - 闸口管理模块违规规则限制管理功能 ========== */
+const GATE_VIOLATION_DICT = {
+  GATE_VIOLATION_TYPE: 'gate_violation_type',
+  GATE_VIOLATION_DAY: 'gate_violation_day',
+} as const;
+
 /** 字典类型枚举 - 统一导出 */
 const DICT_TYPE = {
   ...BPM_DICT,
@@ -63,6 +69,7 @@ const DICT_TYPE = {
   ...SYSTEM_DICT,
   ...COMMON_DICT,
   ...NOTIFY_DICT,
+  ...GATE_VIOLATION_DICT,
 } as const;
 
 export { DICT_TYPE };
