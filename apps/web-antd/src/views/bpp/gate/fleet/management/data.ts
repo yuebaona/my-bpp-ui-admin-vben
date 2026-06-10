@@ -42,207 +42,6 @@ function getPlanStatusOptions(type: string) {
   }));
 }
 
-
-/** 箱区范围选择字段 */
-export function containerAreaRangeColumns(): VxeTableGridOptions['columns'] {
-  return [
-    {
-      type: 'checkbox',
-      width: 40,
-    },
-    {
-      title: '堆场贝位',
-      field: 'yardPosition',
-      minWidth: 150,
-      editRender: { name: 'input' },
-    },
-    {
-      title: '堆场列',
-      field: 'yardColumns',
-      minWidth: 200,
-      slots: { default: 'yardColumns', edit: 'yardColumns' },
-    },
-    {
-      title: '总数（当前可用量）',
-      field: 'totalCount',
-      minWidth: 150,
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '最低准存天数',
-      field: 'minDays',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '最高准存天数',
-      field: 'maxDays',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '操作',
-      minWidth: 100,
-      slots: { default: 'actions' },
-      fixed: 'right',
-    },
-  ];
-}
-
-/** 已限制明细表格字段 */
-export function restrictionColumns(): VxeTableGridOptions['columns'] {
-  return [
-    {
-      type: 'seq',
-      width: 40,
-    },
-    {
-      title: '车队名称',
-      field: 'yardPosition',
-      minWidth: 150,
-      editRender: { name: 'input' },
-    },
-    {
-      title: '限制原因代码及描述',
-      field: 'yardColumns',
-      minWidth: 200,
-    },
-    {
-      title: '限制开始时间',
-      field: 'restrictStartTime',
-      minWidth: 150,
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '限制结束时间',
-      field: 'restrictEndTime',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '限制时间合计',
-      field: 'lastRestrictTimeTotal',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '创建时间',
-      field: 'createTime',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '更新时间',
-      field: 'updateTime',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '限制信息来源',
-      field: 'restrictInfoSource',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '创建账号',
-      field: 'createAccount',
-      minWidth: 150,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '操作',
-      minWidth: 100,
-      slots: { default: 'actions' },
-      fixed: 'right',
-    },
-  ];
-}
-
-/** 箱区范围浮窗展示字段 */
-export function containerAreaDisplayColumns(): VxeTableGridOptions['columns'] {
-  return [
-    {
-      title: '堆场贝位',
-      field: 'yardBay',
-      minWidth: 80,
-      editRender: { name: 'input' },
-    },
-    {
-      title: '堆场列',
-      field: 'yardRaw',
-      minWidth: 60,
-      editRender: { name: 'input' },
-    },
-    {
-      title: '总数（当前可用量）',
-      field: 'totalCount',
-      minWidth: 100,
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '最低准存天数',
-      field: 'minDays',
-      minWidth: 100,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-    {
-      title: '最高准存天数',
-      field: 'maxDays',
-      minWidth: 100,
-      sortable: true,
-      filters: [{ data: '' }],
-      filterRender: {
-        name: 'VxeInput',
-      },
-      editRender: { name: 'input', attrs: { type: 'number' } },
-    },
-  ];
-}
 /** 车队管理列表的搜索表单 */
 export function fleetSearchSchema(): VbenFormSchema[] {
   return [
@@ -288,8 +87,371 @@ export function fleetSearchSchema(): VbenFormSchema[] {
   ];
 }
 
-/** 车队新增表单 */
-export function newFormSchema(): VbenFormSchema[] {
+/** 车队信息字段 */
+export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
+  return [
+    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
+    { type: 'checkbox', width: 40, fixed: 'left' },
+    {
+      field: 'fltCd',
+      title: '车队代码',
+      minWidth: 100,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'fltNm',
+      title: '车队中文名',
+      minWidth: 180,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'fltShortNm',
+      title: '车队简写',
+      minWidth: 130,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'fltAddr',
+      title: '车队地址',
+      minWidth: 200,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'rstrCnt',
+      title: '已限制次数',
+      minWidth: 100,
+      filterRender: { name: 'VxeInput', props: { clearable: true, type: 'number' } },
+    },
+    {
+      field: 'isRstr',
+      title: '是否限制',
+      minWidth: 120,
+      formatter: ({ cellValue }) => {
+        return cellValue === 1 ? '是' : cellValue === 0 ? '否' : '';
+      },
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          options: [
+            { label: '是', value: 1 },
+            { label: '否', value: 0 },
+          ],
+          clearable: true
+        },
+      },
+    },
+    {
+      field: 'rstrReason',
+      title: '限制原因代码及描述',
+      minWidth: 200,
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'rstrDataSrc',
+      title: '限制信息来源',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          options: [
+            { label: '智慧安防', value: '智慧安防' },
+            { label: '北港网', value: '北港网' },
+            { label: '业务处理平台', value: '业务处理平台' },
+          ],
+          clearable: true
+        },
+      },
+    },
+    {
+      field: 'rstrStarDt',
+      title: '限制开始时间',
+      minWidth: 120,
+      filterRender: { name: 'VxeInput', props: { type: 'date',clearable: true } },
+    },
+    {
+      field: 'rstrEndDt',
+      title: '限制结束时间',
+      minWidth: 120,
+      filterRender: { name: 'VxeInput', props: { type: 'date', clearable: true} },
+    },
+    {
+      field: 'rstrLastDt',
+      title: '最近一次限制时间合计',
+      minWidth: 180,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'number',
+          clearable: true
+        }
+      },
+    },
+    {
+      field: 'legalNm',
+      title: '法人姓名',
+      minWidth: 120,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'legalPh',
+      title: '法人电话',
+      minWidth: 120,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'safetyNm',
+      title: '安全负责人姓名',
+      minWidth: 130,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'safetyPh',
+      title: '安全负责人电话',
+      minWidth: 130,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'bizNm',
+      title: '业务员姓名',
+      minWidth: 120,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'bizPh',
+      title: '业务员电话',
+      minWidth: 120,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'bizRegNo',
+      title: '社会信用代码',
+      minWidth: 180,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'otrAuditNo',
+      title: '外集卡年审编号',
+      minWidth: 150,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'portRm',
+      title: '码头备注',
+      width: 250,
+      editRender: { name: 'input' },
+      filterRender: { name: 'VxeInput', props: { clearable: true } },
+    },
+    {
+      field: 'dataSrc',
+      title: '创建源',
+      minWidth: 100,
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          options: [
+            { label: '', value: '' },
+            { label: '北港网', value: '北港网' },
+            { label: '业务处理平台', value: '业务处理平台' },
+          ],
+          clearable: true
+        },
+      },
+    },
+    {
+      field: 'createTime',
+      title: '创建时间',
+      minWidth: 150,
+      formatter: 'formatDateTime',
+      filterRender: { name: 'VxeInput', props: { type: 'date', clearable: true} },
+    },
+    {
+      field: 'updateTime',
+      title: '更新时间',
+      minWidth: 150,
+      formatter: 'formatDateTime',
+      filterRender: { name: 'VxeInput', props: { type: 'date', clearable: true} },
+    },
+    {
+      field: 'enableFlg',
+      title: '是否启用',
+      minWidth: 100,
+      formatter: ({ cellValue }) => {
+        return cellValue === 1 ? '是' : cellValue === 0 ? '否' : '';
+      },
+      editRender: {
+        name: 'select',
+        options: [
+          { label: '是', value: 1 },
+          { label: '否', value: 0 },
+        ],
+      },
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          options: [
+            { label: '是', value: 1 },
+            { label: '否', value: 0 },
+          ],
+          clearable: true
+        },
+      },
+    },
+  ];
+}
+
+/** 已限制明细表格字段 */
+export function restrictionColumns(): VxeTableGridOptions['columns'] {
+  return [
+    {
+      type: 'seq',
+      width: 60,
+    },
+    {
+      field: 'fltNm',
+      title: '车队',
+      minWidth: 150,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          clearable: true,
+        },
+      },
+      editRender: { name: 'input' },
+    },
+    {
+      field: 'rstrReason',
+      title: '限制代码：描述',
+      minWidth: 200,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          clearable: true,
+        },
+      },
+    },
+    {
+      field: 'rstrStartDt',
+      title: '限制开始时间',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          clearable: true,
+          popupStyle: { zIndex: 8001 },
+        },
+      },
+      formatter: ({ cellValue }) => {
+        if (!cellValue) return '';
+        return new Date(cellValue).toLocaleString('zh-CN');
+      },
+    },
+    {
+      field: 'rstrEndDt',
+      title: '限制结束时间',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          clearable: true,
+          popupStyle: { zIndex: 8001 },
+        },
+      },
+      formatter: ({ cellValue }) => {
+        if (!cellValue) return '';
+        return new Date(cellValue).toLocaleString('zh-CN');
+      },
+    },
+    {
+      field: 'lastRstrDt',
+      title: '限制时间合计',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          clearable: true,
+          type: 'number'
+        }
+      },
+    },
+    {
+      field: 'createTime',
+      title: '创建时间',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          clearable: true,
+          popupStyle: { zIndex: 8001 },
+        },
+      },
+      formatter: ({ cellValue }) => {
+        if (!cellValue) return '';
+        return new Date(cellValue).toLocaleString('zh-CN');
+      },
+    },
+    {
+      field: 'releaseTime',
+      title: '解除限制时间',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          type: 'date',
+          clearable: true,
+          popupStyle: { zIndex: 8001 },
+        },
+      },
+      formatter: ({ cellValue }) => {
+        if (!cellValue) return '';
+        return new Date(cellValue).toLocaleString('zh-CN');
+      },
+    },
+    {
+      field: 'rstrDataSrc',
+      title: '限制信息来源',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeSelect',
+        props: {
+          options: [
+            { label: '线下', value: '线下' },
+            { label: '业务处理平台', value: '业务处理平台' },
+          ],
+          popupStyle: { zIndex: 8001 },
+        },
+      },
+    },
+    {
+      field: 'createAccount',
+      title: '创建账号',
+      minWidth: 120,
+      filterRender: {
+        name: 'VxeInput',
+        props: {
+          clearable: true,
+        },
+      },
+    },
+  ];
+}
+
+/** 车队详情表单 */
+export function detailFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'fltCd',
@@ -303,17 +465,18 @@ export function newFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'fltNm',
-      label: '车队名称',
+      label: '车队中文名',
       component: 'Input',
       componentProps: {
         placeholder: '请输入车队名称',
         allowClear: true,
       },
       rules: 'required',
+      // formItemClass: 'col-span-3 w-1/3',
     },
     {
       fieldName: 'fltShortNm',
-      label: '车队简称',
+      label: '车队简写',
       component: 'Input',
       componentProps: {
         placeholder: '请输入车队简称',
@@ -330,6 +493,48 @@ export function newFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
+    },
+    {
+      fieldName: 'enableFlg',
+      label: '是否有效',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择',
+        options: [
+          { label: '是', value: 1 },
+          { label: '否', value: 0 },
+        ],
+      },
+      rules: 'required',
+    },
+    {
+      fieldName: 'rstrCnt',
+      label: '已限制次数',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+      defaultValue: '',
+    },
+    {
+      fieldName: 'isRstr',
+      label: '是否限制',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+      defaultValue: '',
+      slot: 'isRstr',
+    },
+    {
+      fieldName: 'divider',
+      label: '',
+      component: 'Divider',
+      componentProps: {
+        style: { display: 'none' },
+      },
     },
     {
       fieldName: 'legalNm',
@@ -410,7 +615,97 @@ export function newFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
-    }
+    },
+    {
+      fieldName: 'rstrReason',
+      label: '限制原因代码及描述',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
+    {
+      fieldName: 'rstrDataSrc',
+      label: '限制信息来源',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
+    {
+      fieldName: 'rstrStartDt',
+      label: '限制开始时间',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
+    {
+      fieldName: 'rstrEndDt',
+      label: '限制结束时间',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
+    {
+      fieldName: 'portRm',
+      label: '码头备注',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入码头备注',
+        allowClear: true,
+      },
+      rules: 'required',
+      formItemClass: 'col-span-2',
+    },
+    {
+      fieldName: 'lastRstrDt',
+      label: '最近一次限制时间合计',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
+    {
+      fieldName: 'divider',
+      label: '',
+      component: 'Divider',
+      componentProps: {
+        style: { display: 'none' },
+      },
+    },
+    {
+      fieldName: 'dataSrc',
+      label: '创建源',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+      },
+    },
+    {
+      fieldName: 'createTime',
+      label: '创建时间',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
+    {
+      fieldName: 'updateTime',
+      label: '更新时间',
+      component: 'Input',
+      componentProps: {
+        disabled: true,
+        placeholder: '',
+      },
+    },
   ];
 }
 
@@ -460,6 +755,20 @@ export function editFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
+      fieldName: 'enableFlg',
+      label: '是否有效',
+      component: 'Select',
+      componentProps: {
+        placeholder: '请选择',
+        options: [
+          { label: '是', value: 1 },
+          { label: '否', value: 0 },
+        ],
+      },
+      rules: 'required',
+      defaultValue: 1,
+    },
+    {
       fieldName: 'fleetPhone',
       label: '车队电话',
       component: 'Input',
@@ -468,6 +777,7 @@ export function editFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
+      formItemClass: 'col-span-2',
     },
     {
       fieldName: 'fleetAddress',
@@ -549,6 +859,7 @@ export function editFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
+      formItemClass: 'col-span-2',
     },
     {
       fieldName: 'outerTruckAnnualReviewNo',
@@ -559,6 +870,18 @@ export function editFormSchema(): VbenFormSchema[] {
         allowClear: true,
       },
       rules: 'required',
+      formItemClass: 'col-span-2',
+    },
+    // 备注信息
+    {
+      fieldName: 'portRm',
+      label: '码头备注',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入码头备注',
+        allowClear: true,
+      },
+      formItemClass: 'col-span-2',
     },
     {
       fieldName: 'createSource',
@@ -673,48 +996,37 @@ export function editFormSchema(): VbenFormSchema[] {
     },
   ];
 }
-
+/** 限制明细表单 */
 export function restrictionFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'fleetCode',
       label: '车队代码',
       component: 'Input',
-      componentProps: {
-        disabled: true,
-      },
-    },
-    {
-      fieldName: 'fleetCnName',
-      label: '车队名称',
-      component: 'Input',
-      componentProps: {
-        disabled: true,
-      },
+      rules: 'required',
     },
     {
       fieldName: 'restrictionReason',
-      label: '限制原因代码及描述',
+      label: '限制代码：描述',
       component: 'Input',
       rules: 'required',
-      formItemClass: 'col-span-2',
     },
     {
       fieldName: 'restrictStartTime',
       label: '限制开始时间',
-      component: 'RangePicker',
+      component: 'DatePicker',
       rules: 'required',
       componentProps: {
-        zIndex: 6000,
+        popupStyle: { zIndex: 8001 },
       },
     },
     {
       fieldName: 'restrictEndTime',
       label: '限制结束时间',
-      component: 'RangePicker',
+      component: 'DatePicker',
       rules: 'required',
       componentProps: {
-        zIndex: 6000,
+        popupStyle: { zIndex: 8001 },
       },
     },
     {
@@ -722,9 +1034,10 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       label: '限制时间合计',
       component: 'Input',
       componentProps: {
+        popupStyle: { zIndex: 8001 },
         disabled: true,
       },
-      formItemClass: 'col-span-2',
+      formItemClass: 'col-span-2 w-2/3',
     },
     {
       fieldName: 'createTime',
@@ -736,8 +1049,12 @@ export function restrictionFormSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'releaseTime',
-      label: '解除创建时间',
-      component: 'RangePicker',
+      label: '解除限制时间',
+      component: 'DatePicker',
+      componentProps: {
+        popupStyle: { zIndex: 8001 },
+        disabled: true,
+      },
     },
     {
       fieldName: 'restrictInfoSource',
@@ -758,192 +1075,6 @@ export function restrictionFormSchema(): VbenFormSchema[] {
   ];
 }
 
-/** 车队信息字段 */
-export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
-  return [
-    { type: 'seq', width: 50, align: 'center', fixed: 'left' },
-    { type: 'checkbox', width: 40, fixed: 'left' },
-    {
-      field: 'fltCd',
-      title: '车队代码',
-      minWidth: 150,
-    },
-    {
-      field: 'fltNm',
-      title: '车队中文名',
-      minWidth: 100,
-    },
-    {
-      field: 'fltShortNm',
-      title: '车队简写',
-      minWidth: 120,
-    },
-    {
-      field: 'fltAddr',
-      title: '车队地址',
-      minWidth: 120,
-    },
-    {
-      field: 'rstrCnt',
-      title: '已限制次数',
-      minWidth: 100,
-    },
-    {
-      field: 'isRstr',
-      title: '是否限制',
-      minWidth: 120,
-      // formatter: ({ cellValue }) => {
-      //   return cellValue ? 'Y' : 'N';
-      // },
-    },
-    {
-      field: 'rstrReason',
-      title: '限制原因代码及描述',
-      minWidth: 200,
-    },
-    {
-      field: 'rstrDataSrc',
-      title: '限制信息来源',
-      minWidth: 120,
-    },
-    {
-      field: 'rstrStarDt',
-      title: '限制开始时间',
-      minWidth: 120,
-    },
-    {
-      field: 'rstrEndDt',
-      title: '限制结束时间',
-      minWidth: 120,
-    },
-    {
-      field: 'rstrLastDt',
-      title: '最近一次限制时间合计',
-      minWidth: 120,
-    },
-    {
-      field: 'legalNm',
-      title: '法人姓名',
-      minWidth: 120,
-    },
-    {
-      field: 'legalPh',
-      title: '法人电话',
-      minWidth: 120,
-    },
-    {
-      field: 'safetyNm',
-      title: '安全负责人',
-      minWidth: 120,
-    },
-    {
-      field: 'safetyPh',
-      title: '安全负责人电话',
-      minWidth: 100,
-    },
-    {
-      field: 'bizNm',
-      title: '业务员姓名',
-      minWidth: 100,
-    },
-    {
-      field: 'bizPh',
-      title: '业务员电话',
-      minWidth: 150,
-    },
-    {
-      field: 'bizRegNo',
-      title: '社会信用代码',
-      minWidth: 100,
-    },
-    {
-      field: 'otrAuditNo',
-      title: '外集卡年审编号',
-      minWidth: 150,
-    },
-    {
-      field: 'portRm',
-      title: '码头备注',
-      width: 150,
-    },
-    {
-      field: 'dataSrc',
-      title: '创建源',
-      minWidth: 100,
-    },
-    {
-      field: 'createTime',
-      title: '创建时间',
-      minWidth: 100,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'updateTime',
-      title: '更新时间',
-      minWidth: 100,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'enableFlg',
-      title: '是否启用',
-      minWidth: 100,
-    },
-    {
-      title: '操作',
-      minWidth: 150,
-      fixed: 'right',
-      slots: { default: 'actions' },
-    },
-  ];
-}
-
-/** 车队详情基础信息字段 */
-export function detailBasicSchema(): DescriptionItemSchema[] {
-  return [
-    // 基础信息
-    { field: 'fleetCode', label: '车队代码' },
-    {
-      field: 'isRelease',
-      label: '是否有效',
-      render: (value) => {
-        return `${value ? '是' : '否'}`;
-      },
-    },
-    { field: 'fleetCnName', label: '车队中文名' },
-    { field: 'fleetShortName', label: '车队简写' },
-    { field: 'fleetPhone', label: '车队电话' },
-    { field: 'fleetAddress', label: '车队地址' },
-    { field: 'legalPersonName', label: '法人姓名' },
-    { field: 'legalPersonPhone', label: '法人电话' },
-    { field: 'safetyPersonName', label: '安全负责人' },
-    { field: 'safetyPerson', label: '安全负责人电话' },
-    { field: 'safetyPersonPhone', label: '业务员姓名' },
-    { field: 'businessPersonName', label: '业务员电话' },
-    { field: 'socialCreditCode', label: '社会信用代码' },
-    { field: 'outerTruckAnnualReviewNo', label: '外集卡年审编号' },
-    { field: 'createSource', label: '创建源' },
-    { field: 'createTime', label: '创建时间' },
-    { field: 'updateTime', label: '更新时间' },
-    // 确保数据中 tradeType 字段的值正确
-    {
-      field: 'tradeType',
-      label: '贸易类型',
-      render: (value) => {
-        return value === 'FOREIGN' ? '外贸' : '内贸';
-      },
-    },
-    { field: 'contIsoList', label: 'ISO' },
-    { field: 'bayRanges', label: '箱区范围' },
-    { field: 'planQuantity', label: '计划箱量' },
-    { field: 'completedReleaseQuantity', label: '已放箱量' },
-    { field: 'mainGateReleaseQuantity', label: '主闸可放箱量' },
-    { field: 'uncompletedReleaseQuantity', label: '未放箱量' },
-    { field: 'activeOccupiedQuantity', label: '作用中占用箱量' },
-    { field: 'specifiedPickupOccupiedQuantity', label: '指定提箱占用箱量' },
-    { field: 'interGateOccupiedQuantity', label: '互拖闸占用箱量' },
-    { field: 'holdOccupiedQuantity', label: '扣留占用箱量' },
-  ];
-}
 /** 车队详情限制信息字段 */
 export function detailRestrictionSchema(): DescriptionItemSchema[] {
   return [
@@ -964,7 +1095,6 @@ export function detailRestrictionSchema(): DescriptionItemSchema[] {
     { field: 'wharfRemark', label: '码头备注' },
   ];
 }
-
 
 /** 日志查询表单 */
 export function logQueryFormSchema(): VbenFormSchema[] {
@@ -1109,40 +1239,6 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
         //           'empty_container_control_main_operation_type',
         //         ),
       },
-    },
-  ];
-}
-
-export function gatePlanColumns(): VxeTableGridOptions['columns'] {
-  return [
-    { type: 'seq', width: 50, align: 'center' },
-    {
-      field: 'planNo',
-      title: '计划号',
-      minWidth: 100,
-    },
-    {
-      field: 'isRelease',
-      title: '是否放箱',
-      minWidth: 100,
-      formatter: (params) => {
-        return String(params.cellValue) === 'true' ? 'Y' : 'N';
-      },
-    },
-    {
-      field: 'bayRanges',
-      title: '箱区范围',
-      minWidth: 120,
-    },
-    {
-      field: 'mainGateReleaseQuantity',
-      title: '可放总箱量',
-      minWidth: 100,
-    },
-    {
-      field: 'dischargeVslSchedule',
-      title: '卸船船期',
-      minWidth: 200,
     },
   ];
 }
