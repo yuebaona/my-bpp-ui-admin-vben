@@ -11,26 +11,27 @@ import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 
 import { restrictionFormSchema, restrictionColumns } from '../data';
-
+import {
+  getFleetRstr,
+  createFleetRstr,
+  updateFleetRstr,
+} from '#/api/bpp/flow/gate/fleet/rstr';
+import * as GateFleetRstrApi from '#/api/bpp/flow/gate/fleet/rstr';
 const emit = defineEmits(['success']);
 
 const isSubmitting = ref(false);
-const formMode = ref<'edit' | 'create'>('create');
+const formMode = ref<'view' | 'edit' | 'create'>('view');
+const selectedRowData = ref<GateFleetRstrApi.FleetRstr | null>(null);
 
-const selectedRowData = ref<any>(null);
-
-const formData = reactive({
-  id: '',
-  fleetCode: '',
-  fleetName: '',
-  restrictionReason: '',
-  restrictStartTime: '',
-  restrictEndTime: '',
-  lastRestrictTimeTotal: '',
-  createTime: '',
-  releaseTime: '',
-  restrictInfoSource: '',
-  createAccount: '',
+const formData = reactive<GateFleetRstrApi.FleetRstr>({
+  id: 0,
+  fltGkey: '',
+  rstrRsn: '',
+  rstrStartDt: '',
+  rstrEndDt: '',
+  manualRelFlg: 0,
+  remark: '',
+  dataSrc: '',
 });
 
 const [Form, formApi] = useVbenForm({
@@ -77,51 +78,122 @@ const [Grid, gridApi] = useVbenVxeGrid({
       custom: false,
     },
     pagerConfig: {
-      enabled: false,
+      enabled: true,
     },
     checkboxConfig: {
-      enabled: false,
+      enabled: true,
     },
-    events: {
-      click: ({ row }: { row: any }) => {
-        handleRowClick(row);
-      },
+    editConfig: {
+      mode: 'cell',
+      showIcon: false,
+      autoClear: false,
     },
-    // 配置弹出层挂载到 body，避免被 modal 遮挡
     dropdownConfig: {
       transfer: true,
     },
-  } as VxeTableGridOptions<any>,
+    proxyConfig: {
+      autoLoad: true,
+      page: true,
+      response: {
+        result: 'list',
+        total: 'total',
+      },
+      ajax: {
+        query: async ({ page }) => {
+          // const res = await getFleetRstrPage({
+          //   pageNo: page.currentPage,
+          //   pageSize: page.pageSize,
+          // });
+          // return res;
+        },
+      },
+    },
+    events: {
+      click: ({ row }: { row: GateFleetRstrApi.FleetRstr }) => {
+        handleRowClick(row);
+      },
+    },
+  } as VxeTableGridOptions<GateFleetRstrApi.FleetRstr>,
 });
 
 const resetFormData = () => {
   Object.assign(formData, {
-    id: '',
-    fleetCode: '',
-    fleetName: '',
-    restrictionReason: '',
-    restrictStartTime: '',
-    restrictEndTime: '',
-    lastRestrictTimeTotal: '',
-    createTime: '',
-    releaseTime: '',
-    restrictInfoSource: '',
-    createAccount: '',
+    id: 0,
+    fltGkey: '',
+    rstrRsn: '',
+    rstrStartDt: '',
+    rstrEndDt: '',
+    manualRelFlg: 0,
+    remark: '',
+    dataSrc: '',
   });
   formApi.setValues(formData);
 };
 
-const handleRowClick = (row: any) => {
+const handleRowClick = async (row: GateFleetRstrApi.FleetRstr) => {
   selectedRowData.value = row;
-  formMode.value = 'edit';
-  Object.assign(formData, row);
-  formApi.setValues(formData);
+  formMode.value = 'view';
+
+  // 获取详情
+  try {
+    const res = await getFleetRstr(row.id);
+    if (res.code === 0 && res.data) {
+      Object.assign(formData, res.data);
+      formApi.setValues(formData);
+    }
+  } catch (error) {
+    message.error('获取详情失败');
+  }
 };
 
-const handleAdd = () => {
+const handleCreate = () => {
   formMode.value = 'create';
   selectedRowData.value = null;
   resetFormData();
+
+  const $grid = gridApi.grid;
+  if ($grid) {
+    const newRow: any = {
+      id: `row_${Date.now()}`,
+      fltGkey: '',
+      rstrRsn: '',
+      rstrStartDt: '',
+      rstrEndDt: '',
+      manualRelFlg: 0,
+      remark: '',
+      dataSrc: '',
+    };
+    const currentData = $grid.getRecords();
+    currentData.push(newRow);
+    $grid.reloadData(currentData);
+  }
+};
+
+const handleEdit = () => {
+  const $grid = gridApi.grid;
+  if ($grid) {
+    const selectedRows = $grid.getCheckboxRecords();
+    if (selectedRows.length !== 1) {
+      message.warning('请选择一条记录进行编辑');
+      return;
+    }
+
+    // 进入编辑模式
+    formMode.value = 'edit';
+    selectedRowData.value = selectedRows[0];
+
+    // 展示详情
+    getFleetRstr(selectedRows[0].id)
+      .then((res) => {
+        if (res.code === 0 && res.data) {
+          Object.assign(formData, res.data);
+          formApi.setValues(formData);
+        }
+      })
+      .catch(() => {
+        message.error('获取详情失败');
+      });
+  }
 };
 
 // 保存
@@ -130,46 +202,54 @@ const handleSave = async () => {
   isSubmitting.value = true;
 
   try {
-    const { valid } = await formApi.validate();
+    const { valid, errors } = await formApi.validate();
     if (!valid) {
+      console.error('表单验证失败:', errors);
+      message.error('请填写必填项');
       return;
     }
 
-    const formValues = await formApi.getValues();
+    let formValues = await formApi.getValues();
 
-    if (formMode.value === 'create') {
-      // 新增逻辑
-      const newRow = {
+    // 转换时间格式为字符串
+    if (formValues.rstrStartDt && typeof formValues.rstrStartDt === 'object') {
+      formValues = {
         ...formValues,
-        id: `row_${Date.now()}`,
-        createTime: new Date().toLocaleString('zh-CN'),
+        rstrStartDt: formValues.rstrStartDt.format('YYYY-MM-DD HH:mm:ss'),
       };
-
-      const $grid = gridApi.grid;
-      if ($grid) {
-        const currentData = $grid.getRecords();
-        currentData.push(newRow);
-        await $grid.reloadData(currentData);
-      }
-      message.success('新增成功');
-    } else {
-      // 编辑逻辑
-      const $grid = gridApi.grid;
-      if ($grid) {
-        const currentData = $grid.getRecords();
-        const index = currentData.findIndex((item: any) => item.id === formValues.id);
-        if (index !== -1) {
-          currentData[index] = { ...formValues };
-          await $grid.reloadData(currentData);
-        }
-      }
-      message.success('保存成功');
+    }
+    if (formValues.rstrEndDt && typeof formValues.rstrEndDt === 'object') {
+      formValues = {
+        ...formValues,
+        rstrEndDt: formValues.rstrEndDt.format('YYYY-MM-DD HH:mm:ss'),
+      };
     }
 
-    emit('success');
+    if (formMode.value === 'create') {
+      // 新增
+      await createFleetRstr(formValues);
+      message.success('新增成功');
+      const $grid = gridApi.grid;
+      if ($grid) {
+        await $grid.reloadData();
+      }
+      emit('success');
+    } else if (formMode.value === 'edit') {
+      // 编辑
+      await updateFleetRstr(formValues);
+      message.success('保存成功');
+      const $grid = gridApi.grid;
+      if ($grid) {
+        await $grid.reloadData();
+      }
+      emit('success');
+    }
+
     selectedRowData.value = null;
     resetFormData();
+    formMode.value = 'view';
   } catch (error) {
+    console.error('保存错误:', error);
     message.error('保存失败，请重试');
   } finally {
     isSubmitting.value = false;
@@ -178,38 +258,41 @@ const handleSave = async () => {
 
 const [Modal, modalApi] = useVbenModal({
   draggable: true,
-  // resizable: true,
+  resizable: true,
   zIndex: 1000,
+  width: 1200,
   header: true,
   modal: false,
   showCancelButton: true,
   closeOnClickModal: false,
   submitting: true,
-  onCancel:() => {
-    selectedRowData.value = null;
-    resetFormData();
-  },
   async onOpenChange(isOpen: boolean) {
+    if (isOpen) {
+      // 重置表单
+      resetFormData();
+      formMode.value = 'view';
+      selectedRowData.value = null;
+    }
     if (!isOpen) {
       selectedRowData.value = null;
       resetFormData();
     }
     const data = await modalApi.getData<any>();
     if (data && data.fleetData) {
-      formData.fleetCode = data.fleetData.fltCd || '';
-      formData.fleetName = data.fleetData.fltNm || '';
+      formData.fltGkey = data.fleetData.fltGkey || '';
     }
   },
 });
 </script>
 
 <template>
-  <Modal title="已限制明细" class="!min-w-2/3">
+  <Modal title="已限制明细" class="!w-2/3">
     <Grid />
     <Form />
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button @click="handleAdd">新增</Button>
+        <Button @click="handleCreate">新增</Button>
+        <Button @click="handleEdit">编辑</Button>
         <Button type="primary" :loading="isSubmitting" @click="handleSave">保存</Button>
       </div>
     </template>

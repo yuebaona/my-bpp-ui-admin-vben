@@ -1000,37 +1000,39 @@ export function editFormSchema(): VbenFormSchema[] {
 export function restrictionFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'fleetCode',
+      fieldName: 'fltCd',
       label: '车队代码',
       component: 'Input',
       rules: 'required',
     },
     {
-      fieldName: 'restrictionReason',
+      fieldName: 'rstrRsn',
       label: '限制代码：描述',
       component: 'Input',
       rules: 'required',
     },
     {
-      fieldName: 'restrictStartTime',
+      fieldName: 'rstrStartDt',
       label: '限制开始时间',
       component: 'DatePicker',
       rules: 'required',
       componentProps: {
         popupStyle: { zIndex: 8001 },
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
     },
     {
-      fieldName: 'restrictEndTime',
+      fieldName: 'rstrEndDt',
       label: '限制结束时间',
       component: 'DatePicker',
       rules: 'required',
       componentProps: {
         popupStyle: { zIndex: 8001 },
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
     },
     {
-      fieldName: 'lastRestrictTimeTotal',
+      fieldName: 'lastRstrDt',
       label: '限制时间合计',
       component: 'Input',
       componentProps: {
@@ -1050,14 +1052,14 @@ export function restrictionFormSchema(): VbenFormSchema[] {
     {
       fieldName: 'releaseTime',
       label: '解除限制时间',
-      component: 'DatePicker',
+      component: 'Input',
       componentProps: {
         popupStyle: { zIndex: 8001 },
         disabled: true,
       },
     },
     {
-      fieldName: 'restrictInfoSource',
+      fieldName: 'dataSrc',
       label: '限制信息来源',
       component: 'Input',
       componentProps: {
