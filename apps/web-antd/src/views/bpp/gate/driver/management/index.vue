@@ -1,60 +1,45 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { DriverManagementApi } from '#/api/bpp/driver/management';
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
+import type { DriverApi } from '#/api/bpp/flow/gate/driver/manager';
 
 import { ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { useDebounceFn } from '@vueuse/core';
+import { message } from 'ant-design-vue';
+import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getDriverById, getDriverListPage } from '#/api/bpp/driver/management';
+import { getDriverPage } from '#/api/bpp/flow/gate/driver/manager';
 import {
   driverInfoColumns,
   driverSearchSchema,
 } from '#/views/bpp/gate/driver/management/data';
 import DetailForm from '#/views/bpp/gate/driver/management/modules/detailForm.vue';
-import EditForm from '#/views/bpp/gate/driver/management/modules/editForm.vue';
-import NewForm from '#/views/bpp/gate/driver/management/modules/newForm.vue';
 
-const [NewFormModal, newFormModalApi] = useVbenModal({
-  connectedComponent: NewForm,
-  destroyOnClose: true,
-  draggable: true,
-  onRegister: (modal) => {
-    modal.$on('success', handleSuccess);
-  },
-});
+// 页面下方详情表单
+const detailFormRef = ref();
 
-// 更新成功,刷新表格
-const handleSuccess = () => {
-  gridApi?.reload();
+// 表单模式（新增/编辑/查看），默认查看
+const formMode = ref<'create' | 'edit' | 'view'>('view');
+
+// 选中的司机ID
+const selectedDriverId = ref<string>('');
+
+// 选中的行数据
+const selectedRowData = ref<DriverApi.driverVO | null>(null);
+
+// 是否首次加载，用于默认选中第一行
+let isFirstLoad = true;
+
+// 点击表格行
+const handleRowClick = (row: DriverApi.driverVO) => {
+  selectedRowData.value = row;
+  selectedDriverId.value = String(row.id);
+  formMode.value = 'view';
 };
-
-const [DetailFormModal, detailFormModalApi] = useVbenModal({
-  connectedComponent: DetailForm,
-  destroyOnClose: true,
-  draggable: true,
-  footer: false,
-  width: 1000,
-});
-
-const [EditFormModal, editFormModalApi] = useVbenModal({
-  connectedComponent: EditForm,
-  destroyOnClose: true,
-  draggable: true,
-});
-
-// const [LogQueryModal, logQueryModalApi] = useVbenModal({
-//   connectedComponent: LogQuery,
-//   destroyOnClose: true,
-//   footer: false,
-//   closeOnClickModal: false,
-// });
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -62,30 +47,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
     submitButtonOptions: {
       content: $t('cxmo.action.search'),
     },
-    resetButtonOptions: {
-      onClick: () => {
-        // // 清空自定义插槽绑定的状态
-        // vslNameState.value = {
-        //   value: '',
-        //   label: '',
-        // };
-        // vslVoyState.value = {
-        //   value: '',
-        //   label: '',
-        // };
-        // applicantCompanyNameState.value = {
-        //   value: '',
-        //   label: '',
-        // };
-      },
-    },
     wrapperClass: 'grid-cols-4 md:grid-cols-4',
     submitOnEnter: true,
   },
   gridOptions: {
     border: true,
     resizableConfig: {
-      isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isDblclickAutoWidth: true,
       isAllColumnDrag: true,
     },
     checkboxConfig: {
@@ -96,24 +64,37 @@ const [Grid, gridApi] = useVbenVxeGrid({
       enabled: true,
     },
     filterConfig: {
-      showIcon: false,
-      // remote: true,
+      enabled: true,
     },
     columns: driverInfoColumns(),
-    height: 'auto',
-    keepSource: false,
+    height: '100%',
+    keepSource: true,
+    mouseConfig: {
+      selected: true,
+    },
+    keyboardConfig: {
+      isArrow: true,
+      isEnter: true,
+      isTab: true,
+      isEsc: true,
+      isEdit: true,
+    },
     rowConfig: {
       keyField: 'id',
       isHover: true,
+      isCurrent: true,
     },
     printConfig: {
       enabled: true,
     },
+    editConfig: {
+      mode: 'row',
+      showIcon: false,
+      trigger: 'manual',
+    },
     toolbarConfig: {
       search: true,
-      print: true,
       custom: true,
-      // import: true,
       refresh: true,
       zoom: true,
     },
@@ -152,133 +133,168 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ],
     },
     proxyConfig: {
+      autoLoad: true,
       ajax: {
         query: async ({ page }, formValues) => {
-          // await getDictDataList();
           const queryParam = { ...formValues };
-
-          // return await getDriverListPage({
-          //   pageNo: page.currentPage,
-          //   pageSize: page.pageSize,
-          //   ...queryParam,
-          // });
-
-          const res = await getDriverListPage({
+          const res = await getDriverPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...queryParam,
           });
+
+          // 首次加载，默认选中第一行
+          if (isFirstLoad && res?.list?.length > 0) {
+            const firstRow = res.list[0];
+            selectedRowData.value = firstRow;
+            selectedDriverId.value = String(firstRow.id);
+            formMode.value = 'view';
+            isFirstLoad = false;
+          }
           return res;
         },
       },
     },
-  } as VxeTableGridOptions<DriverManagementApi.driverVO>,
+  } as VxeTableGridOptions<DriverApi.driverVO>,
   gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-    filterChange: useDebounceFn(async ({ filterList }) => {
-      const searchCont = filterList.reduce((obj, item) => {
-        if (item.datas && item.datas.length > 0) {
-          obj[item.field] = item.datas[0];
-        }
-        return obj;
-      }, {});
-      // 调用gridApi.query()刷新表格数据，实现实时筛选
-      // await gridApi.query();
-    }, 300),
-    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
-      handleRowCheckboxChange({ records: rangeRecords });
+    cellClick: ({ row }: { row: DriverApi.driverVO }) => {
+      handleRowClick(row);
     },
   },
 });
 
-/** 查看车队详情 */
-const handleDetail = async (row: DriverManagementApi.driverVO) => {
-  const res = await getDriverById(row.id);
-  detailFormModalApi.setData(res).open();
-};
-
-/** 编辑车队信息 */
-const handleEdit = async (row: DriverManagementApi.driverVO) => {
-  const res = await getDriverById(row.id);
-  editFormModalApi.setData(res).open();
-};
-
-/** 日志查询 */
-function handleLogQuery() {
-  // logQueryModalApi.open();
-}
-
-// 高级查询处理函数
 /** 刷新表格 */
 function handleRefresh() {
   gridApi.query();
 }
 
-/** 创建新车队 */
+/** 切换到新增模式 */
 function handleCreate() {
-  newFormModalApi.setData(null).open();
+  formMode.value = 'create';
+  selectedRowData.value = null;
+  selectedDriverId.value = '';
+  detailFormRef.value?.clearForm();
 }
 
-/** 车队信息选中操作 */
-const driverIds = ref<number[]>([]);
-function handleRowCheckboxChange({
-  records,
-}: {
-  records: FlowOverLimitWorkApi.AcceptancePlanVO[];
-}) {
-  driverIds.value = records.map((item) => item.id);
-  gridApi.query();
+/** 切换到编辑模式 */
+function handleEdit() {
+  if (!selectedDriverId.value || !selectedRowData.value) {
+    message.warning('请先点击选择一行数据');
+    return;
+  }
+  formMode.value = 'edit';
+}
+
+/** 保存 */
+async function handleSave() {
+  detailFormRef.value?.handleSave();
+}
+
+/** 导出 */
+function handleExport() {
+  const $grid = gridApi.grid;
+  if (!$grid) return;
+
+  const TIME_FIELDS = new Set(['createTime', 'updateTime']);
+  const BOOL_FIELDS = new Set(['isValid']);
+
+  const { fullData } = $grid.getTableData();
+  const columns = $grid.getColumns();
+
+  const dataColumns = columns.filter(
+    (col: any) => col.type !== 'seq' && col.type !== 'checkbox' && col.field,
+  );
+
+  const headerRow = dataColumns
+    .map((col: any) => col.title || col.field)
+    .join('</th><th>');
+  const bodyRows = fullData
+    .map((row: any) =>
+      dataColumns
+        .map((col: any) => {
+          const field = col.field;
+          const val = row[field];
+          if (val == null || val === '') return '';
+          if (TIME_FIELDS.has(field))
+            return dayjs(val).format('YYYY-MM-DD HH:mm:ss');
+          if (BOOL_FIELDS.has(field))
+            return val === true || val === 'true' ? '是' : '否';
+          return String(val);
+        })
+        .join('</td><td>'),
+    )
+    .join('</td></tr><tr><td>');
+
+  const now = dayjs().format('YYYYMMDDHHmmss');
+
+  const html = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+    <head><meta charset="UTF-8"></head>
+    <body><table border="1"><tr><th>${headerRow}</th></tr><tr><td>${bodyRows}</td></tr></table></body>
+    </html>
+  `;
+
+  const blob = new Blob([`\uFEFF${html}`], {
+    type: 'application/vnd.ms-excel',
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `司机信息${now}.xls`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 </script>
 
 <template>
-  <Page auto-content-height>
-    <NewFormModal class="w-3/5" @success="handleRefresh" />
-    <DetailFormModal class="w-full" @success="handleRefresh" />
-    <EditFormModal class="w-3/5" @success="handleRefresh" />
-    <!--    <LogQueryModal />-->
-    <Grid table-title="司机信息列表">
-      <template #toolbar-tools>
-        <TableAction
-          :actions="[
-            {
-              label: '新增',
-              type: 'primary',
-              icon: ACTION_ICON.ADD,
-              auth: ['empty:container-control-main:create'],
-              onClick: handleCreate,
-            },
-            {
-              label: '日志查询',
-              type: 'primary',
-              icon: ACTION_ICON.VIEW,
-              onClick: handleLogQuery,
-              auth: ['empty:container-control-main-log:query'],
-            },
-          ]"
-        />
-      </template>
-      <template #actions="{ row }">
-        <TableAction
-          :actions="[
-            {
-              label: '详情',
-              type: 'link',
-              icon: ACTION_ICON.VIEW,
-              auth: ['empty:container-control-main:update'],
-              onClick: handleDetail.bind(null, row),
-            },
-            {
-              label: '编辑',
-              type: 'link',
-              icon: ACTION_ICON.EDIT,
-              auth: ['empty:container-control-main:update'],
-              onClick: handleEdit.bind(null, row),
-            },
-          ]"
-        />
-      </template>
-    </Grid>
-  </Page>
+  <div class="flex h-screen flex-col overflow-hidden bg-gray-50">
+    <!-- 搜索栏和表格 -->
+    <div class="flex flex-1 flex-col overflow-hidden">
+      <Page auto-content-height class="h-full">
+        <Grid table-title="司机信息列表">
+          <template #toolbar-tools>
+            <TableAction
+              :actions="[
+                {
+                  label: '新增',
+                  type: 'primary',
+                  icon: ACTION_ICON.ADD,
+                  auth: ['empty:container-control-main:create'],
+                  onClick: handleCreate,
+                },
+                {
+                  label: '编辑',
+                  type: 'primary',
+                  icon: ACTION_ICON.EDIT,
+                  onClick: handleEdit,
+                },
+                {
+                  label: '保存',
+                  type: 'primary',
+                  icon: ACTION_ICON.LOG,
+                  onClick: handleSave,
+                },
+                {
+                  label: '导出',
+                  type: 'primary',
+                  icon: ACTION_ICON.DOWNLOAD,
+                  onClick: handleExport,
+                },
+              ]"
+            />
+          </template>
+        </Grid>
+      </Page>
+    </div>
+    <!-- 详情栏 -->
+    <div class="flex-shrink-0 border-t border-gray-200 bg-white">
+      <DetailForm
+        ref="detailFormRef"
+        :driver-id="selectedDriverId"
+        :mode="formMode"
+        :row-data="selectedRowData"
+        @success="handleRefresh"
+      />
+    </div>
+  </div>
 </template>
