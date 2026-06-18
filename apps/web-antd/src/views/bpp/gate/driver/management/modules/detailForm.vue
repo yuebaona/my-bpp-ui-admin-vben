@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { DriverApi } from '#/api/bpp/flow/gate/driver/manager';
 
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -20,7 +20,7 @@ import { useSearchSelect } from '#/components/form-create/components/use-search-
 import { detailFormSchema } from '../data';
 import RestrictionInfo from './restrictionInfo.vue';
 
-// 定义表单模式
+/** 定义表单模式 */
 type FormMode = 'create' | 'edit' | 'view';
 
 const props = defineProps<{
@@ -31,13 +31,21 @@ const props = defineProps<{
 
 const emit = defineEmits(['success']);
 
-// 当前表单模式
+/** 当前表单模式 */
 const currentMode = computed<FormMode>(() => props.mode || 'view');
 
 const isSubmitting = ref(false);
 const loading = ref(false);
 
-// 初始化表单
+/** 编辑前的数据 */
+const dataBeforeEdit = ref<Record<string, any>>({});
+
+/** 编辑过的字段 */
+const changedFields = ref<Set<string>>(new Set());
+
+let checkTimer: ReturnType<typeof setInterval> | null = null;
+
+/** 初始化表单 */
 const initFormData = () => ({
   id: '',
   dvrCd: '',
@@ -84,7 +92,7 @@ const [RestrictionInfoFormModal, restrictionInfoFormModalApi] = useVbenModal({
   zIndex: 2000,
 });
 
-// 限制代码搜索选择器
+/** 限制代码搜索选择器 */
 const {
   state: rstrReasonState,
   search: rstrReasonSearch,
@@ -102,20 +110,22 @@ const {
   filterRegex: /[^A-Z0-9]/g,
 });
 
-// 限制代码选择器值变化处理
+/** 限制代码选择器值变化处理 */
 const handleRstrReasonChange = async (value: any) => {
   rstrReasonState.value = value;
+  (formData as any).rstrRsn = value;
   await formApi.setFieldValue('rstrRsn', value);
   await formApi.validateField('rstrRsn');
 };
 
-// 根据模式更新表单字段是否可编辑
-const updateFormDisabled = (disabled: boolean) => {
+/** 更新表单禁用状态与变更标黄 */
+const applyFormState = (disabled: boolean) => {
   const schema = detailFormSchema();
   const updated = schema
     .filter((field) => field.fieldName)
     .map((field) => ({
       ...field,
+      formItemClass: [field.formItemClass, changedFields.value.has(field.fieldName!) ? 'field-changed' : ''].filter(Boolean).join(' '),
       componentProps: {
         ...field.componentProps,
         disabled: disabled ? true : (field.componentProps?.disabled ?? false),
@@ -124,7 +134,84 @@ const updateFormDisabled = (disabled: boolean) => {
   formApi.updateSchema(updated);
 };
 
-// 时间戳转换为日期
+/** 保存编辑前的数据，用于对比标黄 */
+const saveDataBeforeEdit = () => {
+  dataBeforeEdit.value = { ...formData, rstrRsn: rstrReasonState.value };
+  changedFields.value = new Set();
+};
+
+/** 是否有未保存的更改 */
+const hasUnsavedChanges = () => changedFields.value.size > 0;
+
+/** 清除编辑记录 */
+const clearChangedFields = () => {
+  changedFields.value = new Set();
+  dataBeforeEdit.value = {};
+};
+
+/** 定时检查字段变化并标黄 */
+const checkHighlight = async () => {
+  if (currentMode.value !== 'edit') return;
+  let vals: any;
+  try {
+    vals = await formApi.getValues();
+  } catch (e) {
+    return;
+  }
+  const before = dataBeforeEdit.value;
+  const fields = new Set<string>();
+  for (const key of Object.keys(vals)) {
+    if (vals[key] != before[key]) {
+      fields.add(key);
+    }
+  }
+  if (rstrReasonState.value != before.rstrRsn) {
+    fields.add('rstrRsn');
+  }
+  const prev = [...changedFields.value].sort().join(',');
+  const next = [...fields].sort().join(',');
+  if (prev === next) return;
+  changedFields.value = fields;
+  const schema = detailFormSchema();
+  const updated = schema
+    .filter((f) => f.fieldName)
+    .map((f) => ({
+      ...f,
+      formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : ''].filter(Boolean).join(' '),
+      componentProps: {
+        ...f.componentProps,
+        disabled: false,
+      },
+    }));
+  formApi.updateSchema(updated);
+};
+
+/** 定时执行检查 */
+const doCheck = () => {
+  checkHighlight().finally(() => {
+    if (checkTimer !== null) {
+      checkTimer = setTimeout(doCheck, 150);
+    }
+  });
+};
+
+/** 启动定时检查 */
+const startChecking = () => {
+  stopChecking();
+  checkTimer = setTimeout(doCheck, 0);
+};
+
+/** 停止定时检查 */
+const stopChecking = () => {
+  if (checkTimer) {
+    clearTimeout(checkTimer);
+    checkTimer = null;
+  }
+};
+
+onBeforeUnmount(stopChecking);
+
+/** 格式化时间戳字段 */
 const formatTimestamps = (rowData: any) => {
   if (!rowData) return rowData;
   const data = { ...rowData };
@@ -135,32 +222,37 @@ const formatTimestamps = (rowData: any) => {
   return data;
 };
 
-// 监听表单模式
+/** 监听表单模式 */
 watch(
   () => props.mode,
   async (newMode) => {
     try {
       if (newMode === 'create') {
-        // 新增模式
+        stopChecking();
         rstrReasonState.value = '';
         Object.assign(formData, initFormData());
-        await updateFormDisabled(false);
         if (formApi) {
           await formApi.setValues(formData);
         }
+        saveDataBeforeEdit();
+        applyFormState(false);
+        startChecking();
       } else if ((newMode === 'edit' || newMode === 'view') && props.rowData) {
-        // 编辑或查看模式
+        stopChecking();
         const rowData = formatTimestamps(props.rowData);
-        if ((rowData as any).rstrRsn) {
-          rstrReasonState.value = (rowData as any).rstrRsn;
-        }
+        rstrReasonState.value = (rowData as any).rstrRsn ?? '';
         Object.assign(formData, rowData);
         if (formApi) {
           await formApi.setValues(formData);
         }
-        await (newMode === 'view'
-          ? updateFormDisabled(true)
-          : updateFormDisabled(false));
+        if (newMode === 'edit') {
+          saveDataBeforeEdit();
+          applyFormState(false);
+          startChecking();
+        } else {
+          clearChangedFields();
+          applyFormState(true);
+        }
       }
     } catch (error) {
       console.error('DetailForm mode watcher error:', error);
@@ -169,18 +261,18 @@ watch(
   { immediate: true },
 );
 
-// 加载司机信息详情
+/** 加载司机信息详情 */
 const loadDriverDetail = async (id: string) => {
   loading.value = true;
+  stopChecking();
   try {
     const res = await getDriver(Number(id));
     const formatted = formatTimestamps(res);
-    if ((formatted as any).rstrRsn) {
-      rstrReasonState.value = (formatted as any).rstrRsn;
-    }
+    rstrReasonState.value = (formatted as any).rstrRsn ?? '';
     Object.assign(formData, formatted);
-    await updateFormDisabled(true);
     await formApi.setValues(formData);
+    clearChangedFields();
+    applyFormState(true);
   } catch {
     message.error('获取详情失败');
   } finally {
@@ -188,7 +280,7 @@ const loadDriverDetail = async (id: string) => {
   }
 };
 
-// 监听司机ID，用于加载详情
+/** 监听司机ID，用于加载详情 */
 watch(
   () => props.driverId,
   async (newId, oldId) => {
@@ -199,7 +291,6 @@ watch(
   },
   { immediate: true },
 );
-
 
 /** 保存 */
 const handleSave = async () => {
@@ -225,6 +316,8 @@ const handleSave = async () => {
 
     emit('success');
     resetForm();
+    clearChangedFields();
+    stopChecking();
     await formApi.setValues({});
   } catch (error) {
     message.error('保存失败，请重试');
@@ -253,20 +346,24 @@ const loadDetail = async (id: string) => {
 
 /** 清空表单 */
 const clearForm = () => {
+  stopChecking();
   rstrReasonState.value = '';
   Object.assign(formData, initFormData());
+  clearChangedFields();
   formApi.setValues(formData);
 };
 
+/** 重置表单数据为初始值 */
 const resetForm = () => {
   Object.assign(formData, initFormData());
 };
 
-defineExpose({ handleSave, loadDetail, clearForm });
+defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
 </script>
 
 <template>
   <div class="max-h-[450px] overflow-y-auto bg-white p-4">
+<!--  <div class="bg-white p-4">-->
     <RestrictionInfoFormModal />
 
     <!-- 加载中 -->
@@ -295,16 +392,56 @@ defineExpose({ handleSave, loadDetail, clearForm });
           {{ formData?.trkRstrFlg == null ? '-' : (formData.trkRstrFlg ? '是' : '否') }}
         </span>
       </template>
-      <template #enableFlg>
-        <a-select
-          v-model:value="formData.enableFlg"
-          :disabled="currentMode === 'view'"
-          :options="[{ label: '是', value: 1 }, { label: '否', value: 0 }]"
-          placeholder="请选择"
-          allow-clear
-          style="width: 100%"
-        />
+      <template #rstrCnt>
+        <span class="text-gray-800">
+          {{ formData?.rstrCnt == null || formData?.rstrCnt === '' ? '-' : formData.rstrCnt }}
+        </span>
       </template>
+      <template #rstrInfoSrc>
+        <span class="text-gray-800">
+          {{ formData?.rstrInfoSrc == null || formData?.rstrInfoSrc === '' ? '-' : formData.rstrInfoSrc }}
+        </span>
+      </template>
+      <template #dataSrc>
+        <span class="text-gray-800">
+          {{ formData?.dataSrc == null || formData?.dataSrc === '' ? '-' : formData.dataSrc }}
+        </span>
+      </template>
+      <template #rstrStartDt>
+        <span class="text-gray-800">
+          {{ formData?.rstrStartDt == null || formData?.rstrStartDt === '' ? '-' : formData.rstrStartDt }}
+        </span>
+      </template>
+      <template #rstrEndDt>
+        <span class="text-gray-800">
+          {{ formData?.rstrEndDt == null || formData?.rstrEndDt === '' ? '-' : formData.rstrEndDt }}
+        </span>
+      </template>
+      <template #lastRstrDt>
+        <span class="text-gray-800">
+          {{ formData?.lastRstrDt == null || formData?.lastRstrDt === '' ? '-' : formData.lastRstrDt }}
+        </span>
+      </template>
+      <template #createTime>
+        <span class="text-gray-800">
+          {{ formData?.createTime == null || formData?.createTime === '' ? '-' : formData.createTime }}
+        </span>
+      </template>
+      <template #updateTime>
+        <span class="text-gray-800">
+          {{ formData?.updateTime == null || formData?.updateTime === '' ? '-' : formData.updateTime }}
+        </span>
+      </template>
+<!--      <template #enableFlg>-->
+<!--        <a-select-->
+<!--          v-model:value="formData.enableFlg"-->
+<!--          :disabled="currentMode === 'view'"-->
+<!--          :options="[{ label: '是', value: 1 }, { label: '否', value: 0 }]"-->
+<!--          placeholder="请选择"-->
+<!--          allow-clear-->
+<!--          style="width: 100%"-->
+<!--        />-->
+<!--      </template>-->
       <template #rstrRsn>
         <a-select
           v-model:value="rstrReasonState.value"
@@ -327,3 +464,16 @@ defineExpose({ handleSave, loadDetail, clearForm });
     </Form>
   </div>
 </template>
+
+<style scoped>
+:deep(.field-changed) .ant-input,
+:deep(.field-changed) .ant-picker,
+:deep(.field-changed) .ant-input-affix-wrapper {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+:deep(.field-changed) .ant-select-selector {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+</style>

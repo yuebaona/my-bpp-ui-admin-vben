@@ -602,6 +602,9 @@ export function detailFormSchema(): VbenFormSchema[] {
       fieldName: 'fltNm',
       label: '所属车队中文名',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+      },
       rules: 'required',
     },
     {
@@ -624,6 +627,9 @@ export function detailFormSchema(): VbenFormSchema[] {
       fieldName: 'trkNo',
       label: '绑定车牌号',
       component: 'Input',
+      componentProps: {
+        allowClear: true,
+      },
       rules: 'required',
     },
     {
@@ -676,22 +682,23 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'rstrRsn',
       label: '限制原因代码及描述',
       component: 'Input',
-      componentProps: {
-        disabled: true,
-      },
+      rules: 'required',
+      slot: true,
     },
     {
-      fieldName: 'dataSrc',
+      fieldName: 'rstrInfoSrc',
       label: '限制信息来源',
       component: 'Input',
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'rstrStartDt',
@@ -700,6 +707,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'rstrEndDt',
@@ -708,6 +716,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'lastRstrDt',
@@ -716,6 +725,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'divider',
@@ -759,6 +769,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'createTime',
@@ -767,6 +778,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'updateTime',
@@ -775,6 +787,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
   ];
 }
@@ -1028,6 +1041,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'divider',
@@ -1044,6 +1058,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'releaseTime',
@@ -1064,6 +1079,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
     {
       fieldName: 'creator',
@@ -1072,6 +1088,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       componentProps: {
         disabled: true,
       },
+      slot: true,
     },
   ];
 }

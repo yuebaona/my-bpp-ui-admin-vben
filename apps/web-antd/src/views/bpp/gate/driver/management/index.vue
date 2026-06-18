@@ -8,7 +8,7 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -19,23 +19,38 @@ import {
 } from '#/views/bpp/gate/driver/management/data';
 import DetailForm from '#/views/bpp/gate/driver/management/modules/detailForm.vue';
 
-// 页面下方详情表单
+/** 页面下方详情表单 */
 const detailFormRef = ref();
 
-// 表单模式（新增/编辑/查看），默认查看
+/** 表单模式（新增/编辑/查看），默认查看 */
 const formMode = ref<'create' | 'edit' | 'view'>('view');
 
-// 选中的司机ID
+/** 选中的司机ID */
 const selectedDriverId = ref<string>('');
 
-// 选中的行数据
+/** 选中的行数据 */
 const selectedRowData = ref<DriverApi.driverVO | null>(null);
 
-// 是否首次加载，用于默认选中第一行
+/** 是否首次加载，用于默认选中第一行 */
 let isFirstLoad = true;
 
-// 点击表格行
+/** 点击表格行 */
 const handleRowClick = (row: DriverApi.driverVO) => {
+  if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        selectedRowData.value = row;
+        selectedDriverId.value = String(row.id);
+        formMode.value = 'view';
+      },
+    });
+    return;
+  }
   selectedRowData.value = row;
   selectedDriverId.value = String(row.id);
   formMode.value = 'view';
@@ -170,6 +185,22 @@ function handleRefresh() {
 
 /** 切换到新增模式 */
 function handleCreate() {
+  if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        formMode.value = 'create';
+        selectedRowData.value = null;
+        selectedDriverId.value = '';
+        detailFormRef.value?.clearForm();
+      },
+    });
+    return;
+  }
   formMode.value = 'create';
   selectedRowData.value = null;
   selectedDriverId.value = '';
