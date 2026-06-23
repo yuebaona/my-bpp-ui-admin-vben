@@ -19,7 +19,7 @@ import {
 import {
   configInfoColumns,
   weightConfigSearchSchema,
-} from '#/views/bpp/gate/weight/check/data';
+} from '#/views/bpp/gate/weight/config/data';
 
 const isEditing = ref(false);
 
