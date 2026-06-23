@@ -1,37 +1,37 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { FlowOverLimitWorkApi } from '#/api/bpp/flow/acceptance/plan/over/operation';
-import type { VehicleManagementApi } from '#/api/bpp/vehicle/management';
+import { onBeforeUnmount, ref } from 'vue';
 
-import { ref } from 'vue';
-
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
 import { message, Modal } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getVehicleById,
-  getVehicleListPage,
-} from '#/api/bpp/vehicle/management';
+  createConfig,
+  deleteConfigList,
+  getLaneWeightConfigPage,
+  updateConfig,
+} from '#/api/bpp/weight/check/index';
 import {
-  settingInfoColumns,
-  vehicleSearchSchema,
+  configInfoColumns,
+  weightConfigSearchSchema,
 } from '#/views/bpp/gate/weight/check/data';
 
 const isEditing = ref(false);
 
 const [Grid, gridApi] = useVbenVxeGrid({
-  // formOptions: {
-  //   schema: vehicleSearchSchema(),
-  //   submitButtonOptions: {
-  //     content: $t('cxmo.action.search'),
-  //   },
-  //   wrapperClass: 'grid-cols-4 md:grid-cols-4',
-  //   submitOnEnter: true,
-  // },
+  formOptions: {
+    schema: weightConfigSearchSchema(),
+    submitButtonOptions: {
+      content: $t('cxmo.action.search'),
+    },
+    wrapperClass: 'grid-cols-4 md:grid-cols-4',
+    submitOnEnter: true,
+  },
   gridOptions: {
     border: true,
     resizableConfig: {
@@ -59,10 +59,21 @@ const [Grid, gridApi] = useVbenVxeGrid({
       showUpdateStatus: true,
       highlight: true,
     },
+    editRules: {
+      gateType: [{ required: true, content: '必填项' }],
+      gateAccessType: [{ required: true, content: '必填项' }],
+      size: [{ required: true, content: '必填项' }],
+      isEmpty: [{ required: true, content: '必填项' }],
+      containerType: [{ required: true, content: '必填项' }],
+      maxWeight: [
+        { required: true, content: '必填项' },
+        { pattern: /^\d+(\.\d+)?$/, content: '请输入合法数字' },
+      ],
+    },
     CheckboxConfig: {
       range: true,
     },
-    columns: settingInfoColumns(isEditing),
+    columns: configInfoColumns(isEditing),
     height: 'auto',
     keepSource: true,
     rowConfig: {
@@ -117,25 +128,33 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          // await getDictDataList();
-          const queryParam = { ...formValues };
-
-          // return await getVehicleListPage({
-          //   pageNo: page.currentPage,
-          //   pageSize: page.pageSize,
-          //   ...queryParam,
-          // });
-
-          const res = await getVehicleListPage({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...queryParam,
-          });
-          return res;
+          if (hasUnsavedEdits()) {
+            return new Promise((resolve, reject) => {
+              Modal.confirm({
+                title: '提示',
+                content: '当前有未保存的更改，是否放弃更改？',
+                okText: '确认放弃',
+                cancelText: '取消',
+                centered: true,
+                onOk: () => {
+                  const $grid = gridApi.grid;
+                  if ($grid) {
+                    $grid.clearEdit();
+                    isEditing.value = false;
+                  }
+                  resolve(doQuery(page, formValues));
+                },
+                onCancel: () => {
+                  reject(new Error('用户取消操作'));
+                },
+              });
+            });
+          }
+          return doQuery(page, formValues);
         },
       },
     },
-  } as VxeTableGridOptions<VehicleManagementApi.vehicleVO>,
+  } as VxeTableGridOptions<LaneWeightConfigApi.configVO>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
@@ -155,113 +174,121 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
+/** 查询 */
+async function doQuery(page: any, formValues: any) {
+  const queryParam = { ...formValues };
+  return await getLaneWeightConfigPage({
+    pageNo: page.currentPage,
+    pageSize: page.pageSize,
+    ...queryParam,
+  });
+}
+
+/** 检查是否有未保存的编辑 */
+function hasUnsavedEdits() {
+  const $grid = gridApi.grid;
+  if (!$grid) return false;
+  return (
+    $grid.getInsertRecords().length > 0 || $grid.getUpdateRecords().length > 0
+  );
+}
+
+/** 浏览器刷新/关闭时拦截 */
+const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+  if (hasUnsavedEdits()) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+};
+window.addEventListener('beforeunload', handleBeforeUnload);
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+});
+
 // 操作处理函数
-/** 刷新表格 */
+/** 刷新 */
 function handleRefresh() {
+  if (hasUnsavedEdits()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        const $grid = gridApi.grid;
+        if ($grid) {
+          $grid.clearEdit();
+          isEditing.value = false;
+        }
+        gridApi.reload();
+      },
+    });
+    return;
+  }
   gridApi.reload();
 }
 
-/** 创建新配置 */
+/** 查询 */
+// function handleQuery() {
+//   if (hasUnsavedEdits()) {
+//     Modal.confirm({
+//       title: '提示',
+//       content: '当前有未保存的更改，是否放弃更改？',
+//       okText: '确认放弃',
+//       cancelText: '取消',
+//       centered: true,
+//       onOk: () => {
+//         const $grid = gridApi.grid;
+//         if ($grid) {
+//           $grid.clearEdit();
+//           isEditing.value = false;
+//         }
+//         gridApi.query();
+//       },
+//     });
+//     return;
+//   }
+//   gridApi.query();
+// }
+
+/** 创建配置 */
 async function handleCreate() {
   const $grid = gridApi.grid;
   if (!$grid) return;
 
-  // 插入新行
   const { row: newRow } = await $grid.insertAt({}, 0);
 
   await $grid.setEditRow(newRow, true);
   isEditing.value = true;
 }
 
-/** 删除新配置 */
-async function handleDelete() {
-  const $grid = gridApi.grid;
-  if (!$grid) return;
-
-  // 获取勾选行
-  const selectedRecords = $grid.getCheckboxRecords();
-
-  // 如果没有勾选行，提示用户
-  if (selectedRecords.length === 0) {
-    message.warning('请先勾选要删除的行');
-    return;
-  }
-
-  // 确认删除
-  Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除选中的 ${selectedRecords.length} 行吗？`,
-    async onOk() {
-      for (const record of selectedRecords) {
-        await $grid.remove(record);
-      }
-      message.success('删除成功');
-    },
-  });
-}
-
-/** 修改新配置 */
-async function handleEdit() {
-  const $grid = gridApi.grid;
-  if (!$grid) return;
-
-  // 获取勾选的行
-  const selectedRecords = $grid.getCheckboxRecords();
-
-  // 如果没有勾选行，提示用户
-  if (selectedRecords.length === 0) {
-    message.warning('请先勾选要修改的行');
-    return;
-  }
-
-  // 设置编辑状态为 true
-  isEditing.value = true;
-
-  // 对每个勾选的行设置编辑模式
-  for (const row of selectedRecords) {
-    await $grid.setEditRow(row, true);
-  }
-}
-
-/** 保存新配置 */
+/** 保存配置 */
 async function handleSave() {
   const $grid = gridApi.grid;
   if (!$grid) return;
 
   try {
-    // 结束所有编辑
+    const errMap = await $grid.validate(true);
+    if (errMap) {
+      message.error('请完善表单信息后再保存');
+      return;
+    }
+
     await $grid.clearEdit();
 
-    // 获取所有数据（包括新增和修改的）
-    const allRecords = $grid.getData();
-
-    // 获取插入的行
     const insertRecords = $grid.getInsertRecords();
-
-    // 获取修改的行
     const updateRecords = $grid.getUpdateRecords();
 
-    // 获取删除的行
-    const removeRecords = $grid.getRemoveRecords();
-
-    console.log('所有数据:', allRecords);
-    console.log('新增数据:', insertRecords);
-    console.log('修改数据:', updateRecords);
-    console.log('删除数据:', removeRecords);
-
-    // TODO: 在这里调用保存 API
-    // await saveData({
-    //   insertRecords,
-    //   updateRecords,
-    //   removeRecords,
-    // });
+    if (insertRecords.length > 0) {
+      await createConfig(insertRecords);
+    }
+    if (updateRecords.length > 0) {
+      await updateConfig(updateRecords);
+    }
 
     message.success('保存成功');
-
-    // 重置编辑状态
     isEditing.value = false;
-
-    // 刷新表格
     handleRefresh();
   } catch (error) {
     console.error('保存失败:', error);
@@ -269,21 +296,43 @@ async function handleSave() {
   }
 }
 
-/** 车队信息选中操作 */
-const vehicleIds = ref<number[]>([]);
-function handleRowCheckboxChange({
-  records,
-}: {
-  records: FlowOverLimitWorkApi.AcceptancePlanVO[];
-}) {
-  vehicleIds.value = records.map((item) => item.id);
-  gridApi.query();
+/** 删除配置 */
+async function handleDelete() {
+  const $grid = gridApi.grid;
+  if (!$grid) return;
+  const selectedRecords = $grid.getCheckboxRecords();
+  if (selectedRecords.length === 0) {
+    message.warning('请先勾选要删除的行');
+    return;
+  }
+
+  Modal.confirm({
+    title: '确认删除',
+    content: `确定要删除选中的 ${selectedRecords.length} 行吗？`,
+    centered: true,
+    async onOk() {
+      try {
+        const ids = selectedRecords.map((r: any) => r.id);
+        await deleteConfigList(ids);
+        message.success('删除成功');
+        handleRefresh();
+      } catch {
+        message.error('删除失败');
+      }
+    },
+  });
+}
+
+/** 配置信息选中操作 */
+const selectedIds = ref<number[]>([]);
+function handleRowCheckboxChange({ records }: { records: any[] }) {
+  selectedIds.value = records.map((item) => item.id);
 }
 </script>
 
 <template>
   <Page auto-content-height>
-    <Grid table-title="重量校验设置列表">
+    <Grid table-title="车道重量配置">
       <template #toolbar-tools>
         <TableAction
           :actions="[
@@ -295,25 +344,18 @@ function handleRowCheckboxChange({
               auth: ['empty:container-control-main:create'],
             },
             {
-              label: '删除',
-              type: 'primary',
-              icon: ACTION_ICON.DELETE,
-              onClick: handleDelete,
-              auth: ['empty:container-control-main:create'],
-            },
-            {
-              label: '修改',
-              type: 'primary',
-              icon: ACTION_ICON.EDIT,
-              onClick: handleEdit,
-              auth: ['empty:container-control-main:create'],
-            },
-            {
               label: '保存',
               type: 'primary',
               icon: ACTION_ICON.LOG,
               onClick: handleSave,
               auth: ['empty:container-control-main-log:query'],
+            },
+            {
+              label: '删除',
+              type: 'primary',
+              icon: ACTION_ICON.DELETE,
+              onClick: handleDelete,
+              auth: ['empty:container-control-main:create'],
             },
           ]"
         />
