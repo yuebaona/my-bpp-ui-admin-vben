@@ -2,6 +2,7 @@ import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { DescriptionItemSchema } from '#/components/description';
 
+import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -554,7 +555,7 @@ export function detailFormSchema(): VbenFormSchema[] {
         placeholder: '请输入法人电话',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z.string().regex(/^\d{11}$/, { message: '请输入11位有效数字' }),
     },
     {
       fieldName: 'safetyNm',
@@ -574,7 +575,7 @@ export function detailFormSchema(): VbenFormSchema[] {
         placeholder: '请输入安全负责人电话',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z.string().regex(/^\d{11}$/, { message: '请输入11位有效数字' }),
     },
     {
       fieldName: 'bizNm',
@@ -594,7 +595,7 @@ export function detailFormSchema(): VbenFormSchema[] {
         placeholder: '请输入业务员电话',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z.string().regex(/^\d{11}$/, { message: '请输入11位有效数字' }),
     },
     {
       fieldName: 'bizRegNo',

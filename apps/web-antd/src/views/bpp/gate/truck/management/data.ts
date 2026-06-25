@@ -1,6 +1,7 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
 import { getRangePickerDefaultProps } from '#/utils';
@@ -1101,7 +1102,7 @@ export function detailFormSchema(): VbenFormSchema[] {
         placeholder: '请输入车主电话',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z.string().regex(/^\d{11}$/, { message: '请输入11位有效数字' }),
     },
     {
       fieldName: 'trkOwnrId',
@@ -1111,7 +1112,7 @@ export function detailFormSchema(): VbenFormSchema[] {
         placeholder: '请输入车主身份证',
         allowClear: true,
       },
-      rules: 'required',
+      rules: z.string().regex(/^\d{17}[\dXx]$/, { message: '请输入18位有效身份证号' }),
     },
     {
       fieldName: 'divider',
