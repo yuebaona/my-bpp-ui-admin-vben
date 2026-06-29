@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { FleetManagementApi } from '#/api/bpp/flow/gate/fleet/manager';
+import type { FleetViewApi } from '#/api/bpp/flow/gate/fleet';
 
 import { ref } from 'vue';
 
@@ -12,12 +12,13 @@ import { Modal, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getFleetPage } from '#/api/bpp/flow/gate/fleet/manager';
+
+import { pageFleet , getFleetDetail } from '#/api/bpp/flow/gate/fleet/'
 import {
   fleetInfoColumns,
   fleetSearchSchema,
-} from '#/views/bpp/gate/fleet/management/data';
-import DetailForm from '#/views/bpp/gate/fleet/management/modules/detailForm.vue';
+} from '#/views/bpp/flow/gate/fleet/data';
+import DetailForm from '#/views/bpp/flow/gate/fleet/modules/detailForm.vue';
 
 /** 页面下方详情表单 */
 const detailFormRef = ref();
@@ -29,13 +30,13 @@ const formMode = ref<'create' | 'edit' | 'view'>('view');
 const selectedFleetId = ref<string>('');
 
 /** 选中的行数据 */
-const selectedRowData = ref<FleetManagementApi.fleetVO | null>(null);
+const selectedRowData = ref<FleetViewApi.fleetVO | null>(null);
 
 /** 是否首次加载，用于默认选中第一行 */
 let isFirstLoad = true;
 
 /** 点击表格行 */
-const handleRowClick = (row: FleetManagementApi.fleetVO) => {
+const handleRowClick = (row: FleetViewApi.fleetVO) => {
   if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
     Modal.confirm({
       title: '提示',
@@ -153,7 +154,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           const queryParam = { ...formValues };
-          const res = await getFleetPage({
+          const res = await pageFleet({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...queryParam,
@@ -171,9 +172,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<FleetManagementApi.fleetVO>,
+  } as VxeTableGridOptions<FleetViewApi.fleetVO>,
   gridEvents: {
-    cellClick: ({ row }: { row: FleetManagementApi.fleetVO }) => {
+    cellClick: ({ row }: { row: FleetViewApi.fleetVO }) => {
       handleRowClick(row);
     },
   },

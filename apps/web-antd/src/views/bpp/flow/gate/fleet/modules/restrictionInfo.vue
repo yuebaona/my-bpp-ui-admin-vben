@@ -12,9 +12,8 @@ import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createFleetRstr,
-  getFleetRstrPage,
-  updateFleetRstr,
-} from '#/api/bpp/flow/gate/fleet/rstr';
+  getFleetRstr,
+} from '#/api/bpp/flow/gate/fleet/';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
 import { restrictionColumns, restrictionFormSchema } from '../data';
@@ -120,7 +119,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
       autoLoad: true,
       ajax: {
         query: async ({ page }, formValues) => {
-          const res = await getFleetRstrPage({
+          // todo 这里接口输入参数是fltId，就是车队信息表的id，返回的虽然是分页形式的但是后端已经处理了是全部限制记录
+          const res = await getFleetRstr({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -347,7 +347,7 @@ const handleSave = async () => {
       await createFleetRstr(formData);
       message.success('新增成功');
     } else if (formMode.value === 'edit') {
-      await updateFleetRstr(formData);
+      await createFleetRstr(formData);
       message.success('更新成功');
     }
 
@@ -375,7 +375,7 @@ const {
   handleCompositionEnd: handleRstrReasonCompositionEnd,
 } = useSearchSelect({
   searchApi: async () => {
-    return await getFleetRstrPage({ pageNo: 1, pageSize: 100 });
+    return await getFleetRstr({ pageNo: 1, pageSize: 100 });
   },
   labelField: 'rstrRsn',
   valueField: 'rstrRsn',

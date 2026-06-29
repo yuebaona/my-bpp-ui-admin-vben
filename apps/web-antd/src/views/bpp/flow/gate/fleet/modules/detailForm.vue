@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { FleetApi } from '#/api/bpp/flow/gate/fleet/manager';
+import type { FleetViewApi } from '#/api/bpp/flow/gate/fleet';
 
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
@@ -9,11 +9,8 @@ import { Button, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
-import {
-  createFleet,
-  getFleetById,
-  updateFleet,
-} from '#/api/bpp/flow/gate/fleet/manager';
+import {saveFleet, getFleetDetail} from '#/api/bpp/flow/gate/fleet'
+
 import { getRestrictionCodeList } from '#/api/bpp/flow/gate/truck/rstr';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
@@ -25,7 +22,7 @@ type FormMode = 'create' | 'edit' | 'view';
 const props = defineProps<{
   fleetId?: string;
   mode?: FormMode;
-  rowData?: FleetApi.fleetVO | null;
+  rowData?: FleetViewApi.fleetVO | null;
 }>();
 
 const emit = defineEmits(['success']);
@@ -68,7 +65,7 @@ const initFormData = () => ({
   updateTime: '',
 });
 
-const formData = reactive<FleetApi.fleetVO>(initFormData());
+const formData = reactive<FleetViewApi.fleetVO>(initFormData());
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -258,11 +255,11 @@ watch(
   { immediate: true },
 );
 
-const loadFleetDetail = async (id: string) => {
+const loadFleetDetail = async (id: number) => {
   loading.value = true;
   stopChecking();
   try {
-    const res = await getFleetById(Number(id));
+    const res = await getFleetDetail(id);
     const formatted = formatTimestamps(res);
     rstrReasonState.value = (formatted as any).rstrReason ?? '';
     Object.assign(formData, formatted);
@@ -301,10 +298,10 @@ const handleSave = async () => {
     Object.assign(formData, formValues);
 
     if (currentMode.value === 'create') {
-      await createFleet(formData);
+      await saveFleet(formData);
       message.success('新增成功');
     } else if (currentMode.value === 'edit') {
-      await updateFleet(formData);
+      await saveFleet(formData);
       message.success('更新成功');
     }
 
@@ -332,7 +329,7 @@ const handleRestriction = async () => {
     .open();
 };
 
-const loadDetail = async (id: string) => {
+const loadDetail = async (id: number) => {
   await loadFleetDetail(id);
 };
 
