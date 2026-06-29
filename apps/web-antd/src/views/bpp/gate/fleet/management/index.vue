@@ -1,43 +1,58 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
+
 import type { FleetManagementApi } from '#/api/bpp/flow/gate/fleet/manager';
 
-import {
-  getFleetPage,
-} from '#/api/bpp/flow/gate/fleet/manager';
-
-import { ref } from "vue";
+import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
+
+import { Modal, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
-import { useDebounceFn } from '@vueuse/core';
-import { message } from 'ant-design-vue';
-
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getFleetPage } from '#/api/bpp/flow/gate/fleet/manager';
 import {
   fleetInfoColumns,
   fleetSearchSchema,
 } from '#/views/bpp/gate/fleet/management/data';
 import DetailForm from '#/views/bpp/gate/fleet/management/modules/detailForm.vue';
 
-// 下方详情表单
+/** 页面下方详情表单 */
 const detailFormRef = ref();
 
-// 表单模式（查看/编辑/新增），默认查看
-const formMode = ref<'view' | 'edit' | 'create'>('view');
+/** 表单模式（新增/编辑/查看），默认查看 */
+const formMode = ref<'create' | 'edit' | 'view'>('view');
 
-// 选中的车队ID
+/** 选中的车队ID */
 const selectedFleetId = ref<string>('');
 
-// 选中的行数据
+/** 选中的行数据 */
 const selectedRowData = ref<FleetManagementApi.fleetVO | null>(null);
 
-// 点击表格行
+/** 是否首次加载，用于默认选中第一行 */
+let isFirstLoad = true;
+
+/** 点击表格行 */
 const handleRowClick = (row: FleetManagementApi.fleetVO) => {
+  if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        selectedRowData.value = row;
+        selectedFleetId.value = String(row.id);
+        formMode.value = 'view';
+      },
+    });
+    return;
+  }
   selectedRowData.value = row;
-  selectedFleetId.value = row.id;
+  selectedFleetId.value = String(row.id);
   formMode.value = 'view';
 };
 
@@ -67,7 +82,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       enabled: true,
     },
     columns: fleetInfoColumns(),
-    height: '530px',
+    height: '100%',
     keepSource: true,
     mouseConfig: {
       selected: true,
@@ -134,43 +149,30 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ],
     },
     proxyConfig: {
+      autoLoad: true,
       ajax: {
         query: async ({ page }, formValues) => {
-          // await getDictDataList();
           const queryParam = { ...formValues };
-
-          // return await getFleetListPage({
-          //   pageNo: page.currentPage,
-          //   pageSize: page.pageSize,
-          //   ...queryParam,
-          // });
-
           const res = await getFleetPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...queryParam,
           });
+
+          if (isFirstLoad && res?.list?.length > 0) {
+            const firstRow = res.list[0];
+            selectedRowData.value = firstRow;
+            selectedFleetId.value = String(firstRow.id);
+            formMode.value = 'view';
+            isFirstLoad = false;
+
+          }
           return res;
         },
       },
     },
   } as VxeTableGridOptions<FleetManagementApi.fleetVO>,
   gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-    filterChange: useDebounceFn(async ({ filterList }) => {
-      const searchCont = filterList.reduce((obj, item) => {
-        if (item.datas && item.datas.length > 0) {
-          obj[item.field] = item.datas[0];
-        }
-        return obj;
-      }, {});
-      // 调用gridApi.query()刷新表格数据，实现实时筛选
-      // await gridApi.query();
-    }, 300),
-    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
-      handleRowCheckboxChange({ records: rangeRecords });
-    },
     cellClick: ({ row }: { row: FleetManagementApi.fleetVO }) => {
       handleRowClick(row);
     },
@@ -182,32 +184,36 @@ function handleRefresh() {
   gridApi.query();
 }
 
-/** 车队信息勾选操作 */
-const fleetIds = ref<number[]>([]);
-function handleRowCheckboxChange({ records }: { records: FleetApi.fleetVO[] }) {
-  fleetIds.value = records.map((item: any) => item.id);
-}
-
 /** 切换到新增模式 */
 function handleCreate() {
+  if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        formMode.value = 'create';
+        selectedRowData.value = null;
+        selectedFleetId.value = '';
+        detailFormRef.value?.clearForm();
+      },
+    });
+    return;
+  }
   formMode.value = 'create';
   selectedRowData.value = null;
   selectedFleetId.value = '';
+  detailFormRef.value?.clearForm();
 }
 
 /** 切换到编辑模式 */
 function handleEdit() {
-  const $grid = gridApi.grid;
-  if (!$grid) return;
-
-  // 获取选中的行
-  const selectedRecords = $grid.getCheckboxRecords();
-  if (selectedRecords.length !== 1) {
-    message.warning('请勾选一行进行编辑');
+  if (!selectedFleetId.value || !selectedRowData.value) {
+    message.warning('请先点击选择一行数据');
     return;
   }
-
-  selectedRowData.value = selectedRecords[0];
   formMode.value = 'edit';
 }
 
@@ -256,7 +262,9 @@ function handleExport() {
     </html>
   `;
 
-  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel' });
+  const blob = new Blob([`\uFEFF${html}`], {
+    type: 'application/vnd.ms-excel',
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -272,59 +280,54 @@ function handleExport() {
 </script>
 
 <template>
-  <Page auto-content-height>
-    <!--    <LogQueryModal />-->
-    <div class="pb-[380px]">
-      <Grid table-title="车队信息列表">
-        <template #toolbar-tools>
-          <TableAction
-            :actions="[
-              {
-                label: '新增',
-                type: 'primary',
-                icon: ACTION_ICON.ADD,
-                auth: ['empty:container-control-main:create'],
-                onClick: handleCreate,
-              },
-              {
-                label: '编辑',
-                type: 'primary',
-                icon: ACTION_ICON.EDIT,
-                onClick: handleEdit,
-              },
-              {
-                label: '保存',
-                type: 'primary',
-                icon: ACTION_ICON.LOG,
-                onClick: handleSave,
-              },
-              // {
-              //   label: '日志查询',
-              //   type: 'primary',
-              //   icon: ACTION_ICON.VIEW,
-              //   onClick: handleLogQuery,
-              //   auth: ['empty:container-control-main-log:query'],
-              // },
-              {
-                label: '导出',
-                type: 'primary',
-                icon: ACTION_ICON.DOWNLOAD,
-                onClick: handleExport,
-                auth: ['empty:container-control-main-log:query'],
-              },
-            ]"
-          />
-        </template>
-      </Grid>
+  <div class="flex h-screen flex-col overflow-hidden bg-gray-50">
+    <!-- 搜索栏和表格 -->
+    <div class="flex flex-1 flex-col overflow-hidden">
+      <Page auto-content-height class="h-full">
+        <Grid table-title="车队信息列表">
+          <template #toolbar-tools>
+            <TableAction
+              :actions="[
+                {
+                  label: '新增',
+                  type: 'primary',
+                  icon: ACTION_ICON.ADD,
+                  auth: ['empty:container-control-main:create'],
+                  onClick: handleCreate,
+                },
+                {
+                  label: '编辑',
+                  type: 'primary',
+                  icon: ACTION_ICON.EDIT,
+                  onClick: handleEdit,
+                },
+                {
+                  label: '保存',
+                  type: 'primary',
+                  icon: ACTION_ICON.LOG,
+                  onClick: handleSave,
+                },
+                {
+                  label: '导出',
+                  type: 'primary',
+                  icon: ACTION_ICON.DOWNLOAD,
+                  onClick: handleExport,
+                },
+              ]"
+            />
+          </template>
+        </Grid>
+      </Page>
     </div>
-
-    <!-- 底部固定详情栏 -->
-    <DetailForm
-      ref="detailFormRef"
-      :fleet-id="selectedFleetId"
-      :mode="formMode"
-      :row-data="selectedRowData"
-      @success="handleRefresh"
-    />
-  </Page>
+    <!-- 详情栏 -->
+    <div class="flex-shrink-0 border-t border-gray-200 bg-white">
+      <DetailForm
+        ref="detailFormRef"
+        :fleet-id="selectedFleetId"
+        :mode="formMode"
+        :row-data="selectedRowData"
+        @success="handleRefresh"
+      />
+    </div>
+  </div>
 </template>

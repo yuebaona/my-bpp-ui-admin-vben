@@ -1,5 +1,5 @@
 import type { PageParam, PageResult } from '@vben/request';
-
+import dayjs from 'dayjs';
 import { requestClient } from '#/api/request';
 
 export namespace FleetApi {
@@ -64,17 +64,29 @@ export function deleteFleetList(ids: number[]) {
 
 /** 查询车队详情 */
 export function getFleetById(id: number) {
-  return requestClient.get<FleetApi.fleetVO>(
-    `/bpp/flow/gate/fleet/get?id=${id}`,
-  );
+  // return requestClient.get<FleetApi.fleetVO>(
+  //   `/bpp/flow/gate/fleet/get?id=${id}`,
+  // );
+  const mock: Record<number, FleetApi.fleetVO> = {
+    1: { id: 1, fltGkey: 'FLT000001', fltCd: 'FLT001', fltNm: '顺达物流有限公司', fltShortNm: '顺达物流', fltAddr: '深圳市南山区科技园路100号', enableFlg: 1, rstrCnt: 2, isRstr: 1, rstrReason: 'A001：违规超载', rstrDataSrc: '北港网', rstrStartDt: dayjs('2024-03-01 00:00:00').valueOf() as any, rstrEndDt: dayjs('2024-06-01 00:00:00').valueOf() as any, lastRstrDt: '92', legalNm: '陈伟', legalPh: '13800138001', safetyNm: '李明', safetyPh: '13900139001', bizNm: '张华', bizPh: '13700137001', bizRegNo: '91440300MA5DABCDE1', otrAuditNo: 'OTR20240001', portRm: '码头备注信息', dataSrc: '业务处理平台', createTime: dayjs('2024-01-15 10:30:00').valueOf() as any, updateTime: dayjs('2024-05-20 14:00:00').valueOf() as any },
+    2: { id: 2, fltGkey: 'FLT000002', fltCd: 'FLT002', fltNm: '通达运输有限公司', fltShortNm: '通达运输', fltAddr: '广州市黄埔区港前路200号', enableFlg: 1, rstrCnt: 0, isRstr: 0, rstrReason: '', rstrDataSrc: '', rstrStartDt: undefined, rstrEndDt: undefined, lastRstrDt: '', legalNm: '赵刚', legalPh: '13600136002', safetyNm: '王磊', safetyPh: '13500135002', bizNm: '刘洋', bizPh: '13400134002', bizRegNo: '91440100MA5DABCDE2', otrAuditNo: 'OTR20240002', portRm: '', dataSrc: '北港网', createTime: dayjs('2024-02-20 09:00:00').valueOf() as any, updateTime: dayjs('2024-06-10 11:30:00').valueOf() as any },
+    3: { id: 3, fltGkey: 'FLT000003', fltCd: 'FLT003', fltNm: '恒通国际物流有限公司', fltShortNm: '恒通物流', fltAddr: '上海市浦东新区保税区888号', enableFlg: 0, rstrCnt: 3, isRstr: 1, rstrReason: 'B002：超时未完成作业', rstrDataSrc: '智慧安防', rstrStartDt: dayjs('2024-02-15 00:00:00').valueOf() as any, rstrEndDt: dayjs('2024-05-15 00:00:00').valueOf() as any, lastRstrDt: '89', legalNm: '孙建', legalPh: '13300133003', safetyNm: '周涛', safetyPh: '13200132003', bizNm: '黄磊', bizPh: '13100131003', bizRegNo: '91310115MA5DABCDE3', otrAuditNo: 'OTR20240003', portRm: '需注意安全规范', dataSrc: '业务处理平台', createTime: dayjs('2024-03-05 08:30:00').valueOf() as any, updateTime: dayjs('2024-04-18 16:00:00').valueOf() as any },
+  };
+  if (mock[id]) return Promise.resolve(mock[id]);
 }
 
 /** 查询车队管理列表 */
 export function getFleetPage(params: PageParam) {
-  return requestClient.get<PageResult<FleetApi.fleetVO>>(
-    '/bpp/flow/gate/fleet/page',
-    { params },
-  );
+  // return requestClient.get<PageResult<FleetApi.fleetVO>>(
+  //   '/bpp/flow/gate/fleet/page',
+  //   { params },
+  // );
+  const list: FleetApi.fleetVO[] = [
+    { id: 1, fltGkey: 'FLT000001', fltCd: 'FLT001', fltNm: '顺达物流有限公司', fltShortNm: '顺达物流', fltAddr: '深圳市南山区科技园路100号', enableFlg: 1, rstrCnt: 2, isRstr: 1, rstrReason: 'A001：违规超载', rstrDataSrc: '北港网', rstrStartDt: dayjs('2024-03-01 00:00:00').valueOf() as any, rstrEndDt: dayjs('2024-06-01 00:00:00').valueOf() as any, lastRstrDt: '92', legalNm: '陈伟', legalPh: '13800138001', safetyNm: '李明', safetyPh: '13900139001', bizNm: '张华', bizPh: '13700137001', bizRegNo: '91440300MA5DABCDE1', otrAuditNo: 'OTR20240001', portRm: '码头备注信息', dataSrc: '业务处理平台', createTime: dayjs('2024-01-15 10:30:00').valueOf() as any, updateTime: dayjs('2024-05-20 14:00:00').valueOf() as any },
+    { id: 2, fltGkey: 'FLT000002', fltCd: 'FLT002', fltNm: '通达运输有限公司', fltShortNm: '通达运输', fltAddr: '广州市黄埔区港前路200号', enableFlg: 1, rstrCnt: 0, isRstr: 0, rstrReason: '', rstrDataSrc: '', rstrStartDt: undefined, rstrEndDt: undefined, lastRstrDt: '', legalNm: '赵刚', legalPh: '13600136002', safetyNm: '王磊', safetyPh: '13500135002', bizNm: '刘洋', bizPh: '13400134002', bizRegNo: '91440100MA5DABCDE2', otrAuditNo: 'OTR20240002', portRm: '', dataSrc: '北港网', createTime: dayjs('2024-02-20 09:00:00').valueOf() as any, updateTime: dayjs('2024-06-10 11:30:00').valueOf() as any },
+    { id: 3, fltGkey: 'FLT000003', fltCd: 'FLT003', fltNm: '恒通国际物流有限公司', fltShortNm: '恒通物流', fltAddr: '上海市浦东新区保税区888号', enableFlg: 0, rstrCnt: 3, isRstr: 1, rstrReason: 'B002：超时未完成作业', rstrDataSrc: '智慧安防', rstrStartDt: dayjs('2024-02-15 00:00:00').valueOf() as any, rstrEndDt: dayjs('2024-05-15 00:00:00').valueOf() as any, lastRstrDt: '89', legalNm: '孙建', legalPh: '13300133003', safetyNm: '周涛', safetyPh: '13200132003', bizNm: '黄磊', bizPh: '13100131003', bizRegNo: '91310115MA5DABCDE3', otrAuditNo: 'OTR20240003', portRm: '需注意安全规范', dataSrc: '业务处理平台', createTime: dayjs('2024-03-05 08:30:00').valueOf() as any, updateTime: dayjs('2024-04-18 16:00:00').valueOf() as any },
+  ];
+  return Promise.resolve({ list, total: list.length } as PageResult<FleetApi.fleetVO>);
 }
 
 /** 导出用户 */

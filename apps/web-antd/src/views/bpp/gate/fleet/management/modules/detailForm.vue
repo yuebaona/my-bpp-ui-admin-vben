@@ -1,40 +1,44 @@
 <script lang="ts" setup>
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { FleetApi } from '#/api/bpp/flow/gate/fleet/manager';
 
-import { reactive, ref, watch, computed, nextTick } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
 import { Button, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
+
 import { useVbenForm } from '#/adapter/form';
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import * as FleetManagementApi from '#/api/bpp/flow/gate/fleet/manager';
-import { detailFormSchema } from '#/views/bpp/gate/fleet/management/data';
-import RestrictionInfo from '#/views/bpp/gate/fleet/management/modules/restrictionInfo.vue';
+import {
+  createFleet,
+  getFleetById,
+  updateFleet,
+} from '#/api/bpp/flow/gate/fleet/manager';
+import { getRestrictionCodeList } from '#/api/bpp/flow/gate/truck/rstr';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
-import { detailRestrictionSchema, restrictionColumns } from '../data';
-import { getFleetById, createFleet, updateFleet } from '#/api/bpp/flow/gate/fleet/manager';
+import { detailFormSchema } from '../data';
+import RestrictionInfo from './restrictionInfo.vue';
 
-const restrictionDetailData = reactive<any[]>([]);
+type FormMode = 'create' | 'edit' | 'view';
 
-// 定义表单模式（查看/编辑/新增）
-type FormMode = 'view' | 'edit' | 'create';
-
-// 接收传入的车队ID和表单模式
 const props = defineProps<{
   fleetId?: string;
   mode?: FormMode;
-  rowData?: FleetManagementApi.fleetVO;
+  rowData?: FleetApi.fleetVO | null;
 }>();
-
-// 当前表单模式
-const currentMode = computed<FormMode>(() => props.mode || 'view');
 
 const emit = defineEmits(['success']);
 
-const loading = ref(false);
+const currentMode = computed<FormMode>(() => props.mode || 'view');
+
 const isSubmitting = ref(false);
+const loading = ref(false);
+
+const dataBeforeEdit = ref<Record<string, any>>({});
+const changedFields = ref<Set<string>>(new Set());
+
+let checkTimer: ReturnType<typeof setInterval> | null = null;
 
 const initFormData = () => ({
   id: '',
@@ -42,13 +46,14 @@ const initFormData = () => ({
   fltNm: '',
   fltShortNm: '',
   fltAddr: '',
+  enableFlg: 1,
   rstrCnt: 0,
   isRstr: 0,
   rstrReason: '',
   rstrDataSrc: '',
-  rstrStarDt: '',
+  rstrStartDt: '',
   rstrEndDt: '',
-  rstrLastDt: '',
+  lastRstrDt: '',
   legalNm: '',
   legalPh: '',
   safetyNm: '',
@@ -61,12 +66,10 @@ const initFormData = () => ({
   dataSrc: '业务处理平台',
   createTime: '',
   updateTime: '',
-  enableFlg: 1,
 });
 
-const formData = reactive<FleetManagementApi.fleetVO>(initFormData());
+const formData = reactive<FleetApi.fleetVO>(initFormData());
 
-// 表单组件
 const [Form, formApi] = useVbenForm({
   commonConfig: {
     componentProps: {
@@ -81,97 +84,6 @@ const [Form, formApi] = useVbenForm({
   wrapperClass: 'grid-cols-4',
 });
 
-// 根据模式更新表单字段是否可编辑
-const updateFormDisabled = async (disabled: boolean) => {
-  const schema = detailFormSchema();
-  schema.forEach((field) => {
-    if (!field.fieldName) return;
-    formApi.setProps(field.fieldName, {
-      componentProps: {
-        ...field.componentProps,
-        disabled: disabled ? true : (field.componentProps?.disabled ?? false),
-      },
-    } as any);
-  });
-};
-
-// 时间戳转换为日期
-const formatTimestamps = (rowData: any) => {
-  if (!rowData) return rowData;
-  const data = { ...rowData };
-  if (data.rstrStarDt) data.rstrStarDt = dayjs(data.rstrStarDt).format('YYYY-MM-DD HH:mm:ss');
-  if (data.rstrEndDt) data.rstrEndDt = dayjs(data.rstrEndDt).format('YYYY-MM-DD HH:mm:ss');
-  if (data.rstrLastDt) data.rstrLastDt = dayjs(data.rstrLastDt).format('YYYY-MM-DD HH:mm:ss');
-  if (data.createTime) data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
-  if (data.updateTime) data.updateTime = dayjs(data.updateTime).format('YYYY-MM-DD HH:mm:ss');
-  return data;
-};
-
-// 监听模式
-watch(
-  () => props.mode,
-  async (newMode) => {
-    try {
-      if (newMode === 'create') {
-        // 新增模式
-        Object.assign(formData, initFormData());
-        if (formApi) {
-          await formApi.setValues(formData);
-        }
-      } else if ((newMode === 'edit' || newMode === 'view') && props.rowData) {
-        // 编辑或查看模式
-        const rowData = formatTimestamps(props.rowData);
-        Object.assign(formData, rowData);
-        if (formApi) {
-          await formApi.setValues(formData);
-        }
-      }
-    } catch (error) {
-      console.error('DetailForm mode watcher error:', error);
-    }
-  }
-);
-
-// 监听行数据
-watch(
-  () => props.rowData,
-  async (newRow) => {
-    if (currentMode.value === 'edit' && newRow) {
-      Object.assign(formData, newRow);
-      await formApi.setValues(formData);
-    }
-  }
-);
-
-const [Grid, gridApi] = useVbenVxeGrid({
-  gridOptions: {
-    columns: restrictionColumns(),
-    height: '300px',
-    keepSource: true,
-    border: true,
-    showOverflow: false,
-    autoWidth: true,
-    rowConfig: {
-      keyField: 'id',
-      isHover: true,
-    },
-    editConfig: {
-      mode: 'row',
-      showIcon: false,
-      trigger: 'manual',
-    },
-    toolbarConfig: {
-      refresh: false,
-      search: false,
-      zoom: false,
-      custom: false,
-    },
-    pagerConfig: {
-      enabled: false,
-    },
-  } as VxeTableGridOptions<any>,
-});
-
 const [RestrictionInfoFormModal, restrictionInfoFormModalApi] = useVbenModal({
   connectedComponent: RestrictionInfo,
   destroyOnClose: true,
@@ -179,7 +91,191 @@ const [RestrictionInfoFormModal, restrictionInfoFormModalApi] = useVbenModal({
   zIndex: 2000,
 });
 
-// 监听车队ID，加载详情
+const {
+  state: rstrReasonState,
+  search: rstrReasonSearch,
+  handleInput: handleRstrReasonInput,
+  handleCompositionStart: handleRstrReasonCompositionStart,
+  handleCompositionEnd: handleRstrReasonCompositionEnd,
+} = useSearchSelect({
+  searchApi: async () => {
+    return await getRestrictionCodeList();
+  },
+  labelField: 'rstrRsn',
+  valueField: 'rstrRsn',
+  errorMessage: '获取限制代码失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
+});
+
+const handleRstrReasonChange = async (value: any) => {
+  rstrReasonState.value = value;
+  (formData as any).rstrReason = value;
+  await formApi.setFieldValue('rstrReason', value);
+  await formApi.validateField('rstrReason');
+};
+
+const applyFormState = (disabled: boolean) => {
+  const schema = detailFormSchema();
+  const updated = schema
+    .filter((field) => field.fieldName)
+    .map((field) => ({
+      ...field,
+      formItemClass: [field.formItemClass, changedFields.value.has(field.fieldName!) ? 'field-changed' : '']
+        .filter(Boolean)
+        .join(' '),
+      componentProps: {
+        ...field.componentProps,
+        disabled: disabled ? true : (field.componentProps?.disabled ?? false),
+      },
+    }));
+  formApi.updateSchema(updated);
+};
+
+const saveDataBeforeEdit = () => {
+  dataBeforeEdit.value = { ...formData, rstrReason: rstrReasonState.value };
+  changedFields.value = new Set();
+};
+
+const hasUnsavedChanges = () => changedFields.value.size > 0;
+
+const clearChangedFields = () => {
+  changedFields.value = new Set();
+  dataBeforeEdit.value = {};
+};
+
+const checkHighlight = async () => {
+  if (currentMode.value !== 'edit') return;
+  let vals: any;
+  try {
+    vals = await formApi.getValues();
+  } catch {
+    return;
+  }
+  const before = dataBeforeEdit.value;
+  const fields = new Set<string>();
+  for (const key of Object.keys(vals)) {
+    if (vals[key] != before[key]) {
+      fields.add(key);
+    }
+  }
+  if (rstrReasonState.value != before.rstrReason) {
+    fields.add('rstrReason');
+  }
+  const prev = [...changedFields.value].sort().join(',');
+  const next = [...fields].sort().join(',');
+  if (prev === next) return;
+  changedFields.value = fields;
+  const schema = detailFormSchema();
+  const updated = schema
+    .filter((f) => f.fieldName)
+    .map((f) => ({
+      ...f,
+      formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : '']
+        .filter(Boolean)
+        .join(' '),
+      componentProps: {
+        ...f.componentProps,
+        disabled: false,
+      },
+    }));
+  formApi.updateSchema(updated);
+};
+
+const doCheck = () => {
+  checkHighlight().finally(() => {
+    if (checkTimer !== null) {
+      checkTimer = setTimeout(doCheck, 150);
+    }
+  });
+};
+
+const startChecking = () => {
+  stopChecking();
+  checkTimer = setTimeout(doCheck, 0);
+};
+
+const stopChecking = () => {
+  if (checkTimer) {
+    clearTimeout(checkTimer);
+    checkTimer = null;
+  }
+};
+
+onBeforeUnmount(stopChecking);
+
+const formatTimestamps = (rowData: any) => {
+  if (!rowData) return rowData;
+  const data = { ...rowData };
+  if (data.rstrStartDt)
+    data.rstrStartDt = dayjs(data.rstrStartDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.rstrEndDt)
+    data.rstrEndDt = dayjs(data.rstrEndDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.rstrLastDt)
+    data.rstrLastDt = dayjs(data.rstrLastDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.createTime)
+    data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
+  if (data.updateTime)
+    data.updateTime = dayjs(data.updateTime).format('YYYY-MM-DD HH:mm:ss');
+  return data;
+};
+
+watch(
+  () => props.mode,
+  async (newMode) => {
+    try {
+      if (newMode === 'create') {
+        stopChecking();
+        rstrReasonState.value = '';
+        Object.assign(formData, initFormData());
+        if (formApi) {
+          await formApi.setValues(formData);
+        }
+        saveDataBeforeEdit();
+        applyFormState(false);
+        startChecking();
+      } else if ((newMode === 'edit' || newMode === 'view') && props.rowData) {
+        stopChecking();
+        const rowData = formatTimestamps(props.rowData);
+        rstrReasonState.value = (rowData as any).rstrReason ?? '';
+        Object.assign(formData, rowData);
+        if (formApi) {
+          await formApi.setValues(formData);
+        }
+        if (newMode === 'edit') {
+          saveDataBeforeEdit();
+          applyFormState(false);
+          startChecking();
+        } else {
+          clearChangedFields();
+          applyFormState(true);
+        }
+      }
+    } catch (error) {
+      console.error('DetailForm mode watcher error:', error);
+    }
+  },
+  { immediate: true },
+);
+
+const loadFleetDetail = async (id: string) => {
+  loading.value = true;
+  stopChecking();
+  try {
+    const res = await getFleetById(Number(id));
+    const formatted = formatTimestamps(res);
+    rstrReasonState.value = (formatted as any).rstrReason ?? '';
+    Object.assign(formData, formatted);
+    await formApi.setValues(formData);
+    clearChangedFields();
+    applyFormState(true);
+  } catch {
+    message.error('获取详情失败');
+  } finally {
+    loading.value = false;
+  }
+};
+
 watch(
   () => props.fleetId,
   async (newId, oldId) => {
@@ -188,61 +284,14 @@ watch(
     }
     await loadFleetDetail(newId);
   },
-  { immediate: false }
+  { immediate: true },
 );
 
-const loadFleetDetail = async (id: string) => {
-  loading.value = true;
-  try {
-    const res = await getFleetById(id);
-    const formatted = formatTimestamps(res);
-    Object.assign(formData, formatted);
-    await updateFormDisabled(true);
-    await formApi.setValues(formData);
-
-    if (res?.id) {
-      const $grid = gridApi.grid;
-      if (
-        $grid &&
-        res.restrictionInfoList &&
-        Array.isArray(res.restrictionInfoList)
-      ) {
-        const tableData = res.restrictionInfoList.map(
-          (item: any, index: number) => ({
-            id: item.id || `item_${index}`,
-            fleetName: item.fleetName || formData.fleetCnName || '',
-            vehicleNumber: item.vehicleNumber || '',
-            driver: item.driver || '',
-            restrictionReason: item.restrictionReason || '',
-            restrictStartTime: item.restrictStartTime || '',
-            restrictEndTime: item.restrictEndTime || '',
-            lastRestrictTimeTotal: item.lastRestrictTimeTotal || '',
-            createTime: item.createTime || '',
-            removeRestrictTime: item.removeRestrictTime || '',
-          }),
-        );
-        await $grid.reloadData(tableData);
-      }
-    }
-  } catch (error) {
-    message.error('获取详情失败');
-  } finally {
-    loading.value = false;
-  }
-};
-
-// 重置表单
-const resetForm = () => {
-  Object.assign(formData, initFormData());
-};
-
-// 保存表单
 const handleSave = async () => {
   if (isSubmitting.value) return;
   isSubmitting.value = true;
 
   try {
-    // 表单验证
     const { valid } = await formApi.validate();
     if (!valid) {
       return;
@@ -252,18 +301,17 @@ const handleSave = async () => {
     Object.assign(formData, formValues);
 
     if (currentMode.value === 'create') {
-      // 新增
       await createFleet(formData);
       message.success('新增成功');
     } else if (currentMode.value === 'edit') {
-      // 编辑
       await updateFleet(formData);
       message.success('更新成功');
     }
 
     emit('success');
-    // 重置表单
     resetForm();
+    clearChangedFields();
+    stopChecking();
     await formApi.setValues({});
   } catch (error) {
     message.error('保存失败，请重试');
@@ -273,55 +321,127 @@ const handleSave = async () => {
   }
 };
 
-/** 新增限制 */
-const handleRestriction = async (row: FleetManagementApi.fleetVO) => {
+const handleRestriction = async () => {
   restrictionInfoFormModalApi
     .setData({
       fleetData: formData,
       onSubmit: async () => {
-        const $grid = gridApi.grid;
-        if ($grid) {
-          await $grid.reloadData(restrictionDetailData);
-          message.success('新增限制信息成功');
-        }
+        message.success('新增限制信息成功');
       },
     })
     .open();
 };
 
-defineExpose({
-  handleSave,
-});
+const loadDetail = async (id: string) => {
+  await loadFleetDetail(id);
+};
+
+const clearForm = () => {
+  stopChecking();
+  rstrReasonState.value = '';
+  Object.assign(formData, initFormData());
+  clearChangedFields();
+  formApi.setValues(formData);
+};
+
+const resetForm = () => {
+  Object.assign(formData, initFormData());
+};
+
+defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
 </script>
 
-
 <template>
-  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-40 max-h-[500px] overflow-auto">
+  <div class="max-h-[450px] overflow-y-auto bg-white p-4">
     <RestrictionInfoFormModal />
-    <div class="p-6">
-      <!-- 加载中 -->
-      <div v-if="loading" class="flex justify-center items-center py-10">
-        <div class="ant-spin ant-spin-lg"></div>
-      </div>
 
-      <Form>
-        <template #isRstr>
-          <div class="flex items-center gap-2">
-            <span class="text-gray-800">
-              {{ String(formData?.isRstr) === '1' ? 'Y' : String(formData?.isRstr) === '0' ? 'N' : '-' }}
-            </span>
-            <Button type="primary" size="small" @click="handleRestriction">
-              已限制明细
-            </Button>
-          </div>
-        </template>
-      </Form>
+    <div v-if="loading" class="flex items-center justify-center py-4">
+      <div class="ant-spin ant-spin-sm"></div>
     </div>
+
+    <Form>
+      <template #isRstr>
+        <div class="flex items-center gap-2">
+          <span class="text-gray-800">
+            {{ String(formData?.isRstr) === '1' ? 'Y' : String(formData?.isRstr) === '0' ? 'N' : '-' }}
+          </span>
+          <Button type="primary" size="small" @click="handleRestriction">
+            已限制明细
+          </Button>
+        </div>
+      </template>
+      <template #rstrCnt>
+        <span class="text-gray-800">
+          {{ formData?.rstrCnt == null || formData?.rstrCnt === '' ? '-' : formData.rstrCnt }}
+        </span>
+      </template>
+      <template #rstrDataSrc>
+        <span class="text-gray-800">
+          {{ formData?.rstrDataSrc == null || formData?.rstrDataSrc === '' ? '-' : formData.rstrDataSrc }}
+        </span>
+      </template>
+      <template #dataSrc>
+        <span class="text-gray-800">
+          {{ formData?.dataSrc == null || formData?.dataSrc === '' ? '-' : formData.dataSrc }}
+        </span>
+      </template>
+      <template #rstrStartDt>
+        <span class="text-gray-800">
+          {{ formData?.rstrStartDt == null || formData?.rstrStartDt === '' ? '-' : formData.rstrStartDt }}
+        </span>
+      </template>
+      <template #rstrEndDt>
+        <span class="text-gray-800">
+          {{ formData?.rstrEndDt == null || formData?.rstrEndDt === '' ? '-' : formData.rstrEndDt }}
+        </span>
+      </template>
+      <template #lastRstrDt>
+        <span class="text-gray-800">
+          {{ formData?.lastRstrDt == null || formData?.lastRstrDt === '' ? '-' : formData.lastRstrDt }}
+        </span>
+      </template>
+      <template #createTime>
+        <span class="text-gray-800">
+          {{ formData?.createTime == null || formData?.createTime === '' ? '-' : formData.createTime }}
+        </span>
+      </template>
+      <template #updateTime>
+        <span class="text-gray-800">
+          {{ formData?.updateTime == null || formData?.updateTime === '' ? '-' : formData.updateTime }}
+        </span>
+      </template>
+      <template #rstrReason>
+        <a-select
+          v-model:value="rstrReasonState.value"
+          :disabled="currentMode === 'view'"
+          placeholder="请输入限制代码"
+          style="width: 100%"
+          :filter-option="false"
+          :not-found-content="rstrReasonState.fetching ? undefined : null"
+          :options="rstrReasonState.data"
+          allow-clear
+          show-search
+          @change="handleRstrReasonChange"
+          @input="handleRstrReasonInput"
+          @search="rstrReasonSearch"
+          @focus="rstrReasonSearch('')"
+          @compositionstart="handleRstrReasonCompositionStart"
+          @compositionend="handleRstrReasonCompositionEnd"
+        />
+      </template>
+    </Form>
   </div>
 </template>
 
 <style scoped>
-:deep(.ant-descriptions) {
-  margin-bottom: 0;
+:deep(.field-changed) .ant-input,
+:deep(.field-changed) .ant-picker,
+:deep(.field-changed) .ant-input-affix-wrapper {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+:deep(.field-changed) .ant-select-selector {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
 }
 </style>
