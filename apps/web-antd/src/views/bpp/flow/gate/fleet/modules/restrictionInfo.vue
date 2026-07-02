@@ -69,6 +69,18 @@ const [Form, formApi] = useVbenForm({
   schema: restrictionFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-2',
+  handleValuesChange: (values: any, changedFields: string[]) => {
+    const days = currentRstrDays.value;
+    if (days <= 0) return;
+
+    if (changedFields.includes('rstrStartDt') && values.rstrStartDt) {
+      const end = dayjs(values.rstrStartDt).add(days, 'day').format('YYYY-MM-DD HH:mm:ss');
+      formApi.setFieldValue('rstrEndDt', end);
+    } else if (changedFields.includes('rstrEndDt') && values.rstrEndDt) {
+      const start = dayjs(values.rstrEndDt).subtract(days, 'day').format('YYYY-MM-DD HH:mm:ss');
+      formApi.setFieldValue('rstrStartDt', start);
+    }
+  },
 });
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -397,25 +409,40 @@ const {
 } = useSearchSelect({
   searchApi: async () => {
     const res = await getRstrReason(fleetData.value.id);
-    // 根据实际返回结构，提取 data 数组（若 getRstrReason 直接返回数组，则无需 .data）
     const rawData = res.data || res;
-    return rawData.map(item => ({
-      label: `${item.ruleCd}/${item.ruleDesc}`, // 拼接显示文本
-      value: item.id,                           // 使用 id 作为值
+    return rawData.map((item: any) => ({
+      ...item,
+      _label: `${item.ruleCd}/${item.ruleDesc}`,
+      _value: item.id,
     }));
   },
-  labelField: 'label',   // 指定 label 字段
-  valueField: 'value',   // 指定 value 字段
+  labelField: '_label' as any,
+  valueField: '_value' as any,
   errorMessage: '获取限制代码失败',
-  // 如果后续仍需要输入过滤，可根据实际 label 调整以下参数
-  toUpperCase: false,    // 因为 label 含中文，通常无需转大写
-  filterRegex: /[^A-Z0-9\u4e00-\u9fa5\/]/g, // 示例：允许中文、数字、字母、斜杠
+  toUpperCase: false,
+  filterRegex: /[^A-Z0-9\u4e00-\u9fa5/]/g,
 });
+
+/** 当前限制代码的天数 */
+const currentRstrDays = ref<number>(0);
 
 const handleRstrReasonChange = async (value: any) => {
   rstrReasonState.value = value;
   await formApi.setFieldValue('rstrRsn', value);
   await formApi.validateField('rstrRsn');
+
+  const selected: any = (rstrReasonState.data as any[]).find(
+    (item: any) => item.value === value,
+  );
+  if (selected?.data?.rstrDays) {
+    const rstrDays = selected.data.rstrDays;
+    currentRstrDays.value = rstrDays;
+    const startDate = dayjs();
+    await formApi.setFieldValue('rstrStartDt', startDate.format('YYYY-MM-DD HH:mm:ss'));
+    await formApi.setFieldValue('rstrEndDt', startDate.add(rstrDays, 'day').format('YYYY-MM-DD HH:mm:ss'));
+  } else {
+    currentRstrDays.value = 0;
+  }
 };
 
 onBeforeUnmount(stopChecking);
