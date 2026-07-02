@@ -9,7 +9,7 @@ import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { useDebounceFn } from '@vueuse/core';
-import { message } from 'ant-design-vue';
+import { Modal, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -37,6 +37,25 @@ let isFirstLoad = true;
 
 // 点击表格行
 const handleRowClick = (row: TruckApi.Truck) => {
+  if (
+    (formMode.value === 'edit' || formMode.value === 'create') &&
+    detailFormRef.value?.hasUnsavedChanges()
+  ) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        selectedRowData.value = row;
+        selectedTruckId.value = String(row.id);
+        formMode.value = 'view';
+        detailFormRef.value?.clearForm();
+      },
+    });
+    return;
+  }
   selectedRowData.value = row;
   selectedTruckId.value = String(row.id);
   formMode.value = 'view';

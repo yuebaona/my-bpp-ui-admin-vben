@@ -2,7 +2,7 @@
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { TruckApi } from '#/api/bpp/flow/gate/truck/management';
 
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -36,6 +36,11 @@ const currentMode = computed<FormMode>(() => props.mode || 'view');
 
 const isSubmitting = ref(false);
 const loading = ref(false);
+
+const dataBeforeEdit = ref<Record<string, any>>({});
+const changedFields = ref<Set<string>>(new Set());
+
+let checkTimer: ReturnType<typeof setInterval> | null = null;
 
 // 初始化表单
 const initFormData = () => ({
@@ -139,56 +144,127 @@ const formatTimestamps = (rowData: any) => {
   return data;
 };
 
-// 根据模式更新表单字段是否可编辑
-const updateFormDisabled = (disabled: boolean) => {
+const applyFormState = (disabled: boolean) => {
   const schema = detailFormSchema();
   const updated = schema
     .filter((field) => field.fieldName)
     .map((field) => ({
-      fieldName: field.fieldName!,
+      ...field,
+      formItemClass: [field.formItemClass, changedFields.value.has(field.fieldName!) ? 'field-changed' : '']
+        .filter(Boolean)
+        .join(' '),
       componentProps: {
+        ...field.componentProps,
         disabled: disabled ? true : (field.componentProps?.disabled ?? false),
       },
     }));
   formApi.updateSchema(updated);
 };
 
+const saveDataBeforeEdit = () => {
+  dataBeforeEdit.value = { ...formData };
+  changedFields.value = new Set();
+};
+
+const hasUnsavedChanges = () => changedFields.value.size > 0;
+
+const clearChangedFields = () => {
+  changedFields.value = new Set();
+  dataBeforeEdit.value = {};
+};
+
+const checkHighlight = async () => {
+  if (currentMode.value !== 'edit' && currentMode.value !== 'create') return;
+  let vals: any;
+  try {
+    vals = await formApi.getValues();
+  } catch {
+    return;
+  }
+  const before = dataBeforeEdit.value;
+  const fields = new Set<string>();
+  for (const key of Object.keys(vals)) {
+    if (vals[key] != before[key]) {
+      fields.add(key);
+    }
+  }
+  const prev = [...changedFields.value].sort().join(',');
+  const next = [...fields].sort().join(',');
+  if (prev === next) return;
+  changedFields.value = fields;
+
+  if (currentMode.value === 'edit') {
+    const schema = detailFormSchema();
+    const updated = schema
+      .filter((f) => f.fieldName)
+      .map((f) => ({
+        ...f,
+        formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : '']
+          .filter(Boolean)
+          .join(' '),
+        componentProps: {
+          ...f.componentProps,
+          disabled: false,
+        },
+      }));
+    formApi.updateSchema(updated);
+  }
+};
+
+const doCheck = () => {
+  checkHighlight().finally(() => {
+    if (checkTimer !== null) {
+      checkTimer = setTimeout(doCheck, 150);
+    }
+  });
+};
+
+const startChecking = () => {
+  stopChecking();
+  checkTimer = setTimeout(doCheck, 0);
+};
+
+const stopChecking = () => {
+  if (checkTimer) {
+    clearTimeout(checkTimer);
+    checkTimer = null;
+  }
+};
+
+onBeforeUnmount(stopChecking);
+
 // 监听模式
 watch(
   () => props.mode,
   async (newMode) => {
     try {
-      switch (newMode) {
-        case 'create': {
-          Object.assign(formData, initFormData());
-          await updateFormDisabled(false);
-          if (formApi) {
-            await formApi.setValues(formData);
-          }
-          break;
+      if (newMode === 'create') {
+        stopChecking();
+        Object.assign(formData, initFormData());
+        if (formApi) {
+          await formApi.setValues(formData);
         }
-        case 'edit': {
-          await updateFormDisabled(false);
-          break;
+        saveDataBeforeEdit();
+        applyFormState(false);
+        startChecking();
+      } else if ((newMode === 'edit' || newMode === 'view') && props.rowData) {
+        stopChecking();
+        const rowData = formatTimestamps(props.rowData);
+        Object.assign(formData, rowData);
+        if (formApi) {
+          await formApi.setValues(formData);
         }
-        case 'view': {
-          await updateFormDisabled(true);
-          break;
+        if (newMode === 'edit') {
+          saveDataBeforeEdit();
+          applyFormState(false);
+          startChecking();
+        } else {
+          clearChangedFields();
+          applyFormState(true);
         }
       }
     } catch (error) {
       console.error('DetailForm mode watcher error:', error);
-    }
-  },
-);
-
-// 监听行数据
-watch(
-  () => props.rowData,
-  async (newRow) => {
-    if (currentMode.value === 'edit' && newRow) {
-      Object.assign(formData, newRow);
-      await formApi.setValues(formData);
     }
   },
 );
@@ -202,18 +278,19 @@ watch(
     }
     await loadTruckDetail(newId);
   },
-  { immediate: false },
 );
 
 // 加载车辆信息详情
 const loadTruckDetail = async (id: string) => {
   loading.value = true;
+  stopChecking();
   try {
     const res = await getTruck(Number(id));
     const formatted = formatTimestamps(res);
     Object.assign(formData, formatted);
-    await updateFormDisabled(true);
     await formApi.setValues(formData);
+    clearChangedFields();
+    applyFormState(true);
 
     if (res?.id) {
       const $grid = gridApi.grid;
@@ -275,6 +352,8 @@ const handleSave = async () => {
 
     emit('success');
     resetForm();
+    clearChangedFields();
+    stopChecking();
     await formApi.setValues({});
   } catch (error) {
     message.error('保存失败，请重试');
@@ -307,11 +386,13 @@ const loadDetail = async (id: string) => {
 
 /** 清空表单 */
 const clearForm = () => {
+  stopChecking();
   Object.assign(formData, initFormData());
-  formApi.setValues({});
+  clearChangedFields();
+  formApi.setValues(formData);
 };
 
-defineExpose({ handleSave, loadDetail, clearForm });
+defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
 </script>
 
 <template>
@@ -339,7 +420,20 @@ defineExpose({ handleSave, loadDetail, clearForm });
             已限制明细
           </Button>
         </div>
-      </template>
+        </template>
     </Form>
   </div>
 </template>
+
+<style scoped>
+:deep(.field-changed) .ant-input,
+:deep(.field-changed) .ant-picker,
+:deep(.field-changed) .ant-input-affix-wrapper {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+:deep(.field-changed) .ant-select-selector {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+</style>

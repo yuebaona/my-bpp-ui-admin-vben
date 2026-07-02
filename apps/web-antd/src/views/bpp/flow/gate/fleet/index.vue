@@ -37,7 +37,10 @@ let isFirstLoad = true;
 
 /** 点击表格行 */
 const handleRowClick = (row: FleetViewApi.fleetVO) => {
-  if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
+  if (
+    (formMode.value === 'edit' || formMode.value === 'create') &&
+    detailFormRef.value?.hasUnsavedChanges()
+  ) {
     Modal.confirm({
       title: '提示',
       content: '当前有未保存的更改，是否放弃更改？',
@@ -48,6 +51,7 @@ const handleRowClick = (row: FleetViewApi.fleetVO) => {
         selectedRowData.value = row;
         selectedFleetId.value = String(row.id);
         formMode.value = 'view';
+        detailFormRef.value?.clearForm();
       },
     });
     return;

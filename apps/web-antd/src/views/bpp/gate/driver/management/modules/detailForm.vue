@@ -151,7 +151,7 @@ const clearChangedFields = () => {
 
 /** 定时检查字段变化并标黄 */
 const checkHighlight = async () => {
-  if (currentMode.value !== 'edit') return;
+  if (currentMode.value !== 'edit' && currentMode.value !== 'create') return;
   let vals: any;
   try {
     vals = await formApi.getValues();
@@ -172,18 +172,21 @@ const checkHighlight = async () => {
   const next = [...fields].sort().join(',');
   if (prev === next) return;
   changedFields.value = fields;
-  const schema = detailFormSchema();
-  const updated = schema
-    .filter((f) => f.fieldName)
-    .map((f) => ({
-      ...f,
-      formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : ''].filter(Boolean).join(' '),
-      componentProps: {
-        ...f.componentProps,
-        disabled: false,
-      },
-    }));
-  formApi.updateSchema(updated);
+
+  if (currentMode.value === 'edit') {
+    const schema = detailFormSchema();
+    const updated = schema
+      .filter((f) => f.fieldName)
+      .map((f) => ({
+        ...f,
+        formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : ''].filter(Boolean).join(' '),
+        componentProps: {
+          ...f.componentProps,
+          disabled: false,
+        },
+      }));
+    formApi.updateSchema(updated);
+  }
 };
 
 /** 定时执行检查 */
