@@ -196,8 +196,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 /** 刷新表格 */
-function handleRefresh() {
+function handleRefresh(createdId?: string) {
   gridApi.query();
+  if (createdId) {
+    selectedTruckId.value = String(createdId);
+    formMode.value = 'view';
+  }
 }
 
 /** 车辆信息勾选操作 */
@@ -208,6 +212,25 @@ function handleRowCheckboxChange({ records }: { records: TruckApi.Truck[] }) {
 
 /** 切换到新增模式 */
 function handleCreate() {
+  if (
+    (formMode.value === 'edit' || formMode.value === 'create') &&
+    detailFormRef.value?.hasUnsavedChanges()
+  ) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        formMode.value = 'create';
+        selectedRowData.value = null;
+        selectedTruckId.value = '';
+        detailFormRef.value?.clearForm();
+      },
+    });
+    return;
+  }
   formMode.value = 'create';
   selectedRowData.value = null;
   selectedTruckId.value = '';

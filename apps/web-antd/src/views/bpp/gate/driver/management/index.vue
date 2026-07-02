@@ -183,8 +183,12 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 /** 刷新表格 */
-function handleRefresh() {
+function handleRefresh(createdId?: string) {
   gridApi.query();
+  if (createdId) {
+    selectedDriverId.value = String(createdId);
+    formMode.value = 'view';
+  }
 }
 
 /** 切换到新增模式 */

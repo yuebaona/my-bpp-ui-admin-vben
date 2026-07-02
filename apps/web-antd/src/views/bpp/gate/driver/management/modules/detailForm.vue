@@ -310,18 +310,15 @@ const handleSave = async () => {
     Object.assign(formData, formValues);
 
     if (currentMode.value === 'create') {
-      await createDriver(formData);
+      const result = await createDriver(formData);
+      const newId = result?.id ?? (formData as any).id ?? '';
       message.success('新增成功');
+      emit('success', newId);
     } else if (currentMode.value === 'edit') {
       await updateDriver(formData);
       message.success('更新成功');
+      emit('success', formData.id);
     }
-
-    emit('success');
-    resetForm();
-    clearChangedFields();
-    stopChecking();
-    await formApi.setValues({});
   } catch (error) {
     message.error('保存失败，请重试');
     console.error('Save error:', error);
