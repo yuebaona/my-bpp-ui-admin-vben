@@ -5,7 +5,7 @@ import { onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Button, Modal, message } from 'ant-design-vue';
+import { Button, message, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
@@ -13,6 +13,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   createFleetRstr,
   getFleetRstr,
+  getRstrReason,
 } from '#/api/bpp/flow/gate/fleet/';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
@@ -36,7 +37,7 @@ const isSubmitting = ref(false);
 
 const dataBeforeEdit = ref<Record<string, any>>({});
 const changedFields = ref<Set<string>>(new Set());
-let checkTimer: ReturnType<typeof setInterval> | null = null;
+let checkTimer: null | ReturnType<typeof setInterval> = null;
 
 const initFormData = () => ({
   id: 0,
@@ -120,11 +121,14 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           // todo 这里接口输入参数是fltId，就是车队信息表的id，返回的虽然是分页形式的但是后端已经处理了是全部限制记录
-          const res = await getFleetRstr({
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          });
+
+          // const res = await getFleetRstr({
+          //   pageNo: page.currentPage,
+          //   pageSize: page.pageSize,
+          //   ...formValues,
+          // });
+          // todo 改了一下
+          const res = await getFleetRstr(fleetData.value.id);
           if (isFirstLoad && res?.list?.length > 0) {
             handleRowClick(res.list[0]);
             isFirstLoad = false;
@@ -171,7 +175,10 @@ const applyFormState = (disabled: boolean) => {
     .filter((field) => field.fieldName)
     .map((field) => ({
       ...field,
-      formItemClass: [field.formItemClass, changedFields.value.has(field.fieldName!) ? 'field-changed' : '']
+      formItemClass: [
+        field.formItemClass,
+        changedFields.value.has(field.fieldName!) ? 'field-changed' : '',
+      ]
         .filter(Boolean)
         .join(' '),
       componentProps: {
@@ -221,7 +228,10 @@ const checkHighlight = async () => {
     .filter((f) => f.fieldName)
     .map((f) => ({
       ...f,
-      formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : '']
+      formItemClass: [
+        f.formItemClass,
+        fields.has(f.fieldName!) ? 'field-changed' : '',
+      ]
         .filter(Boolean)
         .join(' '),
       componentProps: {
@@ -255,24 +265,35 @@ const stopChecking = () => {
 watch(
   formMode,
   async (newMode) => {
-    if (newMode === 'create') {
-      stopChecking();
-      rstrReasonState.value = '';
-      Object.assign(formData, initFormData());
-      formData.fltCd = fleetData.value?.fltCd || '';
-      await formApi.setValues(formData);
-      clearChangedFields();
-      await applyFormState(false);
-      startChecking();
-    } else if (newMode === 'edit') {
-      stopChecking();
-      saveDataBeforeEdit();
-      await applyFormState(false);
-      startChecking();
-    } else if (newMode === 'view') {
-      stopChecking();
-      clearChangedFields();
-      await applyFormState(true);
+    switch (newMode) {
+      case 'create': {
+        stopChecking();
+        rstrReasonState.value = '';
+        Object.assign(formData, initFormData());
+        formData.fltCd = fleetData.value?.fltCd || '';
+        await formApi.setValues(formData);
+        clearChangedFields();
+        await applyFormState(false);
+        startChecking();
+
+        break;
+      }
+      case 'edit': {
+        stopChecking();
+        saveDataBeforeEdit();
+        await applyFormState(false);
+        startChecking();
+
+        break;
+      }
+      case 'view': {
+        stopChecking();
+        clearChangedFields();
+        await applyFormState(true);
+
+        break;
+      }
+      // No default
     }
   },
   { immediate: true },
@@ -375,13 +396,20 @@ const {
   handleCompositionEnd: handleRstrReasonCompositionEnd,
 } = useSearchSelect({
   searchApi: async () => {
-    return await getFleetRstr({ pageNo: 1, pageSize: 100 });
+    const res = await getRstrReason(fleetData.value.id);
+    // 根据实际返回结构，提取 data 数组（若 getRstrReason 直接返回数组，则无需 .data）
+    const rawData = res.data || res;
+    return rawData.map(item => ({
+      label: `${item.ruleCd}/${item.ruleDesc}`, // 拼接显示文本
+      value: item.id,                           // 使用 id 作为值
+    }));
   },
-  labelField: 'rstrRsn',
-  valueField: 'rstrRsn',
+  labelField: 'label',   // 指定 label 字段
+  valueField: 'value',   // 指定 value 字段
   errorMessage: '获取限制代码失败',
-  toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
+  // 如果后续仍需要输入过滤，可根据实际 label 调整以下参数
+  toUpperCase: false,    // 因为 label 含中文，通常无需转大写
+  filterRegex: /[^A-Z0-9\u4e00-\u9fa5\/]/g, // 示例：允许中文、数字、字母、斜杠
 });
 
 const handleRstrReasonChange = async (value: any) => {
@@ -424,8 +452,8 @@ const [RstrModal, modalApi] = useVbenModal({
 
 <template>
   <RstrModal title="已限制明细" class="w-[60vw] max-w-[1800px]">
-    <div class="flex flex-col gap-2" style="min-height: 500px;">
-      <div class="overflow-hidden" style="min-height: 300px;">
+    <div class="flex flex-col gap-2" style="min-height: 500px">
+      <div class="overflow-hidden" style="min-height: 300px">
         <Grid />
       </div>
       <Form>

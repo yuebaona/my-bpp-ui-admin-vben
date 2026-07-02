@@ -1,6 +1,8 @@
+import type { Dayjs } from 'dayjs';
+
 import type { PageParam, PageResult } from '@vben/request';
+
 import { requestClient } from '#/api/request';
-import type {Dayjs} from "dayjs";
 
 export namespace FleetViewApi {
   // 车队信息VO
@@ -50,6 +52,12 @@ export namespace FleetViewApi {
     remark: string; // 备注
     dataSrc: string; // 数据来源
   }
+
+  export interface rstrCodeVO {
+    id?: number; // 车队限制记录表唯一主键
+    ruleCd: string; // 限制代码
+    ruleDesc: string; // 描述
+  }
 }
 
 /** 保存按钮 */
@@ -68,7 +76,9 @@ export function pageFleet(params: PageParam) {
 
 /** 导出按钮 */
 export function exportFleet(params: any) {
-  return requestClient.download('/bpp/flow/gate/fleet/export-excel', { params });
+  return requestClient.download('/bpp/flow/gate/fleet/export-excel', {
+    params,
+  });
 }
 
 /** 获取车队限制信息 */
@@ -83,10 +93,20 @@ export function createFleetRstr(data: FleetViewApi.fleetVO) {
 }
 /** 手动解除车队限制 */
 export function releaseFleetRstr(fltRstrId: number) {
-  return requestClient.post(`/bpp/flow/gate/fleet/rstr/release?fltRstrId=${fltRstrId}`);
+  return requestClient.post(
+    `/bpp/flow/gate/fleet/rstr/release?fltRstrId=${fltRstrId}`,
+  );
 }
 /** 获取车队详情 */
 export function getFleetDetail(id: number) {
   return requestClient.get<FleetViewApi.fleetVO>(
-    `/bpp/flow/gate/fleet/get?id=${id}`);
+    `/bpp/flow/gate/fleet/get?id=${id}`,
+  );
+}
+
+/** 获取限制代码 */
+export function getRstrReason(id: number) {
+  return requestClient.get<FleetViewApi.rstrCodeVO>(
+    `/bpp/flow/gate/fleet/rstr-code?id=${id}`,
+  );
 }
