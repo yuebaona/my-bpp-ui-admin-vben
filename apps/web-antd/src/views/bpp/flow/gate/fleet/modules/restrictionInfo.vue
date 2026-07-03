@@ -412,14 +412,14 @@ const {
     const rawData = res.data || res;
     return rawData.map((item: any) => ({
       ...item,
-      _label: `${item.ruleCd}/${item.ruleDesc}`,
+      _label: `${item.ruleCd}：${item.ruleDesc}`,
       _value: item.id,
     }));
   },
   labelField: '_label' as any,
   valueField: '_value' as any,
   errorMessage: '获取限制代码失败',
-  toUpperCase: false,
+  toUpperCase: true,
   filterRegex: /[^A-Z0-9\u4e00-\u9fa5/]/g,
 });
 
@@ -490,17 +490,13 @@ const [RstrModal, modalApi] = useVbenModal({
             :disabled="isDisabled"
             placeholder="请输入限制代码"
             style="width: 100%"
-            :filter-option="false"
+            :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
             :not-found-content="rstrReasonState.fetching ? undefined : null"
             :options="rstrReasonState.data"
             allow-clear
             show-search
             @change="handleRstrReasonChange"
-            @input="handleRstrReasonInput"
-            @search="rstrReasonSearch"
             @focus="rstrReasonSearch('')"
-            @compositionstart="handleRstrReasonCompositionStart"
-            @compositionend="handleRstrReasonCompositionEnd"
           />
         </template>
         <template #lastRstrDt>
