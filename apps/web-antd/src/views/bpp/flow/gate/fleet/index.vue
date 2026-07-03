@@ -13,7 +13,7 @@ import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 
-import { pageFleet , getFleetDetail } from '#/api/bpp/flow/gate/fleet/'
+import { pageFleet } from '#/api/bpp/flow/gate/fleet/'
 import {
   fleetInfoColumns,
   fleetSearchSchema,
@@ -73,12 +73,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     border: true,
     resizableConfig: {
-      isDblclickAutoWidth: true, // 启用双击自适应列宽
+      isDblclickAutoWidth: true,
       isAllColumnDrag: true,
     },
     checkboxConfig: {
       highlight: true,
       isShiftKey: true,
+      reserve: true,
     },
     floatingFilterConfig: {
       enabled: true,
@@ -98,13 +99,20 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isTab: true,
       isEsc: true,
       isEdit: true,
+      isUndo: true,
     },
     rowConfig: {
       keyField: 'id',
       isHover: true,
       isCurrent: true,
     },
+    ValidConfig:{
+      aotoPos:true,
+    },
     printConfig: {
+      enabled: true,
+    },
+    exportConfig: {
       enabled: true,
     },
     editConfig: {
@@ -115,7 +123,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     toolbarConfig: {
       search: true,
       custom: true,
-      // import: true,
+      export: true,
       refresh: true,
       zoom: true,
     },
@@ -230,62 +238,6 @@ function handleEdit() {
 async function handleSave() {
   detailFormRef.value?.handleSave();
 }
-
-/** 导出 */
-function handleExport() {
-  const $grid = gridApi.grid;
-  if (!$grid) return;
-
-  const TIME_FIELDS = ['createTime', 'updateTime', 'rstrStarDt', 'rstrEndDt', 'rstrLastDt'];
-  const BOOL_FIELDS = ['isRstr', 'enableFlg'];
-
-  const { fullData } = $grid.getTableData();
-  const columns = $grid.getColumns();
-
-  const dataColumns = columns.filter(
-    (col: any) => col.type !== 'seq' && col.type !== 'checkbox' && col.field,
-  );
-
-  const headerRow = dataColumns.map((col: any) => col.title || col.field).join('</th><th>');
-  const bodyRows = fullData
-    .map((row: any) =>
-      dataColumns
-        .map((col: any) => {
-          const field = col.field;
-          const val = row[field];
-          if (val == null || val === '') return '';
-          if (TIME_FIELDS.includes(field)) return dayjs(val).format('YYYY-MM-DD HH:mm:ss');
-          if (BOOL_FIELDS.includes(field)) return val === 1 || val === '1' ? '是' : '否';
-          return String(val);
-        })
-        .join('</td><td>'),
-    )
-    .join('</td></tr><tr><td>');
-
-  const now = dayjs().format('YYYYMMDDHHmmss');
-
-  const html = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
-    <head><meta charset="UTF-8"></head>
-    <body><table border="1"><tr><th>${headerRow}</th></tr><tr><td>${bodyRows}</td></tr></table></body>
-    </html>
-  `;
-
-  const blob = new Blob([`\uFEFF${html}`], {
-    type: 'application/vnd.ms-excel',
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `车队信息${now}.xls`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-/** 日志查询 */
-// function handleLogQuery() {
-//   // logQueryModalApi.open();
-// }
 </script>
 
 <template>
@@ -315,12 +267,6 @@ function handleExport() {
                   type: 'primary',
                   icon: ACTION_ICON.LOG,
                   onClick: handleSave,
-                },
-                {
-                  label: '导出',
-                  type: 'primary',
-                  icon: ACTION_ICON.DOWNLOAD,
-                  onClick: handleExport,
                 },
               ]"
             />
