@@ -8,12 +8,10 @@ import { ref } from 'vue';
 import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { Modal, message } from 'ant-design-vue';
-import dayjs from 'dayjs';
+import { message, Modal } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-
-import { pageFleet } from '#/api/bpp/flow/gate/fleet/'
+import { pageFleet } from '#/api/bpp/flow/gate/fleet/';
 import {
   fleetInfoColumns,
   fleetSearchSchema,
@@ -106,8 +104,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
       isHover: true,
       isCurrent: true,
     },
-    ValidConfig:{
-      aotoPos:true,
+    ValidConfig: {
+      aotoPos: true,
     },
     printConfig: {
       enabled: true,
@@ -178,7 +176,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
             selectedFleetId.value = String(firstRow.id);
             formMode.value = 'view';
             isFirstLoad = false;
-
           }
           return res;
         },
@@ -198,6 +195,7 @@ function handleRefresh(createdId?: string) {
   if (createdId) {
     selectedFleetId.value = String(createdId);
     formMode.value = 'view';
+    detailFormRef.value?.loadFleetDetail(createdId);
   }
 }
 

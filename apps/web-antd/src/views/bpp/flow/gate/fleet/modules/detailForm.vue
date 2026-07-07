@@ -9,8 +9,7 @@ import { Button, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
-import {saveFleet, getFleetDetail} from '#/api/bpp/flow/gate/fleet'
-
+import { getFleetDetail, saveFleet } from '#/api/bpp/flow/gate/fleet';
 import { getRestrictionCodeList } from '#/api/bpp/flow/gate/truck/rstr';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
@@ -35,7 +34,7 @@ const loading = ref(false);
 const dataBeforeEdit = ref<Record<string, any>>({});
 const changedFields = ref<Set<string>>(new Set());
 
-let checkTimer: ReturnType<typeof setInterval> | null = null;
+let checkTimer: null | ReturnType<typeof setInterval> = null;
 
 const initFormData = () => ({
   id: '',
@@ -211,8 +210,6 @@ const formatTimestamps = (rowData: any) => {
     data.rstrStartDt = dayjs(data.rstrStartDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.rstrEndDt)
     data.rstrEndDt = dayjs(data.rstrEndDt).format('YYYY-MM-DD HH:mm:ss');
-  if (data.rstrLastDt)
-    data.rstrLastDt = dayjs(data.rstrLastDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.createTime)
     data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
   if (data.updateTime)
@@ -220,6 +217,7 @@ const formatTimestamps = (rowData: any) => {
   return data;
 };
 
+/** 模式切换 */
 watch(
   () => props.mode,
   async (newMode) => {
@@ -276,15 +274,21 @@ const loadFleetDetail = async (id: number) => {
   }
 };
 
+/** 监听行数据 */
 watch(
-  () => props.fleetId,
-  async (newId, oldId) => {
-    if (!newId || newId === oldId) {
-      return;
+  () => props.rowData,
+  async (newRow) => {
+    if (!newRow || currentMode.value === 'create') return;
+    stopChecking();
+    const rowData = formatTimestamps(newRow);
+    rstrReasonState.value = (rowData as any).rstrReason ?? '';
+    Object.assign(formData, rowData);
+    if (formApi) {
+      await formApi.setValues(formData);
     }
-    await loadFleetDetail(newId);
+    clearChangedFields();
+    applyFormState(true);
   },
-  { immediate: true },
 );
 
 const handleSave = async () => {
@@ -329,10 +333,6 @@ const handleRestriction = async () => {
     .open();
 };
 
-const loadDetail = async (id: number) => {
-  await loadFleetDetail(id);
-};
-
 const clearForm = () => {
   stopChecking();
   rstrReasonState.value = '';
@@ -345,7 +345,7 @@ const resetForm = () => {
   Object.assign(formData, initFormData());
 };
 
-defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
+defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadFleetDetail });
 </script>
 
 <template>
