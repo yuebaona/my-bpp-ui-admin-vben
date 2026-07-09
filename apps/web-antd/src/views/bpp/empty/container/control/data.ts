@@ -852,10 +852,10 @@ export function logQueryFormSchema(): VbenFormSchema[] {
   return [
     {
       fieldName: 'mainPlanNo',
-      label: '主计划号',
+      label: '主/子计划号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入主计划号',
+        placeholder: '请输入主/子计划号',
         allowClear: true,
         onInput: (e: Event) => {
           setTimeout(() => {
@@ -922,7 +922,7 @@ export function logQueryColumns(): VxeTableGridOptions['columns'] {
     },
     {
       field: 'mainPlanNo',
-      title: '主计划号',
+      title: '主/子计划号',
       minWidth: 120,
     },
     {

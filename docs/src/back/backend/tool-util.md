@@ -48,3 +48,42 @@ outline: deep
 在项目的根目录有 `lombok.config`全局配置文件，开启链式调用、生成的 toString/hashcode/equals 方法需要调用父方法。如下图所示：
 
 ![image](http://rsim.portsgmt.com:9001/bgbpp-vben/a1781b49-b007-4f4c-8afd-9656cef37d71.png)
+
+## 3.  宏港业务通用工具
+
+项目中自研的业务校验工具类，位于 validate 包下，以 Util 结尾，用于补充 Hutool 缺少的业务校验能力。
+
+所有 isXxx 方法对 null 输入返回 false，validateXxx 方法不合法时抛出业务异常。
+
+| 工具类 | 作用 | 说明 |
+| --- | --- | --- |
+| PhoneUtil | 电话号码校验 | 11位纯数字手机号 或 区号-固话格式（如 010-12345678） |
+| ContainerUtil | 集装箱号校验 | 11位 ISO 6346 标准集装箱编号（含校验码验证） |
+| TruckUtil | 车辆信息校验 | 行驶证编号（12位纯数字）及年检日期有效期 |
+
+### 3.1 PhoneUtil
+
+电话号码格式校验工具类。
+
+| 方法 | 返回值 | 说明 |
+| --- | --- | --- |
+| isValidPhone(String phone) | boolean | 电话格式校验，合法返回 true。支持 11 位纯数字手机号（如 13812345678）和区号-固话格式（如 010-12345678、0755-1234567） |
+| validatePhone(String phone) | void | 校验电话格式，不合法时抛出 PHONE_FORMAT_CHECK_FAIL 异常 |
+
+### 3.2 ContainerUtil
+
+集装箱号校验工具类（ISO 6346 标准）。
+
+| 方法 | 返回值 | 说明 |
+| --- | --- | --- |
+| isContainerNo(String containerNo) | boolean | 判断集装箱号是否合法（11位，4位字母+6位数字+1位校验码） |
+| validateContainerNo(String containerNo) | void | 校验集装箱号，不合法时抛出 CNTR_FORMAT_CHECK_FAIL 异常 |
+
+### 3.3 TruckUtil
+
+车辆相关信息校验工具类。
+
+| 方法 | 返回值 | 说明 |
+| --- | --- | --- |
+| isValidDrivingLicenseNo(String drivingLicenseNo) | boolean | 判断行驶证编号是否为规范格式（12位纯数字） |
+| isTruckleInspectionValid(LocalDateTime inspectionDate, LocalDateTime inspectionExpireDate) | boolean | 判断年检是否在有效期内，当前时间在年检日期与到期日期之间返回 true |

@@ -47,7 +47,7 @@ const popoverVisible = ref({});
 const bayRangeListValue = ref('');
 
 // 传给箱区选择组件的已选箱区
-const selectedPositions = ref<string[]>([]);
+const selectedPositions = ref<Array<{ yardBay: string; yardRaw?: string }>>([]);
 
 // const [AdvancedQueryModal, AdvancedQueryModalApi] = useVbenModal({
 //   showCancelButton: false,
@@ -77,9 +77,14 @@ const [ChooseContainerModal, chooseContainerModalApi] = useVbenModal({
 const containerAreaVisible = ref(false);
 
 // 箱区选择确认
-const handleContainerAreaConfirm = async (positions: string[]) => {
-  selectedPositions.value = [...positions];
-  const value = positions && positions.length > 0 ? positions.join(',') : '';
+const handleContainerAreaConfirm = async (
+  positions: Array<{ yardBay: string; yardRaw?: string }>,
+) => {
+  selectedPositions.value = positions;
+  const value =
+    positions && positions.length > 0
+      ? positions.map((pos) => pos.yardBay).join(',')
+      : '';
   bayRangeListValue.value = value;
   const currentValues = await mainGridApi.formApi.getValues();
   await mainGridApi.formApi.setValues({
@@ -107,6 +112,8 @@ const [SubGrid, subGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [10, 20, 50, 100],
+      maxPageSize: 100,
     },
     proxyConfig: {
       ajax: {
@@ -328,6 +335,8 @@ const [MainGrid, mainGridApi] = useVbenVxeGrid({
     pagerConfig: {
       pageSize: 10,
       enabled: true,
+      pageSizes: [10, 20, 50, 100],
+      maxPageSize: 100,
     },
     editRules: {
       applicantCompanyName: [{ required: true, content: '是否放箱不能为空' }],
@@ -457,7 +466,6 @@ async function handleChooseContainer() {
       message.warning('请选择ISO');
       return;
     }
-
     if (ownerCodeList.value && ownerCodeList.value.length > 1) {
       message.warning('持箱人只能选择一个');
       return;
@@ -594,6 +602,7 @@ const handleSubEdit = async (row: EmptyContainerControlApi.subPlanVO) => {
       mainId: row.mainId,
       planType: 'SUB',
       mainPlanTradeType: mainPlanRes.tradeType,
+      mainPlanBayRangeList: mainPlanRes.bayRangeList,
     })
     .open();
 };

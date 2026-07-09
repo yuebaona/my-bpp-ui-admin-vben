@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { BppBaseContainerApi } from '#/api/bpp/base/container';
+import type { ViolationCfgApi } from '#/api/bpp/flow/gate/violation';
 
 import { computed, ref } from 'vue';
 
@@ -9,20 +9,20 @@ import { message } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import {
-  createBaseContainer,
-  getBaseContainer,
-  updateBaseContainer,
-} from '#/api/bpp/base/container';
+  createViolationCfg,
+  getViolationCfg,
+  updateViolationCfg,
+} from '#/api/bpp/flow/gate/violation';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';
 
 const emit = defineEmits(['success']);
-const formData = ref<BppBaseContainerApi.BaseContainer>();
+const formData = ref<ViolationCfgApi.ViolationCfgVO>();
 const getTitle = computed(() => {
   return formData.value?.id
-    ? $t('ui.actionTitle.edit', ['集装箱基础信息'])
-    : $t('ui.actionTitle.create', ['集装箱基础信息']);
+    ? $t('ui.actionTitle.edit', ['违规规则配置'])
+    : $t('ui.actionTitle.create', ['违规规则配置']);
 });
 
 const [Form, formApi] = useVbenForm({
@@ -46,12 +46,11 @@ const [Modal, modalApi] = useVbenModal({
     }
     modalApi.lock();
     // 提交表单
-    const data =
-      (await formApi.getValues()) as BppBaseContainerApi.BaseContainer;
+    const data = (await formApi.getValues()) as ViolationCfgApi.ViolationCfgVO;
     try {
       await (formData.value?.id
-        ? updateBaseContainer(data)
-        : createBaseContainer(data));
+        ? updateViolationCfg(data)
+        : createViolationCfg(data));
       // 关闭并提示
       await modalApi.close();
       emit('success');
@@ -66,13 +65,13 @@ const [Modal, modalApi] = useVbenModal({
       return;
     }
     // 加载数据
-    const data = modalApi.getData<BppBaseContainerApi.BaseContainer>();
+    const data = modalApi.getData<ViolationCfgApi.ViolationCfgVO>();
     if (!data || !data.id) {
       return;
     }
     modalApi.lock();
     try {
-      formData.value = await getBaseContainer(data.id);
+      formData.value = await getViolationCfg(data.id);
       // 设置到 values
       await formApi.setValues(formData.value);
     } finally {

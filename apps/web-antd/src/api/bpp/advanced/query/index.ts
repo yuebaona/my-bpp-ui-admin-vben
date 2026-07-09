@@ -49,7 +49,7 @@ export namespace advancedQueryApi{
 // 获取高级查询列表
 export const getTableColumnList = (params: any) => {
   return requestClient.get(
-    `/bpp/common/search/table-column/list`,
+    `/bpp/common/search-table-column/list`,
     { params },
   );
 };
@@ -67,13 +67,13 @@ export const searchConditionCreate= (
   data: any
 ) => {
   return requestClient.post(
-    '/bpp/common/search/condition/create',
+    '/bpp/common/search-condition/create',
     data,
   );
 };
 export const getByCondition = (params: any) => {
   return requestClient.get(
-    `/bpp/common/search/condition/getByCondition`,
+    `/bpp/common/search-condition/getByCondition`,
     { params },
   );
 };
@@ -81,7 +81,7 @@ export const searchConditionUpdate = (
   data: any
 ) => {
   return requestClient.put(
-    '/bpp/common/search/condition/update',
+    '/bpp/common/search-condition/update',
     data,
   );
 };

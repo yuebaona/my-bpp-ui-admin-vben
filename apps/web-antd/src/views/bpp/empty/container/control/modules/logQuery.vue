@@ -19,8 +19,8 @@ import {
 } from '#/api/bpp/common';
 import { getLogQueryPage } from '#/api/bpp/empty/container/control';
 
-import ContainerAreaSelect from './containerAreaSelect.vue';
 import { logQueryColumns, logQueryFormSchema } from '../data';
+import ContainerAreaSelect from './containerAreaSelect.vue';
 
 const formValues = reactive({});
 
@@ -31,7 +31,7 @@ const containerAreaVisible = ref(false);
 const bayRangeListValue = ref('');
 
 // 传给箱区选择组件的已选箱区
-const selectedPositions = ref<string[]>([]);
+const selectedPositions = ref<Array<{ yardBay: string; yardRaw?: string }>>([]);
 
 // 持箱人搜索状态
 const ownerState = reactive({
@@ -42,9 +42,14 @@ const ownerState = reactive({
 });
 
 // 箱区选择确认
-const handleContainerAreaConfirm = async (positions: string[]) => {
-  selectedPositions.value = [...positions];
-  const value = positions && positions.length > 0 ? positions.join(',') : '';
+const handleContainerAreaConfirm = async (
+  positions: Array<{ yardBay: string; yardRaw?: string }>,
+) => {
+  selectedPositions.value = positions;
+  const value =
+    positions && positions.length > 0
+      ? positions.map((pos) => pos.yardBay).join(',')
+      : '';
   bayRangeListValue.value = value;
   await formApi.setValues({
     yardBay: value,
@@ -212,6 +217,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       enabled: true,
       pageSize: 10,
+      pageSizes: [10, 20, 50, 100],
+      maxPageSize: 100,
     },
     toolbarConfig: {
       custom: false,

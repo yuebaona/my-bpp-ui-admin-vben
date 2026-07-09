@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 // import type { UploadProps } from 'ant-design-vue';
 
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { EmptyContainerControlApi } from '#/api/bpp/empty/container/control';
 
 import { computed, reactive, ref } from 'vue';
@@ -21,6 +20,7 @@ import {
   getVesselAndVoyage,
   updateSubPlan,
 } from '#/api/bpp/empty/container/control';
+import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 import { $t } from '#/locales';
 import { debounce } from '#/views/bpm/components/bpmn-process-designer/src/utils';
 
@@ -36,8 +36,10 @@ const containerAreaParams = reactive({
   ownerCodeList: [],
   contIsoList: [],
   tradeType: '',
-  selectedPositions: [],
+  selectedPositions: [] as Array<{ yardBay: string; yardRaw?: string }>,
 });
+
+const loadingMap = ref<Map<string, boolean>>(new Map());
 
 const containerAreaData = reactive<any[]>([]);
 
@@ -80,66 +82,41 @@ const handleDischargeVslScheduleCompositionEnd = (e: CompositionEvent) => {
   fetchDischargeVslSchedule(target.value);
 };
 
-const isoState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-  isComposing: false, // 标记是否在中文输入法组合状态
-  originalValue: [],
-  allOptions: [], // 存储所有可选选项
+// ISO搜索选择器
+const {
+  state: isoState,
+  search: isoSearch,
+  handleInput: handleIsoInput,
+  handleCompositionStart: handleIsoCompositionStart,
+  handleCompositionEnd: handleIsoCompositionEnd,
+} = useSearchSelect({
+  searchApi: async () => {
+    return await getSubPlanIsoList(formData.mainId);
+  },
+  labelField: 'contIso',
+  valueField: 'contIso',
+  errorMessage: '获取ISO数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
 });
 
-// 处理ISO输入，将小写字母转换为大写
-const handleIsoInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-
-  if (isoState.isComposing) {
-    return;
-  }
-  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-};
-
-// 处理ISO中文输入法组合开始
-const handleIsoCompositionStart = () => {
-  isoState.isComposing = true;
-};
-
-// 处理ISO中文输入法组合结束（回车或选择候选词）
-const handleIsoCompositionEnd = (e: CompositionEvent) => {
-  isoState.isComposing = false;
-  const target = e.target as HTMLInputElement;
-  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-};
-
-const ownerState = reactive({
-  data: [],
-  value: [],
-  fetching: false,
-  isComposing: false, // 标记是否在中文输入法组合状态
-  originalValue: [],
-  allOptions: [], // 存储所有可选选项
+// 持箱人搜索选择器
+const {
+  state: ownerState,
+  search: ownerSearch,
+  handleInput: handleOwnerInput,
+  handleCompositionStart: handleOwnerCompositionStart,
+  handleCompositionEnd: handleOwnerCompositionEnd,
+} = useSearchSelect({
+  searchApi: async () => {
+    return await getSubPlanOwnerList(formData.mainId);
+  },
+  labelField: 'ownerCode',
+  valueField: 'ownerCode',
+  errorMessage: '获取持箱人数据失败',
+  toUpperCase: true,
+  filterRegex: /[^A-Z0-9]/g,
 });
-
-// 处理持箱人输入，将小写字母转换为大写
-const handleOwnerInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (ownerState.isComposing) {
-    return;
-  }
-  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-};
-
-// 处理持箱人中文输入法组合开始
-const handleOwnerCompositionStart = () => {
-  ownerState.isComposing = true;
-};
-
-// 处理持箱人中文输入法组合结束（回车或选择候选词）
-const handleOwnerCompositionEnd = (e: CompositionEvent) => {
-  ownerState.isComposing = false;
-  const target = e.target as HTMLInputElement;
-  target.value = target.value.toUpperCase().replaceAll(/[^A-Z0-9]/g, '');
-};
 
 const formData = reactive<EmptyContainerControlApi.subPlanVO>({
   id: '',
@@ -160,15 +137,14 @@ const formData = reactive<EmptyContainerControlApi.subPlanVO>({
 const selectContainerArea = async () => {
   // 获取表单值
   const formValues = await formApi.getValues();
+  const $grid = gridApi.grid;
+  const currentGridData = $grid.getTableData().fullData;
 
-  const selectedPositions: string[] = [];
-  if (formData.bayRangeList && Array.isArray(formData.bayRangeList)) {
-    formData.bayRangeList.forEach((item) => {
-      if (item.yardBay) {
-        selectedPositions.push(item.yardBay);
-      }
-    });
-  }
+  formData.bayRangeList = currentGridData.map((item) => ({
+    yardBay: item.yardPosition,
+    yardRaw: item.yardColumns,
+    ...item,
+  }));
   containerAreaParams.ownerCodeList = Array.isArray(formValues.ownerCodeList)
     ? formValues.ownerCodeList
     : [formValues.ownerCodeList];
@@ -176,25 +152,15 @@ const selectContainerArea = async () => {
     ? formValues.contIsoList
     : [formValues.contIsoList];
   containerAreaParams.tradeType = formValues.tradeType || '';
-  containerAreaParams.selectedPositions = selectedPositions;
+  containerAreaParams.selectedPositions = formData.bayRangeList || [];
   containerAreaModalVisible.value = true;
 };
 
-// 将字符串转为数组
-const transformStringToArray = (value: any): string[] => {
-  if (Array.isArray(value)) {
-    return value.map((item) => item?.toString().trim()).filter(Boolean);
-  }
-  if (typeof value === 'string') {
-    return value
-      .split(/[,，]/)
-      .map((item: string) => item.trim())
-      .filter(Boolean);
-  }
-  return [];
-};
-
-const handleContainerAreaConfirm = async (positions: string[]) => {
+const handleContainerAreaConfirm = async (
+  positions: Array<{ yardBay: string; yardRaw?: string }>,
+) => {
+  gridApi.setLoading(true);
+  containerAreaModalVisible.value = false;
   const $grid = gridApi.grid;
   if ($grid) {
     const existingRowsMap = new Map<string, any>();
@@ -210,19 +176,21 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
     yardColumnsOptions.value = {};
 
     const newRows = positions.map((pos) => {
-      const yardPosition = `${pos}`;
+      const yardPosition = pos.yardBay;
 
       // 使用主计划的 bayRangeList 限制列选项
-      const mainPlanYardRaw = mainPlanBayRangeMap.value[pos];
+      const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
       if (mainPlanYardRaw) {
-        const allowedColumns = mainPlanYardRaw.split(',').map((col) => col.trim());
-        yardColumnsOptions.value[pos] = allowedColumns.map((col) => ({
+        const allowedColumns = mainPlanYardRaw
+          .split(',')
+          .map((col) => col.trim());
+        yardColumnsOptions.value[yardPosition] = allowedColumns.map((col) => ({
           label: col,
           value: col,
         }));
       } else {
         // 如果主计划也没有限制，使用默认的A-J列
-        yardColumnsOptions.value[pos] = [
+        yardColumnsOptions.value[yardPosition] = [
           { label: 'A', value: 'A' },
           { label: 'B', value: 'B' },
           { label: 'C', value: 'C' },
@@ -244,10 +212,12 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
       // 新行数据
       return {
         yardPosition,
-        yardColumns: [],
-        totalCount: '',
-        minStorageDays: '',
-        maxStorageDays: '',
+        yardColumns: pos.yardRaw
+          ? pos.yardRaw.split(',').map((col) => col.trim())
+          : [],
+        totalCount: 0,
+        minDays: 0,
+        maxDays: 0,
       };
     });
 
@@ -259,9 +229,54 @@ const handleContainerAreaConfirm = async (positions: string[]) => {
         item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
       ...item,
     }));
-    for (const row of containerAreaData) {
-      await getStorageConditionSearch(row);
+
+    // 一次性获取所有选中贝位的堆存数据
+    const yardBayList = formData.bayRangeList.map((item) => ({
+      yardBay: item.yardBay,
+      yardRaw: item.yardRaw || null,
+    }));
+
+    const requestData = {
+      baseInfo: {
+        contIsoList: formData.contIsoList,
+        ownerCodeList: formData.ownerCodeList,
+        tradeType: formData.tradeType,
+        dischargeVslSchedule: formData.dischargeVslSchedule,
+      },
+      yardBayList,
+    };
+
+    try {
+      const response = await getStorageQuantity(requestData);
+      const storageDataList = Array.isArray(response)
+        ? response
+        : response?.data || [];
+      if (storageDataList.length > 0) {
+        const storageMap = new Map<string, any>();
+        storageDataList.forEach((item) => {
+          if (item.yardBay) {
+            storageMap.set(item.yardBay, item);
+          }
+        });
+
+        // 更新表格数据
+        containerAreaData.forEach((row) => {
+          const storageData = storageMap.get(row.yardPosition);
+          if (storageData) {
+            row.totalCount = storageData.totalCount ?? 0;
+            row.minDays = storageData.minDays ?? 0;
+            row.maxDays = storageData.maxDays ?? 0;
+          }
+        });
+
+        $grid.reloadData(containerAreaData);
+      }
+    } catch (error) {
+      console.error('批量查询堆存数据失败:', error);
+      message.warning('堆存查询失败或异常，请重试');
+      gridApi.setLoading(false);
     }
+    gridApi.setLoading(false);
   }
 };
 
@@ -299,111 +314,111 @@ const getYardColumnsOptions = (row: any) => {
   );
 };
 
+// 查询堆存情况
+const getStorageConditionSearch = async (row: any) => {
+  const $grid = gridApi.grid;
+  if (!$grid) return;
+
+  try {
+    // 设置加载状态
+    loadingMap.value.set(row.yardPosition, true);
+    const rowIndex = $grid.getRowIndex(row);
+
+    const originalBayRange =
+      formData.bayRangeList && formData.bayRangeList[rowIndex];
+    const originalYard = originalBayRange ? originalBayRange.yardRaw : '';
+    const originalYardArray = originalYard
+      ? originalYard.split(',').filter((item) => item.trim())
+      : [];
+
+    const newYard = Array.isArray(row.yardColumns) ? row.yardColumns : [];
+
+    // 清空上次查询结果
+    row.totalCount = undefined;
+    row.minDays = undefined;
+    row.maxDays = undefined;
+
+    if (!row.yardPosition) {
+      message.warning('请先填写堆场位置');
+      return;
+    }
+
+    if (formData.id && originalYardArray.length > 0) {
+      const removedItems = originalYardArray.filter(
+        (item) => !newYard.includes(item),
+      );
+
+      if (removedItems.length > 0) {
+        const allValues = [...originalYardArray];
+        newYard.forEach((item) => {
+          if (!allValues.includes(item)) {
+            allValues.push(item);
+          }
+        });
+
+        row.yardColumns = allValues;
+        message.warning(`不能删除已存在的堆场列: ${removedItems.join(', ')}`);
+        await $grid.updateData();
+        return;
+      }
+    }
+
+    // 构建接口请求参数
+    const requestData = {
+      yardBayList: [
+        {
+          yardBay: row.yardPosition,
+          yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
+        },
+      ],
+      baseInfo: {
+        contIsoList: formData.contIsoList,
+        ownerCodeList: formData.ownerCodeList,
+        tradeType: formData.tradeType,
+        dischargeVslSchedule: formData.dischargeVslSchedule,
+      },
+    };
+
+    const response = await getStorageQuantity(requestData);
+    if (response.length > 0) {
+      row.totalCount = response[0].totalCount ?? 0;
+      row.minDays = response[0].minDays ?? 0;
+      row.maxDays = response[0].maxDays ?? 0;
+    } else {
+      // 当接口返回空数组时，将堆存天数设置为0
+      row.totalCount = 0;
+      row.minDays = 0;
+      row.maxDays = 0;
+    }
+    const index = containerAreaData.findIndex(
+      (item) => item.yardPosition === row.yardPosition,
+    );
+    if (index !== -1) {
+      containerAreaData[index].totalCount = row.totalCount ?? 0;
+      containerAreaData[index].minDays = row.minDays ?? 0;
+      containerAreaData[index].maxDays = row.maxDays ?? 0;
+    }
+    await $grid.updateData(row);
+  } catch (error) {
+    console.log(error);
+    message.warning('堆存查询失败或异常，请重试');
+  } finally {
+    loadingMap.value.set(row.yardPosition, false);
+  }
+};
+
 // 删除行方法
 const deleteRow = async (row: any) => {
   const $grid = gridApi.grid;
   if ($grid) {
-    const currentGridData = $grid.getTableData().fullData;
+    await $grid.remove([row]);
 
-    containerAreaData.splice(0);
-    const dataIndex = currentGridData.findIndex(
-      (item) => item.yardPosition === row.yardPosition,
-    );
-    if (dataIndex !== -1) {
-      currentGridData.splice(dataIndex, 1);
-    }
-
-    // 删除对应的列选项
-    if (row.yardPosition && yardColumnsOptions.value[row.yardPosition]) {
-      delete yardColumnsOptions.value[row.yardPosition];
-    }
-
-    containerAreaData.push(...currentGridData);
-    $grid.reloadData(containerAreaData);
-    formData.bayRangeList = containerAreaData.map((item) => ({
+    formData.bayRangeList = $grid.getTableData().fullData.map((item) => ({
       yardBay: item.yardPosition,
       yardRaw:
         item.yardRaw || (item.yardColumns ? item.yardColumns.join(',') : ''),
-      ...item,
     }));
-
-    $grid.clearFilter();
-  }
-};
-
-// ISO搜索函数
-const isoSearch = async (searchText: string) => {
-  // 如果搜索文本为空，从后端获取所有选项
-  if (!searchText) {
-    isoState.fetching = true;
-    try {
-      const res = await getSubPlanIsoList(formData.mainId);
-      if (res) {
-        isoState.allOptions = res.map((item: any) => ({
-          label: item.contIso,
-          value: item.contIso,
-          data: item,
-        }));
-        isoState.data = [...isoState.allOptions];
-      }
-    } catch {
-      message.error('获取ISO数据失败');
-    } finally {
-      isoState.fetching = false;
-    }
-  } else {
-    // 如果有搜索文本，在前端过滤已有选项
-    if (isoState.allOptions.length === 0) {
-      // 如果还没有获取过所有选项，先获取
-      await isoSearch('');
-    }
-    // 前端过滤选项
-    isoState.data = isoState.allOptions.filter((item) =>
-      item.label.toUpperCase().includes(searchText.toUpperCase()),
-    );
-  }
-};
-
-// 初始化ISO数据
-const initIsoData = async () => {
-  await isoSearch('');
-};
-
-// 持箱人搜索函数
-const ownerSearch = async (searchText: string) => {
-  // 如果搜索文本为空，从后端获取所有选项
-  if (!searchText) {
-    ownerState.fetching = true;
-    try {
-      const res = await getSubPlanOwnerList(formData.mainId);
-      if (res) {
-        ownerState.allOptions = res.map((item: any) => ({
-          label: item.ownerCode,
-          value: item.ownerCode,
-          data: item,
-        }));
-        ownerState.data = [...ownerState.allOptions];
-      }
-    } catch {
-      message.error('获取持箱人数据失败');
-    } finally {
-      ownerState.fetching = false;
-    }
-  } else {
-    // 如果有搜索文本，在前端过滤已有选项
-    if (ownerState.allOptions.length === 0) {
-      // 如果还没有获取过所有选项，先获取
-      await ownerSearch('');
-    }
-    // 前端过滤选项
-    ownerState.data = ownerState.allOptions.filter((item) =>
-      item.label.toUpperCase().includes(searchText.toUpperCase()),
-    );
-  }
-};
-// 初始化持箱人数据
-const initOwnerData = async () => {
-  await ownerSearch('');
+  }$grid.clearFilter();
 };
 
 // 获取卸船船期
@@ -465,7 +480,10 @@ const [Form, formApi] = useVbenForm({
         ]);
       }
     }
-    if ((isChangeContIso || isChangeOwner || isChangePickupPlanNo) && !formData.id) {
+    if (
+      (isChangeContIso || isChangeOwner || isChangePickupPlanNo) &&
+      !formData.id
+    ) {
       containerAreaData.splice(0);
       formData.bayRangeList = [];
       yardColumnsOptions.value = {};
@@ -511,19 +529,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
     pagerConfig: {
       enabled: false,
     },
-    data: containerAreaData,
-  } as VxeTableGridOptions<any>,
+    // data: containerAreaData,
+  },
 });
 
 const debouncedConfirm = debounce(async () => {
-  // const containerAreaArray = [...gridApi.grid.getInsertRecords()].map(
-  //   (record) => toRaw(record),
-  // );
-
-  // if (containerAreaData.length === 0) {
-  //   message.warning('请至少添加一条箱区范围数据');
-  //   return;
-  // }
   if (isSubmitting.value) {
     return;
   }
@@ -635,19 +645,27 @@ const [Modal, modalApi] = useVbenModal({
       }
       if (data.mainId) {
         formData.mainId = data.mainId;
-        // 获取主计划数据以限制堆场列选项
-        try {
-          const mainPlanData = await getMainPlan(data.mainId);
-          if (mainPlanData && mainPlanData.bayRangeList) {
-            // 创建 yardBay -> yardRaw 的映射
-            mainPlanData.bayRangeList.forEach((item: any) => {
-              if (item.yardBay && item.yardRaw) {
-                mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
-              }
-            });
+        // 优先使用传入的主计划 bayRangeList 数据，避免重复调用接口
+        if (data.mainPlanBayRangeList && Array.isArray(data.mainPlanBayRangeList)) {
+          data.mainPlanBayRangeList.forEach((item: any) => {
+            if (item.yardBay && item.yardRaw) {
+              mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
+            }
+          });
+        } else {
+          // 如果没有传入，则通过接口获取（兼容旧逻辑）
+          try {
+            const mainPlanData = await getMainPlan(data.mainId);
+            if (mainPlanData && mainPlanData.bayRangeList) {
+              mainPlanData.bayRangeList.forEach((item: any) => {
+                if (item.yardBay && item.yardRaw) {
+                  mainPlanBayRangeMap.value[item.yardBay] = item.yardRaw;
+                }
+              });
+            }
+          } catch (error) {
+            console.error('获取主计划数据失败：', error);
           }
-        } catch (error) {
-          console.error('获取主计划数据失败：', error);
         }
       }
       if (
@@ -687,8 +705,6 @@ const [Modal, modalApi] = useVbenModal({
       if (data.pickupPlanNo) {
         pickupPlanNoShow.value = true;
       }
-      initIsoData(formData.mainId);
-      initOwnerData(formData.mainId);
 
       if (subPlanData?.id) {
         modalApi.lock();
@@ -710,47 +726,49 @@ const [Modal, modalApi] = useVbenModal({
           }
 
           const $grid = gridApi.grid;
-          if ($grid) {
-            // 设置箱区范围数据
-            if (subPlanData.bayRangeList) {
-              if (Array.isArray(subPlanData.bayRangeList)) {
-                for (const bayRange of subPlanData.bayRangeList) {
-                  const yardPosition = bayRange.yardBay || '';
+          if (
+            $grid && // 设置箱区范围数据
+            subPlanData.bayRangeList &&
+            Array.isArray(subPlanData.bayRangeList)
+          ) {
+            for (const bayRange of subPlanData.bayRangeList) {
+              const yardPosition = bayRange.yardBay || '';
 
-                  if (yardPosition) {
-                    const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
-                    if (mainPlanYardRaw) {
-                      const allowedColumns = mainPlanYardRaw
-                        .split(',')
-                        .map((col) => col.trim())
-                        .filter(Boolean);
-                      yardColumnsOptions.value[yardPosition] = allowedColumns.map(
-                        (col) => ({
-                          label: col,
-                          value: col,
-                        }),
-                      );
-                    }
-                  }
-                  const yardColumns = bayRange.yardRaw
-                    ? bayRange.yardRaw.split(',').map(col => col.trim()).filter(Boolean)
-                    : [];
-
-                  await $grid.insertAt(
-                    {
-                      yardPosition,
-                      yardColumns,
-                      totalCount: bayRange.totalCount || '',
-                      minDays: bayRange.minDays || '',
-                      maxDays: bayRange.maxDays || '',
-                    },
-                    -1,
+              if (yardPosition) {
+                const mainPlanYardRaw = mainPlanBayRangeMap.value[yardPosition];
+                if (mainPlanYardRaw) {
+                  const allowedColumns = mainPlanYardRaw
+                    .split(',')
+                    .map((col) => col.trim())
+                    .filter(Boolean);
+                  yardColumnsOptions.value[yardPosition] = allowedColumns.map(
+                    (col) => ({
+                      label: col,
+                      value: col,
+                    }),
                   );
                 }
               }
+              const yardColumns = bayRange.yardRaw
+                ? bayRange.yardRaw
+                  .split(',')
+                  .map((col) => col.trim())
+                  .filter(Boolean)
+                : [];
+
+              await $grid.insertAt(
+                {
+                  yardPosition,
+                  yardColumns,
+                  totalCount: bayRange.totalCount || 0,
+                  minDays: bayRange.minDays || 0,
+                  maxDays: bayRange.maxDays || 0,
+                },
+                -1,
+              );
             }
           }
-          await updateStorageCondition();
+          // await updateStorageCondition();
         } finally {
           modalApi.unlock();
         }
@@ -779,78 +797,6 @@ const [Modal, modalApi] = useVbenModal({
     }
   },
 });
-
-// 查询堆存情况
-const getStorageConditionSearch = async (row: any) => {
-  const $grid = gridApi.grid;
-  const rowIndex = $grid.getRowIndex(row);
-
-  const originalBayRange =
-    formData.bayRangeList && formData.bayRangeList[rowIndex];
-  const originalYard = originalBayRange ? originalBayRange.yardRaw : '';
-  const originalYardArray = originalYard
-    ? originalYard.split(',').filter((item) => item.trim())
-    : [];
-
-  const newYard = Array.isArray(row.yardColumns) ? row.yardColumns : [];
-  try {
-    // 清空上次查询结果
-    row.totalCount = undefined;
-    row.minDays = undefined;
-    row.maxDays = undefined;
-
-    if (!row.yardPosition) {
-      message.warning('请先填写堆场位置');
-      return;
-    }
-    if (formData.id && originalYardArray.length > 0) {
-      const removedItems = originalYardArray.filter(
-        (item) => !newYard.includes(item),
-      );
-
-      if (removedItems.length > 0) {
-        const allValues = [...originalYardArray];
-        newYard.forEach((item) => {
-          if (!allValues.includes(item)) {
-            allValues.push(item);
-          }
-        });
-
-        row.yardColumns = allValues;
-        message.warning(`不能删除已存在的堆场列: ${removedItems.join(', ')}`);
-        await $grid.updateData();
-        return;
-      }
-    }
-    // 构建接口请求参数
-    const requestData = {
-      yardBayList: [
-        {
-          yardBay: row.yardPosition,
-          yardRaw: row.yardColumns ? row.yardColumns.join(',') : '',
-        },
-      ],
-      baseInfo: {
-        contIsoList: transformStringToArray(formData.contIsoList),
-        ownerCodeList: transformStringToArray(formData.ownerCodeList),
-        tradeType: formData.tradeType,
-        dischargeVslSchedule: formData.dischargeVslSchedule,
-      },
-    };
-
-    const response = await getStorageQuantity(requestData);
-    if (response.length > 0) {
-      row.totalCount = response[0].totalCount || 0;
-      row.minDays = response[0].minDays || 0;
-      row.maxDays = response[0].maxDays || 0;
-    } else {
-      message.warning(`无可用量`);
-    }
-  } catch (error) {
-    console.log(error);
-    message.warning('堆存查询失败或异常，请重试');
-  }
-};
 
 const updateStorageCondition = async () => {
   const $grid = gridApi.grid;
@@ -1001,6 +947,7 @@ const modalTitle = computed(() => {
                   v-model:value="row.yardColumns"
                   mode="multiple"
                   placeholder="请选择堆场列"
+                  :loading="loadingMap.get(row.yardPosition)"
                   :options="getYardColumnsOptions(row)"
                   style="width: 100%"
                   :show-search="false"

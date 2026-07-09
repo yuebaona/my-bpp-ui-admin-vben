@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { BppBaseContainerApi } from '#/api/bpp/base/container';
+import type { ViolationCfgApi } from '#/api/bpp/flow/gate/violation';
 
 import { ref } from 'vue';
 
@@ -11,11 +11,11 @@ import { message } from 'ant-design-vue';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  deleteBaseContainer,
-  deleteBaseContainerList,
-  exportBaseContainer,
-  getBaseContainerPage,
-} from '#/api/bpp/base/container';
+  deleteViolationCfg,
+  deleteViolationCfgList,
+  exportViolationCfg,
+  getViolationCfgPage,
+} from '#/api/bpp/flow/gate/violation';
 import { $t } from '#/locales';
 
 import { useGridColumns, useGridFormSchema } from './data';
@@ -31,24 +31,24 @@ function handleRefresh() {
   gridApi.query();
 }
 
-/** 创建集装箱基础信息 */
+/** 创建违规规则配置 */
 function handleCreate() {
   formModalApi.setData(null).open();
 }
 
-/** 编辑集装箱基础信息 */
-function handleEdit(row: BppBaseContainerApi.BaseContainer) {
+/** 编辑违规规则配置 */
+function handleEdit(row: ViolationCfgApi.ViolationCfgVO) {
   formModalApi.setData(row).open();
 }
 
-/** 删除集装箱基础信息 */
-async function handleDelete(row: BppBaseContainerApi.BaseContainer) {
+/** 删除违规规则配置 */
+async function handleDelete(row: ViolationCfgApi.ViolationCfgVO) {
   const hideLoading = message.loading({
     content: $t('ui.actionMessage.deleting', [row.id]),
     duration: 0,
   });
   try {
-    await deleteBaseContainer(row.id!);
+    await deleteViolationCfg(row.id!);
     message.success($t('ui.actionMessage.deleteSuccess', [row.id]));
     handleRefresh();
   } finally {
@@ -56,7 +56,7 @@ async function handleDelete(row: BppBaseContainerApi.BaseContainer) {
   }
 }
 
-/** 批量删除集装箱基础信息 */
+/** 批量删除违规规则配置 */
 async function handleDeleteBatch() {
   await confirm($t('ui.actionMessage.deleteBatchConfirm'));
   const hideLoading = message.loading({
@@ -64,7 +64,7 @@ async function handleDeleteBatch() {
     duration: 0,
   });
   try {
-    await deleteBaseContainerList(checkedIds.value);
+    await deleteViolationCfgList(checkedIds.value);
     checkedIds.value = [];
     message.success($t('ui.actionMessage.deleteSuccess'));
     handleRefresh();
@@ -77,15 +77,15 @@ const checkedIds = ref<number[]>([]);
 function handleRowCheckboxChange({
   records,
 }: {
-  records: BppBaseContainerApi.BaseContainer[];
+  records: ViolationCfgApi.ViolationCfgVO[];
 }) {
   checkedIds.value = records.map((item) => item.id!);
 }
 
 /** 导出表格 */
 async function handleExport() {
-  const data = await exportBaseContainer(await gridApi.formApi.getValues());
-  downloadFileFromBlobPart({ fileName: '集装箱基础信息.xls', source: data });
+  const data = await exportViolationCfg(await gridApi.formApi.getValues());
+  downloadFileFromBlobPart({ fileName: '违规规则配置.xls', source: data });
 }
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -99,7 +99,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getBaseContainerPage({
+          return await getViolationCfgPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -115,7 +115,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       refresh: true,
       search: true,
     },
-  } as VxeTableGridOptions<BppBaseContainerApi.BaseContainer>,
+  } as VxeTableGridOptions<ViolationCfgApi.ViolationCfgVO>,
   gridEvents: {
     checkboxAll: handleRowCheckboxChange,
     checkboxChange: handleRowCheckboxChange,
@@ -126,22 +126,22 @@ const [Grid, gridApi] = useVbenVxeGrid({
 <template>
   <Page auto-content-height>
     <FormModal @success="handleRefresh" />
-    <Grid table-title="集装箱基础信息列表">
+    <Grid table-title="违规规则配置列表">
       <template #toolbar-tools>
         <TableAction
           :actions="[
             {
-              label: $t('ui.actionTitle.create', ['集装箱基础信息']),
+              label: $t('ui.actionTitle.create', ['违规规则配置']),
               type: 'primary',
               icon: ACTION_ICON.ADD,
-              auth: ['bpp:base-container:create'],
+              auth: ['gate:violation:create'],
               onClick: handleCreate,
             },
             {
               label: $t('ui.actionTitle.export'),
               type: 'primary',
               icon: ACTION_ICON.DOWNLOAD,
-              auth: ['bpp:base-container:export'],
+              auth: ['gate:violation:export'],
               onClick: handleExport,
             },
             {
@@ -149,7 +149,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'primary',
               danger: true,
               icon: ACTION_ICON.DELETE,
-              auth: ['bpp:base-container:delete'],
+              auth: ['gate:violation:delete'],
               disabled: isEmpty(checkedIds),
               onClick: handleDeleteBatch,
             },
@@ -163,7 +163,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               label: $t('common.edit'),
               type: 'link',
               icon: ACTION_ICON.EDIT,
-              auth: ['bpp:base-container:update'],
+              auth: ['gate:violation:update'],
               onClick: handleEdit.bind(null, row),
             },
             {
@@ -171,7 +171,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               type: 'link',
               danger: true,
               icon: ACTION_ICON.DELETE,
-              auth: ['bpp:base-container:delete'],
+              auth: ['gate:violation:delete'],
               popConfirm: {
                 title: $t('ui.actionMessage.deleteConfirm', [row.id]),
                 confirm: handleDelete.bind(null, row),
