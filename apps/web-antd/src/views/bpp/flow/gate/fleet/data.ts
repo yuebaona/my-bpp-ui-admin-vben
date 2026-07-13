@@ -1,11 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { DescriptionItemSchema } from '#/components/description';
+
+import dayjs from 'dayjs';
 
 import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
 
@@ -119,8 +119,9 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'rstrCnt',
       title: '已限制次数',
-      minWidth: 100,
-      filterRender: { name: 'VxeInput', props: { clearable: true, type: 'number' } },
+      minWidth: 120,
+      sortable: true,
+      filterRender: { name: 'VxeNumberInput', props: { clearable: true } },
     },
     {
       field: 'isRstr',
@@ -136,7 +137,7 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
             { label: '是', value: 1 },
             { label: '否', value: 0 },
           ],
-          clearable: true
+          clearable: true,
         },
       },
     },
@@ -158,33 +159,78 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
             { label: '北港网', value: '北港网' },
             { label: '业务处理平台', value: '业务处理平台' },
           ],
-          clearable: true
+          clearable: true,
         },
       },
     },
     {
       field: 'rstrStarDt',
       title: '限制开始时间',
-      minWidth: 120,
-      filterRender: { name: 'VxeInput', props: { type: 'date',clearable: true } },
+      minWidth: 130,
+      sortable: true,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: { type: 'date', clearable: true },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
+        },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
+      },
     },
     {
       field: 'rstrEndDt',
       title: '限制结束时间',
-      minWidth: 120,
-      filterRender: { name: 'VxeInput', props: { type: 'date', clearable: true} },
+      minWidth: 130,
+      sortable: true,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: { type: 'date', clearable: true },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
+        },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
+      },
     },
     {
       field: 'rstrLastDt',
       title: '最近一次限制时间合计',
       minWidth: 180,
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          type: 'number',
-          clearable: true
-        }
-      },
+      sortable: true,
+      filterRender: { name: 'VxeNumberInput', props: { clearable: true } },
     },
     {
       field: 'legalNm',
@@ -248,11 +294,10 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
         name: 'VxeSelect',
         props: {
           options: [
-            { label: '', value: '' },
             { label: '北港网', value: '北港网' },
             { label: '业务处理平台', value: '业务处理平台' },
           ],
-          clearable: true
+          clearable: true,
         },
       },
     },
@@ -260,15 +305,63 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'createTime',
       title: '创建时间',
       minWidth: 150,
+      sortable: true,
       formatter: 'formatDateTime',
-      filterRender: { name: 'VxeInput', props: { type: 'date', clearable: true} },
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: { type: 'date', clearable: true },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
+        },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
+      },
     },
     {
       field: 'updateTime',
       title: '更新时间',
       minWidth: 150,
+      sortable: true,
       formatter: 'formatDateTime',
-      filterRender: { name: 'VxeInput', props: { type: 'date', clearable: true} },
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
+        },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
+      },
     },
     {
       field: 'enableFlg',
@@ -284,7 +377,7 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
             { label: '是', value: 1 },
             { label: '否', value: 0 },
           ],
-          clearable: true
+          clearable: true,
         },
       },
     },
@@ -566,8 +659,8 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       width: 60,
     },
     {
-      field: 'fltNm',
-      title: '车队',
+      field: 'fltName',
+      title: '车队名称',
       minWidth: 150,
       filterRender: {
         name: 'VxeInput',
@@ -578,7 +671,7 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       editRender: { name: 'input' },
     },
     {
-      field: 'rstrReason',
+      field: 'rstrDesc',
       title: '限制代码：描述',
       minWidth: 200,
       filterRender: {
@@ -591,85 +684,136 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'rstrStartDt',
       title: '限制开始时间',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          popupStyle: { zIndex: 8001 },
+        props: { type: 'date', clearable: true, popupStyle: { zIndex: 8001 } },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
       },
-      formatter: ({ cellValue }) => {
-        if (!cellValue) return '';
-        return new Date(cellValue).toLocaleString('zh-CN');
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
       field: 'rstrEndDt',
       title: '限制结束时间',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          popupStyle: { zIndex: 8001 },
+        props: { type: 'date', clearable: true, popupStyle: { zIndex: 8001 } },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
       },
-      formatter: ({ cellValue }) => {
-        if (!cellValue) return '';
-        return new Date(cellValue).toLocaleString('zh-CN');
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
-      field: 'lastRstrDt',
-      title: '限制时间合计',
-      minWidth: 120,
-      filterRender: {
-        name: 'VxeInput',
-        props: {
-          clearable: true,
-          type: 'number'
-        }
-      },
+      field: 'rstrTotalTime',
+      title: '最近一次限制时间合计',
+      minWidth: 180,
+      sortable: true,
+      filterRender: { name: 'VxeNumberInput', props: { clearable: true } },
     },
     {
       field: 'createTime',
       title: '创建时间',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          popupStyle: { zIndex: 8001 },
+        props: { type: 'date', clearable: true, popupStyle: { zIndex: 8001 } },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
       },
-      formatter: ({ cellValue }) => {
-        if (!cellValue) return '';
-        return new Date(cellValue).toLocaleString('zh-CN');
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
       field: 'releaseTime',
       title: '解除限制时间',
-      minWidth: 120,
+      minWidth: 150,
+      sortable: true,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          popupStyle: { zIndex: 8001 },
+        props: { type: 'date', clearable: true, popupStyle: { zIndex: 8001 } },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
       },
-      formatter: ({ cellValue }) => {
-        if (!cellValue) return '';
-        return new Date(cellValue).toLocaleString('zh-CN');
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
-      field: 'rstrDataSrc',
+      field: 'dataSrc',
       title: '限制信息来源',
       minWidth: 120,
       filterRender: {
@@ -684,7 +828,7 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'createAccount',
+      field: 'creator',
       title: '创建账号',
       minWidth: 120,
       filterRender: {
@@ -701,8 +845,8 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
 export function restrictionFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'fltCd',
-      label: '车队代码',
+      fieldName: 'fltName',
+      label: '车队名称',
       component: 'Input',
       rules: 'required',
     },
@@ -720,6 +864,8 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       rules: 'required',
       componentProps: {
         popupStyle: { zIndex: 8001 },
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
     },
@@ -730,11 +876,13 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       rules: 'required',
       componentProps: {
         popupStyle: { zIndex: 8001 },
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
     },
     {
-      fieldName: 'lastRstrDt',
+      fieldName: 'rstrTotalTime',
       label: '限制时间合计',
       component: 'Input',
       componentProps: {
@@ -757,9 +905,10 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       fieldName: 'releaseTime',
       label: '解除限制时间',
       component: 'DatePicker',
-      rules: 'required',
       componentProps: {
         popupStyle: { zIndex: 8001 },
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
     },
@@ -773,7 +922,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       slot: true,
     },
     {
-      fieldName: 'createAccount',
+      fieldName: 'creator',
       label: '创建账号',
       component: 'Input',
       componentProps: {

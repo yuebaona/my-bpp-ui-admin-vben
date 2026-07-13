@@ -10,8 +10,6 @@ import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { getFleetDetail, saveFleet } from '#/api/bpp/flow/gate/fleet';
-import { getRestrictionCodeList } from '#/api/bpp/flow/gate/truck/rstr';
-import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
 import { detailFormSchema } from '../data';
 import RestrictionInfo from './restrictionInfo.vue';
@@ -87,37 +85,16 @@ const [RestrictionInfoFormModal, restrictionInfoFormModalApi] = useVbenModal({
   zIndex: 2000,
 });
 
-const {
-  state: rstrReasonState,
-  search: rstrReasonSearch,
-  handleInput: handleRstrReasonInput,
-  handleCompositionStart: handleRstrReasonCompositionStart,
-  handleCompositionEnd: handleRstrReasonCompositionEnd,
-} = useSearchSelect({
-  searchApi: async () => {
-    return await getRestrictionCodeList();
-  },
-  labelField: 'rstrRsn',
-  valueField: 'rstrRsn',
-  errorMessage: '获取限制代码失败',
-  toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
-});
-
-const handleRstrReasonChange = async (value: any) => {
-  rstrReasonState.value = value;
-  (formData as any).rstrReason = value;
-  await formApi.setFieldValue('rstrReason', value);
-  await formApi.validateField('rstrReason');
-};
-
 const applyFormState = (disabled: boolean) => {
   const schema = detailFormSchema();
   const updated = schema
     .filter((field) => field.fieldName)
     .map((field) => ({
       ...field,
-      formItemClass: [field.formItemClass, changedFields.value.has(field.fieldName!) ? 'field-changed' : '']
+      formItemClass: [
+        field.formItemClass,
+        changedFields.value.has(field.fieldName!) ? 'field-changed' : '',
+      ]
         .filter(Boolean)
         .join(' '),
       componentProps: {
@@ -129,7 +106,7 @@ const applyFormState = (disabled: boolean) => {
 };
 
 const saveDataBeforeEdit = () => {
-  dataBeforeEdit.value = { ...formData, rstrReason: rstrReasonState.value };
+  dataBeforeEdit.value = { ...formData };
   changedFields.value = new Set();
 };
 
@@ -155,9 +132,6 @@ const checkHighlight = async () => {
       fields.add(key);
     }
   }
-  if (rstrReasonState.value != before.rstrReason) {
-    fields.add('rstrReason');
-  }
   const prev = [...changedFields.value].sort().join(',');
   const next = [...fields].sort().join(',');
   if (prev === next) return;
@@ -169,7 +143,10 @@ const checkHighlight = async () => {
       .filter((f) => f.fieldName)
       .map((f) => ({
         ...f,
-        formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : '']
+        formItemClass: [
+          f.formItemClass,
+          fields.has(f.fieldName!) ? 'field-changed' : '',
+        ]
           .filter(Boolean)
           .join(' '),
         componentProps: {
@@ -224,7 +201,6 @@ watch(
     try {
       if (newMode === 'create') {
         stopChecking();
-        rstrReasonState.value = '';
         Object.assign(formData, initFormData());
         if (formApi) {
           await formApi.setValues(formData);
@@ -235,7 +211,6 @@ watch(
       } else if ((newMode === 'edit' || newMode === 'view') && props.rowData) {
         stopChecking();
         const rowData = formatTimestamps(props.rowData);
-        rstrReasonState.value = (rowData as any).rstrReason ?? '';
         Object.assign(formData, rowData);
         if (formApi) {
           await formApi.setValues(formData);
@@ -262,7 +237,6 @@ const loadFleetDetail = async (id: number) => {
   try {
     const res = await getFleetDetail(id);
     const formatted = formatTimestamps(res);
-    rstrReasonState.value = (formatted as any).rstrReason ?? '';
     Object.assign(formData, formatted);
     await formApi.setValues(formData);
     clearChangedFields();
@@ -281,7 +255,6 @@ watch(
     if (!newRow || currentMode.value === 'create') return;
     stopChecking();
     const rowData = formatTimestamps(newRow);
-    rstrReasonState.value = (rowData as any).rstrReason ?? '';
     Object.assign(formData, rowData);
     if (formApi) {
       await formApi.setValues(formData);
@@ -335,14 +308,9 @@ const handleRestriction = async () => {
 
 const clearForm = () => {
   stopChecking();
-  rstrReasonState.value = '';
   Object.assign(formData, initFormData());
   clearChangedFields();
   formApi.setValues(formData);
-};
-
-const resetForm = () => {
-  Object.assign(formData, initFormData());
 };
 
 defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadFleetDetail });
@@ -370,6 +338,11 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadFleetDetail });
       <template #rstrCnt>
         <span class="text-gray-800">
           {{ formData?.rstrCnt == null || formData?.rstrCnt === '' ? '-' : formData.rstrCnt }}
+        </span>
+      </template>
+      <template #rstrReason>
+        <span class="text-gray-800">
+          {{ formData?.rstrReason == null || formData?.rstrReason === '' ? '-' : formData.rstrReason }}
         </span>
       </template>
       <template #rstrDataSrc>
@@ -406,25 +379,6 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadFleetDetail });
         <span class="text-gray-800">
           {{ formData?.updateTime == null || formData?.updateTime === '' ? '-' : formData.updateTime }}
         </span>
-      </template>
-      <template #rstrReason>
-        <a-select
-          v-model:value="rstrReasonState.value"
-          :disabled="currentMode === 'view'"
-          placeholder="请输入限制代码"
-          style="width: 100%"
-          :filter-option="false"
-          :not-found-content="rstrReasonState.fetching ? undefined : null"
-          :options="rstrReasonState.data"
-          allow-clear
-          show-search
-          @change="handleRstrReasonChange"
-          @input="handleRstrReasonInput"
-          @search="rstrReasonSearch"
-          @focus="rstrReasonSearch('')"
-          @compositionstart="handleRstrReasonCompositionStart"
-          @compositionend="handleRstrReasonCompositionEnd"
-        />
       </template>
     </Form>
   </div>

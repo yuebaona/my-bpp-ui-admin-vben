@@ -1,41 +1,42 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { DriverApi } from '#/api/bpp/flow/gate/driver/manager';
+import type { TruckApi } from '#/api/bpp/flow/gate/truck/management';
 
 import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
+import { useDebounceFn } from '@vueuse/core';
 import { Modal, message } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getDriverPage } from '#/api/bpp/flow/gate/driver/manager';
+import { getTruckPage } from '#/api/bpp/flow/gate/truck/management';
 import {
-  driverInfoColumns,
-  driverSearchSchema,
-} from '#/views/bpp/gate/driver/management/data';
-import DetailForm from '#/views/bpp/gate/driver/management/modules/detailForm.vue';
+  truckInfoColumns,
+  truckSearchSchema,
+} from '#/views/bpp/flow/gate/truck/management/data';
+import DetailForm from '#/views/bpp/flow/gate/truck/management/modules/detailForm.vue';
 
-/** 页面下方详情表单 */
+// 页面下方详情表单
 const detailFormRef = ref();
 
-/** 表单模式（新增/编辑/查看），默认查看 */
+// 表单模式（新增/编辑/查看），默认查看
 const formMode = ref<'create' | 'edit' | 'view'>('view');
 
-/** 选中的司机ID */
-const selectedDriverId = ref<string>('');
+// 选中的车辆ID
+const selectedTruckId = ref<string>('');
 
-/** 选中的行数据 */
-const selectedRowData = ref<DriverApi.driverVO | null>(null);
+// 选中的行数据
+const selectedRowData = ref<null | TruckApi.Truck>(null);
 
-/** 是否首次加载，用于默认选中第一行 */
+// 是否首次加载，用于默认选中第一行
 let isFirstLoad = true;
 
-/** 点击表格行 */
-const handleRowClick = (row: DriverApi.driverVO) => {
+// 点击表格行
+const handleRowClick = (row: TruckApi.Truck) => {
   if (
     (formMode.value === 'edit' || formMode.value === 'create') &&
     detailFormRef.value?.hasUnsavedChanges()
@@ -48,7 +49,7 @@ const handleRowClick = (row: DriverApi.driverVO) => {
       centered: true,
       onOk: () => {
         selectedRowData.value = row;
-        selectedDriverId.value = String(row.id);
+        selectedTruckId.value = String(row.id);
         formMode.value = 'view';
         detailFormRef.value?.clearForm();
       },
@@ -56,13 +57,13 @@ const handleRowClick = (row: DriverApi.driverVO) => {
     return;
   }
   selectedRowData.value = row;
-  selectedDriverId.value = String(row.id);
+  selectedTruckId.value = String(row.id);
   formMode.value = 'view';
 };
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    schema: driverSearchSchema(),
+    schema: truckSearchSchema(),
     submitButtonOptions: {
       content: $t('cxmo.action.search'),
     },
@@ -85,7 +86,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     filterConfig: {
       enabled: true,
     },
-    columns: driverInfoColumns(),
+    columns: truckInfoColumns(),
     height: '100%',
     keepSource: true,
     mouseConfig: {
@@ -152,11 +153,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ],
     },
     proxyConfig: {
-      autoLoad: true,
       ajax: {
         query: async ({ page }, formValues) => {
           const queryParam = { ...formValues };
-          const res = await getDriverPage({
+          const res = await getTruckPage({
             pageNo: page.currentPage,
             pageSize: page.pageSize,
             ...queryParam,
@@ -166,7 +166,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
           if (isFirstLoad && res?.list?.length > 0) {
             const firstRow = res.list[0];
             selectedRowData.value = firstRow;
-            selectedDriverId.value = String(firstRow.id);
+            selectedTruckId.value = String(firstRow.id);
             formMode.value = 'view';
             isFirstLoad = false;
           }
@@ -174,9 +174,22 @@ const [Grid, gridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<DriverApi.driverVO>,
+  } as VxeTableGridOptions<TruckApi.Truck>,
   gridEvents: {
-    cellClick: ({ row }: { row: DriverApi.driverVO }) => {
+    checkboxAll: handleRowCheckboxChange,
+    checkboxChange: handleRowCheckboxChange,
+    filterChange: useDebounceFn(async ({ filterList }) => {
+      const searchCont = filterList.reduce((obj, item) => {
+        if (item.datas && item.datas.length > 0) {
+          obj[item.field] = item.datas[0];
+        }
+        return obj;
+      }, {});
+    }, 300),
+    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
+      handleRowCheckboxChange({ records: rangeRecords });
+    },
+    cellClick: ({ row }: { row: TruckApi.Truck }) => {
       handleRowClick(row);
     },
   },
@@ -186,14 +199,23 @@ const [Grid, gridApi] = useVbenVxeGrid({
 function handleRefresh(createdId?: string) {
   gridApi.query();
   if (createdId) {
-    selectedDriverId.value = String(createdId);
+    selectedTruckId.value = String(createdId);
     formMode.value = 'view';
   }
 }
 
+/** 车辆信息勾选操作 */
+const truckIds = ref<number[]>([]);
+function handleRowCheckboxChange({ records }: { records: TruckApi.Truck[] }) {
+  truckIds.value = records.map((item) => item.id);
+}
+
 /** 切换到新增模式 */
 function handleCreate() {
-  if (formMode.value === 'edit' && detailFormRef.value?.hasUnsavedChanges()) {
+  if (
+    (formMode.value === 'edit' || formMode.value === 'create') &&
+    detailFormRef.value?.hasUnsavedChanges()
+  ) {
     Modal.confirm({
       title: '提示',
       content: '当前有未保存的更改，是否放弃更改？',
@@ -203,7 +225,7 @@ function handleCreate() {
       onOk: () => {
         formMode.value = 'create';
         selectedRowData.value = null;
-        selectedDriverId.value = '';
+        selectedTruckId.value = '';
         detailFormRef.value?.clearForm();
       },
     });
@@ -211,13 +233,13 @@ function handleCreate() {
   }
   formMode.value = 'create';
   selectedRowData.value = null;
-  selectedDriverId.value = '';
+  selectedTruckId.value = '';
   detailFormRef.value?.clearForm();
 }
 
 /** 切换到编辑模式 */
 function handleEdit() {
-  if (!selectedDriverId.value || !selectedRowData.value) {
+  if (!selectedTruckId.value || !selectedRowData.value) {
     message.warning('请先点击选择一行数据');
     return;
   }
@@ -234,8 +256,14 @@ function handleExport() {
   const $grid = gridApi.grid;
   if (!$grid) return;
 
-  const TIME_FIELDS = new Set(['createTime', 'updateTime']);
-  const BOOL_FIELDS = new Set(['isValid']);
+  const TIME_FIELDS = new Set([
+    'attachDt',
+    'createTime',
+    'inspDt',
+    'licExpDt',
+    'updateTime',
+  ]);
+  const BOOL_FIELDS = new Set(['autoFlg', 'enableFlg']);
 
   const { fullData } = $grid.getTableData();
   const columns = $grid.getColumns();
@@ -257,7 +285,7 @@ function handleExport() {
           if (TIME_FIELDS.has(field))
             return dayjs(val).format('YYYY-MM-DD HH:mm:ss');
           if (BOOL_FIELDS.has(field))
-            return val === true || val === 'true' ? '是' : '否';
+            return val === 1 || val === '1' ? '是' : '否';
           return String(val);
         })
         .join('</td><td>'),
@@ -279,7 +307,7 @@ function handleExport() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `司机信息${now}.xls`;
+  a.download = `车辆信息${now}.xls`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -290,7 +318,7 @@ function handleExport() {
     <!-- 搜索栏和表格 -->
     <div class="flex flex-1 flex-col overflow-hidden">
       <Page auto-content-height class="h-full">
-        <Grid table-title="司机信息列表">
+        <Grid table-title="车辆信息列表">
           <template #toolbar-tools>
             <TableAction
               :actions="[
@@ -329,7 +357,7 @@ function handleExport() {
     <div class="flex-shrink-0 border-t border-gray-200 bg-white">
       <DetailForm
         ref="detailFormRef"
-        :driver-id="selectedDriverId"
+        :truck-id="selectedTruckId"
         :mode="formMode"
         :row-data="selectedRowData"
         @success="handleRefresh"

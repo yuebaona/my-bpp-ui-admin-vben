@@ -74,29 +74,25 @@ export function pageFleet(params: PageParam) {
 
 /** 日志查询按钮 todo */
 
-/** 导出按钮 */
-export function exportFleet(params: any) {
-  return requestClient.download('/bpp/flow/gate/fleet/export-excel', {
-    params,
-  });
-}
-
 /** 获取车队限制信息 */
 export function getFleetRstr(fltId: number) {
   return requestClient.get<FleetViewApi.fleetVO>(
     `/bpp/flow/gate/fleet/get-rstr?fltId=${fltId}`,
   );
 }
-/** 创建车队限制记录 */
-export function createFleetRstr(data: FleetViewApi.fleetVO) {
-  return requestClient.post('/bpp/flow/gate/fleet/rstr/create', data);
+
+/** 保存车队限制记录 */
+export function saveFleetRstr(data: FleetViewApi.fleetVO) {
+  return requestClient.post('/bpp/flow/gate/fleet/rstr/save', data);
 }
+
 /** 手动解除车队限制 */
 export function releaseFleetRstr(fltRstrId: number) {
   return requestClient.post(
     `/bpp/flow/gate/fleet/rstr/release?fltRstrId=${fltRstrId}`,
   );
 }
+
 /** 获取车队详情 */
 export function getFleetDetail(id: number) {
   return requestClient.get<FleetViewApi.fleetVO>(
