@@ -11,9 +11,9 @@ import dayjs from 'dayjs';
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  createFleetRstr,
   getFleetRstr,
   getRstrReason,
+  saveFleetRstr,
 } from '#/api/bpp/flow/gate/fleet/';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
@@ -41,18 +41,16 @@ let checkTimer: null | ReturnType<typeof setInterval> = null;
 
 const initFormData = () => ({
   id: 0,
-  fltGkey: '',
-  fltCd: '',
+  fltName: '',
   rstrRsn: '',
   rstrStartDt: '',
   rstrEndDt: '',
-  lastRstrDt: 0,
+  rstrTotalTime: 0,
   createTime: '',
   releaseTime: '',
   manualRelFlg: 0,
-  remark: '',
-  dataSrc: '业务处理平台',
-  createAccount: '',
+  dataSrc: '',
+  creator: '',
 });
 
 const formData = reactive(initFormData());
@@ -74,10 +72,14 @@ const [Form, formApi] = useVbenForm({
     if (days <= 0) return;
 
     if (changedFields.includes('rstrStartDt') && values.rstrStartDt) {
-      const end = dayjs(values.rstrStartDt).add(days, 'day').format('YYYY-MM-DD HH:mm:ss');
+      const end = dayjs(values.rstrStartDt)
+        .add(days, 'day')
+        .format('YYYY-MM-DD HH:mm:ss');
       formApi.setFieldValue('rstrEndDt', end);
     } else if (changedFields.includes('rstrEndDt') && values.rstrEndDt) {
-      const start = dayjs(values.rstrEndDt).subtract(days, 'day').format('YYYY-MM-DD HH:mm:ss');
+      const start = dayjs(values.rstrEndDt)
+        .subtract(days, 'day')
+        .format('YYYY-MM-DD HH:mm:ss');
       formApi.setFieldValue('rstrStartDt', start);
     }
   },
@@ -125,27 +127,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
       zoom: true,
     },
     pagerConfig: {
-      pageSize: 10,
-      enabled: true,
+      enabled: false,
     },
     proxyConfig: {
       autoLoad: true,
       ajax: {
-        query: async ({ page }, formValues) => {
-          // todo 这里接口输入参数是fltId，就是车队信息表的id，返回的虽然是分页形式的但是后端已经处理了是全部限制记录
-
-          // const res = await getFleetRstr({
-          //   pageNo: page.currentPage,
-          //   pageSize: page.pageSize,
-          //   ...formValues,
-          // });
-          // todo 改了一下
+        query: async () => {
           const res = await getFleetRstr(fleetData.value.id);
-          if (isFirstLoad && res?.list?.length > 0) {
-            handleRowClick(res.list[0]);
+          const list = res;
+          if (isFirstLoad && list.length > 0) {
+            handleRowClick(list[0]);
             isFirstLoad = false;
           }
-          return res;
+          return { list, total: list.length };
         },
       },
     },
@@ -157,6 +151,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
+/** 将行数据加载到表单 */
 const loadRstrDetail = (row: any) => {
   const formatted = formatTimestamps(row);
   if (formatted.rstrRsn) {
@@ -166,6 +161,7 @@ const loadRstrDetail = (row: any) => {
   formApi.setValues(formData);
 };
 
+/** 日期转成字符串*/
 const formatTimestamps = (rowData: any) => {
   if (!rowData) return rowData;
   const data = { ...rowData };
@@ -180,6 +176,7 @@ const formatTimestamps = (rowData: any) => {
   return data;
 };
 
+/** 切换表单模式（新增/编辑/查看） */
 const applyFormState = (disabled: boolean) => {
   isDisabled.value = disabled;
   const schema = restrictionFormSchema();
@@ -201,18 +198,22 @@ const applyFormState = (disabled: boolean) => {
   formApi.updateSchema(updated);
 };
 
+/** 编辑前保存数据快照，用于变更对比高亮 */
 const saveDataBeforeEdit = () => {
   dataBeforeEdit.value = { ...formData, rstrRsn: rstrReasonState.value };
   changedFields.value = new Set();
 };
 
+/** 是否有未保存的变更 */
 const hasUnsavedChanges = () => changedFields.value.size > 0;
 
+/** 清除变更标记和数据快照 */
 const clearChangedFields = () => {
   changedFields.value = new Set();
   dataBeforeEdit.value = {};
 };
 
+/** 高亮标记变更字段 */
 const checkHighlight = async () => {
   if (formMode.value !== 'edit') return;
   let vals: any;
@@ -282,7 +283,7 @@ watch(
         stopChecking();
         rstrReasonState.value = '';
         Object.assign(formData, initFormData());
-        formData.fltCd = fleetData.value?.fltCd || '';
+        formData.fltName = fleetData.value?.fltNm || '';
         await formApi.setValues(formData);
         clearChangedFields();
         await applyFormState(false);
@@ -311,6 +312,7 @@ watch(
   { immediate: true },
 );
 
+/** 有未保存更改时弹窗确认 */
 const handleRowClick = (row: any) => {
   if (formMode.value === 'edit' && hasUnsavedChanges()) {
     Modal.confirm({
@@ -334,6 +336,7 @@ const handleRowClick = (row: any) => {
   loadRstrDetail(row);
 };
 
+/** 切换到新增模式 */
 const handleCreate = () => {
   if (formMode.value === 'edit' && hasUnsavedChanges()) {
     Modal.confirm({
@@ -355,6 +358,7 @@ const handleCreate = () => {
   formMode.value = 'create';
 };
 
+/** 切换到编辑模式 */
 const handleEdit = () => {
   if (!selectedRstrId.value || !selectedRowData.value) {
     message.warning('请先点击选择一行数据');
@@ -363,24 +367,35 @@ const handleEdit = () => {
   formMode.value = 'edit';
 };
 
+/** 保存限制记录 */
 const handleSave = async () => {
   if (isSubmitting.value) return;
   isSubmitting.value = true;
 
   try {
     const { valid } = await formApi.validate();
-    if (!valid) {
-      return;
-    }
+    if (!valid) return;
 
     const formValues = await formApi.getValues();
-    Object.assign(formData, formValues);
 
     if (formMode.value === 'create') {
-      await createFleetRstr(formData);
+      await saveFleetRstr({
+        rstrRsn: formValues.rstrRsn,
+        rstrStartDt: formValues.rstrStartDt,
+        rstrEndDt: formValues.rstrEndDt,
+      });
       message.success('新增成功');
     } else if (formMode.value === 'edit') {
-      await createFleetRstr(formData);
+      const submitData: Record<string, any> = {
+        fleetRstrId: fleetData.value?.fleetRstrId,
+        rstrRsn: formValues.rstrRsn,
+        rstrStartDt: formValues.rstrStartDt,
+        rstrEndDt: formValues.rstrEndDt,
+      };
+      if (formValues.releaseTime) {
+        submitData.releaseTime = formValues.releaseTime;
+      }
+      await saveFleetRstr(submitData);
       message.success('更新成功');
     }
 
@@ -396,21 +411,15 @@ const handleSave = async () => {
   }
 };
 
+/** 取消并关闭弹窗 */
 const handleCancel = () => {
   modalApi.close();
 };
 
-const {
-  state: rstrReasonState,
-  search: rstrReasonSearch,
-  handleInput: handleRstrReasonInput,
-  handleCompositionStart: handleRstrReasonCompositionStart,
-  handleCompositionEnd: handleRstrReasonCompositionEnd,
-} = useSearchSelect({
+const { state: rstrReasonState, search: rstrReasonSearch } = useSearchSelect({
   searchApi: async () => {
     const res = await getRstrReason(fleetData.value.id);
-    const rawData = res.data || res;
-    return rawData.map((item: any) => ({
+    return res.map((item: any) => ({
       ...item,
       _label: `${item.ruleCd}：${item.ruleDesc}`,
       _value: item.id,
@@ -420,12 +429,13 @@ const {
   valueField: '_value' as any,
   errorMessage: '获取限制代码失败',
   toUpperCase: true,
-  filterRegex: /[^A-Z0-9\u4e00-\u9fa5/]/g,
+  filterRegex: /[^A-Z0-9\u4E00-\u9FA5/]/g,
 });
 
 /** 当前限制代码的天数 */
 const currentRstrDays = ref<number>(0);
 
+/** 选择限制代码后回调 */
 const handleRstrReasonChange = async (value: any) => {
   rstrReasonState.value = value;
   await formApi.setFieldValue('rstrRsn', value);
@@ -438,8 +448,14 @@ const handleRstrReasonChange = async (value: any) => {
     const rstrDays = selected.data.rstrDays;
     currentRstrDays.value = rstrDays;
     const startDate = dayjs();
-    await formApi.setFieldValue('rstrStartDt', startDate.format('YYYY-MM-DD HH:mm:ss'));
-    await formApi.setFieldValue('rstrEndDt', startDate.add(rstrDays, 'day').format('YYYY-MM-DD HH:mm:ss'));
+    await formApi.setFieldValue(
+      'rstrStartDt',
+      startDate.format('YYYY-MM-DD HH:mm:ss'),
+    );
+    await formApi.setFieldValue(
+      'rstrEndDt',
+      startDate.add(rstrDays, 'day').format('YYYY-MM-DD HH:mm:ss'),
+    );
   } else {
     currentRstrDays.value = 0;
   }
@@ -484,13 +500,25 @@ const [RstrModal, modalApi] = useVbenModal({
         <Grid />
       </div>
       <Form>
+        <template #fltName>
+          <span class="text-gray-600">
+            {{
+              formData?.fltName == null || formData?.fltName === ''
+                ? '-'
+                : formData.fltName
+            }}
+          </span>
+        </template>
         <template #rstrRsn>
           <a-select
             v-model:value="rstrReasonState.value"
             :disabled="isDisabled"
             placeholder="请输入限制代码"
             style="width: 100%"
-            :filter-option="(input: string, option: any) => option.label.toLowerCase().includes(input.toLowerCase())"
+            :filter-option="
+              (input: string, option: any) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+            "
             :not-found-content="rstrReasonState.fetching ? undefined : null"
             :options="rstrReasonState.data"
             allow-clear
@@ -499,17 +527,17 @@ const [RstrModal, modalApi] = useVbenModal({
             @focus="rstrReasonSearch('')"
           />
         </template>
-        <template #lastRstrDt>
-          <span class="text-gray-800">
+        <template #rstrTotalTime>
+          <span class="text-gray-600">
             {{
-              formData?.lastRstrDt == null || formData?.lastRstrDt === ''
+              formData?.rstrTotalTime == null || formData?.rstrTotalTime === ''
                 ? '-'
-                : formData.lastRstrDt
+                : formData.rstrTotalTime
             }}
           </span>
         </template>
         <template #createTime>
-          <span class="text-gray-800">
+          <span class="text-gray-600">
             {{
               formData?.createTime == null || formData?.createTime === ''
                 ? '-'
@@ -518,7 +546,7 @@ const [RstrModal, modalApi] = useVbenModal({
           </span>
         </template>
         <template #dataSrc>
-          <span class="text-gray-800">
+          <span class="text-gray-600">
             {{
               formData?.dataSrc == null || formData?.dataSrc === ''
                 ? '-'
@@ -526,12 +554,12 @@ const [RstrModal, modalApi] = useVbenModal({
             }}
           </span>
         </template>
-        <template #createAccount>
-          <span class="text-gray-800">
+        <template #creator>
+          <span class="text-gray-400">
             {{
-              formData?.createAccount == null || formData?.createAccount === ''
+              formData?.creator == null || formData?.creator === ''
                 ? '-'
-                : formData.createAccount
+                : formData.creator
             }}
           </span>
         </template>
