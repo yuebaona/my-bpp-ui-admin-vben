@@ -16,8 +16,8 @@ import { getDriverPage } from '#/api/bpp/flow/gate/driver/manager';
 import {
   driverInfoColumns,
   driverSearchSchema,
-} from '#/views/bpp/gate/driver/management/data';
-import DetailForm from '#/views/bpp/gate/driver/management/modules/detailForm.vue';
+} from '#/views/bpp/flow/gate/driver/management/data';
+import DetailForm from '#/views/bpp/flow/gate/driver/management/modules/detailForm.vue';
 
 /** 页面下方详情表单 */
 const detailFormRef = ref();
@@ -183,12 +183,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 /** 刷新表格 */
-function handleRefresh(createdId?: string) {
+function handleRefresh() {
   gridApi.query();
-  if (createdId) {
-    selectedDriverId.value = String(createdId);
-    formMode.value = 'view';
-  }
 }
 
 /** 切换到新增模式 */
