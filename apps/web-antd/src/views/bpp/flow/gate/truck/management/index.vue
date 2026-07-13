@@ -17,8 +17,8 @@ import { getTruckPage } from '#/api/bpp/flow/gate/truck/management';
 import {
   truckInfoColumns,
   truckSearchSchema,
-} from '#/views/bpp/gate/truck/management/data';
-import DetailForm from '#/views/bpp/gate/truck/management/modules/detailForm.vue';
+} from '#/views/bpp/flow/gate/truck/management/data';
+import DetailForm from '#/views/bpp/flow/gate/truck/management/modules/detailForm.vue';
 
 // 页面下方详情表单
 const detailFormRef = ref();
