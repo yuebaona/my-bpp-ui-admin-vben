@@ -16,8 +16,8 @@ import { getDriverPage } from '#/api/bpp/flow/gate/driver/manager';
 import {
   driverInfoColumns,
   driverSearchSchema,
-} from '#/views/bpp/flow/gate/driver/management/data';
-import DetailForm from '#/views/bpp/flow/gate/driver/management/modules/detailForm.vue';
+} from '#/views/bpp/flow/gate/driver/data';
+import DetailForm from '#/views/bpp/flow/gate/driver/modules/detailForm.vue';
 
 /** 页面下方详情表单 */
 const detailFormRef = ref();
