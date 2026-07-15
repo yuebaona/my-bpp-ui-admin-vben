@@ -28,9 +28,6 @@ const formMode = ref<'create' | 'edit' | 'view'>('view');
 // 选中的车辆ID
 const selectedTruckId = ref<string>('');
 
-// 选中的行数据
-const selectedRowData = ref<null | TruckViewApi.Truck>(null);
-
 // 是否首次加载，用于默认选中第一行
 let isFirstLoad = true;
 
@@ -47,7 +44,6 @@ const handleRowClick = (row: TruckViewApi.Truck) => {
       cancelText: '取消',
       centered: true,
       onOk: () => {
-        selectedRowData.value = row;
         selectedTruckId.value = String(row.id);
         formMode.value = 'view';
         detailFormRef.value?.clearForm();
@@ -55,7 +51,6 @@ const handleRowClick = (row: TruckViewApi.Truck) => {
     });
     return;
   }
-  selectedRowData.value = row;
   selectedTruckId.value = String(row.id);
   formMode.value = 'view';
 };
@@ -161,7 +156,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
           // 首次加载，默认选中第一行
           if (isFirstLoad && res?.list?.length > 0) {
             const firstRow = res.list[0];
-            selectedRowData.value = firstRow;
             selectedTruckId.value = String(firstRow.id);
             formMode.value = 'view';
             isFirstLoad = false;
@@ -202,7 +196,6 @@ function handleCreate() {
       centered: true,
       onOk: () => {
         formMode.value = 'create';
-        selectedRowData.value = null;
         selectedTruckId.value = '';
         detailFormRef.value?.clearForm();
       },
@@ -210,14 +203,13 @@ function handleCreate() {
     return;
   }
   formMode.value = 'create';
-  selectedRowData.value = null;
   selectedTruckId.value = '';
   detailFormRef.value?.clearForm();
 }
 
 /** 切换到编辑模式 */
 function handleEdit() {
-  if (!selectedTruckId.value || !selectedRowData.value) {
+  if (!selectedTruckId.value) {
     message.warning('请先点击选择一行数据');
     return;
   }
@@ -271,7 +263,6 @@ async function handleSave() {
         ref="detailFormRef"
         :truck-id="selectedTruckId"
         :mode="formMode"
-        :row-data="selectedRowData"
         @success="handleRefresh"
       />
     </div>

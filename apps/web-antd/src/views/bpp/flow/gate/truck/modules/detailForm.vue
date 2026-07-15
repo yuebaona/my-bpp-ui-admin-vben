@@ -25,7 +25,6 @@ type FormMode = 'create' | 'edit' | 'view';
 
 const props = defineProps<{
   mode?: FormMode;
-  rowData?: null | TruckViewApi.Truck;
   truckId?: string;
 }>();
 
@@ -247,21 +246,13 @@ watch(
         saveDataBeforeEdit();
         applyFormState(false);
         startChecking();
-      } else if ((newMode === 'edit' || newMode === 'view') && props.rowData) {
+      } else if (newMode === 'edit') {
+        saveDataBeforeEdit();
+        applyFormState(false);
+        startChecking();
+      } else if (newMode === 'view' && props.truckId) {
         stopChecking();
-        const rowData = formatTimestamps(props.rowData);
-        Object.assign(formData, rowData);
-        if (formApi) {
-          await formApi.setValues(formData);
-        }
-        if (newMode === 'edit') {
-          saveDataBeforeEdit();
-          applyFormState(false);
-          startChecking();
-        } else {
-          clearChangedFields();
-          applyFormState(true);
-        }
+        await loadTruckDetail(props.truckId);
       }
     } catch (error) {
       console.error('DetailForm mode watcher error:', error);
@@ -269,19 +260,22 @@ watch(
   },
 );
 
-/** 监听行数据 */
+/** 车辆ID变化时获取详情 */
 watch(
-  () => props.rowData,
-  async (newRow) => {
-    if (!newRow || currentMode.value === 'create') return;
+  () => props.truckId,
+  async (newId) => {
+    if (!newId || currentMode.value === 'create') return;
     stopChecking();
-    const rowData = formatTimestamps(newRow);
-    Object.assign(formData, rowData);
-    if (formApi) {
+    try {
+      const res = await getTruck(Number(newId));
+      const formatted = formatTimestamps(res);
+      Object.assign(formData, formatted);
       await formApi.setValues(formData);
+      clearChangedFields();
+      applyFormState(true);
+    } catch {
+      message.error('获取详情失败');
     }
-    clearChangedFields();
-    applyFormState(true);
   },
 );
 
