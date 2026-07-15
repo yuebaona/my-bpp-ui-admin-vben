@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
-import type { TruckApi } from '#/api/bpp/flow/gate/truck/management';
+import type { TruckViewApi } from '#/api/bpp/flow/gate/truck/index.ts';
 
 import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { useDebounceFn } from '@vueuse/core';
-import { Modal, message } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { ACTION_ICON, TableAction, useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getTruckPage } from '#/api/bpp/flow/gate/truck/management';
+import { getTruckPage } from '#/api/bpp/flow/gate/truck/index.ts';
 import {
   truckInfoColumns,
   truckSearchSchema,
-} from '#/views/bpp/flow/gate/truck/management/data';
-import DetailForm from '#/views/bpp/flow/gate/truck/management/modules/detailForm.vue';
+} from '#/views/bpp/flow/gate/truck/data';
+import DetailForm from '#/views/bpp/flow/gate/truck/modules/detailForm.vue';
 
 // 页面下方详情表单
 const detailFormRef = ref();
@@ -30,13 +29,13 @@ const formMode = ref<'create' | 'edit' | 'view'>('view');
 const selectedTruckId = ref<string>('');
 
 // 选中的行数据
-const selectedRowData = ref<null | TruckApi.Truck>(null);
+const selectedRowData = ref<null | TruckViewApi.Truck>(null);
 
 // 是否首次加载，用于默认选中第一行
 let isFirstLoad = true;
 
 // 点击表格行
-const handleRowClick = (row: TruckApi.Truck) => {
+const handleRowClick = (row: TruckViewApi.Truck) => {
   if (
     (formMode.value === 'edit' || formMode.value === 'create') &&
     detailFormRef.value?.hasUnsavedChanges()
@@ -72,14 +71,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
   gridOptions: {
     border: true,
-    resizableConfig: {
-      isDblclickAutoWidth: true,
-      isAllColumnDrag: true,
-    },
-    checkboxConfig: {
-      highlight: true,
-      isShiftKey: true,
-    },
     floatingFilterConfig: {
       enabled: true,
     },
@@ -107,6 +98,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     printConfig: {
       enabled: true,
     },
+    exportConfig: {
+      enabled: true,
+    },
     editConfig: {
       mode: 'row',
       showIcon: false,
@@ -115,6 +109,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     toolbarConfig: {
       search: true,
       custom: true,
+      export: true,
       refresh: true,
       zoom: true,
     },
@@ -153,6 +148,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ],
     },
     proxyConfig: {
+      autoLoad: true,
       ajax: {
         query: async ({ page }, formValues) => {
           const queryParam = { ...formValues };
@@ -174,22 +170,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<TruckApi.Truck>,
+  } as VxeTableGridOptions<TruckViewApi.Truck>,
   gridEvents: {
-    checkboxAll: handleRowCheckboxChange,
-    checkboxChange: handleRowCheckboxChange,
-    filterChange: useDebounceFn(async ({ filterList }) => {
-      const searchCont = filterList.reduce((obj, item) => {
-        if (item.datas && item.datas.length > 0) {
-          obj[item.field] = item.datas[0];
-        }
-        return obj;
-      }, {});
-    }, 300),
-    checkboxRangeSelect: ({ rangeRecords }: { rangeRecords: any }) => {
-      handleRowCheckboxChange({ records: rangeRecords });
-    },
-    cellClick: ({ row }: { row: TruckApi.Truck }) => {
+    cellClick: ({ row }: { row: TruckViewApi.Truck }) => {
       handleRowClick(row);
     },
   },
@@ -201,13 +184,8 @@ function handleRefresh(createdId?: string) {
   if (createdId) {
     selectedTruckId.value = String(createdId);
     formMode.value = 'view';
+    detailFormRef.value?.loadTruckDetail(createdId);
   }
-}
-
-/** 车辆信息勾选操作 */
-const truckIds = ref<number[]>([]);
-function handleRowCheckboxChange({ records }: { records: TruckApi.Truck[] }) {
-  truckIds.value = records.map((item) => item.id);
 }
 
 /** 切换到新增模式 */
@@ -251,66 +229,6 @@ async function handleSave() {
   detailFormRef.value?.handleSave();
 }
 
-/** 导出 */
-function handleExport() {
-  const $grid = gridApi.grid;
-  if (!$grid) return;
-
-  const TIME_FIELDS = new Set([
-    'attachDt',
-    'createTime',
-    'inspDt',
-    'licExpDt',
-    'updateTime',
-  ]);
-  const BOOL_FIELDS = new Set(['autoFlg', 'enableFlg']);
-
-  const { fullData } = $grid.getTableData();
-  const columns = $grid.getColumns();
-
-  const dataColumns = columns.filter(
-    (col: any) => col.type !== 'seq' && col.type !== 'checkbox' && col.field,
-  );
-
-  const headerRow = dataColumns
-    .map((col: any) => col.title || col.field)
-    .join('</th><th>');
-  const bodyRows = fullData
-    .map((row: any) =>
-      dataColumns
-        .map((col: any) => {
-          const field = col.field;
-          const val = row[field];
-          if (val == null || val === '') return '';
-          if (TIME_FIELDS.has(field))
-            return dayjs(val).format('YYYY-MM-DD HH:mm:ss');
-          if (BOOL_FIELDS.has(field))
-            return val === 1 || val === '1' ? '是' : '否';
-          return String(val);
-        })
-        .join('</td><td>'),
-    )
-    .join('</td></tr><tr><td>');
-
-  const now = dayjs().format('YYYYMMDDHHmmss');
-
-  const html = `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
-    <head><meta charset="UTF-8"></head>
-    <body><table border="1"><tr><th>${headerRow}</th></tr><tr><td>${bodyRows}</td></tr></table></body>
-    </html>
-  `;
-
-  const blob = new Blob([`\uFEFF${html}`], {
-    type: 'application/vnd.ms-excel',
-  });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `车辆信息${now}.xls`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 </script>
 
 <template>
@@ -340,12 +258,6 @@ function handleExport() {
                   type: 'primary',
                   icon: ACTION_ICON.LOG,
                   onClick: handleSave,
-                },
-                {
-                  label: '导出',
-                  type: 'primary',
-                  icon: ACTION_ICON.DOWNLOAD,
-                  onClick: handleExport,
                 },
               ]"
             />

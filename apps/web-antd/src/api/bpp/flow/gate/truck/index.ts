@@ -42,7 +42,7 @@ export namespace TruckViewApi {
     tmlRm: string; // 码头备注
     etcNo: string; // 车辆ETC号
     affiliationStartTime: Dayjs | string; // 开始挂靠时间
-    enableFlg: number; // 是否停用
+    enableFlg: number; // 是否有效
     dataSrc: string; // 数据来源
     createTime: Dayjs | string; // 创建时间
     updateTime: Dayjs | string; // 更新时间
@@ -106,10 +106,90 @@ export function exportTruck(params: any) {
 
 /** 查询车辆限制记录分页 */
 export function getTruckRstrPage(params: PageParam) {
-  return requestClient.get<PageResult<TruckViewApi.TruckRstr>>(
-    '/bpp/flow/gate/truck/rstr/page',
-    { params },
-  );
+  // return requestClient.get<PageResult<TruckViewApi.TruckRstr>>(
+  //   '/bpp/flow/gate/truck/rstr/page',
+  //   { params },
+  // );
+
+  const mockData: GateTruckRstrApi.TruckRstr[] = [
+    {
+      id: 1,
+      fleetName: 'AAA',
+      trkGkey: 'TRK000001',
+      rstrRsn: 'A001: 超重限制',
+      rstrStartDt: '2024-03-01 00:00:00',
+      rstrEndDt: '2024-06-01 00:00:00',
+      lastRstrDt: 92,
+      fltIsRstr: 0,
+      isRstr: 1,
+      manualRelFlg: 0,
+      remark: '已限制进港',
+      dataSrc: '北港网',
+    },
+    {
+      id: 2,
+      trkGkey: 'TRK000001',
+      rstrRsn: 'B002: 未按指定路线行驶',
+      rstrStartDt: '2024-02-15 00:00:00',
+      rstrEndDt: '2024-05-15 00:00:00',
+      lastRstrDt: 89,
+      fltIsRstr: 0,
+      isRstr: 1,
+      manualRelFlg: 0,
+      remark: '调度限制',
+      dataSrc: '业务处理平台',
+    },
+    {
+      id: 3,
+      trkGkey: 'TRK000002',
+      rstrRsn: 'C001: 车辆未年检',
+      rstrStartDt: '2024-04-10 00:00:00',
+      rstrEndDt: '2024-07-10 00:00:00',
+      lastRstrDt: 91,
+      fltIsRstr: 0,
+      isRstr: 1,
+      manualRelFlg: 1,
+      remark: '已手动解除',
+      dataSrc: '北港网',
+    },
+    {
+      id: 4,
+      trkGkey: 'TRK000003',
+      rstrRsn: 'D001: 安全隐患',
+      rstrStartDt: '2024-05-20 00:00:00',
+      rstrEndDt: '2024-08-20 00:00:00',
+      lastRstrDt: 92,
+      fltIsRstr: 1,
+      isRstr: 1,
+      manualRelFlg: 0,
+      remark: '车队也受限',
+      dataSrc: '业务处理平台',
+    },
+    {
+      id: 5,
+      trkGkey: 'TRK000004',
+      rstrRsn: 'E001: 其他违规',
+      rstrStartDt: '2024-01-05 00:00:00',
+      rstrEndDt: '2024-04-05 00:00:00',
+      lastRstrDt: 90,
+      fltIsRstr: 0,
+      isRstr: 0,
+      manualRelFlg: 1,
+      remark: '已过期解除',
+      dataSrc: '北港网',
+    },
+  ];
+
+  const pageNo = params.pageNo || 1;
+  const pageSize = params.pageSize || 10;
+  const startIndex = (pageNo - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedList = mockData.slice(startIndex, endIndex);
+
+  return Promise.resolve({
+    list: paginatedList,
+    total: mockData.length,
+  });
 }
 
 /** 查询车辆限制记录详情 */

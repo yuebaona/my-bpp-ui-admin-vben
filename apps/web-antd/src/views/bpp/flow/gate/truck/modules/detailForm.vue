@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { TruckApi } from '#/api/bpp/flow/gate/truck/management';
+import type { TruckViewApi } from '#/api/bpp/flow/gate/truck/index.ts';
 
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
@@ -15,7 +15,7 @@ import {
   createTruck,
   getTruck,
   updateTruck,
-} from '#/api/bpp/flow/gate/truck/management';
+} from '#/api/bpp/flow/gate/truck/index.ts';
 
 import { detailFormSchema, restrictionColumns } from '../data';
 import RestrictionInfo from './restrictionInfo.vue';
@@ -25,7 +25,7 @@ type FormMode = 'create' | 'edit' | 'view';
 
 const props = defineProps<{
   mode?: FormMode;
-  rowData?: null | TruckApi.Truck;
+  rowData?: null | TruckViewApi.Truck;
   truckId?: string;
 }>();
 
@@ -75,7 +75,7 @@ const initFormData = () => ({
   updateTime: '',
 });
 
-const formData = reactive<TruckApi.Truck>(initFormData());
+const formData = reactive<TruckViewApi.Truck>(initFormData());
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -233,7 +233,7 @@ const stopChecking = () => {
 
 onBeforeUnmount(stopChecking);
 
-// 监听模式
+/** 模式切换 */
 watch(
   () => props.mode,
   async (newMode) => {
@@ -269,18 +269,23 @@ watch(
   },
 );
 
-// 监听车辆ID，加载详情
+/** 监听行数据 */
 watch(
-  () => props.truckId,
-  async (newId, oldId) => {
-    if (!newId || newId === oldId) {
-      return;
+  () => props.rowData,
+  async (newRow) => {
+    if (!newRow || currentMode.value === 'create') return;
+    stopChecking();
+    const rowData = formatTimestamps(newRow);
+    Object.assign(formData, rowData);
+    if (formApi) {
+      await formApi.setValues(formData);
     }
-    await loadTruckDetail(newId);
+    clearChangedFields();
+    applyFormState(true);
   },
 );
 
-// 加载车辆信息详情
+/** 加载车辆信息详情（新增后） */
 const loadTruckDetail = async (id: string) => {
   loading.value = true;
   stopChecking();
@@ -291,31 +296,6 @@ const loadTruckDetail = async (id: string) => {
     await formApi.setValues(formData);
     clearChangedFields();
     applyFormState(true);
-
-    if (res?.id) {
-      const $grid = gridApi.grid;
-      if (
-        $grid &&
-        res.restrictionInfoList &&
-        Array.isArray(res.restrictionInfoList)
-      ) {
-        const tableData = res.restrictionInfoList.map(
-          (item: any, index: number) => ({
-            id: item.id || `item_${index}`,
-            fleetName: item.fleetName || formData.fltCd || '',
-            licensePlate: item.licensePlate || '',
-            driverName: item.driverName || '',
-            restrictionReason: item.restrictionReason || '',
-            restrictStartTime: item.restrictStartTime || '',
-            restrictEndTime: item.restrictEndTime || '',
-            lastRestrictTimeTotal: item.lastRestrictTimeTotal || '',
-            createTime: item.createTime || '',
-            restrictReleaseTime: item.restrictReleaseTime || '',
-          }),
-        );
-        await $grid.reloadData(tableData);
-      }
-    }
   } catch {
     message.error('获取详情失败');
   } finally {
@@ -361,7 +341,7 @@ const handleSave = async () => {
 };
 
 /** 新增限制 */
-const handleRestriction = async (row: TruckApi.Truck) => {
+const handleRestriction = async (row: TruckViewApi.Truck) => {
   restrictionInfoFormModalApi
     .setData({
       truckData: formData,
@@ -376,11 +356,6 @@ const handleRestriction = async (row: TruckApi.Truck) => {
     .open();
 };
 
-/** 加载详情 */
-const loadDetail = async (id: string) => {
-  await loadTruckDetail(id);
-};
-
 /** 清空表单 */
 const clearForm = () => {
   stopChecking();
@@ -389,7 +364,7 @@ const clearForm = () => {
   formApi.setValues(formData);
 };
 
-defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
+defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadTruckDetail });
 </script>
 
 <template>
@@ -402,6 +377,22 @@ defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
     </div>
 
     <Form>
+      <template #fltIsRstr>
+        <span class="text-gray-800">
+          {{
+            String(formData?.fltIsRstr) === '1'
+              ? 'Y'
+              : String(formData?.fltIsRstr) === '0'
+                ? 'N'
+                : '-'
+          }}
+        </span>
+      </template>
+      <template #rstrCnt>
+        <span class="text-gray-800">
+          {{ formData?.rstrCnt == null || formData?.rstrCnt === '' ? '-' : formData.rstrCnt }}
+        </span>
+      </template>
       <template #isRstr>
         <div class="flex items-center gap-2">
           <span class="text-gray-800">
@@ -417,6 +408,46 @@ defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
             已限制明细
           </Button>
         </div>
+      </template>
+      <template #rstrDataSrc>
+        <span class="text-gray-800">
+          {{ formData?.rstrDataSrc == null || formData?.rstrDataSrc === '' ? '-' : formData.rstrDataSrc }}
+        </span>
+      </template>
+      <template #rstrStartDt>
+        <span class="text-gray-800">
+          {{ formData?.rstrStartDt == null || formData?.rstrStartDt === '' ? '-' : formData.rstrStartDt }}
+        </span>
+      </template>
+      <template #rstrEndDt>
+        <span class="text-gray-800">
+          {{ formData?.rstrEndDt == null || formData?.rstrEndDt === '' ? '-' : formData.rstrEndDt }}
+        </span>
+      </template>
+      <template #lastRstrDt>
+        <span class="text-gray-800">
+          {{ formData?.lastRstrDt == null || formData?.lastRstrDt === '' ? '-' : formData.lastRstrDt }}
+        </span>
+      </template>
+      <template #rstrRsn>
+        <span class="text-gray-800">
+          {{ formData?.rstrRsn == null || formData?.rstrRsn === '' ? '-' : formData.rstrRsn }}
+        </span>
+      </template>
+      <template #dataSrc>
+        <span class="text-gray-800">
+          {{ formData?.dataSrc == null || formData?.dataSrc === '' ? '-' : formData.dataSrc }}
+        </span>
+      </template>
+      <template #createTime>
+        <span class="text-gray-800">
+          {{ formData?.createTime == null || formData?.createTime === '' ? '-' : formData.createTime }}
+        </span>
+      </template>
+      <template #updateTime>
+        <span class="text-gray-800">
+          {{ formData?.updateTime == null || formData?.updateTime === '' ? '-' : formData.updateTime }}
+        </span>
       </template>
     </Form>
   </div>
