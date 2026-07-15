@@ -48,6 +48,54 @@ export namespace TruckViewApi {
     updateTime: Dayjs | string; // 更新时间
   }
 
+  /** 车辆信息详情 */
+  export interface TruckDetail {
+    id: number; // 车辆唯一主键
+    trkNo: string; // 车牌号
+    rfidNo: string; // RFID编号
+    lastGateInDt: Dayjs | string; // 最后进场时间
+    lastGateOutDt: Dayjs | string; // 最后出场时间
+    enableFlg: number; // 是否有效
+    fleetCode: string; // 关联车队代码
+    fleetName: string; // 所属车队中文名
+    fleetRstr: number; // 所属车队是否被限制
+    trkRstrCount: number; // 车辆限制次数
+    isRstr: number; // 是否限制
+    currentTrkRstrSrc: string; // 车辆限制来源
+    currentTrkRstrStartDt: Dayjs | string; // 车辆限制开始时间
+    currentTrkRstrEndDt: Dayjs | string; // 车辆限制结束时间
+    latestRstrDays: string; // 最近一次限制时间合计
+    trailerPlate: string; // 挂车车牌号
+    engNo: string; // 发动机编号
+    trailerLicNo: string; // 挂车行驶证号
+    licExpDt: Dayjs | string; // 行驶证有效期
+    trkLicNo: string; // 行驶证档案编号
+    trkWtKg: string; // 车辆自重（Kg）
+    maxLoadWTKg: string; // 最大载重（Kg）
+    isAnnualInspe: number; // 是否年审
+    inspDt: Dayjs | string; // 年审时间
+    inspBy: string; // 年审员
+    etcNo: string; // 车辆ETC号
+    trkLenM: number; // 长度
+    trkWidM: number; // 宽度
+    trkColor: string; // 车头颜色
+    trkOwnrNm: string; // 车主姓名
+    trkOwnrPh: string; // 车主电话
+    trkOwnrId: string; // 车主身份证
+    autoFlg: number; // 是否自动化码头
+    newFlg: number; // 是否新能源车
+    hazLic: string; // 危险品许可证
+    rstrCode: string; // 限制代码
+    rstrDesc: string; // 限制描述
+    affiliationStartTime: Dayjs | string; // 开始挂靠时间
+    remark: string; // 备注
+    tmlRm: string; // 码头备注
+    deleted: boolean; // 是否停用
+    dataSrc: string; // 数据来源
+    createTime: Dayjs | string; // 创建时间
+    updateTime: Dayjs | string; // 更新时间
+  }
+
   /** 车辆限制记录信息 */
   export interface TruckRstr {
     id: number; // 主键ID
@@ -74,7 +122,7 @@ export function getTruckPage(params: PageParam) {
 
 /** 查询车辆信息实体类详情 */
 export function getTruck(id: number) {
-  return requestClient.get<TruckViewApi.Truck>(`/bpp/flow/gate/truck/get?id=${id}`);
+  return requestClient.get<TruckViewApi.TruckDetail>(`/bpp/flow/gate/truck/get?id=${id}`);
 }
 
 /** 新增车辆信息实体类 */
