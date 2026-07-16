@@ -95,6 +95,7 @@ export function fleetInfoColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'fltCd',
       title: '车队代码',
+      fixed: 'left',
       minWidth: 100,
       filterRender: { name: 'VxeInput', props: { clearable: true } },
     },

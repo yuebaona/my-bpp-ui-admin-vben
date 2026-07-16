@@ -122,6 +122,7 @@ export function driverInfoColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'dvrCd',
       title: '司机账号',
+      fixed: 'left',
       minWidth: 100,
       filters: [{ data: '' }],
       filterRender: {
@@ -135,6 +136,7 @@ export function driverInfoColumns(): VxeTableGridOptions['columns'] {
     {
       field: 'dvrNm',
       title: '司机姓名',
+      fixed: 'left',
       minWidth: 100,
       filters: [{ data: '' }],
       filterRender: {
@@ -796,7 +798,7 @@ export function detailFormSchema(): VbenFormSchema[] {
 /** 限制信息表格字段 */
 export function restrictionColumns(): VxeTableGridOptions['columns'] {
   return [
-    { type: 'seq', width: 50, align: 'center' },
+    { type: 'seq', width: 50, align: 'center', fixed: 'left',},
     {
       title: '车队',
       field: 'fltCd',

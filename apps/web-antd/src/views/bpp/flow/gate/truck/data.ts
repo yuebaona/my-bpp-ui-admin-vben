@@ -66,7 +66,7 @@ export function truckSearchSchema(): VbenFormSchema[] {
     },
     {
       fieldName: 'fltCd',
-      label: '车辆代码/中文名',
+      label: '车队代码/中文名',
       component: 'Input',
       componentProps: {
         placeholder: '请输入车辆代码/名称',
@@ -119,6 +119,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       field: 'licensePlate',
       title: '车牌号',
       minWidth: 120,
+      fixed: 'left',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
@@ -1381,6 +1382,7 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
     {
       type: 'seq',
       width: 40,
+      fixed: 'left',
     },
     {
       title: '车队中文名',
