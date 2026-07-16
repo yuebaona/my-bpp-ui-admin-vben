@@ -99,16 +99,17 @@ export namespace TruckViewApi {
   /** 车辆限制记录信息 */
   export interface TruckRstr {
     id: number; // 主键ID
-    trkGkey: string; // 车辆全局唯一业务主键
-    rstrRsn: string; // 限制原因代码及描述
+    fleetName: string; // 车队
+    truckNo: string; // 车牌号
+    rstrInfo: string; // 限制代码：描述
+    driverName: string; // 司机姓名
     rstrStartDt: string | Dayjs; // 限制开始时间
     rstrEndDt: string | Dayjs; // 限制结束时间
-    lastRstrDt?: number; // 最近一次限制时间合计
-    fltIsRstr?: number; // 所属车队是否被限制
-    isRstr?: number; // 是否限制
-    manualRelFlg: number; // 手动解除
-    remark: string; // 备注
-    dataSrc: string; // 数据来源
+    rstrDaysTotal: string; // 最近一次限制时间合计
+    createTime: string | Dayjs; // 创建时间
+    releaseTime: string | Dayjs; // 限制解除时间
+    dataSrc: string; // 限制信息来源
+    creator: string; // 创建账号"
   }
 }
 
@@ -125,73 +126,35 @@ export function getTruck(id: number) {
   return requestClient.get<TruckViewApi.TruckDetail>(`/bpp/flow/gate/truck/get?id=${id}`);
 }
 
-/** 新增车辆信息实体类 */
-export function createTruck(data: TruckViewApi.Truck) {
-  return requestClient.post('/bpp/flow/gate/truck/create', data);
+/** 保存车辆信息按钮 */
+export function saveTruck(data: TruckViewApi.TruckDetail) {
+  return requestClient.post('/bpp/flow/gate/truck/save', data);
 }
 
-/** 修改车辆信息实体类 */
-export function updateTruck(data: TruckViewApi.Truck) {
-  return requestClient.put('/bpp/flow/gate/truck/update', data);
-}
-
-/** 删除车辆信息实体类 */
-export function deleteTruck(id: number) {
-  return requestClient.delete(`/bpp/flow/gate/truck/delete?id=${id}`);
-}
-
-/** 批量删除车辆信息实体类 */
-export function deleteTruckList(ids: number[]) {
-  return requestClient.delete(
-    `/bpp/flow/gate/truck/delete-list?ids=${ids.join(',')}`,
-  );
-}
+/** 日志查询按钮 todo */
 
 /** 导出车辆信息实体类 */
 export function exportTruck(params: any) {
   return requestClient.download('/bpp/flow/gate/truck/export-excel', { params });
 }
 
-/** 查询车辆限制记录分页 */
-export function getTruckRstrPage(params: PageParam) {
-  return requestClient.get<PageResult<TruckViewApi.TruckRstr>>(
-    '/bpp/flow/gate/truck/rstr/page',
-    { params },
+/** 查询车辆限制记录 */
+export function getTruckRstrList(id: number) {
+  return requestClient.get<TruckViewApi.TruckRstr>(
+    `/bpp/flow/gate/truck/rstr/list?id=${id}`,
   );
 }
 
-/** 查询车辆限制记录详情 */
+/** 查询车辆限制记录 */
 export function getTruckRstr(id: number) {
   return requestClient.get<TruckViewApi.TruckRstr>(
     `/bpp/flow/gate/truck/rstr/get?id=${id}`,
   );
 }
 
-/** 新增车辆限制记录 */
+/** 保存车辆限制记录 */
 export function createTruckRstr(data: TruckViewApi.TruckRstr) {
-  return requestClient.post('/bpp/flow/gate/truck/rstr/create', data);
-}
-
-/** 修改车辆限制记录 */
-export function updateTruckRstr(data: TruckViewApi.TruckRstr) {
-  return requestClient.put('/bpp/flow/gate/truck/rstr/update', data);
-}
-
-/** 删除车辆限制记录 */
-export function deleteTruckRstr(id: number) {
-  return requestClient.delete(`/bpp/flow/gate/truck/rstr/delete?id=${id}`);
-}
-
-/** 批量删除车辆限制记录 */
-export function deleteTruckRstrList(ids: number[]) {
-  return requestClient.delete(
-    `/bpp/flow/gate/truck/rstr/delete-list?ids=${ids.join(',')}`,
-  );
-}
-
-/** 导出车辆限制记录 */
-export function exportTruckRstr(params: any) {
-  return requestClient.download('/bpp/flow/gate/truck/rstr/export-excel', { params });
+  return requestClient.post('/bpp/flow/gate/truck/rstr/save', data);
 }
 
 /** 查询限制代码：描述 */
