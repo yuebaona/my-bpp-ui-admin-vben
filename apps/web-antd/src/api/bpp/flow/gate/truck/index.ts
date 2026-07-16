@@ -82,6 +82,7 @@ export namespace TruckViewApi {
     trkOwnrNm: string; // 车主姓名
     trkOwnrPh: string; // 车主电话
     trkOwnrId: string; // 车主身份证
+    driverName: string; // 司机姓名
     autoFlg: number; // 是否自动化码头
     newFlg: number; // 是否新能源车
     hazLic: string; // 危险品许可证
@@ -143,11 +144,6 @@ export function deleteTruckList(ids: number[]) {
   );
 }
 
-/** 导出车辆信息实体类 */
-export function exportTruck(params: any) {
-  return requestClient.download('/bpp/flow/gate/truck/export-excel', { params });
-}
-
 /** 查询车辆限制记录 */
 export function getTruckRstrList(id: number) {
   return requestClient.get<TruckViewApi.TruckRstr>(
@@ -163,13 +159,24 @@ export function getTruckRstr(id: number) {
 }
 
 /** 保存车辆限制记录 */
-export function createTruckRstr(data: TruckViewApi.TruckRstr) {
+export function saveTruckRstr(data: TruckViewApi.TruckRstr) {
   return requestClient.post('/bpp/flow/gate/truck/rstr/save', data);
 }
 
 /** 获取限制代码 */
-export function getRstrReason(id: number) {
-  return requestClient.get<FleetViewApi.rstrCodeVO>(
-    `/bpp/flow/gate/fleet/rstr-code?id=${id}`,
-  );
+// export function getRstrReason(id: number) {
+//   return requestClient.get<TruckViewApi.rstrCodeVO>(
+//     `/bpp/flow/gate/truck/rstr-code?id=${id}`,
+//   );
+// }
+export function getRstrReason(_id: number) {
+  return Promise.resolve([
+    { id: 1, ruleCd: 'A001', ruleDesc: '超重限制', rstrDays: 30 },
+    { id: 2, ruleCd: 'A002', ruleDesc: '超高限制', rstrDays: 30 },
+    { id: 3, ruleCd: 'A003', ruleDesc: '超宽限制', rstrDays: 15 },
+    { id: 4, ruleCd: 'B001', ruleDesc: '违规停车', rstrDays: 7 },
+    { id: 5, ruleCd: 'B002', ruleDesc: '未按指定路线行驶', rstrDays: 14 },
+    { id: 6, ruleCd: 'C001', ruleDesc: '车辆未年检', rstrDays: 90 },
+    { id: 7, ruleCd: 'D001', ruleDesc: '安全隐患', rstrDays: 60 },
+  ]);
 }
