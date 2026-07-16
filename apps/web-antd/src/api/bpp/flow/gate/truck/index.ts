@@ -22,8 +22,8 @@ export namespace TruckViewApi {
     currentTrkRstrEndDt: Dayjs | string; // 车辆限制结束时间
     latestRstrDays: string; // 最近一次限制时间合计
     engNo: string; // 发动机编号
-    licExpDt: Dayjs | string; // 驾驶证过期日期
-    trkWtKg: string; // 车辆总重量 (后端类型已改为String)
+    licExpDt: Dayjs | string; // 行驶证有效期
+    trkWtKg: string; // 车辆自重（Kg）
     inspDt: Dayjs | string; // 年审时间
     inspBy: string; // 年审人员名称
     autoFlg: number; // 是否适配自动化
@@ -123,6 +123,11 @@ export function getTruckPage(params: PageParam) {
 /** 查询车辆信息实体类详情 */
 export function getTruck(id: number) {
   return requestClient.get<TruckViewApi.TruckDetail>(`/bpp/flow/gate/truck/get?id=${id}`);
+}
+
+/** 保存车辆信息 */
+export function saveTruck(data: TruckViewApi.Truck) {
+  return requestClient.post('/bpp/flow/gate/truck/save', data);
 }
 
 /** 新增车辆信息实体类 */
@@ -274,25 +279,9 @@ export function exportTruckRstr(params: any) {
   return requestClient.download('/bpp/flow/gate/truck/rstr/export-excel', { params });
 }
 
-/** 查询限制代码：描述 */
-export function getRestrictionCodeList(params: PageParam) {
-  // return requestClient.get<PageResult<GateTruckRstrApi.TruckRstr>>(
-  //   '/bpp/flow/gate/truck/rstr/page',
-  //   { params },
-  // );
-  return Promise.resolve([
-    { rstrRsn: 'A001: 超重限制' },
-    { rstrRsn: 'A002: 超高限制' },
-    { rstrRsn: 'A003: 超宽限制' },
-    { rstrRsn: 'A004: 超长限制' },
-    { rstrRsn: 'B001: 违规停车' },
-    { rstrRsn: 'B002: 未按指定路线行驶' },
-    { rstrRsn: 'B003: 未按规定时间进入' },
-    { rstrRsn: 'C001: 车辆未年检' },
-    { rstrRsn: 'C002: 驾驶证过期' },
-    { rstrRsn: 'C003: 营运证过期' },
-    { rstrRsn: 'D001: 安全隐患' },
-    { rstrRsn: 'D002: 设备故障' },
-    { rstrRsn: 'E001: 其他违规' },
-  ]);
+/** 获取限制代码 */
+export function getRstrReason(id: number) {
+  return requestClient.get<FleetViewApi.rstrCodeVO>(
+    `/bpp/flow/gate/fleet/rstr-code?id=${id}`,
+  );
 }
