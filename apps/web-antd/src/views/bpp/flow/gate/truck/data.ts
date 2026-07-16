@@ -299,7 +299,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'dataSrc',
+      field: 'currentTrkRstrSrc',
       title: '限制信息来源',
       minWidth: 120,
       filters: [
@@ -897,7 +897,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
 export function detailFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'licensePlate',
+      fieldName: 'trkNo',
       label: '车牌号',
       component: 'Input',
       componentProps: {
@@ -917,28 +917,28 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'lastEntryTime',
+      fieldName: 'lastGateInDt',
       label: '最后进场时间',
       component: 'DatePicker',
       componentProps: {
         placeholder: '',
         allowClear: true,
-        showTime: false,
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
       rules: 'required',
     },
     {
-      fieldName: 'lastExitTime',
+      fieldName: 'lastGateOutDt',
       label: '最后出场时间',
       component: 'DatePicker',
       componentProps: {
         placeholder: '请选择时间',
         allowClear: true,
-        showTime: false,
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
       rules: 'required',
     },
@@ -956,7 +956,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'fltCd',
+      fieldName: 'fleetCode',
       label: '车队代码',
       component: 'Input',
       componentProps: {
@@ -966,16 +966,16 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'fltNm',
+      fieldName: 'fleetName',
       label: '所属车队中文名',
       component: 'Input',
       componentProps: {
-        disabled: true,
+        allowClear: true,
       },
       rules: 'required',
     },
     {
-      fieldName: 'fltIsRstr',
+      fieldName: 'fleetRstr',
       label: '所属车队是否被限制',
       component: 'Input',
       componentProps: {
@@ -983,7 +983,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrCnt',
+      fieldName: 'trkRstrCount',
       label: '已限制次数',
       component: 'Input',
       componentProps: {
@@ -999,7 +999,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrDataSrc',
+      fieldName: 'currentTrkRstrSrc',
       label: '限制信息来源',
       component: 'Input',
       componentProps: {
@@ -1015,7 +1015,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrStartDt',
+      fieldName: 'currentTrkRstrStartDt',
       label: '限制开始时间',
       component: 'Input',
       componentProps: {
@@ -1023,7 +1023,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrEndDt',
+      fieldName: 'currentTrkRstrEndDt',
       label: '限制结束时间',
       component: 'Input',
       componentProps: {
@@ -1031,7 +1031,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'lastRstrDt',
+      fieldName: 'latestRstrDays',
       label: '最近一次限制时间合计',
       component: 'Input',
       componentProps: {
@@ -1047,7 +1047,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'trailer',
+      fieldName: 'trailerPlate',
       label: '挂车车牌号',
       component: 'Input',
       componentProps: {
@@ -1106,6 +1106,7 @@ export function detailFormSchema(): VbenFormSchema[] {
         allowClear: true,
         type: 'number',
       },
+      rules: 'required',
     },
     {
       fieldName: 'trkWtKg',
@@ -1118,7 +1119,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'maxLoadWtKg',
+      fieldName: 'maxLoadWTKg',
       label: '最大载重(kg)',
       component: 'Input',
       componentProps: {
@@ -1296,7 +1297,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrRsn',
+      fieldName: 'rstrCode',
       label: '限制原因代码及描述',
       component: 'Input',
       componentProps: {
@@ -1580,7 +1581,6 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       title: '限制信息来源',
       field: 'dataSrc',
       minWidth: 150,
-      sortable: true,
       filters: [
         { label: '北港网', value: '北港网' },
         { label: '业务处理平台', value: '业务处理平台' },
