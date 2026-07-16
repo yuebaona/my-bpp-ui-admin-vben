@@ -85,6 +85,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     filterConfig: {
       enabled: true,
     },
+    sortConfig: {
+      remote: false,
+    },
     columns: fleetInfoColumns(),
     height: '100%',
     keepSource: true,
