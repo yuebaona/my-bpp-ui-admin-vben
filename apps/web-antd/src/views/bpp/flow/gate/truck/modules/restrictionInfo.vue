@@ -2,7 +2,7 @@
 import type { PageParam } from '@vben/request';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { TruckViewApi } from '#/api/bpp/flow/gate/truck/index.ts';
+import { getRstrReason, type TruckViewApi } from "#/api/bpp/flow/gate/truck/index.ts";
 
 import { onBeforeUnmount, reactive, ref, watch } from 'vue';
 
@@ -14,10 +14,7 @@ import dayjs from 'dayjs';
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  createTruckRstr,
-  getRestrictionCodeList,
   getTruckRstrPage,
-  updateTruckRstr,
 } from '#/api/bpp/flow/gate/truck/index.ts';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
@@ -30,7 +27,7 @@ type FormMode = 'create' | 'edit' | 'view';
 const formMode = ref<FormMode>('view');
 const isDisabled = ref(true);
 
-// const emit = defineEmits(['success']);
+const emit = defineEmits(['success']);
 
 // 选中的限制记录ID
 const selectedRstrId = ref<string>('');
@@ -51,7 +48,7 @@ const isSubmitting = ref(false);
 
 // 初始化表单
 const initFormData = () => ({
-  id: 0,
+  id: undefined as any,
   fltCd: '',
   rstrRsn: '',
   trkNo: '',
@@ -154,7 +151,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
   },
 });
 
-// 点击表格行查看数据
+/**
+ * 将行数据加载到表单
+ * 有未保存更改时弹窗确认
+ */
 const handleRowClick = (row: TruckViewApi.TruckRstr) => {
   if (formMode.value === 'edit' && hasUnsavedChanges()) {
     Modal.confirm({
@@ -188,7 +188,7 @@ const loadRstrDetail = (row: TruckViewApi.TruckRstr) => {
   formApi.setValues(formData);
 };
 
-// 时间格式化
+/** 日期转成字符串 */
 const formatTimestamps = (rowData: any) => {
   if (!rowData) return rowData;
   const data = { ...rowData };
@@ -338,7 +338,7 @@ watch(
   { immediate: true },
 );
 
-// 点击新增
+/** 切换到新增模式 */
 const handleCreate = () => {
   if (formMode.value === 'edit' && hasUnsavedChanges()) {
     Modal.confirm({
@@ -360,7 +360,7 @@ const handleCreate = () => {
   formMode.value = 'create';
 };
 
-// 点击编辑
+/** 切换到编辑模式 */
 const handleEdit = () => {
   if (!selectedRstrId.value || !selectedRowData.value) {
     message.warning('请先点击选择一行数据');
@@ -369,7 +369,7 @@ const handleEdit = () => {
   formMode.value = 'edit';
 };
 
-// 点击保存
+/** 保存限制记录 */
 const handleSave = async () => {
   if (isSubmitting.value) return;
   isSubmitting.value = true;
@@ -384,16 +384,20 @@ const handleSave = async () => {
     Object.assign(formData, formValues);
 
     if (formMode.value === 'create') {
-      await createTruckRstr(formData);
+      const result = await saveTruckRstr(formData);
+      const newId = result?.id ?? (formData as any).id ?? '';
       message.success('新增成功');
+      if (newId) {
+        const detail = await getTruckRstr(Number(newId));
+        loadRstrDetail(detail);
+        selectedRstrId.value = String(newId);
+      }
     } else if (formMode.value === 'edit') {
-      await updateTruckRstr(formData);
+      await saveTruckRstr(formData);
       message.success('更新成功');
     }
 
     await gridApi.query();
-    Object.assign(formData, initFormData());
-    await formApi.setValues({});
     formMode.value = 'view';
   } catch {
     message.error('保存失败，请重试');
@@ -402,7 +406,7 @@ const handleSave = async () => {
   }
 };
 
-// 点击取消
+/** 取消并关闭弹窗 */
 const handleCancel = () => {
   modalApi.close();
 };
@@ -440,7 +444,7 @@ const [RstrModal, modalApi] = useVbenModal({
 
 const { state: rstrReasonState, search: rstrReasonSearch } = useSearchSelect({
   searchApi: async () => {
-    const res = await getRestrictionCodeList();
+    const res = await getRstrReason();
     return res.map((item: any) => ({
       ...item,
       _label: `${item.ruleCd}：${item.ruleDesc}`,
@@ -454,8 +458,10 @@ const { state: rstrReasonState, search: rstrReasonSearch } = useSearchSelect({
   filterRegex: /[^A-Z0-9\u4E00-\u9FA5/]/g,
 });
 
+/** 当前限制代码的天数 */
 const currentRstrDays = ref<number>(0);
 
+/** 选择限制代码后回调 */
 const handleRstrReasonChange = async (value: any) => {
   rstrReasonState.value = value;
   await formApi.setFieldValue('rstrRsn', value);
