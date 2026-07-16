@@ -340,7 +340,7 @@ const handleRestriction = async () => {
 };
 
 /** 加载详情 */
-const loadDetail = async (id: string) => {
+const loadTruckDetail = async (id: string) => {
   await loadDriverDetail(id);
 };
 
@@ -358,7 +358,7 @@ const resetForm = () => {
   Object.assign(formData, initFormData());
 };
 
-defineExpose({ handleSave, loadDetail, clearForm, hasUnsavedChanges });
+defineExpose({ handleSave, loadTruckDetail, clearForm, hasUnsavedChanges });
 </script>
 
 <template>

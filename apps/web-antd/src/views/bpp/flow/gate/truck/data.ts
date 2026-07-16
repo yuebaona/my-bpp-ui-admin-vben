@@ -1635,7 +1635,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'trailerPlate',
+      fieldName: 'truckNo',
       label: '车牌号',
       component: 'Input',
       rules: 'required',
@@ -1645,7 +1645,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'driverNm',
+      fieldName: 'driverName',
       label: '司机姓名',
       component: 'Input',
       componentProps: {
@@ -1683,7 +1683,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'lastRstrDt',
+      fieldName: 'rstrDaysTotal',
       label: '限制时间合计',
       component: 'Input',
       componentProps: {
@@ -1728,7 +1728,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'createUser',
+      fieldName: 'creator',
       label: '创建账号',
       component: 'Input',
       componentProps: {

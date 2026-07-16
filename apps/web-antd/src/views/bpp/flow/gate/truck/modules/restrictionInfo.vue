@@ -2,7 +2,13 @@
 import type { PageParam } from '@vben/request';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import { getRstrReason, type TruckViewApi } from "#/api/bpp/flow/gate/truck/index.ts";
+import {
+  getRstrReason,
+  getTruckRstr,
+  getTruckRstrList,
+  saveTruckRstr,
+  type TruckViewApi,
+} from "#/api/bpp/flow/gate/truck/index.ts";
 
 import { onBeforeUnmount, reactive, ref, watch } from 'vue';
 
@@ -13,9 +19,6 @@ import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  getTruckRstrPage,
-} from '#/api/bpp/flow/gate/truck/index.ts';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
 import { restrictionColumns, restrictionFormSchema } from '../data';
@@ -49,17 +52,17 @@ const isSubmitting = ref(false);
 // 初始化表单
 const initFormData = () => ({
   id: undefined as any,
-  fltCd: '',
+  fleetName: '',
   rstrRsn: '',
-  trkNo: '',
-  driverNm: '',
+  truckNo: '',
+  driverName: '',
   rstrStartDt: '',
   rstrEndDt: '',
-  lastRstrDt: 0,
+  rstrDaysTotal: 0,
   createTime: '',
-  unrelDt: '',
-  rstrDataSrc: '业务处理平台',
-  createUser: '',
+  releaseTime: '',
+  dataSrc: '业务处理平台',
+  creator: '',
   relDriverFlg: 0,
 });
 
@@ -77,6 +80,22 @@ const [Form, formApi] = useVbenForm({
   schema: restrictionFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-2',
+  handleValuesChange: (values: any, changedFields: string[]) => {
+    const days = currentRstrDays.value;
+    if (days <= 0) return;
+
+    if (changedFields.includes('rstrStartDt') && values.rstrStartDt) {
+      const end = dayjs(values.rstrStartDt)
+        .add(days, 'day')
+        .format('YYYY-MM-DD HH:mm:ss');
+      formApi.setFieldValue('rstrEndDt', end);
+    } else if (changedFields.includes('rstrEndDt') && values.rstrEndDt) {
+      const start = dayjs(values.rstrEndDt)
+        .subtract(days, 'day')
+        .format('YYYY-MM-DD HH:mm:ss');
+      formApi.setFieldValue('rstrStartDt', start);
+    }
+  },
 });
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -127,19 +146,18 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       autoLoad: true,
       ajax: {
-        query: async ({ page }, formValues) => {
-          const queryParam: PageParam = {
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          };
-          const res = await getTruckRstrPage(queryParam);
-          // 默认加载第一条数据
-          if (isFirstLoad && res?.list?.length > 0) {
-            handleRowClick(res.list[0]);
+        query: async () => {
+          const res = await getTruckRstrList(truckData.value.id);
+          const list = res;
+          if (isFirstLoad) {
             isFirstLoad = false;
+            if (list.length > 0) {
+              handleRowClick(list[0]);
+            } else {
+              formMode.value = 'create';
+            }
           }
-          return res;
+          return { list, total: list.length };
         },
       },
     },
@@ -198,8 +216,8 @@ const formatTimestamps = (rowData: any) => {
     data.rstrEndDt = dayjs(data.rstrEndDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.createTime)
     data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
-  if (data.unrelDt)
-    data.unrelDt = dayjs(data.unrelDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.releaseTime)
+    data.releaseTime = dayjs(data.releaseTime).format('YYYY-MM-DD HH:mm:ss');
   return data;
 };
 
@@ -310,7 +328,6 @@ watch(
         stopChecking();
         rstrReasonState.value = '';
         Object.assign(formData, initFormData());
-        formData.trkGkey = truckData.value?.trkGkey || '';
         await formApi.setValues(formData);
         clearChangedFields();
         await applyFormState(false);
@@ -376,28 +393,33 @@ const handleSave = async () => {
 
   try {
     const { valid } = await formApi.validate();
-    if (!valid) {
-      return;
-    }
+    if (!valid) return;
 
     const formValues = await formApi.getValues();
-    Object.assign(formData, formValues);
 
-    if (formMode.value === 'create') {
-      const result = await saveTruckRstr(formData);
-      const newId = result?.id ?? (formData as any).id ?? '';
-      message.success('新增成功');
-      if (newId) {
-        const detail = await getTruckRstr(Number(newId));
-        loadRstrDetail(detail);
-        selectedRstrId.value = String(newId);
+    const submitData: Record<string, any> = {
+      fleetName: formValues.fleetName,
+      rstrRsn: formValues.rstrRsn,
+      truckNo: formValues.truckNo,
+      driverName: formValues.driverName,
+      rstrStartDt: formValues.rstrStartDt,
+      rstrEndDt: formValues.rstrEndDt,
+      relDriverFlg: formValues.relDriverFlg,
+    };
+
+    if (formMode.value === 'edit') {
+      submitData.id = selectedRstrId.value;
+      if (formValues.releaseTime) {
+        submitData.releaseTime = formValues.releaseTime;
       }
-    } else if (formMode.value === 'edit') {
-      await saveTruckRstr(formData);
-      message.success('更新成功');
     }
+    await saveTruckRstr(submitData);
+    message.success(formMode.value === 'create' ? '新增成功' : '更新成功');
 
     await gridApi.query();
+    rstrReasonState.value = '';
+    Object.assign(formData, initFormData());
+    await formApi.setValues(formData);
     formMode.value = 'view';
   } catch {
     message.error('保存失败，请重试');
@@ -444,7 +466,7 @@ const [RstrModal, modalApi] = useVbenModal({
 
 const { state: rstrReasonState, search: rstrReasonSearch } = useSearchSelect({
   searchApi: async () => {
-    const res = await getRstrReason();
+    const res = await getRstrReason(truckData.value.id);
     return res.map((item: any) => ({
       ...item,
       _label: `${item.ruleCd}：${item.ruleDesc}`,
@@ -513,12 +535,12 @@ const handleRstrReasonChange = async (value: any) => {
             @focus="rstrReasonSearch('')"
           />
         </template>
-        <template #lastRstrDt>
+        <template #rstrDaysTotal>
           <span class="text-gray-800">
             {{
-              formData?.lastRstrDt == null || formData?.lastRstrDt === ''
+              formData?.rstrDaysTotal == null || formData?.rstrDaysTotal === ''
                 ? '-'
-                : formData.lastRstrDt
+                : formData.rstrDaysTotal
             }}
           </span>
         </template>
@@ -536,7 +558,7 @@ const handleRstrReasonChange = async (value: any) => {
             {{
               formData?.dataSrc == null || formData?.dataSrc === ''
                 ? '-'
-                : formData.rstrDataSrc
+                : formData.dataSrc
             }}
           </span>
         </template>
@@ -545,7 +567,7 @@ const handleRstrReasonChange = async (value: any) => {
             {{
               formData?.creator == null || formData?.creator === ''
                 ? '-'
-                : formData.createUser
+                : formData.creator
             }}
           </span>
         </template>
