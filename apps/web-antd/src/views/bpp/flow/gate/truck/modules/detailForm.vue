@@ -12,9 +12,8 @@ import dayjs from 'dayjs';
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  createTruck,
   getTruck,
-  updateTruck,
+  saveTruck,
 } from '#/api/bpp/flow/gate/truck/index.ts';
 
 import { detailFormSchema, restrictionColumns } from '../data';
@@ -43,38 +42,53 @@ let checkTimer: ReturnType<typeof setInterval> | null = null;
 
 // 初始化表单
 const initFormData = () => ({
-  id: '',
-  trkGkey: '',
-  fltCd: '',
+  id: undefined as any,
   trkNo: '',
-  trkLicNo: '',
+  rfidNo: '',
+  lastGateInDt: '',
+  lastGateOutDt: '',
+  enableFlg: 1,
+  fleetCode: '',
+  fleetName: '',
+  fleetRstr: 0,
+  trkRstrCount: 0,
+  isRstr: 0,
+  currentTrkRstrSrc: '',
+  currentTrkRstrStartDt: '',
+  currentTrkRstrEndDt: '',
+  latestRstrDays: '',
+  trailerPlate: '',
   engNo: '',
-  licExpDt: '',
-  trailerNo: '',
   trailerLicNo: '',
-  trkWtKg: 0,
-  maxLoadWtKg: 0,
-  trkLenM: 0,
-  trkWidM: 0,
+  licExpDt: '',
+  trkLicNo: '',
+  trkWtKg: '',
+  maxLoadWTKg: '',
+  isAnnualInspe: 0,
+  inspDt: '',
+  inspBy: '',
+  etcNo: '',
+  trkLenM: undefined as any,
+  trkWidM: undefined as any,
   trkColor: '',
   trkOwnrNm: '',
   trkOwnrPh: '',
   trkOwnrId: '',
-  hazLic: '',
-  attachDt: '',
   autoFlg: 1,
-  rfidNo: '',
-  etcNo: '',
-  inspDt: '',
-  inspBy: '',
+  newFlg: 1,
+  hazLic: '',
+  rstrCode: '',
+  rstrDesc: '',
+  affiliationStartTime: '',
   remark: '',
-  enableFlg: 1,
+  tmlRm: '',
+  deleted: false,
   dataSrc: '业务处理平台',
   createTime: '',
   updateTime: '',
 });
 
-const formData = reactive<TruckViewApi.Truck>(initFormData());
+const formData = reactive<TruckViewApi.TruckDetail>(initFormData());
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -126,16 +140,23 @@ const [RestrictionInfoFormModal, restrictionInfoFormModalApi] = useVbenModal({
   zIndex: 2000,
 });
 
-// 时间戳转换为日期
 const formatTimestamps = (rowData: any) => {
   if (!rowData) return rowData;
   const data = { ...rowData };
+  if (data.lastGateInDt)
+    data.lastGateInDt = dayjs(data.lastGateInDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.lastGateOutDt)
+    data.lastGateOutDt = dayjs(data.lastGateOutDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.currentTrkRstrStartDt)
+    data.currentTrkRstrStartDt = dayjs(data.currentTrkRstrStartDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.currentTrkRstrEndDt)
+    data.currentTrkRstrEndDt = dayjs(data.currentTrkRstrEndDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.licExpDt)
     data.licExpDt = dayjs(data.licExpDt).format('YYYY-MM-DD HH:mm:ss');
-  if (data.attachDt)
-    data.attachDt = dayjs(data.attachDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.inspDt)
     data.inspDt = dayjs(data.inspDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.affiliationStartTime)
+    data.affiliationStartTime = dayjs(data.affiliationStartTime).format('YYYY-MM-DD HH:mm:ss');
   if (data.createTime)
     data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
   if (data.updateTime)
@@ -143,6 +164,7 @@ const formatTimestamps = (rowData: any) => {
   return data;
 };
 
+/** 切换表单禁用/启用状态 */
 const applyFormState = (disabled: boolean) => {
   const schema = detailFormSchema();
   const updated = schema
@@ -160,18 +182,22 @@ const applyFormState = (disabled: boolean) => {
   formApi.updateSchema(updated);
 };
 
+/** 编辑前保存数据快照 */
 const saveDataBeforeEdit = () => {
   dataBeforeEdit.value = { ...formData };
   changedFields.value = new Set();
 };
 
+/** 是否有未保存的变更 */
 const hasUnsavedChanges = () => changedFields.value.size > 0;
 
+/** 清除变更标记 */
 const clearChangedFields = () => {
   changedFields.value = new Set();
   dataBeforeEdit.value = {};
 };
 
+/** 高亮标记变更字段 */
 const checkHighlight = async () => {
   if (currentMode.value !== 'edit' && currentMode.value !== 'create') return;
   let vals: any;
@@ -183,7 +209,9 @@ const checkHighlight = async () => {
   const before = dataBeforeEdit.value;
   const fields = new Set<string>();
   for (const key of Object.keys(vals)) {
-    if (vals[key] != before[key]) {
+    const newVal = vals[key] ?? '';
+    const oldVal = before[key] ?? '';
+    if (newVal != oldVal) {
       fields.add(key);
     }
   }
@@ -267,9 +295,10 @@ watch(
     if (!newId || currentMode.value === 'create') return;
     stopChecking();
     try {
-      const res = await getTruck(Number(newId));
+      const res = await getTruck(newId as any);
       const formatted = formatTimestamps(res);
-      Object.assign(formData, formatted);
+      Object.assign(formData, initFormData(), formatted);
+      formApi.resetForm();
       await formApi.setValues(formData);
       clearChangedFields();
       applyFormState(true);
@@ -284,9 +313,10 @@ const loadTruckDetail = async (id: string) => {
   loading.value = true;
   stopChecking();
   try {
-    const res = await getTruck(Number(id));
+    const res = await getTruck(id as any);
     const formatted = formatTimestamps(res);
-    Object.assign(formData, formatted);
+    Object.assign(formData, initFormData(), formatted);
+    formApi.resetForm();
     await formApi.setValues(formData);
     clearChangedFields();
     applyFormState(true);
@@ -317,12 +347,23 @@ const handleSave = async () => {
     Object.assign(formData, formValues);
 
     if (currentMode.value === 'create') {
-      const result = await createTruck(formData);
-      const newId = result?.id ?? (formData as any).id ?? '';
+      const { id: _id, ...rest } = formData;
+      const submitData = {
+        ...rest,
+        trkLenM: Number(formData.trkLenM),
+        trkWidM: Number(formData.trkWidM),
+      };
+      const result = await saveTruck(submitData);
+      const newId = result || '';
       message.success('新增成功');
       emit('success', newId);
     } else if (currentMode.value === 'edit') {
-      await updateTruck(formData);
+      const submitData = {
+        ...formData,
+        trkLenM: Number(formData.trkLenM),
+        trkWidM: Number(formData.trkWidM),
+      };
+      await saveTruck(submitData);
       message.success('更新成功');
       emit('success', formData.id);
     }
@@ -371,20 +412,20 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadTruckDetail });
     </div>
 
     <Form>
-      <template #fltIsRstr>
+      <template #fleetRstr>
         <span class="text-gray-800">
           {{
-            String(formData?.fltIsRstr) === '1'
+            String(formData?.fleetRstr) === '1'
               ? 'Y'
-              : String(formData?.fltIsRstr) === '0'
+              : String(formData?.fleetRstr) === '0'
                 ? 'N'
                 : '-'
           }}
         </span>
       </template>
-      <template #rstrCnt>
+      <template #trkRstrCount>
         <span class="text-gray-800">
-          {{ formData?.rstrCnt == null || formData?.rstrCnt === '' ? '-' : formData.rstrCnt }}
+          {{ formData?.trkRstrCount == null || formData?.trkRstrCount === '' ? '-' : formData.trkRstrCount }}
         </span>
       </template>
       <template #isRstr>
@@ -403,29 +444,33 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadTruckDetail });
           </Button>
         </div>
       </template>
-      <template #rstrDataSrc>
+      <template #currentTrkRstrSrc>
         <span class="text-gray-800">
-          {{ formData?.rstrDataSrc == null || formData?.rstrDataSrc === '' ? '-' : formData.rstrDataSrc }}
+          {{ formData?.currentTrkRstrSrc == null || formData?.currentTrkRstrSrc === '' ? '-' : formData.currentTrkRstrSrc }}
         </span>
       </template>
-      <template #rstrStartDt>
+      <template #currentTrkRstrStartDt>
         <span class="text-gray-800">
-          {{ formData?.rstrStartDt == null || formData?.rstrStartDt === '' ? '-' : formData.rstrStartDt }}
+          {{ formData?.currentTrkRstrStartDt == null || formData?.currentTrkRstrStartDt === '' ? '-' : formData.currentTrkRstrStartDt }}
         </span>
       </template>
-      <template #rstrEndDt>
+      <template #currentTrkRstrEndDt>
         <span class="text-gray-800">
-          {{ formData?.rstrEndDt == null || formData?.rstrEndDt === '' ? '-' : formData.rstrEndDt }}
+          {{ formData?.currentTrkRstrEndDt == null || formData?.currentTrkRstrEndDt === '' ? '-' : formData.currentTrkRstrEndDt }}
         </span>
       </template>
-      <template #lastRstrDt>
+      <template #latestRstrDays>
         <span class="text-gray-800">
-          {{ formData?.lastRstrDt == null || formData?.lastRstrDt === '' ? '-' : formData.lastRstrDt }}
+          {{ formData?.latestRstrDays == null || formData?.latestRstrDays === '' ? '-' : formData.latestRstrDays }}
         </span>
       </template>
-      <template #rstrRsn>
+      <template #rstrCode>
         <span class="text-gray-800">
-          {{ formData?.rstrRsn == null || formData?.rstrRsn === '' ? '-' : formData.rstrRsn }}
+          {{
+            !formData?.rstrCode && !formData?.rstrDesc
+              ? '-'
+              : `${formData.rstrCode || ''}${formData.rstrCode && formData.rstrDesc ? '：' : ''}${formData.rstrDesc || ''}`
+          }}
         </span>
       </template>
       <template #dataSrc>
