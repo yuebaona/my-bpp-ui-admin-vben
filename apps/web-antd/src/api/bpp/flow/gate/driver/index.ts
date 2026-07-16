@@ -4,7 +4,7 @@ import { requestClient } from '#/api/request';
 
 export namespace DriverViewApi {
   // 司机分页查询响应 VO
-  export interface DriverPageVO {
+  export interface driverPageVO {
     driverId: number; // 司机主键
     driverAccount: string; // 司机账号
     driverName: string; // 司机姓名
@@ -33,7 +33,7 @@ export namespace DriverViewApi {
   }
 
   // 司机详情响应 VO
-  export interface DriverVO {
+  export interface driverVO {
     driverId: number; // 司机主键
     driverAccount: string; // 司机账号
     driverName: string; // 司机姓名
@@ -61,7 +61,7 @@ export namespace DriverViewApi {
     updateTime: string; // 更新时间
   }
   // 司机限制记录 VO
-  export interface DriverRstrListVO {
+  export interface driverRstrListVO {
     rstrId: number; // 限制记录主键ID
     fleetCode: string; // 所属车队代码
     fleetName: string; // 所属车队名称
@@ -78,7 +78,7 @@ export namespace DriverViewApi {
   }
 
   // 司机限制详情响应 VO
-  export interface DriverRstrVO {
+  export interface driverRstrVO {
     fleetCode?: string; // 车队代码
     truckNo?: string; // 车牌号
     driverName?: string; // 司机姓名
@@ -101,7 +101,7 @@ export namespace DriverViewApi {
 
 /** 查询司机信息分页获取 */
 export function pageFleet(params: PageParam) {
-  return requestClient.get<PageResult<DriverViewApi.DriverPageVO>>(
+  return requestClient.get<PageResult<DriverViewApi.driverPageVO>>(
     '/bpp/flow/gate/driver/page',
     { params },
   );
@@ -109,13 +109,13 @@ export function pageFleet(params: PageParam) {
 
 /** 获取司机详情 */
 export function getDriverDetail(id: number) {
-  return requestClient.get<DriverViewApi.DriverVO>(
+  return requestClient.get<DriverViewApi.driverVO>(
     `/bpp/flow/gate/driver/get?id=${id}`,
   );
 }
 
 /** 保存司机信息按钮 */
-export function saveDriver(data: DriverViewApi.DriverVO) {
+export function saveDriver(data: DriverViewApi.driverVO) {
   return requestClient.post('/bpp/flow/gate/driver/save', data);
 }
 
@@ -123,20 +123,20 @@ export function saveDriver(data: DriverViewApi.DriverVO) {
 
 /** 获取司机限制记录 */
 export function getDriverRstrList(id: number) {
-  return requestClient.get<DriverViewApi.DriverRstrListVO>(
+  return requestClient.get<DriverViewApi.driverRstrListVO>(
     `/bpp/flow/gate/driver/rstr/list?id=${id}`,
   );
 }
 
 /** 获取司机限制信息 */
 export function getFleetRstr(id: number) {
-  return requestClient.get<DriverViewApi.DriverRstrVO>(
+  return requestClient.get<DriverViewApi.driverRstrVO>(
     `/bpp/flow/gate/driver/rstr/get?id=${id}`,
   );
 }
 
 /** 保存司机限制记录 */
-export function saveDriverRstr(data: DriverViewApi.DriverRstrVO) {
+export function saveDriverRstr(data: DriverViewApi.driverRstrVO) {
   return requestClient.post('/bpp/flow/gate/driver/rstr/save', data);
 }
 

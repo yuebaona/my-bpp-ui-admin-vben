@@ -1,11 +1,12 @@
-import type { PageParam, PageResult } from '@vben/request';
 import type { Dayjs } from 'dayjs';
+
+import type { PageParam, PageResult } from '@vben/request';
 
 import { requestClient } from '#/api/request';
 
 export namespace TruckViewApi {
-  /** 车辆信息实体类信息 */
-  export interface Truck {
+  // 车辆信息实体类信息
+  export interface truckPageVO {
     id: number; // 车辆唯一主键
     licensePlate: string; // 车牌号
     trailerPlate: string; // 挂车车牌号
@@ -49,7 +50,7 @@ export namespace TruckViewApi {
   }
 
   /** 车辆信息详情 */
-  export interface TruckDetail {
+  export interface truckVO {
     id: number; // 车辆唯一主键
     trkNo: string; // 车牌号
     rfidNo: string; // RFID编号
@@ -96,26 +97,48 @@ export namespace TruckViewApi {
     updateTime: Dayjs | string; // 更新时间
   }
 
-  /** 车辆限制记录信息 */
-  export interface TruckRstr {
-    id: number; // 主键ID
+  // 车辆限制记录
+  export interface truckRstrListVO {
+    id: number; // 车队限制记录主键
     fleetName: string; // 车队
-    truckNo: string; // 车牌号
     rstrInfo: string; // 限制代码：描述
+    truckNo: string; // 车牌号
     driverName: string; // 司机姓名
-    rstrStartDt: string | Dayjs; // 限制开始时间
-    rstrEndDt: string | Dayjs; // 限制结束时间
+    rstrStartDt: string; // 限制开始时间
+    rstrEndDt: string; // 限制结束时间
     rstrDaysTotal: string; // 最近一次限制时间合计
-    createTime: string | Dayjs; // 创建时间
-    releaseTime: string | Dayjs; // 限制解除时间
+    createTime: string; // 创建时间
+    releaseTime: string; // 限制解除时间
     dataSrc: string; // 限制信息来源
-    creator: string; // 创建账号"
+    creator: string; // 创建账号
+  }
+
+  /** 车辆限制记录信息 */
+  export interface truckRstrVO {
+    id: number; // 车队限制记录主键
+    fleetName: string; // 车队
+    rstrInfo: string; // 限制代码：描述
+    truckNo: string; // 车牌号
+    driverName: string; // 司机姓名
+    rstrStartDt: string; // 限制开始时间
+    rstrEndDt: string; // 限制结束时间
+    rstrDaysTotal: string; // 最近一次限制时间合计
+    createTime: string; // 创建时间
+    releaseTime: string; // 限制解除时间
+    dataSrc: string; // 限制信息来源
+    creator: string; // 创建账号
+  }
+
+  export interface rstrCodeVO {
+    id?: number; // 限制规则主键
+    ruleCd: string; // 限制代码
+    ruleDesc: string; // 描述
   }
 }
 
 /** 查询车辆信息实体类分页 */
 export function getTruckPage(params: PageParam) {
-  return requestClient.get<PageResult<TruckViewApi.Truck>>(
+  return requestClient.get<PageResult<TruckViewApi.truckPageVO>>(
     '/bpp/flow/gate/truck/page',
     { params },
   );
@@ -123,11 +146,13 @@ export function getTruckPage(params: PageParam) {
 
 /** 查询车辆信息实体类详情 */
 export function getTruck(id: number) {
-  return requestClient.get<TruckViewApi.TruckDetail>(`/bpp/flow/gate/truck/get?id=${id}`);
+  return requestClient.get<TruckViewApi.truckVO>(
+    `/bpp/flow/gate/truck/get?id=${id}`,
+  );
 }
 
 /** 保存车辆信息按钮 */
-export function saveTruck(data: TruckViewApi.TruckDetail) {
+export function saveTruck(data: TruckViewApi.truckVO) {
   return requestClient.post('/bpp/flow/gate/truck/save', data);
 }
 
@@ -135,47 +160,33 @@ export function saveTruck(data: TruckViewApi.TruckDetail) {
 
 /** 导出车辆信息实体类 */
 export function exportTruck(params: any) {
-  return requestClient.download('/bpp/flow/gate/truck/export-excel', { params });
+  return requestClient.download('/bpp/flow/gate/truck/export-excel', {
+    params,
+  });
 }
 
 /** 查询车辆限制记录 */
 export function getTruckRstrList(id: number) {
-  return requestClient.get<TruckViewApi.TruckRstr>(
+  return requestClient.get<TruckViewApi.truckRstrListVO>(
     `/bpp/flow/gate/truck/rstr/list?id=${id}`,
   );
 }
 
 /** 查询车辆限制记录 */
 export function getTruckRstr(id: number) {
-  return requestClient.get<TruckViewApi.TruckRstr>(
+  return requestClient.get<TruckViewApi.truckRstrVO>(
     `/bpp/flow/gate/truck/rstr/get?id=${id}`,
   );
 }
 
 /** 保存车辆限制记录 */
-export function createTruckRstr(data: TruckViewApi.TruckRstr) {
+export function createTruckRstr(data: TruckViewApi.truckRstrVO) {
   return requestClient.post('/bpp/flow/gate/truck/rstr/save', data);
 }
 
-/** 查询限制代码：描述 */
-export function getRestrictionCodeList(params: PageParam) {
-  // return requestClient.get<PageResult<GateTruckRstrApi.TruckRstr>>(
-  //   '/bpp/flow/gate/truck/rstr/page',
-  //   { params },
-  // );
-  return Promise.resolve([
-    { rstrRsn: 'A001: 超重限制' },
-    { rstrRsn: 'A002: 超高限制' },
-    { rstrRsn: 'A003: 超宽限制' },
-    { rstrRsn: 'A004: 超长限制' },
-    { rstrRsn: 'B001: 违规停车' },
-    { rstrRsn: 'B002: 未按指定路线行驶' },
-    { rstrRsn: 'B003: 未按规定时间进入' },
-    { rstrRsn: 'C001: 车辆未年检' },
-    { rstrRsn: 'C002: 驾驶证过期' },
-    { rstrRsn: 'C003: 营运证过期' },
-    { rstrRsn: 'D001: 安全隐患' },
-    { rstrRsn: 'D002: 设备故障' },
-    { rstrRsn: 'E001: 其他违规' },
-  ]);
+/** 获取限制代码 */
+export function getRstrReason(id: number) {
+  return requestClient.get<TruckViewApi.rstrCodeVO>(
+    `/bpp/flow/gate/truck/rstr-code?id=${id}`,
+  );
 }
