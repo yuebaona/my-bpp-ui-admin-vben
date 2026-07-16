@@ -60,10 +60,6 @@ export namespace FleetViewApi {
   }
 }
 
-/** 保存按钮 */
-export function saveFleet(data: FleetViewApi.fleetVO) {
-  return requestClient.post('/bpp/flow/gate/fleet/save', data);
-}
 /** 车队信息列表查询按钮（分页） */
 export function pageFleet(params: PageParam) {
   return requestClient.get<PageResult<FleetViewApi.fleetVO>>(
@@ -72,12 +68,31 @@ export function pageFleet(params: PageParam) {
   );
 }
 
+/** 获取车队详情 */
+export function getFleetDetail(id: number) {
+  return requestClient.get<FleetViewApi.fleetVO>(
+    `/bpp/flow/gate/fleet/get?id=${id}`,
+  );
+}
+
+/** 保存车队信息按钮 */
+export function saveFleet(data: FleetViewApi.fleetVO) {
+  return requestClient.post('/bpp/flow/gate/fleet/save', data);
+}
+
 /** 日志查询按钮 todo */
 
 /** 获取车队限制信息 */
-export function getFleetRstr(fltId: number) {
+export function getFleetRstrList(id: number) {
   return requestClient.get<FleetViewApi.fleetVO>(
-    `/bpp/flow/gate/fleet/get-rstr?fltId=${fltId}`,
+    `/bpp/flow/gate/fleet/rstr/list?id=${id}`,
+  );
+}
+
+/** 获取车队限制信息 */
+export function getFleetRstrDetail(id: number) {
+  return requestClient.get<FleetViewApi.fleetVO>(
+    `/bpp/flow/gate/fleet/rstr/get?id=${id}`,
   );
 }
 
@@ -87,16 +102,9 @@ export function saveFleetRstr(data: FleetViewApi.fleetVO) {
 }
 
 /** 手动解除车队限制 */
-export function releaseFleetRstr(fltRstrId: number) {
+export function releaseFleetRstr(id: number) {
   return requestClient.post(
-    `/bpp/flow/gate/fleet/rstr/release?fltRstrId=${fltRstrId}`,
-  );
-}
-
-/** 获取车队详情 */
-export function getFleetDetail(id: number) {
-  return requestClient.get<FleetViewApi.fleetVO>(
-    `/bpp/flow/gate/fleet/get?id=${id}`,
+    `/bpp/flow/gate/fleet/rstr/release?id=${id}`,
   );
 }
 
