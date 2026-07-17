@@ -11,10 +11,7 @@ import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  getTruck,
-  saveTruck,
-} from '#/api/bpp/flow/gate/truck/index.ts';
+import { getTruck, saveTruck } from '#/api/bpp/flow/gate/truck/index.ts';
 
 import { detailFormSchema, restrictionColumns } from '../data';
 import RestrictionInfo from './restrictionInfo.vue';
@@ -38,7 +35,7 @@ const loading = ref(false);
 const dataBeforeEdit = ref<Record<string, any>>({});
 const changedFields = ref<Set<string>>(new Set());
 
-let checkTimer: ReturnType<typeof setInterval> | null = null;
+let checkTimer: null | ReturnType<typeof setInterval> = null;
 
 // 初始化表单
 const initFormData = () => ({
@@ -88,7 +85,7 @@ const initFormData = () => ({
   updateTime: '',
 });
 
-const formData = reactive<TruckViewApi.TruckDetail>(initFormData());
+const formData = reactive<TruckViewApi.truckVO>(initFormData());
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -146,17 +143,25 @@ const formatTimestamps = (rowData: any) => {
   if (data.lastGateInDt)
     data.lastGateInDt = dayjs(data.lastGateInDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.lastGateOutDt)
-    data.lastGateOutDt = dayjs(data.lastGateOutDt).format('YYYY-MM-DD HH:mm:ss');
+    data.lastGateOutDt = dayjs(data.lastGateOutDt).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
   if (data.currentTrkRstrStartDt)
-    data.currentTrkRstrStartDt = dayjs(data.currentTrkRstrStartDt).format('YYYY-MM-DD HH:mm:ss');
+    data.currentTrkRstrStartDt = dayjs(data.currentTrkRstrStartDt).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
   if (data.currentTrkRstrEndDt)
-    data.currentTrkRstrEndDt = dayjs(data.currentTrkRstrEndDt).format('YYYY-MM-DD HH:mm:ss');
+    data.currentTrkRstrEndDt = dayjs(data.currentTrkRstrEndDt).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
   if (data.licExpDt)
     data.licExpDt = dayjs(data.licExpDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.inspDt)
     data.inspDt = dayjs(data.inspDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.affiliationStartTime)
-    data.affiliationStartTime = dayjs(data.affiliationStartTime).format('YYYY-MM-DD HH:mm:ss');
+    data.affiliationStartTime = dayjs(data.affiliationStartTime).format(
+      'YYYY-MM-DD HH:mm:ss',
+    );
   if (data.createTime)
     data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
   if (data.updateTime)
@@ -171,7 +176,10 @@ const applyFormState = (disabled: boolean) => {
     .filter((field) => field.fieldName)
     .map((field) => ({
       ...field,
-      formItemClass: [field.formItemClass, changedFields.value.has(field.fieldName!) ? 'field-changed' : '']
+      formItemClass: [
+        field.formItemClass,
+        changedFields.value.has(field.fieldName!) ? 'field-changed' : '',
+      ]
         .filter(Boolean)
         .join(' '),
       componentProps: {
@@ -226,7 +234,10 @@ const checkHighlight = async () => {
       .filter((f) => f.fieldName)
       .map((f) => ({
         ...f,
-        formItemClass: [f.formItemClass, fields.has(f.fieldName!) ? 'field-changed' : '']
+        formItemClass: [
+          f.formItemClass,
+          fields.has(f.fieldName!) ? 'field-changed' : '',
+        ]
           .filter(Boolean)
           .join(' '),
         componentProps: {
@@ -376,7 +387,7 @@ const handleSave = async () => {
 };
 
 /** 新增限制 */
-const handleRestriction = async (row: TruckViewApi.Truck) => {
+const handleRestriction = async (row: TruckViewApi.truckPageVO) => {
   restrictionInfoFormModalApi
     .setData({
       truckData: formData,
@@ -425,7 +436,11 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadTruckDetail });
       </template>
       <template #trkRstrCount>
         <span class="text-gray-800">
-          {{ formData?.trkRstrCount == null || formData?.trkRstrCount === '' ? '-' : formData.trkRstrCount }}
+          {{
+            formData?.trkRstrCount == null || formData?.trkRstrCount === ''
+              ? '-'
+              : formData.trkRstrCount
+          }}
         </span>
       </template>
       <template #isRstr>
@@ -446,22 +461,41 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadTruckDetail });
       </template>
       <template #currentTrkRstrSrc>
         <span class="text-gray-800">
-          {{ formData?.currentTrkRstrSrc == null || formData?.currentTrkRstrSrc === '' ? '-' : formData.currentTrkRstrSrc }}
+          {{
+            formData?.currentTrkRstrSrc == null ||
+            formData?.currentTrkRstrSrc === ''
+              ? '-'
+              : formData.currentTrkRstrSrc
+          }}
         </span>
       </template>
       <template #currentTrkRstrStartDt>
         <span class="text-gray-800">
-          {{ formData?.currentTrkRstrStartDt == null || formData?.currentTrkRstrStartDt === '' ? '-' : formData.currentTrkRstrStartDt }}
+          {{
+            formData?.currentTrkRstrStartDt == null ||
+            formData?.currentTrkRstrStartDt === ''
+              ? '-'
+              : formData.currentTrkRstrStartDt
+          }}
         </span>
       </template>
       <template #currentTrkRstrEndDt>
         <span class="text-gray-800">
-          {{ formData?.currentTrkRstrEndDt == null || formData?.currentTrkRstrEndDt === '' ? '-' : formData.currentTrkRstrEndDt }}
+          {{
+            formData?.currentTrkRstrEndDt == null ||
+            formData?.currentTrkRstrEndDt === ''
+              ? '-'
+              : formData.currentTrkRstrEndDt
+          }}
         </span>
       </template>
       <template #latestRstrDays>
         <span class="text-gray-800">
-          {{ formData?.latestRstrDays == null || formData?.latestRstrDays === '' ? '-' : formData.latestRstrDays }}
+          {{
+            formData?.latestRstrDays == null || formData?.latestRstrDays === ''
+              ? '-'
+              : formData.latestRstrDays
+          }}
         </span>
       </template>
       <template #rstrCode>
@@ -475,17 +509,29 @@ defineExpose({ handleSave, clearForm, hasUnsavedChanges, loadTruckDetail });
       </template>
       <template #dataSrc>
         <span class="text-gray-800">
-          {{ formData?.dataSrc == null || formData?.dataSrc === '' ? '-' : formData.dataSrc }}
+          {{
+            formData?.dataSrc == null || formData?.dataSrc === ''
+              ? '-'
+              : formData.dataSrc
+          }}
         </span>
       </template>
       <template #createTime>
         <span class="text-gray-800">
-          {{ formData?.createTime == null || formData?.createTime === '' ? '-' : formData.createTime }}
+          {{
+            formData?.createTime == null || formData?.createTime === ''
+              ? '-'
+              : formData.createTime
+          }}
         </span>
       </template>
       <template #updateTime>
         <span class="text-gray-800">
-          {{ formData?.updateTime == null || formData?.updateTime === '' ? '-' : formData.updateTime }}
+          {{
+            formData?.updateTime == null || formData?.updateTime === ''
+              ? '-'
+              : formData.updateTime
+          }}
         </span>
       </template>
     </Form>

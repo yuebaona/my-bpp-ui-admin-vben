@@ -32,7 +32,7 @@ const selectedTruckId = ref<string>('');
 let isFirstLoad = true;
 
 // 点击表格行
-const handleRowClick = (row: TruckViewApi.Truck) => {
+const handleRowClick = (row: TruckViewApi.truckPageVO) => {
   if (
     (formMode.value === 'edit' || formMode.value === 'create') &&
     detailFormRef.value?.hasUnsavedChanges()
@@ -164,9 +164,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<TruckViewApi.Truck>,
+  } as VxeTableGridOptions<TruckViewApi.truckPageVO>,
   gridEvents: {
-    cellClick: ({ row }: { row: TruckViewApi.Truck }) => {
+    cellClick: ({ row }: { row: TruckViewApi.truckPageVO }) => {
       handleRowClick(row);
     },
   },

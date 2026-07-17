@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import type { PageParam } from '@vben/request';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 import {
   getRstrReason,
-  getTruckRstr,
   getTruckRstrList,
   saveTruckRstr,
   type TruckViewApi,
@@ -36,7 +34,7 @@ const emit = defineEmits(['success']);
 const selectedRstrId = ref<string>('');
 
 // 选中的行数据
-const selectedRowData = ref<null | TruckViewApi.TruckRstr>(null);
+const selectedRowData = ref<null | TruckViewApi.truckRstrVO>(null);
 
 // 车辆数据
 const truckData = ref<any>(null);
@@ -66,7 +64,7 @@ const initFormData = () => ({
   relDriverFlg: 0,
 });
 
-const formData = reactive<TruckViewApi.TruckRstr>(initFormData());
+const formData = reactive<TruckViewApi.truckRstrVO>(initFormData());
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -161,9 +159,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
         },
       },
     },
-  } as VxeTableGridOptions<TruckViewApi.TruckRstr>,
+  } as VxeTableGridOptions<TruckViewApi.truckRstrVO>,
   gridEvents: {
-    cellClick: ({ row }: { row: TruckViewApi.TruckRstr }) => {
+    cellClick: ({ row }: { row: TruckViewApi.truckRstrVO }) => {
       handleRowClick(row);
     },
   },
@@ -173,7 +171,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
  * 将行数据加载到表单
  * 有未保存更改时弹窗确认
  */
-const handleRowClick = (row: TruckViewApi.TruckRstr) => {
+const handleRowClick = (row: TruckViewApi.truckRstrVO) => {
   if (formMode.value === 'edit' && hasUnsavedChanges()) {
     Modal.confirm({
       title: '提示',
@@ -197,7 +195,7 @@ const handleRowClick = (row: TruckViewApi.TruckRstr) => {
 };
 
 /** 将行数据加载到表单 */
-const loadRstrDetail = (row: TruckViewApi.TruckRstr) => {
+const loadRstrDetail = (row: TruckViewApi.truckRstrVO) => {
   const formatted = formatTimestamps(row);
   if (formatted.rstrRsn) {
     rstrReasonState.value = formatted.rstrRsn;

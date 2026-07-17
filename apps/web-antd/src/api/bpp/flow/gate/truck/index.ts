@@ -178,7 +178,7 @@ export function getTruckRstr(id: number) {
 }
 
 /** 保存车辆限制记录 */
-export function saveTruckRstr(data: TruckViewApi.TruckRstr) {
+export function saveTruckRstr(data: TruckViewApi.truckRstrVO) {
   return requestClient.post('/bpp/flow/gate/truck/rstr/save', data);
 }
 
