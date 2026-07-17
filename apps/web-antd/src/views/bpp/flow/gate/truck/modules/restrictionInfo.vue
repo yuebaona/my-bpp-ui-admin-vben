@@ -1,25 +1,22 @@
 <script lang="ts" setup>
-import type { PageParam } from '@vben/request';
 
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { GateTruckRstrApi } from '#/api/bpp/flow/gate/truck/rstr';
+import {
+  getRstrReason,
+  getTruckRstrList,
+  saveTruckRstr,
+  type TruckViewApi,
+} from "#/api/bpp/flow/gate/truck/index.ts";
 
-import { reactive, ref, watch } from 'vue';
+import { onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Button, message } from 'ant-design-vue';
+import { Button, message, Modal } from 'ant-design-vue';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  createTruckRstr,
-  getRestrictionCodeList,
-  getTruckRstr,
-  getTruckRstrPage,
-  updateTruckRstr,
-} from '#/api/bpp/flow/gate/truck/rstr';
 import { useSearchSelect } from '#/components/form-create/components/use-search-select';
 
 import { restrictionColumns, restrictionFormSchema } from '../data';
@@ -31,39 +28,43 @@ type FormMode = 'create' | 'edit' | 'view';
 const formMode = ref<FormMode>('view');
 const isDisabled = ref(true);
 
-// const emit = defineEmits(['success']);
+const emit = defineEmits(['success']);
 
 // 选中的限制记录ID
 const selectedRstrId = ref<string>('');
 
 // 选中的行数据
-const selectedRowData = ref<GateTruckRstrApi.TruckRstr | null>(null);
+const selectedRowData = ref<null | TruckViewApi.truckRstrVO>(null);
 
 // 车辆数据
 const truckData = ref<any>(null);
 
 let isFirstLoad = true;
 
+const dataBeforeEdit = ref<Record<string, any>>({});
+const changedFields = ref<Set<string>>(new Set());
+let checkTimer: null | ReturnType<typeof setInterval> = null;
+
 const isSubmitting = ref(false);
 
 // 初始化表单
 const initFormData = () => ({
-  id: 0,
-  fltCd: '',
+  id: undefined as any,
+  fleetName: '',
   rstrRsn: '',
-  trkNo: '',
-  driverNm: '',
+  truckNo: '',
+  driverName: '',
   rstrStartDt: '',
   rstrEndDt: '',
-  lastRstrDt: 0,
+  rstrDaysTotal: 0,
   createTime: '',
-  unrelDt: '',
-  rstrDataSrc: '业务处理平台',
-  createUser: '',
+  releaseTime: '',
+  dataSrc: '业务处理平台',
+  creator: '',
   relDriverFlg: 0,
 });
 
-const formData = reactive<GateTruckRstrApi.TruckRstr>(initFormData());
+const formData = reactive<TruckViewApi.truckRstrVO>(initFormData());
 
 const [Form, formApi] = useVbenForm({
   commonConfig: {
@@ -77,6 +78,22 @@ const [Form, formApi] = useVbenForm({
   schema: restrictionFormSchema(),
   showDefaultActions: false,
   wrapperClass: 'grid-cols-2',
+  handleValuesChange: (values: any, changedFields: string[]) => {
+    const days = currentRstrDays.value;
+    if (days <= 0) return;
+
+    if (changedFields.includes('rstrStartDt') && values.rstrStartDt) {
+      const end = dayjs(values.rstrStartDt)
+        .add(days, 'day')
+        .format('YYYY-MM-DD HH:mm:ss');
+      formApi.setFieldValue('rstrEndDt', end);
+    } else if (changedFields.includes('rstrEndDt') && values.rstrEndDt) {
+      const start = dayjs(values.rstrEndDt)
+        .subtract(days, 'day')
+        .format('YYYY-MM-DD HH:mm:ss');
+      formApi.setFieldValue('rstrStartDt', start);
+    }
+  },
 });
 
 const [Grid, gridApi] = useVbenVxeGrid({
@@ -127,55 +144,67 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       autoLoad: true,
       ajax: {
-        query: async ({ page }, formValues) => {
-          const queryParam: PageParam = {
-            pageNo: page.currentPage,
-            pageSize: page.pageSize,
-            ...formValues,
-          };
-          const res = await getTruckRstrPage(queryParam);
-          // 默认加载第一条数据
-          if (isFirstLoad && res?.list?.length > 0) {
-            handleRowClick(res.list[0]);
+        query: async () => {
+          const res = await getTruckRstrList(truckData.value.id);
+          const list = res;
+          if (isFirstLoad) {
             isFirstLoad = false;
+            if (list.length > 0) {
+              handleRowClick(list[0]);
+            } else {
+              formMode.value = 'create';
+            }
           }
-          return res;
+          return { list, total: list.length };
         },
       },
     },
-  } as VxeTableGridOptions<GateTruckRstrApi.TruckRstr>,
+  } as VxeTableGridOptions<TruckViewApi.truckRstrVO>,
   gridEvents: {
-    cellClick: ({ row }: { row: GateTruckRstrApi.TruckRstr }) => {
+    cellClick: ({ row }: { row: TruckViewApi.truckRstrVO }) => {
       handleRowClick(row);
     },
   },
 });
 
-// 点击表格行查看数据
-const handleRowClick = (row: GateTruckRstrApi.TruckRstr) => {
+/**
+ * 将行数据加载到表单
+ * 有未保存更改时弹窗确认
+ */
+const handleRowClick = (row: TruckViewApi.truckRstrVO) => {
+  if (formMode.value === 'edit' && hasUnsavedChanges()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        selectedRowData.value = row;
+        selectedRstrId.value = String(row.id);
+        formMode.value = 'view';
+        loadRstrDetail(row);
+      },
+    });
+    return;
+  }
   selectedRowData.value = row;
   selectedRstrId.value = String(row.id);
   formMode.value = 'view';
-  loadRstrDetail(row.id);
+  loadRstrDetail(row);
 };
 
-// 加载限制记录详情
-const loadRstrDetail = async (id: number) => {
-  try {
-    const res = await getTruckRstr(id);
-    const formatted = formatTimestamps(res);
-    Object.assign(formData, formatted);
-    await formApi.setValues(formData);
-    // 同步更新限制代码选择器的数据
-    if (formatted.rstrRsn) {
-      rstrReasonState.value = formatted.rstrRsn;
-    }
-  } catch {
-    message.error('获取详情失败');
+/** 将行数据加载到表单 */
+const loadRstrDetail = (row: TruckViewApi.truckRstrVO) => {
+  const formatted = formatTimestamps(row);
+  if (formatted.rstrRsn) {
+    rstrReasonState.value = formatted.rstrRsn;
   }
+  Object.assign(formData, formatted);
+  formApi.setValues(formData);
 };
 
-// 时间格式化
+/** 日期转成字符串 */
 const formatTimestamps = (rowData: any) => {
   if (!rowData) return rowData;
   const data = { ...rowData };
@@ -185,50 +214,168 @@ const formatTimestamps = (rowData: any) => {
     data.rstrEndDt = dayjs(data.rstrEndDt).format('YYYY-MM-DD HH:mm:ss');
   if (data.createTime)
     data.createTime = dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss');
-  if (data.unrelDt)
-    data.unrelDt = dayjs(data.unrelDt).format('YYYY-MM-DD HH:mm:ss');
+  if (data.releaseTime)
+    data.releaseTime = dayjs(data.releaseTime).format('YYYY-MM-DD HH:mm:ss');
   return data;
 };
 
-// 更新表单禁用状态
-const updateFormDisabled = (disabled: boolean) => {
+/** 切换表单模式（新增/编辑/查看） */
+const applyFormState = (disabled: boolean) => {
   isDisabled.value = disabled;
   const schema = restrictionFormSchema();
   const updated = schema
     .filter((field) => field.fieldName)
     .map((field) => ({
-      fieldName: field.fieldName!,
+      ...field,
+      formItemClass: [
+        field.formItemClass,
+        changedFields.value.has(field.fieldName!) ? 'field-changed' : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
       componentProps: {
+        ...field.componentProps,
         disabled: disabled ? true : (field.componentProps?.disabled ?? false),
       },
     }));
   formApi.updateSchema(updated);
 };
 
-// 监听表单模式
+/** 编辑前保存数据快照，用于变更对比高亮 */
+const saveDataBeforeEdit = () => {
+  dataBeforeEdit.value = { ...formData, rstrRsn: rstrReasonState.value };
+  changedFields.value = new Set();
+};
+
+/** 是否有未保存的变更 */
+const hasUnsavedChanges = () => changedFields.value.size > 0;
+
+/** 清除变更标记和数据快照 */
+const clearChangedFields = () => {
+  changedFields.value = new Set();
+  dataBeforeEdit.value = {};
+};
+
+/** 高亮标记变更字段 */
+const checkHighlight = async () => {
+  if (formMode.value !== 'edit') return;
+  let vals: any;
+  try {
+    vals = await formApi.getValues();
+  } catch {
+    return;
+  }
+  const before = dataBeforeEdit.value;
+  const fields = new Set<string>();
+  for (const key of Object.keys(vals)) {
+    if (vals[key] != before[key]) {
+      fields.add(key);
+    }
+  }
+  if (rstrReasonState.value != before.rstrRsn) {
+    fields.add('rstrRsn');
+  }
+  const prev = [...changedFields.value].sort().join(',');
+  const next = [...fields].sort().join(',');
+  if (prev === next) return;
+  changedFields.value = fields;
+  const schema = restrictionFormSchema();
+  const updated = schema
+    .filter((f) => f.fieldName)
+    .map((f) => ({
+      ...f,
+      formItemClass: [
+        f.formItemClass,
+        fields.has(f.fieldName!) ? 'field-changed' : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
+      componentProps: {
+        ...f.componentProps,
+        disabled: false,
+      },
+    }));
+  formApi.updateSchema(updated);
+};
+
+const doCheck = () => {
+  checkHighlight().finally(() => {
+    if (checkTimer !== null) {
+      checkTimer = setTimeout(doCheck, 150);
+    }
+  });
+};
+
+const startChecking = () => {
+  stopChecking();
+  checkTimer = setTimeout(doCheck, 0);
+};
+
+const stopChecking = () => {
+  if (checkTimer) {
+    clearTimeout(checkTimer);
+    checkTimer = null;
+  }
+};
+
 watch(
   formMode,
   async (newMode) => {
-    if (newMode === 'create' || newMode === 'edit') {
-      await updateFormDisabled(false);
-    } else if (newMode === 'view') {
-      await updateFormDisabled(true);
+    switch (newMode) {
+      case 'create': {
+        stopChecking();
+        rstrReasonState.value = '';
+        Object.assign(formData, initFormData());
+        await formApi.setValues(formData);
+        clearChangedFields();
+        await applyFormState(false);
+        startChecking();
+
+        break;
+      }
+      case 'edit': {
+        stopChecking();
+        saveDataBeforeEdit();
+        await applyFormState(false);
+        startChecking();
+
+        break;
+      }
+      case 'view': {
+        stopChecking();
+        clearChangedFields();
+        await applyFormState(true);
+
+        break;
+      }
     }
   },
   { immediate: true },
 );
 
-// 点击新增
+/** 切换到新增模式 */
 const handleCreate = () => {
-  formMode.value = 'create';
+  if (formMode.value === 'edit' && hasUnsavedChanges()) {
+    Modal.confirm({
+      title: '提示',
+      content: '当前有未保存的更改，是否放弃更改？',
+      okText: '确认放弃',
+      cancelText: '取消',
+      centered: true,
+      onOk: () => {
+        selectedRowData.value = null;
+        selectedRstrId.value = '';
+        formMode.value = 'create';
+      },
+    });
+    return;
+  }
   selectedRowData.value = null;
   selectedRstrId.value = '';
-  Object.assign(formData, initFormData());
-  formData.trkGkey = truckData.value?.trkGkey || '';
-  formApi.setValues(formData);
+  formMode.value = 'create';
 };
 
-// 点击编辑
+/** 切换到编辑模式 */
 const handleEdit = () => {
   if (!selectedRstrId.value || !selectedRowData.value) {
     message.warning('请先点击选择一行数据');
@@ -237,31 +384,40 @@ const handleEdit = () => {
   formMode.value = 'edit';
 };
 
-// 点击保存
+/** 保存限制记录 */
 const handleSave = async () => {
   if (isSubmitting.value) return;
   isSubmitting.value = true;
 
   try {
     const { valid } = await formApi.validate();
-    if (!valid) {
-      return;
-    }
+    if (!valid) return;
 
     const formValues = await formApi.getValues();
-    Object.assign(formData, formValues);
 
-    if (formMode.value === 'create') {
-      await createTruckRstr(formData);
-      message.success('新增成功');
-    } else if (formMode.value === 'edit') {
-      await updateTruckRstr(formData);
-      message.success('更新成功');
+    const submitData: Record<string, any> = {
+      fleetName: formValues.fleetName,
+      rstrRsn: formValues.rstrRsn,
+      truckNo: formValues.truckNo,
+      driverName: formValues.driverName,
+      rstrStartDt: formValues.rstrStartDt,
+      rstrEndDt: formValues.rstrEndDt,
+      relDriverFlg: formValues.relDriverFlg,
+    };
+
+    if (formMode.value === 'edit') {
+      submitData.id = selectedRstrId.value;
+      if (formValues.releaseTime) {
+        submitData.releaseTime = formValues.releaseTime;
+      }
     }
+    await saveTruckRstr(submitData);
+    message.success(formMode.value === 'create' ? '新增成功' : '更新成功');
 
     await gridApi.query();
+    rstrReasonState.value = '';
     Object.assign(formData, initFormData());
-    await formApi.setValues({});
+    await formApi.setValues(formData);
     formMode.value = 'view';
   } catch {
     message.error('保存失败，请重试');
@@ -270,16 +426,21 @@ const handleSave = async () => {
   }
 };
 
-// 点击取消
+/** 取消并关闭弹窗 */
 const handleCancel = () => {
   modalApi.close();
 };
 
-const [Modal, modalApi] = useVbenModal({
+onBeforeUnmount(stopChecking);
+
+const [RstrModal, modalApi] = useVbenModal({
   header: true,
   modal: false,
   draggable: true,
-  resizable: true,
+  resizeable: {
+    minWidth: 600,
+    minHeight: 400,
+  },
   showCancelButton: true,
   closeOnClickModal: false,
   isSubmit: true,
@@ -291,9 +452,6 @@ const [Modal, modalApi] = useVbenModal({
       if (data && data.truckData) {
         truckData.value = data.truckData;
       }
-      if ($grid) {
-        await gridApi.query();
-      }
     } else {
       Object.assign(formData, initFormData());
       await formApi.setValues({});
@@ -304,36 +462,56 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 
-// 限制代码搜索选择器
-const {
-  state: rstrReasonState,
-  search: rstrReasonSearch,
-  handleInput: handleRstrReasonInput,
-  handleCompositionStart: handleRstrReasonCompositionStart,
-  handleCompositionEnd: handleRstrReasonCompositionEnd,
-} = useSearchSelect({
+const { state: rstrReasonState, search: rstrReasonSearch } = useSearchSelect({
   searchApi: async () => {
-    return await getRestrictionCodeList();
+    const res = await getRstrReason(truckData.value.id);
+    return res.map((item: any) => ({
+      ...item,
+      _label: `${item.ruleCd}：${item.ruleDesc}`,
+      _value: item.id,
+    }));
   },
-  labelField: 'rstrRsn',
-  valueField: 'rstrRsn',
+  labelField: '_label' as any,
+  valueField: '_value' as any,
   errorMessage: '获取限制代码失败',
   toUpperCase: true,
-  filterRegex: /[^A-Z0-9]/g,
+  filterRegex: /[^A-Z0-9\u4E00-\u9FA5/]/g,
 });
 
-// 限制代码选择器值变化处理
+/** 当前限制代码的天数 */
+const currentRstrDays = ref<number>(0);
+
+/** 选择限制代码后回调 */
 const handleRstrReasonChange = async (value: any) => {
   rstrReasonState.value = value;
   await formApi.setFieldValue('rstrRsn', value);
   await formApi.validateField('rstrRsn');
+
+  const selected: any = (rstrReasonState.data as any[]).find(
+    (item: any) => item.value === value,
+  );
+  if (selected?.data?.rstrDays) {
+    const rstrDays = selected.data.rstrDays;
+    currentRstrDays.value = rstrDays;
+    const startDate = dayjs();
+    await formApi.setFieldValue(
+      'rstrStartDt',
+      startDate.format('YYYY-MM-DD HH:mm:ss'),
+    );
+    await formApi.setFieldValue(
+      'rstrEndDt',
+      startDate.add(rstrDays, 'day').format('YYYY-MM-DD HH:mm:ss'),
+    );
+  } else {
+    currentRstrDays.value = 0;
+  }
 };
 </script>
 
 <template>
-  <Modal title="已限制明细" style="width: 150%">
-    <div class="flex flex-col gap-4" style="min-height: 500px">
-      <div class="flex-1" style="min-height: 300px">
+  <RstrModal title="已限制明细" class="w-[60vw] max-w-[1800px]">
+    <div class="flex flex-col gap-2" style="min-height: 500px">
+      <div class="overflow-hidden" style="min-height: 300px">
         <Grid />
       </div>
       <Form>
@@ -343,18 +521,53 @@ const handleRstrReasonChange = async (value: any) => {
             :disabled="isDisabled"
             placeholder="请输入限制代码"
             style="width: 100%"
-            :filter-option="false"
+            :filter-option="
+              (input: string, option: any) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+            "
             :not-found-content="rstrReasonState.fetching ? undefined : null"
             :options="rstrReasonState.data"
             allow-clear
             show-search
             @change="handleRstrReasonChange"
-            @input="handleRstrReasonInput"
-            @search="rstrReasonSearch"
             @focus="rstrReasonSearch('')"
-            @compositionstart="handleRstrReasonCompositionStart"
-            @compositionend="handleRstrReasonCompositionEnd"
           />
+        </template>
+        <template #rstrDaysTotal>
+          <span class="text-gray-800">
+            {{
+              formData?.rstrDaysTotal == null || formData?.rstrDaysTotal === ''
+                ? '-'
+                : formData.rstrDaysTotal
+            }}
+          </span>
+        </template>
+        <template #createTime>
+          <span class="text-gray-800">
+            {{
+              formData?.createTime == null || formData?.createTime === ''
+                ? '-'
+                : formData.createTime
+            }}
+          </span>
+        </template>
+        <template #dataSrc>
+          <span class="text-gray-800">
+            {{
+              formData?.dataSrc == null || formData?.dataSrc === ''
+                ? '-'
+                : formData.dataSrc
+            }}
+          </span>
+        </template>
+        <template #creator>
+          <span class="text-gray-800">
+            {{
+              formData?.creator == null || formData?.creator === ''
+                ? '-'
+                : formData.creator
+            }}
+          </span>
         </template>
       </Form>
     </div>
@@ -368,5 +581,18 @@ const handleRstrReasonChange = async (value: any) => {
         </Button>
       </div>
     </template>
-  </Modal>
+  </RstrModal>
 </template>
+
+<style scoped>
+:deep(.field-changed) .ant-input,
+:deep(.field-changed) .ant-picker,
+:deep(.field-changed) .ant-input-affix-wrapper {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+:deep(.field-changed) .ant-select-selector {
+  background-color: rgba(253, 230, 138, 0.3) !important;
+  border-color: #fbbf24 !important;
+}
+</style>

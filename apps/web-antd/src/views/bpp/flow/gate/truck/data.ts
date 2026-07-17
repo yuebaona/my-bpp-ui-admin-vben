@@ -1,10 +1,11 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
+import dayjs from 'dayjs';
+
 import { z } from '#/adapter/form';
 import { getDictDataPage } from '#/api/bpp/base/dict/data';
 import { bppBaseDictStore } from '#/store/bpp/base/dict';
-import { getRangePickerDefaultProps } from '#/utils';
 
 const bppBaseDict = bppBaseDictStore();
 
@@ -52,14 +53,6 @@ export function truckSearchSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入车牌号',
         allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
-          }, 10);
-        },
       },
     },
     {
@@ -69,31 +62,15 @@ export function truckSearchSchema(): VbenFormSchema[] {
       componentProps: {
         placeholder: '请输入挂车车牌号',
         allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
-          }, 10);
-        },
       },
     },
     {
       fieldName: 'fltCd',
-      label: '车辆代码/中文名',
+      label: '车队代码/中文名',
       component: 'Input',
       componentProps: {
         placeholder: '请输入车辆代码/名称',
         allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
-          }, 10);
-        },
       },
     },
     {
@@ -138,11 +115,11 @@ export function truckSearchSchema(): VbenFormSchema[] {
 export function truckInfoColumns(): VxeTableGridOptions['columns'] {
   return [
     { type: 'seq', width: 50, align: 'center', fixed: 'left' },
-    { type: 'checkbox', width: 40, fixed: 'left' },
     {
-      field: 'trkNo',
+      field: 'licensePlate',
       title: '车牌号',
       minWidth: 120,
+      fixed: 'left',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
@@ -166,22 +143,67 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'BBBBB',
+      field: 'lastGateInDt',
       title: '最后进场时间',
       minWidth: 120,
       formatter: 'formatDateTime',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
-      field: 'fltCd',
+      field: 'lastGateOutDt',
+      title: '最后出场时间',
+      minWidth: 120,
+      formatter: 'formatDateTime',
+      filters: [{ data: '' }],
+      filterRender: {
+        name: 'VxeInput',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
+        },
+      },
+      filterMethod: ({
+                       option,
+                       row,
+                       column,
+                     }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
+      },
+    },
+    {
+      field: 'fleetCode',
       title: '车队代码',
       minWidth: 100,
       filters: [{ data: '' }],
@@ -194,8 +216,8 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'fltNm',
-      title: '车辆中文名称',
+      field: 'fleetName',
+      title: '车队中文名',
       minWidth: 120,
       filters: [{ data: '' }],
       filterRender: {
@@ -207,7 +229,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'fltIsRstr',
+      field: 'fleetRestricted',
       title: '所属车队是否被限制',
       minWidth: 150,
       filters: [
@@ -229,7 +251,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
         cellValue === 1 || cellValue === '1' ? '是' : '否',
     },
     {
-      field: 'AAAAA',
+      field: 'trkRstrCount',
       title: '已限制次数',
       minWidth: 100,
       filters: [{ data: '' }],
@@ -265,7 +287,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
         cellValue === 1 || cellValue === '1' ? '是' : '否',
     },
     {
-      field: 'rstrReason',
+      field: 'rstrRsn',
       title: '限制原因代码及描述',
       minWidth: 150,
       filters: [{ data: '' }],
@@ -278,7 +300,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'rstrDataSrc',
+      field: 'currentTrkRstrSrc',
       title: '限制信息来源',
       minWidth: 120,
       filters: [
@@ -298,37 +320,67 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'rstrStartDt',
+      field: 'currentTrkRstrStartDt',
       title: '限制开始时间',
       minWidth: 120,
       formatter: 'formatDateTime',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
-      field: 'rstrEndDt',
+      field: 'currentTrkRstrEndDt',
       title: '限制结束时间',
       minWidth: 120,
       formatter: 'formatDateTime',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
-      field: 'lastRstrDt',
+      field: 'latestRstrDays',
       title: '最近一次限制时间合计',
       minWidth: 160,
       filters: [{ data: '' }],
@@ -340,7 +392,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'trailerNo',
+      field: 'trailerPlate',
       title: '挂车车牌号',
       minWidth: 100,
       filters: [{ data: '' }],
@@ -373,11 +425,26 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
@@ -395,7 +462,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'AAAAA',
+      field: 'isAnnualInspe',
       title: '是否年审',
       minWidth: 90,
       filters: [
@@ -424,11 +491,26 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期'
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
@@ -467,7 +549,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
         cellValue === 1 || cellValue === '1' ? '是' : '否',
     },
     {
-      field: 'AAAAA',
+      field: 'newFlg',
       title: '是否新能源车',
       minWidth: 120,
       filters: [
@@ -489,14 +571,13 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
         cellValue === 1 || cellValue === '1' ? '是' : '否',
     },
     {
-      field: 'maxLoadWtKg',
+      field: 'maxLoadWTKg',
       title: '最大载重(kg)',
       width: 120,
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
         props: {
-          type: 'number',
           placeholder: '请输入载重',
           allowClear: true,
         },
@@ -635,7 +716,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'BBBBB',
+      field: 'tmlRm',
       title: '码头备注',
       minWidth: 180,
       filters: [{ data: '' }],
@@ -661,18 +742,33 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'AAAAA',
+      field: 'affiliationStartTime',
       title: '开始挂靠时间',
       minWidth: 130,
       formatter: 'formatDateTime',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期'
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
@@ -698,7 +794,7 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
         cellValue === 1 || cellValue === '1' ? '是' : '否',
     },
     {
-      field: 'createSource',
+      field: 'dataSrc',
       title: '创建源',
       minWidth: 120,
       filters: [
@@ -722,6 +818,25 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       filterRender: {
         name: 'VxeInput',
         props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
+        },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
@@ -732,15 +847,30 @@ export function truckInfoColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
-      field: 'AAAAA',
+      field: 'enableFlg',
       title: '是否有效',
       minWidth: 100,
       filters: [
@@ -772,7 +902,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '车牌号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入车牌号',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
@@ -782,34 +912,34 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: 'RFID',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入RFID编号',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
     },
     {
-      fieldName: 'lastEntryTime',
+      fieldName: 'lastGateInDt',
       label: '最后进场时间',
       component: 'DatePicker',
       componentProps: {
-        placeholder: '请选择时间',
+        placeholder: '',
         allowClear: true,
-        showTime: false,
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
       rules: 'required',
     },
     {
-      fieldName: 'lastExitTime',
+      fieldName: 'lastGateOutDt',
       label: '最后出场时间',
       component: 'DatePicker',
       componentProps: {
         placeholder: '请选择时间',
         allowClear: true,
-        showTime: false,
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
+        showTime: true,
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
       rules: 'required',
     },
@@ -827,25 +957,26 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'fltCd',
+      fieldName: 'fleetCode',
       label: '车队代码',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入车队代码',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
     },
     {
-      fieldName: 'fltNm',
+      fieldName: 'fleetName',
       label: '所属车队中文名',
       component: 'Input',
       componentProps: {
-        disabled: true,
+        allowClear: true,
       },
+      rules: 'required',
     },
     {
-      fieldName: 'fltIsRstr',
+      fieldName: 'fleetRstr',
       label: '所属车队是否被限制',
       component: 'Input',
       componentProps: {
@@ -853,7 +984,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrCnt',
+      fieldName: 'trkRstrCount',
       label: '已限制次数',
       component: 'Input',
       componentProps: {
@@ -869,7 +1000,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrDataSrc',
+      fieldName: 'currentTrkRstrSrc',
       label: '限制信息来源',
       component: 'Input',
       componentProps: {
@@ -885,7 +1016,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrStartDt',
+      fieldName: 'currentTrkRstrStartDt',
       label: '限制开始时间',
       component: 'Input',
       componentProps: {
@@ -893,7 +1024,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrEndDt',
+      fieldName: 'currentTrkRstrEndDt',
       label: '限制结束时间',
       component: 'Input',
       componentProps: {
@@ -901,7 +1032,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'lastRstrDt',
+      fieldName: 'latestRstrDays',
       label: '最近一次限制时间合计',
       component: 'Input',
       componentProps: {
@@ -917,11 +1048,11 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'trailerLicNo',
+      fieldName: 'trailerPlate',
       label: '挂车车牌号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入挂车车牌号',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
@@ -931,7 +1062,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '发动机编号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入发动机编号',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
@@ -941,7 +1072,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '挂车行驶证号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入挂车行驶证号',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
@@ -959,7 +1090,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '行驶证有效期',
       component: 'DatePicker',
       componentProps: {
-        placeholder: '请选择有效期',
+        placeholder: '',
         allowClear: true,
         showTime: false,
         format: 'YYYY-MM-DD',
@@ -968,39 +1099,38 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'AAAAA',
+      fieldName: 'trkLicNo',
       label: '行驶证档案编号',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入长度',
+        placeholder: '',
         allowClear: true,
         type: 'number',
       },
+      rules: 'required',
     },
     {
       fieldName: 'trkWtKg',
       label: '车辆自重(kg)',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入车辆自重',
+        placeholder: '',
         allowClear: true,
-        type: 'number',
       },
       rules: 'required',
     },
     {
-      fieldName: 'maxLoadWtKg',
+      fieldName: 'maxLoadWTKg',
       label: '最大载重(kg)',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入最大载重',
+        placeholder: '',
         allowClear: true,
-        type: 'number',
       },
       rules: 'required',
     },
     {
-      fieldName: 'AAAAA',
+      fieldName: 'isAnnualInspe',
       label: '是否年审',
       component: 'Select',
       componentProps: {
@@ -1010,6 +1140,7 @@ export function detailFormSchema(): VbenFormSchema[] {
           { label: '否', value: 0 },
         ],
       },
+      rules: 'required',
     },
     {
       fieldName: 'inspDt',
@@ -1057,9 +1188,8 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '长度',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入长度',
+        placeholder: '',
         allowClear: true,
-        type: 'number',
       },
       rules: 'required',
     },
@@ -1068,9 +1198,8 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '宽度',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入宽度',
+        placeholder: '',
         allowClear: true,
-        type: 'number',
       },
       rules: 'required',
     },
@@ -1099,7 +1228,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '车主电话',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入车主电话',
+        placeholder: '',
         allowClear: true,
       },
       rules: z.string().regex(/^\d{11}$/, { message: '请输入11位有效数字' }),
@@ -1112,7 +1241,9 @@ export function detailFormSchema(): VbenFormSchema[] {
         placeholder: '请输入车主身份证',
         allowClear: true,
       },
-      rules: z.string().regex(/^\d{17}[\dXx]$/, { message: '请输入18位有效身份证号' }),
+      rules: z
+        .string()
+        .regex(/^\d{17}[\dX]$/i, { message: '请输入18位有效身份证号' }),
     },
     {
       fieldName: 'divider',
@@ -1136,7 +1267,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'AAAAA',
+      fieldName: 'newFlg',
       label: '是否新能源车',
       component: 'Select',
       componentProps: {
@@ -1153,7 +1284,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       label: '危险品许可证',
       component: 'Input',
       componentProps: {
-        placeholder: '请输入危险品许可证',
+        placeholder: '',
         allowClear: true,
       },
       rules: 'required',
@@ -1167,7 +1298,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'BBBBB',
+      fieldName: 'rstrCode',
       label: '限制原因代码及描述',
       component: 'Input',
       componentProps: {
@@ -1176,7 +1307,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       formItemClass: 'col-span-2',
     },
     {
-      fieldName: 'AAAAA',
+      fieldName: 'affiliationStartTime',
       label: '开始挂靠时间',
       component: 'DatePicker',
       componentProps: {
@@ -1208,7 +1339,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       formItemClass: 'col-span-2',
     },
     {
-      fieldName: 'BBBBB',
+      fieldName: 'tmlRm',
       label: '码头备注',
       component: 'Input',
       componentProps: {
@@ -1219,19 +1350,6 @@ export function detailFormSchema(): VbenFormSchema[] {
       formItemClass: 'col-span-2',
     },
     {
-      fieldName: 'enableFlg',
-      label: '是否停用',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请选择',
-        options: [
-          { label: '是', value: 1 },
-          { label: '否', value: 0 },
-        ],
-      },
-      rules: 'required',
-    },
-    {
       fieldName: 'dataSrc',
       label: '创建源',
       component: 'Input',
@@ -1240,7 +1358,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'BBBBB',
+      fieldName: 'createTime',
       label: '创建时间',
       component: 'Input',
       componentProps: {
@@ -1248,7 +1366,7 @@ export function detailFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'AAAAA',
+      fieldName: 'updateTime',
       label: '更新时间',
       component: 'Input',
       componentProps: {
@@ -1264,10 +1382,11 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
     {
       type: 'seq',
       width: 40,
+      fixed: 'left',
     },
     {
-      title: '车队',
-      field: 'fltCd',
+      title: '车队中文名',
+      field: 'fleetName',
       minWidth: 150,
       filters: [{ data: '' }],
       filterRender: {
@@ -1330,11 +1449,26 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
@@ -1346,11 +1480,26 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
@@ -1377,34 +1526,63 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
       title: '解除限制时间',
-      field: 'AAAAA',
+      field: 'releaseTime',
       minWidth: 150,
       sortable: true,
       formatter: 'formatDateTime',
       filters: [{ data: '' }],
       filterRender: {
         name: 'VxeInput',
-        props: {
-          type: 'date',
-          clearable: true,
-          placeholder: '请选择日期',
+        props: { type: 'date', clearable: true, placeholder: '请选择日期' },
+        events: {
+          input: ({ $grid, column }: any) =>
+            $grid.saveFilterByEvent('input', column.field),
         },
+      },
+      filterMethod: ({
+        option,
+        row,
+        column,
+      }: {
+        column: any;
+        option: any;
+        row: any;
+      }) => {
+        const date = dayjs(row[column.field]);
+        if (!date) return false;
+        if (option.data)
+          return date.format('YYYY-MM-DD HH:mm:ss').includes(option.data);
+        return true;
       },
     },
     {
       title: '限制信息来源',
       field: 'dataSrc',
       minWidth: 150,
-      sortable: true,
       filters: [
         { label: '北港网', value: '北港网' },
         { label: '业务处理平台', value: '业务处理平台' },
@@ -1441,8 +1619,8 @@ export function restrictionColumns(): VxeTableGridOptions['columns'] {
 export function restrictionFormSchema(): VbenFormSchema[] {
   return [
     {
-      fieldName: 'fltCd',
-      label: '车队代码',
+      fieldName: 'fleetName',
+      label: '车队中文名',
       component: 'Input',
       rules: 'required',
       componentProps: {
@@ -1457,7 +1635,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      fieldName: 'trkNo',
+      fieldName: 'truckNo',
       label: '车牌号',
       component: 'Input',
       rules: 'required',
@@ -1467,13 +1645,14 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'driverNm',
+      fieldName: 'driverName',
       label: '司机姓名',
       component: 'Input',
       componentProps: {
         placeholder: '请输入司机姓名',
         allowClear: true,
       },
+      rules: 'required',
     },
     {
       fieldName: 'rstrStartDt',
@@ -1504,7 +1683,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'lastRstrDt',
+      fieldName: 'rstrDaysTotal',
       label: '限制时间合计',
       component: 'Input',
       componentProps: {
@@ -1528,10 +1707,9 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'unrelDt',
+      fieldName: 'releaseTime',
       label: '解除限制时间',
       component: 'DatePicker',
-      rules: 'required',
       componentProps: {
         placeholder: '请选择解除限制时间',
         allowClear: true,
@@ -1542,7 +1720,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'rstrDataSrc',
+      fieldName: 'dataSrc',
       label: '限制信息来源',
       component: 'Input',
       componentProps: {
@@ -1550,7 +1728,7 @@ export function restrictionFormSchema(): VbenFormSchema[] {
       },
     },
     {
-      fieldName: 'createUser',
+      fieldName: 'creator',
       label: '创建账号',
       component: 'Input',
       componentProps: {
@@ -1570,154 +1748,6 @@ export function restrictionFormSchema(): VbenFormSchema[] {
           { label: '否', value: 0 },
         ],
         popupStyle: { zIndex: 9001 },
-      },
-    },
-  ];
-}
-
-
-/** 日志查询表单 */
-export function logQueryFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      fieldName: 'mainPlanNo',
-      label: '主计划号',
-      component: 'Input',
-      componentProps: {
-        placeholder: '请输入主计划号',
-        allowClear: true,
-        onInput: (e: Event) => {
-          setTimeout(() => {
-            const target = e.target as HTMLInputElement;
-            target.value = target.value
-              .toUpperCase()
-              .replaceAll(/[^A-Z0-9]/g, '');
-          }, 10);
-        },
-      },
-    },
-    {
-      fieldName: 'owner',
-      label: '持箱人',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请输入持箱人',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'iso',
-      label: 'ISO',
-      component: 'Select',
-      componentProps: {
-        placeholder: '请输入ISO',
-        allowClear: true,
-      },
-    },
-    {
-      fieldName: 'yardBay',
-      label: '箱区',
-      component: 'Input',
-      componentProps: {
-        placeholder: '选择箱区',
-        allowClear: true,
-        readonly: true,
-        showSearch: false,
-        disabled: true,
-        value: '',
-      },
-      slot: true,
-    },
-    {
-      fieldName: 'createTime',
-      label: '操作时间',
-      component: 'RangePicker',
-      componentProps: {
-        ...getRangePickerDefaultProps(),
-        allowClear: true,
-      },
-    },
-  ];
-}
-
-/** 日志查询列表字段 */
-export function logQueryColumns(): VxeTableGridOptions['columns'] {
-  return [
-    {
-      title: '序号',
-      type: 'seq',
-      width: 60,
-      align: 'center',
-    },
-    {
-      field: 'mainPlanNo',
-      title: '主计划号',
-      minWidth: 120,
-    },
-    {
-      field: 'mainIsRelease',
-      title: '是否放箱(Y/N)',
-      minWidth: 120,
-      formatter: ({ cellValue }) => {
-        return cellValue ? 'Y' : 'N';
-      },
-    },
-    {
-      field: 'mainPickupPlanNo',
-      title: '提箱受理计划号',
-      minWidth: 150,
-    },
-    {
-      field: 'owner',
-      title: '持箱人',
-      minWidth: 120,
-    },
-    {
-      field: 'mainTradeType',
-      title: '贸易类型',
-      minWidth: 100,
-      cellRender: {
-        name: 'CellTagDict',
-        props: 'trade_type',
-        // options: getPlanStatusOptions('trade_type'),
-      },
-    },
-    {
-      field: 'iso',
-      title: 'ISO',
-      minWidth: 100,
-    },
-    {
-      field: 'yardBay',
-      title: '箱区范围',
-      minWidth: 120,
-    },
-    {
-      field: 'mainGateAvailableQuantity',
-      title: '主闸可放箱量',
-      minWidth: 120,
-    },
-    {
-      field: 'operatorName',
-      title: '操作人',
-      minWidth: 100,
-    },
-    {
-      field: 'createTime',
-      title: '操作时间',
-      minWidth: 150,
-      formatter: 'formatDateTime',
-    },
-    {
-      field: 'operationType',
-      title: '修改类型',
-      minWidth: 100,
-      cellRender: {
-        name: 'CellTagDict',
-        props: 'empty_container_control_main_operation_type',
-        // options: getPlanStatusOptions(
-        //           'empty_container_control_main_operation_type',
-        //         ),
       },
     },
   ];

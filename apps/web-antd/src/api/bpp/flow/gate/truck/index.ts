@@ -23,8 +23,8 @@ export namespace TruckViewApi {
     currentTrkRstrEndDt: Dayjs | string; // 车辆限制结束时间
     latestRstrDays: string; // 最近一次限制时间合计
     engNo: string; // 发动机编号
-    licExpDt: Dayjs | string; // 驾驶证过期日期
-    trkWtKg: string; // 车辆总重量 (后端类型已改为String)
+    licExpDt: Dayjs | string; // 行驶证有效期
+    trkWtKg: string; // 车辆自重（Kg）
     inspDt: Dayjs | string; // 年审时间
     inspBy: string; // 年审人员名称
     autoFlg: number; // 是否适配自动化
@@ -43,7 +43,7 @@ export namespace TruckViewApi {
     tmlRm: string; // 码头备注
     etcNo: string; // 车辆ETC号
     affiliationStartTime: Dayjs | string; // 开始挂靠时间
-    enableFlg: number; // 是否停用
+    enableFlg: number; // 是否有效
     dataSrc: string; // 数据来源
     createTime: Dayjs | string; // 创建时间
     updateTime: Dayjs | string; // 更新时间
@@ -160,9 +160,7 @@ export function saveTruck(data: TruckViewApi.truckVO) {
 
 /** 导出车辆信息实体类 */
 export function exportTruck(params: any) {
-  return requestClient.download('/bpp/flow/gate/truck/export-excel', {
-    params,
-  });
+  return requestClient.download('/bpp/flow/gate/truck/export-excel', { params });
 }
 
 /** 查询车辆限制记录 */
@@ -172,7 +170,7 @@ export function getTruckRstrList(id: number) {
   );
 }
 
-/** 查询车辆限制记录 */
+/** 查询车辆限制记录详情 */
 export function getTruckRstr(id: number) {
   return requestClient.get<TruckViewApi.truckRstrVO>(
     `/bpp/flow/gate/truck/rstr/get?id=${id}`,
@@ -180,13 +178,24 @@ export function getTruckRstr(id: number) {
 }
 
 /** 保存车辆限制记录 */
-export function createTruckRstr(data: TruckViewApi.truckRstrVO) {
+export function saveTruckRstr(data: TruckViewApi.truckRstrVO) {
   return requestClient.post('/bpp/flow/gate/truck/rstr/save', data);
 }
 
 /** 获取限制代码 */
-export function getRstrReason(id: number) {
-  return requestClient.get<TruckViewApi.rstrCodeVO>(
-    `/bpp/flow/gate/truck/rstr-code?id=${id}`,
-  );
+// export function getRstrReason(id: number) {
+//   return requestClient.get<TruckViewApi.rstrCodeVO>(
+//     `/bpp/flow/gate/truck/rstr-code?id=${id}`,
+//   );
+// }
+export function getRstrReason(_id: number) {
+  return Promise.resolve([
+    { id: 1, ruleCd: 'A001', ruleDesc: '超重限制', rstrDays: 30 },
+    { id: 2, ruleCd: 'A002', ruleDesc: '超高限制', rstrDays: 30 },
+    { id: 3, ruleCd: 'A003', ruleDesc: '超宽限制', rstrDays: 15 },
+    { id: 4, ruleCd: 'B001', ruleDesc: '违规停车', rstrDays: 7 },
+    { id: 5, ruleCd: 'B002', ruleDesc: '未按指定路线行驶', rstrDays: 14 },
+    { id: 6, ruleCd: 'C001', ruleDesc: '车辆未年检', rstrDays: 90 },
+    { id: 7, ruleCd: 'D001', ruleDesc: '安全隐患', rstrDays: 60 },
+  ]);
 }

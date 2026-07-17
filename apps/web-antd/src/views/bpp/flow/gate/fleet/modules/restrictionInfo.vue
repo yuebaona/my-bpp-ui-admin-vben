@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
-  getFleetRstr,
+  getFleetRstrList,
   getRstrReason,
   saveFleetRstr,
 } from '#/api/bpp/flow/gate/fleet/';
@@ -133,7 +133,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       autoLoad: true,
       ajax: {
         query: async () => {
-          const res = await getFleetRstr(fleetData.value.id);
+          const res = await getFleetRstrList(fleetData.value.id);
           const list = res;
           if (isFirstLoad && list.length > 0) {
             handleRowClick(list[0]);
