@@ -16,7 +16,7 @@ import {
   useGridFormSchema,
 } from "../data";
 import DischargeEdiForm from "./discharge-edi-form.vue";
-import DischargeReceipt from "./discharge-receipt.vue";
+import DischargeEdiReceipt from "./discharge-edi-receipt.vue";
 
 /** 新增弹窗 */
 const [FormModal, formModalApi] = useVbenModal({
@@ -26,7 +26,7 @@ const [FormModal, formModalApi] = useVbenModal({
 
 /** 查看回执弹窗 */
 const [ReceiptModal, receiptModalApi] = useVbenModal({
-  connectedComponent: DischargeReceipt,
+  connectedComponent: DischargeEdiReceipt,
   destroyOnClose: true,
 });
 
@@ -187,7 +187,7 @@ const [Grid] = useVbenVxeGrid({
           {
             label: '查看回执',
             type: 'link',
-            icon: ACTION_ICON.EDIT,
+            icon: ACTION_ICON.VIEW,
             onClick: handleViewReceipt.bind(null, row),
           },
           {

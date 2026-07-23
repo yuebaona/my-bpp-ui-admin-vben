@@ -1064,6 +1064,163 @@ export const MOCK_RECEIPT: ReceiptRecord[] = [
   },
 ];
 
+/** 卸船 EDI 回执行数据（查看回执弹窗，本轮无接口） */
+export interface EdiReceiptRecord {
+  id: number;
+  /** EDI 文件 ID */
+  ediFileId: string;
+  /** TOS 系统生成的内部文件名 */
+  tosFileName: string;
+  /** 回执时间 */
+  receiptTime: string;
+  /** 备注 */
+  remark: string;
+  /** 成功数量 */
+  successCount: number;
+  /** 总数量 */
+  totalCount: number;
+  /** 回执处理状态 */
+  status: 'allFailed' | 'allSuccess' | 'fileError' | 'partialSuccess';
+}
+
+/** 卸船 EDI 回执状态色值 */
+export const EDI_RECEIPT_STATUS_COLOR: Record<
+  EdiReceiptRecord['status'],
+  string
+> = {
+  allSuccess: '#00b42a',
+  partialSuccess: '#ff7d00',
+  allFailed: '#f53f3f',
+  fileError: '#f53f3f',
+};
+
+/** 卸船 EDI 回执状态文案 */
+export const EDI_RECEIPT_STATUS_TEXT: Record<
+  EdiReceiptRecord['status'],
+  string
+> = {
+  allSuccess: '全部成功',
+  partialSuccess: '部分成功',
+  allFailed: '全部失败',
+  fileError: 'EDI文件错误',
+};
+
+/** 卸船 EDI 查看回执弹窗-表格列 */
+export function useEdiReceiptColumns(): VxeTableGridOptions<EdiReceiptRecord>['columns'] {
+  return [
+    { field: 'ediFileId', title: 'EDI文件id', minWidth: 180 },
+    { field: 'tosFileName', title: 'TOS内部的文件名', minWidth: 380 },
+    { field: 'receiptTime', title: '回执时间', minWidth: 190 },
+    { field: 'remark', title: '备注', minWidth: 200 },
+    {
+      field: 'successTotal',
+      title: '成功/总数',
+      width: 120,
+      formatter: ({ row }) => `${row.successCount}/${row.totalCount}`,
+    },
+    {
+      field: 'status',
+      title: '状态',
+      width: 120,
+      slots: { default: 'status' },
+    },
+    {
+      title: '操作',
+      width: 120,
+      fixed: 'right',
+      slots: { default: 'actions' },
+    },
+  ];
+}
+
+/** 卸船 EDI 查看回执假数据：5 条，对齐参考图 */
+export const MOCK_EDI_RECEIPT: EdiReceiptRecord[] = [
+  {
+    id: 1,
+    ediFileId: '1770717321338',
+    tosFileName: 'D2602100000036447_MSC_LAX_BAPLI.txt',
+    receiptTime: '2026/02/10 17:57:18',
+    remark: '',
+    successCount: 439,
+    totalCount: 439,
+    status: 'allSuccess',
+  },
+  {
+    id: 2,
+    ediFileId: '1770717321338',
+    tosFileName: 'D2602100000036447_MSC_LAX_BAPLI.txt',
+    receiptTime: '2026/02/10 16:57:18',
+    remark: '',
+    successCount: 438,
+    totalCount: 439,
+    status: 'partialSuccess',
+  },
+  {
+    id: 3,
+    ediFileId: '1770717321338',
+    tosFileName: 'D2602100000036447_MSC_LAX_BAPLI.txt',
+    receiptTime: '2026/02/10 15:57:18',
+    remark: '',
+    successCount: 438,
+    totalCount: 439,
+    status: 'partialSuccess',
+  },
+  {
+    id: 4,
+    ediFileId: '1770717321338',
+    tosFileName: 'D2602100000036447_MSC_LAX_BAPLI.txt',
+    receiptTime: '2026/02/10 14:57:18',
+    remark: '',
+    successCount: 438,
+    totalCount: 439,
+    status: 'allFailed',
+  },
+  {
+    id: 5,
+    ediFileId: '1770717321338',
+    tosFileName: 'D2602100000036447_MSC_LAX_BAPLI.txt',
+    receiptTime: '2026/02/10 13:57:18',
+    remark: '',
+    successCount: 438,
+    totalCount: 439,
+    status: 'fileError',
+  },
+];
+
+/** 卸船 EDI 单次回执详情行数据 */
+export interface EdiReceiptDetailRecord {
+  id: number;
+  /** 箱号 */
+  containerNo: string;
+  /** 报错详情 */
+  errorDetail: string;
+  /** 报错在 EDI 原文中的位置 */
+  errorPosition: string;
+}
+
+/** 卸船 EDI 回执详情弹窗-表格列 */
+export function useEdiReceiptDetailColumns(): VxeTableGridOptions<EdiReceiptDetailRecord>['columns'] {
+  return [
+    { field: 'containerNo', title: '箱号', minWidth: 180 },
+    { field: 'errorDetail', title: '报错详情', minWidth: 420 },
+    { field: 'errorPosition', title: '报错位置', minWidth: 190 },
+  ];
+}
+
+/** 卸船 EDI 回执详情假数据：对齐参考图中的 5 条箱记录 */
+export const MOCK_EDI_RECEIPT_DETAIL: EdiReceiptDetailRecord[] = [
+  'CAIU4538125',
+  'CAIU4547678',
+  'CICU6299359',
+  'CICU6300974',
+  'CAIU4736938',
+].map((containerNo, index) => ({
+  id: index + 1,
+  containerNo,
+  errorDetail: '持箱人不匹配，请核实后联系计划',
+  errorPosition: '+++++++ZGL+',
+}));
+
 /** 前端假数据：6 条，覆盖提交状态 2 色 + 回执状态 3 色 */
 export const MOCK_DISCHARGE: DischargeManifest[] = [
   {
